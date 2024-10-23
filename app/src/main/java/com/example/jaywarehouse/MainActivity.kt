@@ -3,45 +3,45 @@ package com.example.jaywarehouse
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.jaywarehouse.ui.theme.JayWarehouseTheme
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.platform.LocalConfiguration
+import com.example.jaywarehouse.data.common.utils.Prefs
+import com.example.jaywarehouse.presentation.NavGraphs
+import com.example.jaywarehouse.presentation.destinations.LoginScreenDestination
+import com.example.jaywarehouse.presentation.destinations.MainScreenDestination
+import com.example.jaywarehouse.ui.theme.jaywarehouseTheme
+import com.ramcosta.composedestinations.DestinationsNavHost
+import org.koin.compose.koinInject
+
+val localWindowFactor = staticCompositionLocalOf { 1f }
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+
         setContent {
-            JayWarehouseTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+
+            val prefs : Prefs = koinInject()
+
+            val width = LocalConfiguration.current.screenWidthDp
+            val factor = when{
+                width<300 -> 0.9f
+                width<400 -> 0.95f
+                width<450 -> 0.97f
+                width<500 -> 1f
+                width<600 -> 1.02f
+                width<700 -> 1.05f
+                width<800 -> 1.1f
+                else -> 1.15f
+            }
+            val route = if (prefs.getToken().isNotEmpty()) MainScreenDestination else LoginScreenDestination
+            jaywarehouseTheme {
+                CompositionLocalProvider(localWindowFactor provides factor) {
+                    DestinationsNavHost(navGraph = NavGraphs.root, startRoute = route)
                 }
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    JayWarehouseTheme {
-        Greeting("Android")
     }
 }

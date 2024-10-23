@@ -1,3 +1,21 @@
 <resources>
-    <string name="app_name">JayWarehouse</string>
+    <string name="app_name">Linari</string>
+    <string name="login">Sign in</string>
+    <string name="login_notice">Login to your account to start a journey</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="remember_me">Remember me</string>
+    <string name="counting">Counting</string>
+    <string name="counting_notice">scan and count item</string>
+    <string name="putaway">Put away</string>
+    <string name="putaway_notice">put item on location</string>
+    <string name="picking">Picking</string>
+    <string name="picking_notice">pick item form location</string>
+    <string name="packing">Packing</string>
+    <string name="packing_notice">box item</string>
+    <string name="shipping">Shipping</string>
+    <string name="shipping_notice">choose a pack to ship</string>
+    <string name="continue_txt">Continue</string>
+    <string name="dashboard">Dashboard</string>
+    <string name="version">version</string>
 </resources>
