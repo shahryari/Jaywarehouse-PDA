@@ -114,6 +114,7 @@ fun MainContent(
         is PutawayDetailScreenDestination,
             CountingDetailScreenDestination,
             PickingListScreenDestination,
+            CountingScreenDestination,
             PickingDetailScreenDestination,
             PackingDetailScreenDestination,
             ShippingDetailScreenDestination,

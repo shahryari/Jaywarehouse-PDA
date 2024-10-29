@@ -230,6 +230,7 @@ private fun LoginContent(
                     }, verticalAlignment = Alignment.CenterVertically) {
 
                         MyCheckBox(checked = state.rememberMe) {
+                            onEvent(LoginContract.Event.OnRememberMeChange(!state.rememberMe))
                         }
                         Spacer(modifier = Modifier.size(5.mdp))
                         MyText(

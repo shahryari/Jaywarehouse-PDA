@@ -90,7 +90,7 @@ fun CountingDetailContent(
     state: CountingDetailContract.State = CountingDetailContract.State(),
     onEvent: (CountingDetailContract.Event)->Unit = {}
 ) {
-    val barcodeFocusRequester = FocusRequester()
+    val focusRequester = FocusRequester()
 
     val sortList = mapOf("Created On" to "CreatedOn","Product Name" to "ProductName","Product Code" to "ProductCode","Reference Number" to "ReferenceNumber")
     val refreshState = rememberPullRefreshState(
@@ -98,7 +98,7 @@ fun CountingDetailContent(
         onRefresh = { onEvent(CountingDetailContract.Event.OnRefresh) }
     )
     LaunchedEffect(key1 = Unit) {
-        barcodeFocusRequester.requestFocus()
+        focusRequester.requestFocus()
     }
 
     LaunchedEffect(key1 = state.toast) {
@@ -123,7 +123,9 @@ fun CountingDetailContent(
                 TopBar(
                     title = state.countingRow?.receivingNumber?:"",
                     subTitle = "Receiving",
-                    onBack = {}
+                    onBack = {
+                        onEvent(CountingDetailContract.Event.OnNavBack)
+                    }
                 )
                 Spacer(modifier = Modifier.size(20.mdp))
                 SearchInput(
@@ -139,6 +141,7 @@ fun CountingDetailContent(
                         onEvent(CountingDetailContract.Event.OnShowSortList(true))
                     },
                     hideKeyboard = state.lockKeyboard,
+                    focusRequester = focusRequester
                 )
 
                 Spacer(modifier = Modifier.size(20.mdp))
