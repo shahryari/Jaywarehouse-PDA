@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.Dp
 import com.example.jaywarehouse.R
 import com.example.jaywarehouse.data.common.utils.mdp
 import com.example.jaywarehouse.presentation.common.utils.Loading
+import com.example.jaywarehouse.ui.theme.Background
 import com.example.jaywarehouse.ui.theme.Gray1
 import com.example.jaywarehouse.ui.theme.Gray2
 
@@ -41,16 +42,8 @@ fun MyScaffold(
         Box(modifier = Modifier
             .padding(it)
             .fillMaxSize()
-            .background(Gray1)
+            .background(Background)
         ){
-            Image(
-                painter = painterResource(id = R.drawable.backg),
-                contentDescription = "",
-                Modifier
-                    .fillMaxSize()
-                    .offset(y = offset),
-                contentScale = ContentScale.FillBounds
-            )
             content()
             if (loadingState == Loading.LOADING || loadingState == Loading.SEARCHING){
 //                val focusRequester = remember {

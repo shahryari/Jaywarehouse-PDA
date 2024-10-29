@@ -2,58 +2,56 @@ package com.example.jaywarehouse.presentation.counting
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.jaywarehouse.R
 import com.example.jaywarehouse.data.common.utils.mdp
+import com.example.jaywarehouse.data.receiving.model.ReceivingDetailRow
 import com.example.jaywarehouse.data.receiving.model.ReceivingRow
 import com.example.jaywarehouse.presentation.common.composables.BasicDialog
 import com.example.jaywarehouse.presentation.common.composables.ErrorDialog
-import com.example.jaywarehouse.presentation.common.composables.MyIcon
-import com.example.jaywarehouse.presentation.common.composables.MyInput
 import com.example.jaywarehouse.presentation.common.composables.MyScaffold
 import com.example.jaywarehouse.presentation.common.composables.MyText
 import com.example.jaywarehouse.presentation.common.composables.ReceivingItem
-import com.example.jaywarehouse.presentation.common.composables.RefreshIcon
 import com.example.jaywarehouse.presentation.common.composables.SearchInput
 import com.example.jaywarehouse.presentation.common.composables.SortBottomSheet
 import com.example.jaywarehouse.presentation.common.composables.SuccessToast
+import com.example.jaywarehouse.presentation.common.composables.TopBar
 import com.example.jaywarehouse.presentation.common.utils.Loading
 import com.example.jaywarehouse.presentation.common.utils.MainGraph
 import com.example.jaywarehouse.presentation.common.utils.SIDE_EFFECT_KEY
 import com.example.jaywarehouse.presentation.common.utils.ScreenTransition
 import com.example.jaywarehouse.presentation.counting.contracts.CountingDetailContract
 import com.example.jaywarehouse.presentation.counting.viewmodels.CountingDetailViewModel
+import com.example.jaywarehouse.ui.theme.Border
+import com.example.jaywarehouse.ui.theme.Gray3
+import com.example.jaywarehouse.ui.theme.Gray4
 import com.example.jaywarehouse.ui.theme.Orange
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -115,35 +113,18 @@ fun CountingDetailContent(
 
         Box(
             Modifier
-                .fillMaxSize()
-                .padding(15.mdp)) {
+                .fillMaxSize()) {
             Column(
                 Modifier
                     .pullRefresh(refreshState)
                     .fillMaxSize()
+                    .padding(15.mdp)
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(modifier = Modifier
-                        .clip(RoundedCornerShape(12.mdp))
-                        .background(Color.Black.copy(0.85f))
-                        .clickable {
-                            onEvent(CountingDetailContract.Event.OnNavBack)
-                        }
-                        .padding(5.mdp)){
-                        Icon(
-                            Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                            contentDescription = "",
-                            tint = Color.White,
-                            modifier = Modifier.size(26.mdp)
-                        )
-                    }
-                    Spacer(modifier = Modifier.size(10.mdp))
-                    MyText(
-                        stringResource(id = R.string.counting),
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Bold,
-                    )
-                }
+                TopBar(
+                    title = state.countingRow?.receivingNumber?:"",
+                    subTitle = "Receiving",
+                    onBack = {}
+                )
                 Spacer(modifier = Modifier.size(20.mdp))
                 SearchInput(
                     value = state.keyword,
@@ -159,50 +140,11 @@ fun CountingDetailContent(
                     },
                     hideKeyboard = state.lockKeyboard,
                 )
-                Spacer(modifier = Modifier.size(10.mdp))
-                MyInput(
-                    value = state.barcode,
-                    onValueChange = {
-                        onEvent(CountingDetailContract.Event.OnChangeBarcode(it))
-                    },
-                    onAny = {
-                        onEvent(CountingDetailContract.Event.ScanBarcode)
-                    },
-                    focusRequester = barcodeFocusRequester,
-                    label = "Scan Barcode",
-                    readOnly = state.loadingState != Loading.NONE,
-                    hideKeyboard = state.lockKeyboard,
-                    trailingIcon ={
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            if (state.barcode.text.isNotEmpty()) MyIcon(icon = R.drawable.vuesax_bulk_broom) {
-                                onEvent(CountingDetailContract.Event.OnClearBarcode)
-                            }
-                            Spacer(modifier = Modifier.size(7.mdp))
-
-                            if (state.isScanLoading){
-                                RefreshIcon(isRefreshing = true)
-                            } else {
-                                MyIcon(icon = R.drawable.barcode) {
-                                    onEvent(CountingDetailContract.Event.ScanBarcode)
-                                }
-                            }
-
-                        }
-                    }
-                )
 
                 Spacer(modifier = Modifier.size(20.mdp))
                 LazyColumn(Modifier.fillMaxSize()) {
-                    stickyHeader {
-                        if (state.countingRow != null)CountListItem(state.countingRow, shrink = true){}
-                        Spacer(modifier = Modifier.size(15.mdp))
-                    }
                     items(state.countingDetailRow){
-                        ReceivingItem(it){
-                            onEvent(CountingDetailContract.Event.OnSelectDetail(it.barcode))
-                        }
+                        ReceivingItem(it)
                         Spacer(modifier = Modifier.size(7.mdp))
                     }
                     item {
@@ -212,11 +154,48 @@ fun CountingDetailContent(
                         Spacer(modifier = Modifier.size(70.mdp))
                     }
                 }
-
             }
             SuccessToast(message = state.toast)
             PullRefreshIndicator(refreshing = state.loadingState == Loading.REFRESHING, state = refreshState, modifier = Modifier.align(Alignment.TopCenter) )
+            Column(Modifier.align(Alignment.BottomCenter)) {
+                HorizontalDivider(thickness = 1.mdp,color = Border)
+                Row(
+                    Modifier
+                        .fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Row(
+                        Modifier.weight(1f)
+                            .background(Gray4)
+                            .padding(15.mdp),
+                        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
 
+                        MyText(
+                            "Total: "+state.countingRow?.sumQuantity.toString(),
+                            color = Color.Black,
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontWeight = FontWeight.W500,
+                        )
+                    }
+                    Row(
+                        Modifier
+                            .weight(1f)
+                            .background(Gray3)
+                            .padding(15.mdp)
+                           ,
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        MyText(
+                            "Scan: "+state.countingRow?.receivingDetailSumQuantityScanCount.toString(),
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontWeight = FontWeight.W500
+                        )
+
+                    }
+                }
+            }
         }
     }
     if (state.error.isNotEmpty()){
@@ -318,5 +297,13 @@ fun ConfirmDialog(
 @Preview
 @Composable
 private fun CountingDetailPreview() {
-    CountingDetailContent(state = CountingDetailContract.State(loadingState = Loading.NONE))
+    CountingDetailContent(
+        state = CountingDetailContract.State(
+            loadingState = Loading.NONE,
+            countingRow = ReceivingRow("today","",50,20,13,12,2,"2122432434","General",20),
+            countingDetailRow = listOf(
+                ReceivingDetailRow(3,"d3234424",4,"barcode","model",3,"today")
+            )
+        )
+    )
 }

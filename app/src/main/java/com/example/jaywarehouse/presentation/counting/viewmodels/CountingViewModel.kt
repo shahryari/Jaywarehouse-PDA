@@ -9,6 +9,7 @@ import com.example.jaywarehouse.presentation.common.utils.BaseViewModel
 import com.example.jaywarehouse.presentation.common.utils.Loading
 import com.example.jaywarehouse.presentation.common.utils.Order
 import com.example.jaywarehouse.presentation.counting.contracts.CountingContract
+import com.example.jaywarehouse.presentation.counting.contracts.CountingContract.Effect.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
@@ -76,7 +77,7 @@ class CountingViewModel(
                 }
             }
             is CountingContract.Event.OnNavToReceivingDetail -> setEffect {
-                CountingContract.Effect.NavToReceivingDetail(event.receivingRow)
+                NavToReceivingDetail(event.receivingRow)
             }
 
             CountingContract.Event.ClearError -> {
@@ -132,6 +133,12 @@ class CountingViewModel(
                     copy(loadingState = Loading.LOADING, page = 1, countingList = emptyList(), keyword = TextFieldValue())
                 }
                 getCountingList(state.keyword.text,state.page,state.order,state.sort)
+            }
+
+            CountingContract.Event.OnBackPressed -> {
+                setEffect {
+                    CountingContract.Effect.NavBack
+                }
             }
         }
     }

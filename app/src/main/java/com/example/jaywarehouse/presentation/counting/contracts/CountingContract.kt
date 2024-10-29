@@ -33,9 +33,11 @@ class CountingContract {
         data object OnRefresh: Event()
         data object OnSearch: Event()
         data object FetchData: Event()
+        data object OnBackPressed: Event()
     }
 
     sealed class Effect : UiSideEffect {
         data class NavToReceivingDetail(val receivingRow: ReceivingRow) : Effect()
+        data object NavBack : Effect()
     }
 }

@@ -46,12 +46,14 @@ import androidx.compose.ui.unit.sp
 import com.example.jaywarehouse.R
 import com.example.jaywarehouse.data.common.utils.mdp
 import com.example.jaywarehouse.data.receiving.model.ReceivingRow
+import com.example.jaywarehouse.presentation.common.composables.DetailCard
 import com.example.jaywarehouse.presentation.common.composables.ErrorDialog
 import com.example.jaywarehouse.presentation.common.composables.MyScaffold
 import com.example.jaywarehouse.presentation.common.composables.MyText
 import com.example.jaywarehouse.presentation.common.composables.ProgressIndicator
 import com.example.jaywarehouse.presentation.common.composables.SearchInput
 import com.example.jaywarehouse.presentation.common.composables.SortBottomSheet
+import com.example.jaywarehouse.presentation.common.composables.TopBar
 import com.example.jaywarehouse.presentation.common.utils.Loading
 import com.example.jaywarehouse.presentation.common.utils.MainGraph
 import com.example.jaywarehouse.presentation.common.utils.SIDE_EFFECT_KEY
@@ -62,6 +64,7 @@ import com.example.jaywarehouse.presentation.destinations.CountingDetailScreenDe
 import com.example.jaywarehouse.ui.theme.Black
 import com.example.jaywarehouse.ui.theme.Green
 import com.example.jaywarehouse.ui.theme.Orange
+import com.example.jaywarehouse.ui.theme.Primary
 import com.example.jaywarehouse.ui.theme.Red
 import com.example.jaywarehouse.ui.theme.poppins
 import com.ramcosta.composedestinations.annotation.Destination
@@ -86,6 +89,9 @@ fun CountingScreen(
                     navigator.navigate(CountingDetailScreenDestination(it.receivingRow))
                 }
 
+                CountingContract.Effect.NavBack -> {
+                    navigator.popBackStack()
+                }
             }
         }
         
@@ -128,11 +134,11 @@ private fun CountingContent(
                     .pullRefresh(refreshState)
                     .padding(15.mdp)
             ) {
-                MyText(
-                    text = stringResource(id = R.string.counting),
-                    style = MaterialTheme.typography.titleLarge,
-                    fontFamily = poppins,
-                    fontWeight = FontWeight.Medium
+                TopBar(
+                    stringResource(R.string.counting),
+                    onBack = {
+                        onEvent(CountingContract.Event.OnBackPressed)
+                    }
                 )
                 Spacer(modifier = Modifier.size(10.mdp))
                 SearchInput(
@@ -203,7 +209,7 @@ fun CountListItem(
 ) {
     val color = when(receivingRow.progress){
         in 0..99->{
-            Orange
+            Primary
         }
         100 -> Green
         else -> Red
@@ -213,9 +219,9 @@ fun CountListItem(
     }
     Column(
         Modifier
-            .shadow(2.mdp, RoundedCornerShape(10.mdp))
+            .shadow(2.mdp, RoundedCornerShape(6.mdp))
             .fillMaxWidth()
-            .clip(RoundedCornerShape(10.mdp))
+            .clip(RoundedCornerShape(6.mdp))
             .background(Color.White)
             .clickable {
                 if (shrink) visibleDetails = !visibleDetails
@@ -232,94 +238,66 @@ fun CountListItem(
             ) {
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
 
-                    MyText(
-                        text = "#${receivingRow.receivingNumber}",
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontFamily = poppins,
-                        fontWeight = FontWeight.SemiBold,
-                    )
-                    
                     Box(
                         modifier = Modifier
-                            .clip(RoundedCornerShape(5.mdp))
-                            .background(Orange)
+                            .clip(RoundedCornerShape(4.mdp))
+                            .background(Primary.copy(0.2f))
                             .padding(vertical = 4.mdp, horizontal = 10.mdp)
                     ) {
                         MyText(
                             text = receivingRow.receivingTypeTitle,
                             style = MaterialTheme.typography.labelSmall,
-                            fontSize = 9.sp,
                             fontFamily = poppins,
                             fontWeight = FontWeight.SemiBold,
-                            color = Color.Black
+                            color = Primary
                         )
                     }
+                    MyText(
+                        text = "#${receivingRow.receivingNumber}",
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontFamily = poppins,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+
                 }
                 Spacer(modifier = Modifier.size(10.mdp))
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.vuesax_linear_calendar_2),
-                        contentDescription = null,
-                        modifier = Modifier.size(24.mdp),
-                        tint = Black
-                    )
-                    Spacer(modifier = Modifier.size(3.mdp))
-                    MyText(
-                        text = receivingRow.date,
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontFamily = poppins,
-                        fontWeight = FontWeight.Medium
-                    )
-                }
-                if (receivingRow.description?.isNotEmpty() == true) {
-                    Spacer(modifier = Modifier.size(15.mdp))
-                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.vuesax_bold_quote_up),
-                            contentDescription = "",
-                            tint = Black.copy(0.7f),
-                            modifier = Modifier.size(25.mdp)
-                        )
-                        Spacer(modifier = Modifier.size(7.mdp))
-                        MyText(
-                            text = receivingRow.description,
-                            color = Color.DarkGray,
-                            style = MaterialTheme.typography.bodySmall
-                        )
-                    }
-                }
+                DetailCard(
+                    "Supplier",
+                    icon = R.drawable.barcode,
+                    detail = receivingRow.description?:""
+                )
                 Spacer(modifier = Modifier.size(15.mdp))
-                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                    Box(Modifier.weight(1f), contentAlignment = Alignment.CenterStart) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(4.mdp)
-                                .clip(RoundedCornerShape(5.mdp))
-                                .background(color.copy(0.2f))
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth(receivingRow.progress.toFloat() / 100f)
-                                    .height(6.mdp)
-                                    .clip(RoundedCornerShape(5.mdp))
-                                    .background(color)
-                            )
-                        }
-                        Spacer(modifier = Modifier
-                            .size(17.mdp)
-                            .clip(CircleShape)
-                            .background(color))
-                    }
-                    Spacer(modifier = Modifier.size(4.mdp))
-                    MyText(
-                        text = "${receivingRow.progress}%",
-                        fontWeight = FontWeight.SemiBold,
-                        fontFamily = poppins,
-                        style = MaterialTheme.typography.labelSmall,
-                        color = color.copy(0.7f)
-                    )
-                }
+//                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+//                    Box(Modifier.weight(1f), contentAlignment = Alignment.CenterStart) {
+//                        Box(
+//                            modifier = Modifier
+//                                .fillMaxWidth()
+//                                .height(4.mdp)
+//                                .clip(RoundedCornerShape(5.mdp))
+//                                .background(color.copy(0.2f))
+//                        ) {
+//                            Box(
+//                                modifier = Modifier
+//                                    .fillMaxWidth(receivingRow.progress.toFloat() / 100f)
+//                                    .height(6.mdp)
+//                                    .clip(RoundedCornerShape(5.mdp))
+//                                    .background(color)
+//                            )
+//                        }
+//                        Spacer(modifier = Modifier
+//                            .size(17.mdp)
+//                            .clip(CircleShape)
+//                            .background(color))
+//                    }
+//                    Spacer(modifier = Modifier.size(4.mdp))
+//                    MyText(
+//                        text = "${receivingRow.progress}%",
+//                        fontWeight = FontWeight.SemiBold,
+//                        fontFamily = poppins,
+//                        style = MaterialTheme.typography.labelSmall,
+//                        color = color.copy(0.7f)
+//                    )
+//                }
             }
         }
         Row(
@@ -329,7 +307,7 @@ fun CountListItem(
             Row(
                 Modifier
                     .weight(1f)
-                    .background(Black)
+                    .background(Primary)
                     .padding(vertical = 7.mdp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center) {
@@ -350,7 +328,7 @@ fun CountListItem(
             Row(
                 Modifier
                     .weight(1f)
-                    .background(Orange)
+                    .background(Primary.copy(0.2f))
                     .padding(vertical = 7.mdp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
@@ -359,12 +337,12 @@ fun CountListItem(
                     painter = painterResource(id = R.drawable.scanner),
                     contentDescription = "",
                     modifier = Modifier.size(28.mdp),
-                    tint = Color.White
+                    tint = Primary
                 )
                 Spacer(modifier = Modifier.size(7.mdp))
                 MyText(
                     text = "Scan: " + receivingRow.receivingDetailSumQuantityScanCount.toString(),
-                    color = Color.White,
+                    color = Primary,
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Medium
                 )
@@ -394,5 +372,11 @@ fun FootText(
 @Preview
 @Composable
 private fun CountingPreview() {
-    CountingContent()
+    CountingContent(
+        state = CountingContract.State(
+            countingList = listOf(
+                ReceivingRow("today",null,50,5,4,3,1,"323232","general",10)
+            )
+        )
+    )
 }

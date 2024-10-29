@@ -5,18 +5,13 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -38,23 +33,20 @@ import com.example.jaywarehouse.data.common.utils.mdp
 import com.example.jaywarehouse.R
 import com.example.jaywarehouse.data.receiving.model.ReceivingDetailRow
 import com.example.jaywarehouse.ui.theme.Black
-import com.example.jaywarehouse.ui.theme.Gray2
+import com.example.jaywarehouse.ui.theme.Border
 import com.example.jaywarehouse.ui.theme.Gray3
-import com.example.jaywarehouse.ui.theme.Green
-import com.example.jaywarehouse.ui.theme.Orange
-import com.example.jaywarehouse.ui.theme.Red
 
 @Composable
 fun ReceivingItem(
-    receivingDetailRow: ReceivingDetailRow,
-    onRemove: ()->Unit
+    receivingDetailRow: ReceivingDetailRow
 ) {
     Column(
         Modifier
-            .shadow(3.mdp, RoundedCornerShape(10.mdp))
+            .shadow(3.mdp, RoundedCornerShape(8.mdp))
             .fillMaxWidth()
-            .clip(RoundedCornerShape(10.mdp))
+            .clip(RoundedCornerShape(8.mdp))
             .background(Color.White)
+            .border(1.mdp, Border, RoundedCornerShape(8.mdp))
     ) {
         if(receivingDetailRow.model.isNotEmpty()) Row(
             Modifier
@@ -101,51 +93,43 @@ fun ReceivingItem(
         Row(
             Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(bottomEnd = 10.mdp, bottomStart = 10.mdp))
-                .background(Gray3)
-                .padding(15.mdp),
+                .clip(RoundedCornerShape(bottomEnd = 8.mdp, bottomStart = 8.mdp))
+                .background(Gray3),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                Modifier
+                    .weight(1f)
+                    .clip(RoundedCornerShape(bottomStart = 8.mdp))
+                    .border(1.mdp, Border, RoundedCornerShape(bottomStart = 8.mdp))
+                    .padding(15.mdp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
 
                 MyText(
-                    "Total: "+receivingDetailRow.quantity.toString(),
-                    color = Color.DarkGray,
+                    "Total: " + receivingDetailRow.quantity.toString(),
+                    color = Color.Black,
                     style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.SemiBold,
+                    fontWeight = FontWeight.W500,
                 )
-            }
-            val percentage = receivingDetailRow.scanCount.toFloat()/receivingDetailRow.quantity.toFloat()
-            val color = when(percentage){
-                in 0f..0.99f-> Orange
-                1f -> Green
-                else -> Red
             }
             Row(
                 Modifier
-                    .weight(1f),
+                    .weight(1f)
+                    .clip(RoundedCornerShape(bottomEnd = 8.mdp))
+                    .border(1.mdp, Border, RoundedCornerShape(bottomEnd = 8.mdp))
+                    .padding(15.mdp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.Center
             ) {
                 MyText(
-                    "Scan: "+receivingDetailRow.scanCount.toString(),
+                    "Scan: " + receivingDetailRow.scanCount.toString(),
                     style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.SemiBold
+                    fontWeight = FontWeight.W500
                 )
-                Box(modifier = Modifier
-                    .clip(RoundedCornerShape(7.mdp))
-                    .background(Red.copy(0.2f))
-                    .clickable {
-                        onRemove()
-                    }
-                    .padding(vertical = 12.mdp, horizontal = 20.mdp)){
-                    Spacer(modifier = Modifier
-                        .height(3.mdp)
-                        .width(15.mdp)
-                        .background(Red))
-                }
-                Spacer(modifier = Modifier.size(10.mdp))
+
             }
         }
     }
@@ -174,32 +158,24 @@ fun DetailCard(
             Modifier
                 .fillMaxWidth()
                 .animateContentSize()
-                .clip(CircleShape)
-                .background(Gray2)
                 .then(
-                   if (enableDetail) {
-                       Modifier
-                           .clickable {
-                               showAllDetail = !showAllDetail
-                           }
-                   } else {
-                       Modifier
-                   })
-                .padding(end = 10.mdp, top = 3.mdp, bottom = 3.mdp, start = 3.mdp),
+                    if (enableDetail) {
+                        Modifier
+                            .clickable {
+                                showAllDetail = !showAllDetail
+                            }
+                    } else {
+                        Modifier
+                    }),
+//                .padding(end = 10.mdp, top = 3.mdp, bottom = 3.mdp, start = 3.mdp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Box(modifier = Modifier
-                .clip(CircleShape)
-                .background(Gray3)
-                .padding(5.mdp)
-            ){
-                Icon(
-                    painterResource(id = icon),
-                    contentDescription = null,
-                    tint = Black,
-                    modifier = Modifier.size(24.mdp)
-                )
-            }
+            Icon(
+                painterResource(id = icon),
+                contentDescription = null,
+                tint = Black,
+                modifier = Modifier.size(24.mdp)
+            )
             Spacer(modifier = Modifier.size(7.mdp))
             MyText(
                 text = detail,
@@ -215,6 +191,6 @@ fun DetailCard(
 @Preview
 @Composable
 private fun ReceivingItemPreview() {
-    ReceivingItem(ReceivingDetailRow(100,"",200,"3903099390","3333",33,"")){}
+    ReceivingItem(ReceivingDetailRow(100,"",200,"3903099390","3333",33,""))
 
 }

@@ -10,7 +10,7 @@ import com.example.jaywarehouse.data.common.utils.Prefs
 import com.example.jaywarehouse.presentation.NavGraphs
 import com.example.jaywarehouse.presentation.destinations.LoginScreenDestination
 import com.example.jaywarehouse.presentation.destinations.MainScreenDestination
-import com.example.jaywarehouse.ui.theme.jaywarehouseTheme
+import com.example.jaywarehouse.ui.theme.JayWarehouseTheme
 import com.ramcosta.composedestinations.DestinationsNavHost
 import org.koin.compose.koinInject
 
@@ -37,7 +37,7 @@ class MainActivity : ComponentActivity() {
                 else -> 1.15f
             }
             val route = if (prefs.getToken().isNotEmpty()) MainScreenDestination else LoginScreenDestination
-            jaywarehouseTheme {
+            JayWarehouseTheme {
                 CompositionLocalProvider(localWindowFactor provides factor) {
                     DestinationsNavHost(navGraph = NavGraphs.root, startRoute = route)
                 }

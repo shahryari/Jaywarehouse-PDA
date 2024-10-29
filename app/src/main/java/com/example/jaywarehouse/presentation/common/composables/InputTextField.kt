@@ -1,7 +1,5 @@
 package com.example.jaywarehouse.presentation.common.composables
 
-import android.app.Activity
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -17,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -38,74 +37,87 @@ import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
-import com.example.jaywarehouse.data.common.utils.mdp
 import com.example.jaywarehouse.R
+import com.example.jaywarehouse.data.common.utils.mdp
+import com.example.jaywarehouse.presentation.packing.contracts.PackingDetailContract
 import com.example.jaywarehouse.ui.theme.Border
-import com.example.jaywarehouse.ui.theme.Gray3
+import com.example.jaywarehouse.ui.theme.Gray1
 import com.example.jaywarehouse.ui.theme.poppins
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun SearchInput(
+fun InputTextField(
     value: TextFieldValue,
-    onValueChange: (TextFieldValue) -> Unit,
+    onValueChange: (TextFieldValue)-> Unit,
     modifier: Modifier = Modifier,
-    onSearch: (TextFieldValue) -> Unit = {},
-    isLoading: Boolean = false,
-    showSortIcon: Boolean = true,
-    onSortClick: () -> Unit = {},
+    onAny: ()->Unit = {},
+    label: String = "",
+    leadingIcon: Int? = null,
+    trailingIcon: Int? = null,
+    onLeadingClick: ()-> Unit = {},
+    onTrailingClick: ()-> Unit = {},
+    enabled: Boolean = true,
+    readOnly: Boolean = false,
     hideKeyboard: Boolean = true,
-    focusRequester: FocusRequester = FocusRequester.Default
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    focusRequester: FocusRequester = FocusRequester.Default,
+    loading: Boolean = false
 ) {
-    val keyboardController = LocalSoftwareKeyboardController.current
+    val keyboard = LocalSoftwareKeyboardController.current
     var isFocused by remember { mutableStateOf(false) }
     val isKeyboardOpen = WindowInsets.isImeVisible
 
-    LaunchedEffect(key1 = isFocused,isKeyboardOpen) {
+
+    LaunchedEffect(key1 = isFocused,isKeyboardOpen,hideKeyboard) {
         if ((isFocused || isKeyboardOpen) && hideKeyboard){
-            keyboardController?.hide()
+            keyboard?.hide()
         }
     }
     SideEffect {
-        if ((isFocused || isKeyboardOpen) && hideKeyboard) {
-            keyboardController?.hide()
+        if ((isFocused || isKeyboardOpen) && hideKeyboard){
+            keyboard?.hide()
         }
     }
+//    val activity = LocalContext.current as MainActivity
+//    SideEffect {
+//        activity.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN)
+//    }
 //    if (isFocused && hideKeyboard) SideEffect {
 //        hideKeyboard(activity)
 //    }
-    Box {
+    Box(modifier = modifier){
         BasicTextField(value,
             onValueChange = {
-                if(!isLoading){
+                if (!readOnly){
                     if (it.text.endsWith('\n') || it.text.endsWith('\r')) {
-                        onSearch(it)
+                        onAny()
                     } else {
                         onValueChange(it)
                     }
                 }
             },
             modifier = Modifier
-                .focusRequester(focusRequester)
-                .onFocusChanged {
-                    isFocused = it.isFocused
-                    if (it.isFocused && hideKeyboard) {
-                        keyboardController?.hide()
-                    }
-                }
                 .onKeyEvent {
                     if (it.key == Key.Enter && it.type == KeyEventType.KeyUp) {
-                        onSearch(value)
+                        onAny()
                         true
                     } else {
                         false
                     }
                 }
+                .focusRequester(focusRequester = focusRequester)
+                .onFocusChanged {
+                    if (it.isFocused && hideKeyboard) {
+                        keyboard?.hide()
+                    }
+                    isFocused = it.isFocused
+                }
             ,
+            enabled = enabled,
+            keyboardOptions = keyboardOptions,
             maxLines = 1,
             decorationBox = {
                 Row(
@@ -113,60 +125,64 @@ fun SearchInput(
                         .shadow(1.mdp, RoundedCornerShape(6.mdp))
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(6.mdp))
-                        .background(Color.White)
-                        .border(1.mdp, Border, RoundedCornerShape(6.mdp))
+                        .background(if (enabled) Color.White else Gray1)
+                        .border(
+                            1.mdp, Border,
+                            RoundedCornerShape(6.mdp)
+                        )
                         .padding(vertical = 9.mdp, horizontal = 10.mdp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Row(
-                        modifier = Modifier.weight(1f),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterStart){
+                    Row(modifier = Modifier.weight(1f),verticalAlignment = Alignment.CenterVertically) {
+                        if (leadingIcon!=null) MyIcon(icon = leadingIcon, showBorder = false) {
+                            onLeadingClick()
+                        }
+                        if (leadingIcon!=null)Spacer(modifier = Modifier.size(7.mdp))
+                        Box(contentAlignment = Alignment.CenterStart) {
                             if (value.text.isEmpty()) {
                                 MyText(
-                                    text = "Search Keyword ...",
-                                    style = MaterialTheme.typography.bodyLarge,
+                                    text = label,
+                                    style = MaterialTheme.typography.bodyMedium,
                                     fontFamily = poppins,
-                                    fontWeight = FontWeight.Normal,
+                                    fontWeight = FontWeight.Medium,
+                                    maxLines = 1,
                                     color = Color.LightGray
                                 )
                             }
                             it()
                             if (isFocused && hideKeyboard)Box(modifier = Modifier
-                                .matchParentSize()
                                 .fillMaxWidth()
+                                .matchParentSize()
                                 .clip(
                                     RoundedCornerShape(10.mdp)
-                                )
-                                .clickable { })
+                                ).clickable {  }
+                            )
                         }
 
                     }
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        if (value.text.isNotEmpty()) MyIcon(icon = R.drawable.vuesax_bulk_broom) {
-                            onValueChange(TextFieldValue())
-                            onSearch(TextFieldValue())
-                        }
-                        Spacer(modifier = Modifier.size(5.mdp))
-                        AnimatedContent(targetState = isLoading, label = "") {
-                            if (it){
-                                RefreshIcon(isRefreshing = true)
-                            }else {
-                                MyIcon(icon = R.drawable.vuesax_linear_search_normal) {
-                                    onSearch(value)
+                    Box{
+                        if (trailingIcon!=null) Row(verticalAlignment = Alignment.CenterVertically) {
+                            if (enabled && value.text.isNotEmpty()){
+                                MyIcon(icon = R.drawable.vuesax_bulk_broom, showBorder = false) {
+                                    onValueChange(TextFieldValue(""))
                                 }
                             }
-                        }
-                        if (showSortIcon)Spacer(modifier = Modifier.size(5.mdp))
-                        if (showSortIcon)MyIcon(icon = R.drawable.vuesax_linear_sort) {
-                            onSortClick()
+                            Spacer(modifier = Modifier.size(7.mdp))
+                            if (loading){
+                                RefreshIcon(isRefreshing = true)
+                            }
+                            else {
+                                MyIcon(icon = trailingIcon) {
+                                    onTrailingClick()
+                                }
+                            }
+
                         }
                     }
                 }
             }
         )
-
     }
+
 }
