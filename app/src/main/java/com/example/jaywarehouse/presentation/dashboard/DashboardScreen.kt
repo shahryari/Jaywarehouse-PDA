@@ -105,7 +105,7 @@ private fun DashboardContent(
     state: DashboardContract.State = DashboardContract.State(),
     onEvent: (DashboardContract.Event)->Unit = {}
 ) {
-    val drawerState = rememberDrawerState(DrawerValue.Open)
+    val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     MyScaffold {
         ModalNavigationDrawer(
@@ -224,7 +224,6 @@ private fun DashboardContent(
             Column(
                 Modifier
                     .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
                     .padding(15.mdp)) {
                 Row(
                     Modifier.fillMaxWidth(),
@@ -266,11 +265,13 @@ private fun DashboardContent(
                 }
 
                 Spacer(Modifier.size(20.mdp))
-                state.dashboards.forEach { entry ->
-                    DashboardListItem(entry) {
-                        if(it.destination!=null)onEvent(DashboardContract.Event.OnNavigate(it.destination))
+                Column(Modifier.verticalScroll(rememberScrollState())) {
+                    state.dashboards.forEach { entry ->
+                        DashboardListItem(entry) {
+                            if(it.destination!=null)onEvent(DashboardContract.Event.OnNavigate(it.destination))
+                        }
+                        Spacer(modifier = Modifier.size(15.mdp))
                     }
-                    Spacer(modifier = Modifier.size(15.mdp))
                 }
             }
         }
