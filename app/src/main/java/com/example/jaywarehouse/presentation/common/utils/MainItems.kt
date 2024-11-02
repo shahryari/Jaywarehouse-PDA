@@ -11,7 +11,7 @@ import com.ramcosta.composedestinations.spec.DirectionDestinationSpec
 
 enum class MainItems(
     val title: String,
-    val icon: Int? = null,
+    val icon: Int,
     val category: String,
     val color: Color,
     val destination: DirectionDestinationSpec? = null

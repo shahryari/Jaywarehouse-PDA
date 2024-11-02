@@ -40,6 +40,12 @@ class DashboardViewModel(
                     copy(selectedTab = event.tab)
                 }
             }
+
+            is DashboardContract.Event.OnShowSubDrawers -> {
+                setState {
+                    copy(subDrawers = event.drawers)
+                }
+            }
         }
     }
 

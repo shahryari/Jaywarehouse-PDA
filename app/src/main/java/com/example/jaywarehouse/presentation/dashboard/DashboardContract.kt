@@ -14,12 +14,14 @@ class DashboardContract {
         val showUpdateDialog: Boolean = false,
         val newVersion: String = "",
         val updateUrl: String = "",
+        val subDrawers: List<MainItems>? = null,
         val selectedTab: DashboardTab = DashboardTab.Picking
     ) : UiState
 
     sealed class Event : UiEvent {
         data class OnNavigate(val destination: DirectionDestinationSpec) : Event()
         data class OnSelectTab(val tab: DashboardTab) : Event()
+        data class OnShowSubDrawers(val drawers: List<MainItems>?) : Event()
     }
 
     sealed class Effect : UiSideEffect {
@@ -29,5 +31,5 @@ class DashboardContract {
 }
 
 enum class DashboardTab(val title: String) {
-    Picking("Default Picking"),CrossDock("Cross Dock")
+    Picking("Picking"),CrossDock("Cross Dock")
 }

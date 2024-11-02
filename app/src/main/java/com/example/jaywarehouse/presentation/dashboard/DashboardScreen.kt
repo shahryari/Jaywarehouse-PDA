@@ -1,52 +1,53 @@
 package com.example.jaywarehouse.presentation.dashboard
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.ripple.createRippleModifierNode
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.RippleDefaults
 import androidx.compose.material3.rememberDrawerState
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorProducer
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -57,25 +58,18 @@ import com.example.jaywarehouse.R
 import com.example.jaywarehouse.data.common.utils.restartActivity
 import com.example.jaywarehouse.presentation.common.composables.MyScaffold
 import com.example.jaywarehouse.presentation.common.composables.MyText
-import com.example.jaywarehouse.presentation.common.utils.MainGraph
+import com.example.jaywarehouse.presentation.common.utils.ColoredIndication
 import com.example.jaywarehouse.presentation.common.utils.MainItems
 import com.example.jaywarehouse.presentation.common.utils.SIDE_EFFECT_KEY
 import com.example.jaywarehouse.presentation.common.utils.ScreenTransition
-import com.example.jaywarehouse.presentation.destinations.CountingScreenDestination
-import com.example.jaywarehouse.presentation.destinations.PackingScreenDestination
-import com.example.jaywarehouse.presentation.destinations.PickingCustomerScreenDestination
-import com.example.jaywarehouse.presentation.destinations.PutawayScreenDestination
-import com.example.jaywarehouse.presentation.destinations.ShippingScreenDestination
-import com.example.jaywarehouse.presentation.destinations.TransferPickScreenDestination
-import com.example.jaywarehouse.presentation.destinations.TransferPutScreenDestination
 import com.example.jaywarehouse.ui.theme.Black
 import com.example.jaywarehouse.ui.theme.Gray1
+import com.example.jaywarehouse.ui.theme.Gray4
 import com.example.jaywarehouse.ui.theme.Orange
 import com.example.jaywarehouse.ui.theme.Primary
 import com.example.jaywarehouse.ui.theme.Red
 import com.example.jaywarehouse.ui.theme.poppins
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
@@ -111,16 +105,20 @@ private fun DashboardContent(
     state: DashboardContract.State = DashboardContract.State(),
     onEvent: (DashboardContract.Event)->Unit = {}
 ) {
-    val drawerState = rememberDrawerState(DrawerValue.Closed)
+    val drawerState = rememberDrawerState(DrawerValue.Open)
     val scope = rememberCoroutineScope()
     MyScaffold {
         ModalNavigationDrawer(
             drawerState = drawerState,
             drawerContent = {
                 ModalDrawerSheet(drawerShape = RectangleShape, drawerContainerColor = Color.White) {
-                    Column(Modifier.fillMaxWidth(0.8f).padding(12.mdp)) {
+                    Column(
+                        Modifier
+                            .fillMaxWidth(0.8f)
+                            .padding(12.mdp)) {
                         Row(
-                            Modifier.fillMaxWidth()
+                            Modifier
+                                .fillMaxWidth()
                                 .shadow(5.mdp, RoundedCornerShape(8.mdp))
                                 .clip(RoundedCornerShape(8.mdp))
                                 .background(Color.White)
@@ -143,7 +141,8 @@ private fun DashboardContent(
                         }
                         Spacer(modifier = Modifier.size(12.mdp))
                         Row(
-                            Modifier.fillMaxWidth()
+                            Modifier
+                                .fillMaxWidth()
                                 .shadow(5.mdp, RoundedCornerShape(8.mdp))
                                 .clip(RoundedCornerShape(8.mdp))
                                 .background(Color.White)
@@ -171,52 +170,51 @@ private fun DashboardContent(
                                 }
                             }
                         }
-                        Spacer(modifier = Modifier.size(15.mdp
-                        ))
-                        Column(Modifier.fillMaxWidth()) {
-                            Row(
-                                Modifier
-                                    .fillMaxWidth()
-                                    .clip(RoundedCornerShape(6.mdp))
-                                    .background(Primary.copy(0.2f))
-                                    .clickable {  }
-                                    .padding(12.mdp),
-                                verticalAlignment = Alignment.CenterVertically) {
-                                Icon(
-                                    painterResource(R.drawable.home_02),
-                                    contentDescription = "",
-                                    modifier = Modifier.size(24.mdp),
-                                    tint = Primary
-                                )
-                                Spacer(Modifier.size(20.mdp))
-                                MyText(
-                                    "Home",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    fontWeight = FontWeight.W500,
-                                    color = Primary
-                                )
-                            }
-                            HorizontalDivider()
-                            state.dashboards.forEach {
-                                Row(Modifier
-                                    .fillMaxWidth()
-                                    .clip(RoundedCornerShape(6.mdp))
-                                    .clickable {  }
-                                    .padding(12.mdp), verticalAlignment = Alignment.CenterVertically) {
-                                    Icon(
-                                        painterResource(R.drawable.truck_next),
-                                        contentDescription = "",
-                                        modifier = Modifier.size(24.mdp),
-                                        tint = Black
+                        Spacer(modifier = Modifier.size(15.mdp))
+                        AnimatedContent(state.subDrawers, label = "drawer Animation") { drawers ->
+                            if(drawers == null){
+                                Column(Modifier.fillMaxWidth()) {
+                                    DrawerItem(
+                                        title = "Home",
+                                        icon = R.drawable.home_02,
+                                        selected = true,
+                                        onClick = {
+                                        }
                                     )
-                                    Spacer(Modifier.size(20.mdp))
-                                    MyText(
-                                        it.key,
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        fontWeight = FontWeight.W500
-                                    )
+                                    state.dashboards.forEach {
+                                        DrawerItem(
+                                            title = it.key,
+                                            icon = R.drawable.truck_next,
+                                            onClick = {
+                                                onEvent(DashboardContract.Event.OnShowSubDrawers(it.value))
+                                            }
+                                        )
+                                    }
                                 }
-                                HorizontalDivider()
+
+                            } else {
+                                Column(Modifier.fillMaxWidth()) {
+                                    DrawerItem(
+                                        title = "Main Menu",
+                                        icon = R.drawable.home_02,
+                                        selected = true,
+                                        onClick = {
+                                            onEvent(DashboardContract.Event.OnShowSubDrawers(null))
+                                        }
+                                    )
+                                    drawers.forEach {
+                                        DrawerItem(
+                                            title = it.title.replace('\n',' '),
+                                            icon = it.icon,
+                                            onClick = {
+                                                if (it.destination!=null){
+                                                    onEvent(DashboardContract.Event.OnNavigate(it.destination))
+                                                }
+                                                onEvent(DashboardContract.Event.OnShowSubDrawers(null))
+                                            }
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
@@ -226,6 +224,7 @@ private fun DashboardContent(
             Column(
                 Modifier
                     .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
                     .padding(15.mdp)) {
                 Row(
                     Modifier.fillMaxWidth(),
@@ -233,8 +232,8 @@ private fun DashboardContent(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Box(
-                        modifier =Modifier
-                            .shadow(1.mdp,RoundedCornerShape(6.mdp))
+                        modifier = Modifier
+                            .shadow(1.mdp, RoundedCornerShape(6.mdp))
                             .clip(RoundedCornerShape(6.mdp))
                             .background(Color.White)
                             .clickable {
@@ -252,8 +251,8 @@ private fun DashboardContent(
                         )
                     }
                     Box(
-                        modifier =Modifier
-                            .shadow(1.mdp,RoundedCornerShape(6.mdp))
+                        modifier = Modifier
+                            .shadow(1.mdp, RoundedCornerShape(6.mdp))
                             .clip(RoundedCornerShape(6.mdp))
                             .background(Color.White)
                             .padding(13.mdp)
@@ -276,6 +275,46 @@ private fun DashboardContent(
             }
         }
     }
+}
+
+@Composable
+fun DrawerItem(
+    title: String,
+    icon: Int,
+    selected: Boolean = false,
+    onClick: () -> Unit
+) {
+    val interactionSource = remember {
+        MutableInteractionSource()
+    }
+    val isPressed by interactionSource.collectIsPressedAsState()
+
+    Row(
+        Modifier
+            .padding(top = 5.mdp, bottom = 2.mdp)
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(6.mdp))
+            .background(if (selected || isPressed) Primary.copy(0.2f) else Color.White)
+            .clickable(indication = ripple(color = Primary), interactionSource =interactionSource,onClick = onClick )
+            .padding(12.mdp),
+        verticalAlignment = Alignment.CenterVertically) {
+        Icon(
+            painterResource(icon),
+            contentDescription = "",
+            modifier = Modifier.size(24.mdp),
+            tint = if (selected || isPressed) Primary else Black
+        )
+        Spacer(Modifier.size(20.mdp))
+        MyText(
+            title,
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.W500,
+            color = if (selected || isPressed) Primary else Black
+        )
+    }
+    HorizontalDivider(
+        color = if (!selected) Gray4 else Color.White
+    )
 }
 
 @Composable
@@ -538,7 +577,7 @@ fun DashboardSubItem(
                             .padding(2.mdp)
                             .align(Alignment.TopEnd)
                             .clip(CircleShape)
-                            .border(1.mdp, Red.copy(0.8f), CircleShape)
+                            .border(1.mdp, Red.copy(0.45f), CircleShape)
                             .padding(3.mdp)
                     ){
                         Box(
