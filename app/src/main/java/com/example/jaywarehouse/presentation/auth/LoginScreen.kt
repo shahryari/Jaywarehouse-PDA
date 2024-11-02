@@ -57,6 +57,7 @@ import com.example.jaywarehouse.presentation.common.composables.MyTextField
 import com.example.jaywarehouse.presentation.common.composables.SuccessToast
 import com.example.jaywarehouse.presentation.common.utils.SIDE_EFFECT_KEY
 import com.example.jaywarehouse.presentation.counting.contracts.CountingDetailContract
+import com.example.jaywarehouse.presentation.destinations.DashboardScreenDestination
 import com.example.jaywarehouse.presentation.destinations.LoginScreenDestination
 import com.example.jaywarehouse.presentation.destinations.MainScreenDestination
 import com.example.jaywarehouse.presentation.packing.DialogInput
@@ -86,7 +87,7 @@ fun LoginScreen(
     LaunchedEffect(key1 = SIDE_EFFECT_KEY) {
         viewModel.effect.collect {
             when(it){
-                LoginContract.Effect.NavToMain -> navigator.navigate(MainScreenDestination,onlyIfResumed = true){
+                LoginContract.Effect.NavToMain -> navigator.navigate(DashboardScreenDestination,onlyIfResumed = true){
                     popUpTo(LoginScreenDestination){
                         inclusive = true
                     }

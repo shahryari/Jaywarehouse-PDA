@@ -59,7 +59,6 @@ import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
-@MainGraph
 @Destination(style = ScreenTransition::class)
 @Composable
 fun CountingDetailScreen(
@@ -100,15 +99,17 @@ fun CountingDetailContent(
     LaunchedEffect(key1 = Unit) {
         focusRequester.requestFocus()
     }
-
-    LaunchedEffect(key1 = state.toast) {
-        if(state.toast.isNotEmpty()){
-            delay(3000)
-            onEvent(CountingDetailContract.Event.HideToast)
-        }
-    }
     MyScaffold(
-        loadingState = state.loadingState
+        loadingState = state.loadingState,
+        toast = state.toast,
+        onHideToast = {
+            onEvent(CountingDetailContract.Event.HideToast)
+
+        },
+        error = state.error,
+        onCloseError = {
+            onEvent(CountingDetailContract.Event.CloseError)
+        }
     ) {
 
         Box(
@@ -122,7 +123,7 @@ fun CountingDetailContent(
             ) {
                 TopBar(
                     title = state.countingRow?.receivingNumber?:"",
-                    subTitle = "Receiving",
+                    subTitle = "Counting",
                     onBack = {
                         onEvent(CountingDetailContract.Event.OnNavBack)
                     }
@@ -158,7 +159,6 @@ fun CountingDetailContent(
                     }
                 }
             }
-            SuccessToast(message = state.toast)
             PullRefreshIndicator(refreshing = state.loadingState == Loading.REFRESHING, state = refreshState, modifier = Modifier.align(Alignment.TopCenter) )
             Column(Modifier.align(Alignment.BottomCenter)) {
                 HorizontalDivider(thickness = 1.mdp,color = Border)
@@ -170,9 +170,10 @@ fun CountingDetailContent(
                 ) {
                     Row(
                         Modifier.weight(1f)
-                            .background(Gray4)
+                            .background(Gray3)
                             .padding(15.mdp),
-                        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
 
                         MyText(
                             "Total: "+state.countingRow?.sumQuantity.toString(),
@@ -184,11 +185,10 @@ fun CountingDetailContent(
                     Row(
                         Modifier
                             .weight(1f)
-                            .background(Gray3)
+                            .background(Gray4)
                             .padding(15.mdp)
                            ,
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center
                     ) {
                         MyText(
                             "Scan: "+state.countingRow?.receivingDetailSumQuantityScanCount.toString(),
@@ -200,15 +200,6 @@ fun CountingDetailContent(
                 }
             }
         }
-    }
-    if (state.error.isNotEmpty()){
-        ErrorDialog(
-            onDismiss = {
-                onEvent(CountingDetailContract.Event.CloseError)
-            },
-            state.error
-        )
-
     }
     if (state.selectedDetail!=null){
         ConfirmDialog(

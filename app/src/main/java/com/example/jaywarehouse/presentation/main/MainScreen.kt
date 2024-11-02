@@ -3,8 +3,6 @@ package com.example.jaywarehouse.presentation.main
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -25,7 +23,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -41,16 +38,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import com.example.jaywarehouse.data.common.utils.mdp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.jaywarehouse.R
+import com.example.jaywarehouse.data.common.utils.mdp
 import com.example.jaywarehouse.data.common.utils.restartActivity
 import com.example.jaywarehouse.presentation.NavGraphs
 import com.example.jaywarehouse.presentation.appCurrentDestinationAsState
 import com.example.jaywarehouse.presentation.common.composables.MyScaffold
 import com.example.jaywarehouse.presentation.common.composables.MyText
 import com.example.jaywarehouse.presentation.common.utils.DashboardItem
+import com.example.jaywarehouse.presentation.common.utils.MainGraph
 import com.example.jaywarehouse.presentation.common.utils.SIDE_EFFECT_KEY
 import com.example.jaywarehouse.presentation.destinations.CountingDetailScreenDestination
 import com.example.jaywarehouse.presentation.destinations.CountingScreenDestination
@@ -65,11 +63,12 @@ import com.example.jaywarehouse.presentation.startAppDestination
 import com.example.jaywarehouse.ui.theme.Black
 import com.example.jaywarehouse.ui.theme.Gray3
 import com.example.jaywarehouse.ui.theme.Orange
-import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.navigate
 import org.koin.androidx.compose.koinViewModel
 
+
+@MainGraph(start = true)
 @Destination
 @Composable
 fun MainScreen(
@@ -177,10 +176,10 @@ fun MainContent(
                         )
                     }
                 }
-                DestinationsNavHost(
-                    navGraph = NavGraphs.mainGraph,
-                    navController = navController,
-                )
+//                DestinationsNavHost(
+//                    navGraph = NavGraphs.mainGraph,
+//                    navController = navController,
+//                )
 
             }
             if(showAppbar)Row(

@@ -23,3 +23,7 @@ val Gray4 = Color(0XFFEAEAEA)
 val Primary = Color(0xFF6DAB6C)
 val Border = Color(0xFFA9A9A9)
 val Background = Color(0xFFF4F4F4)
+
+val Blue = Color(0xFF4A85C9)
+val Yellow = Color(0xFFC0A62B)
+val SkyBlue = Color(0xFF60A4B4)

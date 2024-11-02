@@ -35,6 +35,7 @@ import com.example.jaywarehouse.data.receiving.model.ReceivingDetailRow
 import com.example.jaywarehouse.ui.theme.Black
 import com.example.jaywarehouse.ui.theme.Border
 import com.example.jaywarehouse.ui.theme.Gray3
+import com.example.jaywarehouse.ui.theme.Gray4
 
 @Composable
 fun ReceivingItem(
@@ -42,11 +43,10 @@ fun ReceivingItem(
 ) {
     Column(
         Modifier
-            .shadow(3.mdp, RoundedCornerShape(8.mdp))
+            .shadow(1.mdp, RoundedCornerShape(8.mdp))
             .fillMaxWidth()
             .clip(RoundedCornerShape(8.mdp))
             .background(Color.White)
-            .border(1.mdp, Border, RoundedCornerShape(8.mdp))
     ) {
         if(receivingDetailRow.model.isNotEmpty()) Row(
             Modifier
@@ -62,7 +62,7 @@ fun ReceivingItem(
             )
 
         }
-        if (receivingDetailRow.barcode.isNotEmpty() || receivingDetailRow.referenceNumber.isNotEmpty())Row(
+        if (receivingDetailRow.barcode.isNotEmpty() || receivingDetailRow.referenceNumber?.isNotEmpty() == true)Row(
             Modifier
                 .fillMaxWidth()
                 .padding(15.mdp)
@@ -74,7 +74,7 @@ fun ReceivingItem(
                 modifier = Modifier.weight(1f),
                 enableDetail = true
             )
-            if (receivingDetailRow.barcode.isNotEmpty() || receivingDetailRow.referenceNumber.isNotEmpty())Spacer(modifier = Modifier.size(5.mdp))
+            if (receivingDetailRow.barcode.isNotEmpty() || receivingDetailRow.referenceNumber?.isNotEmpty() == true)Spacer(modifier = Modifier.size(5.mdp))
 //            DetailCard(
 //                title = "Location Code",
 //                detail = "40200002.22",
@@ -82,7 +82,7 @@ fun ReceivingItem(
 //                modifier = Modifier.weight(1f)
 //            )
 //            Spacer(modifier = Modifier.size(5.mdp))
-            if (receivingDetailRow.referenceNumber.isNotEmpty())DetailCard(
+            if (receivingDetailRow.referenceNumber?.isNotEmpty() == true)DetailCard(
                 title = "Ref Number",
                 detail = receivingDetailRow.referenceNumber,
                 icon = R.drawable.note,
@@ -94,7 +94,7 @@ fun ReceivingItem(
             Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(bottomEnd = 8.mdp, bottomStart = 8.mdp))
-                .background(Gray3),
+                ,
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -102,10 +102,9 @@ fun ReceivingItem(
                 Modifier
                     .weight(1f)
                     .clip(RoundedCornerShape(bottomStart = 8.mdp))
-                    .border(1.mdp, Border, RoundedCornerShape(bottomStart = 8.mdp))
+                    .background(Gray3)
                     .padding(15.mdp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
+                verticalAlignment = Alignment.CenterVertically
             ) {
 
                 MyText(
@@ -119,10 +118,9 @@ fun ReceivingItem(
                 Modifier
                     .weight(1f)
                     .clip(RoundedCornerShape(bottomEnd = 8.mdp))
-                    .border(1.mdp, Border, RoundedCornerShape(bottomEnd = 8.mdp))
+                    .background(Gray4)
                     .padding(15.mdp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
             ) {
                 MyText(
                     "Scan: " + receivingDetailRow.scanCount.toString(),

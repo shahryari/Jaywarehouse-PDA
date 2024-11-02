@@ -27,17 +27,30 @@ import androidx.compose.ui.unit.Dp
 import com.example.jaywarehouse.R
 import com.example.jaywarehouse.data.common.utils.mdp
 import com.example.jaywarehouse.presentation.common.utils.Loading
+import com.example.jaywarehouse.presentation.counting.contracts.CountingDetailContract
 import com.example.jaywarehouse.ui.theme.Background
 import com.example.jaywarehouse.ui.theme.Gray1
 import com.example.jaywarehouse.ui.theme.Gray2
+import kotlinx.coroutines.delay
 
 @Composable
 fun MyScaffold(
     modifier: Modifier = Modifier,
     offset: Dp = 0.mdp,
     loadingState: Loading = Loading.NONE,
+    error: String = "",
+    onCloseError: ()-> Unit = {},
+    toast: String = "",
+    onHideToast: ()-> Unit = {},
     content: @Composable ()->Unit
 ) {
+
+    LaunchedEffect(key1 =toast) {
+        if(toast.isNotEmpty()){
+            delay(3000)
+            onHideToast()
+        }
+    }
     Scaffold(modifier) {
         Box(modifier = Modifier
             .padding(it)
@@ -46,17 +59,22 @@ fun MyScaffold(
         ){
             content()
             if (loadingState == Loading.LOADING || loadingState == Loading.SEARCHING){
-//                val focusRequester = remember {
-//                    FocusRequester()
-//                }
                 Box(modifier = Modifier.matchParentSize()){
                     CircularProgressIndicator(Modifier.align(Alignment.Center))
                 }
-//                LaunchedEffect(key1 = Unit) {
-//                    focusRequester.requestFocus()
-//                }
             }
+            SuccessToast(message = toast, modifier = Modifier.align(Alignment.TopCenter))
+
         }
+    }
+    if (error.isNotEmpty()){
+        ErrorDialog(
+            onDismiss = {
+                onCloseError()
+            },
+            error
+        )
+
     }
 }
 

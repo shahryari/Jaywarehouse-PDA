@@ -71,7 +71,7 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import org.koin.androidx.compose.koinViewModel
 
-@MainGraph
+
 @Destination(style = ScreenTransition::class)
 @Composable
 fun CountingScreen(
@@ -123,8 +123,11 @@ private fun CountingContent(
         onEvent(CountingContract.Event.FetchData)
     }
     MyScaffold(
-        offset = (-70).mdp,
-        loadingState = state.loadingState
+        loadingState = state.loadingState,
+        error = state.error,
+        onCloseError = {
+            onEvent(CountingContract.Event.ClearError)
+        }
     ) {
 
         Box(modifier = Modifier.fillMaxSize()) {
@@ -178,11 +181,6 @@ private fun CountingContent(
 
         }
     }
-    if (state.error.isNotEmpty()) {
-        ErrorDialog(onDismiss = {
-            onEvent(CountingContract.Event.ClearError)
-        }, message = state.error)
-    }
     if (state.showSortList){
         SortBottomSheet(
             onDismiss = {
@@ -219,7 +217,7 @@ fun CountListItem(
     }
     Column(
         Modifier
-            .shadow(2.mdp, RoundedCornerShape(6.mdp))
+            .shadow(1.mdp, RoundedCornerShape(6.mdp))
             .fillMaxWidth()
             .clip(RoundedCornerShape(6.mdp))
             .background(Color.White)
@@ -308,9 +306,9 @@ fun CountListItem(
                 Modifier
                     .weight(1f)
                     .background(Primary)
-                    .padding(vertical = 7.mdp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center) {
+                    .padding(vertical = 7.mdp, horizontal = 10.mdp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Icon(
                     painter = painterResource(id = R.drawable.vuesax_outline_box_tick),
                     contentDescription = "",
@@ -329,9 +327,8 @@ fun CountListItem(
                 Modifier
                     .weight(1f)
                     .background(Primary.copy(0.2f))
-                    .padding(vertical = 7.mdp),
+                    .padding(vertical = 7.mdp, horizontal = 10.mdp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.scanner),

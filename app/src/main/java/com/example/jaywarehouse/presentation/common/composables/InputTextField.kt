@@ -122,7 +122,6 @@ fun InputTextField(
             decorationBox = {
                 Row(
                     modifier
-                        .shadow(1.mdp, RoundedCornerShape(6.mdp))
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(6.mdp))
                         .background(if (enabled) Color.White else Gray1)

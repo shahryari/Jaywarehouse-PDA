@@ -110,7 +110,6 @@ fun SearchInput(
             decorationBox = {
                 Row(
                     modifier
-                        .shadow(1.mdp, RoundedCornerShape(6.mdp))
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(6.mdp))
                         .background(Color.White)

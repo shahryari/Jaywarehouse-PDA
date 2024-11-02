@@ -8,6 +8,7 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.platform.LocalConfiguration
 import com.example.jaywarehouse.data.common.utils.Prefs
 import com.example.jaywarehouse.presentation.NavGraphs
+import com.example.jaywarehouse.presentation.destinations.DashboardScreenDestination
 import com.example.jaywarehouse.presentation.destinations.LoginScreenDestination
 import com.example.jaywarehouse.presentation.destinations.MainScreenDestination
 import com.example.jaywarehouse.ui.theme.JayWarehouseTheme
@@ -36,7 +37,7 @@ class MainActivity : ComponentActivity() {
                 width<800 -> 1.1f
                 else -> 1.15f
             }
-            val route = if (prefs.getToken().isNotEmpty()) MainScreenDestination else LoginScreenDestination
+            val route = if (prefs.getToken().isNotEmpty()) DashboardScreenDestination else LoginScreenDestination
             JayWarehouseTheme {
                 CompositionLocalProvider(localWindowFactor provides factor) {
                     DestinationsNavHost(navGraph = NavGraphs.root, startRoute = route)
