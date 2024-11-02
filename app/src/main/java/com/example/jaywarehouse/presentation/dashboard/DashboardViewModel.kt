@@ -16,6 +16,9 @@ class DashboardViewModel(
     val prefs: Prefs
 ) : BaseViewModel<DashboardContract.Event,DashboardContract.State,DashboardContract.Effect>(){
 
+    override fun setInitState(): DashboardContract.State {
+        return DashboardContract.State()
+    }
     init {
         prefs.getFullName().let {
             setState {
@@ -25,14 +28,17 @@ class DashboardViewModel(
         getCurrentUser()
         getVersionInfo()
     }
-    override fun setInitState(): DashboardContract.State {
-        return DashboardContract.State()
-    }
 
     override fun onEvent(event: DashboardContract.Event) {
         when(event){
             is DashboardContract.Event.OnNavigate -> setEffect {
                 DashboardContract.Effect.Navigate(event.destination)
+            }
+
+            is DashboardContract.Event.OnSelectTab -> {
+                setState {
+                    copy(selectedTab = event.tab)
+                }
             }
         }
     }
@@ -46,7 +52,9 @@ class DashboardViewModel(
                 .collect {
                     when(it){
                         is BaseResult.Success -> {
-                            prefs.setFullName(it.data?.fullName?:"")
+                            setSuspendedState {
+                                copy(name = it.data?.fullName?:"")
+                            }
                         }
                         is BaseResult.Error -> {}
                         is BaseResult.UnAuthorized -> {
@@ -60,21 +68,6 @@ class DashboardViewModel(
         }
 
     }
-
-//    override fun onEvent(event: MainContract.Event) {
-//        when(event){
-//            MainContract.Event.OnUpdate -> setEffect {
-//                MainContract.Effect.OpenUpdateUrl(state.updateUrl)
-//            }
-//
-//            MainContract.Event.OnExit -> {
-//                setEffect {
-//                    MainContract.Effect.Exit
-//                }
-//            }
-//        }
-//    }
-
     private fun getVersionInfo() {
         viewModelScope.launch(Dispatchers.IO) {
             repository.getCurrentVersionInfo()
@@ -83,7 +76,7 @@ class DashboardViewModel(
                 }
                 .collect {
                     if (it is BaseResult.Success){
-                        setState {
+                        setSuspendedState {
                             copy(
                                 showUpdateDialog = (it.data?.currentVersion ?: 0) > BuildConfig.VERSION_CODE,
                                 newVersion = it.data?.showVersion?:"",

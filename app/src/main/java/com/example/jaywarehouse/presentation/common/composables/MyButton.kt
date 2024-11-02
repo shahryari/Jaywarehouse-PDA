@@ -1,6 +1,7 @@
 package com.example.jaywarehouse.presentation.common.composables
 
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
@@ -12,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.font.FontWeight
+import coil.size.Size
 import com.example.jaywarehouse.data.common.utils.mdp
 import com.example.jaywarehouse.ui.theme.Black
 import com.example.jaywarehouse.ui.theme.Primary
@@ -35,7 +37,7 @@ fun MyButton(
         contentPadding = PaddingValues(vertical = 14.mdp),
         modifier = modifier
     ) {
-        if (isLoading) CircularProgressIndicator()
+        if (isLoading) CircularProgressIndicator(modifier = Modifier.size(24.mdp))
         else MyText(
             text = title,
             fontWeight = FontWeight.W500,
