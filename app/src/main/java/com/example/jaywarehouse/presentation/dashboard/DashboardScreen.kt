@@ -1,6 +1,10 @@
 package com.example.jaywarehouse.presentation.dashboard
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.slideIn
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -17,6 +21,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -173,39 +179,55 @@ private fun DashboardContent(
                         Spacer(modifier = Modifier.size(15.mdp))
                         AnimatedContent(state.subDrawers, label = "drawer Animation") { drawers ->
                             if(drawers == null){
-                                Column(Modifier.fillMaxWidth()) {
-                                    DrawerItem(
-                                        title = "Home",
-                                        icon = R.drawable.home_02,
-                                        selected = true,
-                                        onClick = {
-                                        }
-                                    )
-                                    state.dashboards.forEach {
+                                LazyColumn(Modifier.fillMaxWidth()) {
+                                    item("Home"){
+
                                         DrawerItem(
-                                            title = it.key,
-                                            icon = R.drawable.truck_next,
+                                            title = "Home",
+                                            icon = R.drawable.home_02,
+                                            selected = true,
+                                            modifier = Modifier.animateEnterExit(),
                                             onClick = {
-                                                onEvent(DashboardContract.Event.OnShowSubDrawers(it.value))
+
+                                            }
+                                        )
+                                    }
+                                    items(state.dashboards.toList(),key = {it.first}){
+                                        DrawerItem(
+                                            title = it.first,
+                                            icon = R.drawable.truck_next,
+                                            modifier = Modifier.animateEnterExit(),
+                                            onClick = {
+                                                onEvent(DashboardContract.Event.OnShowSubDrawers(it.second))
                                             }
                                         )
                                     }
                                 }
 
                             } else {
-                                Column(Modifier.fillMaxWidth()) {
-                                    DrawerItem(
-                                        title = "Main Menu",
-                                        icon = R.drawable.home_02,
-                                        selected = true,
-                                        onClick = {
-                                            onEvent(DashboardContract.Event.OnShowSubDrawers(null))
-                                        }
-                                    )
-                                    drawers.forEach {
+                                LazyColumn(Modifier.fillMaxWidth()) {
+                                    item(key = "Main Menu") {
+                                        DrawerItem(
+                                            title = "Main Menu",
+                                            icon = R.drawable.home_02,
+                                            selected = true,
+                                            modifier = Modifier.animateEnterExit(),
+                                            onClick = {
+                                                onEvent(DashboardContract.Event.OnShowSubDrawers(null))
+                                            }
+                                        )
+                                    }
+                                    items(drawers, key = {
+                                        it.title
+                                    }){
+
                                         DrawerItem(
                                             title = it.title.replace('\n',' '),
                                             icon = it.icon,
+                                            modifier = Modifier.animateEnterExit(
+                                                enter = slideInHorizontally(),
+                                                exit = slideOutHorizontally()
+                                            ),
                                             onClick = {
                                                 if (it.destination!=null){
                                                     onEvent(DashboardContract.Event.OnNavigate(it.destination))
@@ -264,8 +286,9 @@ private fun DashboardContent(
                     }
                 }
 
-                Spacer(Modifier.size(20.mdp))
+                Spacer(Modifier.size(10.mdp))
                 Column(Modifier.verticalScroll(rememberScrollState())) {
+                    Spacer(Modifier.size(10.mdp))
                     state.dashboards.forEach { entry ->
                         DashboardListItem(entry) {
                             if(it.destination!=null)onEvent(DashboardContract.Event.OnNavigate(it.destination))
@@ -282,6 +305,7 @@ private fun DashboardContent(
 fun DrawerItem(
     title: String,
     icon: Int,
+    modifier: Modifier = Modifier,
     selected: Boolean = false,
     onClick: () -> Unit
 ) {
@@ -291,11 +315,11 @@ fun DrawerItem(
     val isPressed by interactionSource.collectIsPressedAsState()
 
     Row(
-        Modifier
+        modifier
             .padding(top = 5.mdp, bottom = 2.mdp)
             .fillMaxWidth()
             .clip(RoundedCornerShape(6.mdp))
-            .background(if (selected || isPressed) Primary.copy(0.2f) else Color.White)
+            .background(if (selected) Primary.copy(0.2f) else Color.White)
             .clickable(indication = ripple(color = Primary), interactionSource =interactionSource,onClick = onClick )
             .padding(12.mdp),
         verticalAlignment = Alignment.CenterVertically) {
@@ -303,14 +327,14 @@ fun DrawerItem(
             painterResource(icon),
             contentDescription = "",
             modifier = Modifier.size(24.mdp),
-            tint = if (selected || isPressed) Primary else Black
+            tint = if (selected) Primary else Black
         )
         Spacer(Modifier.size(20.mdp))
         MyText(
             title,
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.W500,
-            color = if (selected || isPressed) Primary else Black
+            color = if (selected) Primary else Black
         )
     }
     HorizontalDivider(
@@ -543,16 +567,12 @@ fun DashboardSubItem(
                         }
                         .padding(14.mdp)
                 ) {
-                    if (item.icon!=null){
-                        Icon(
-                            painterResource(item.icon),
-                            contentDescription = "",
-                            modifier = Modifier.size(32.mdp),
-                            tint = Color.White
-                        )
-                    } else {
-                        Spacer(Modifier.size(32.mdp))
-                    }
+                    Icon(
+                        painterResource(item.icon),
+                        contentDescription = "",
+                        modifier = Modifier.size(32.mdp),
+                        tint = Color.White
+                    )
                 }
                 if (showCount) {
                     Box(
@@ -564,7 +584,7 @@ fun DashboardSubItem(
                             .padding(vertical = 2.mdp, horizontal = 8.mdp)
                     ) {
                         MyText(
-                            "1",
+                            "55",
                             style = MaterialTheme.typography.labelSmall,
                             fontWeight = FontWeight.W500,
                             textAlign = TextAlign.Center,
