@@ -16,7 +16,7 @@ val Red = Color(0xFFCE1212)
 
 val ErrorRed = Color(0xFFC50000)
 val Black = Color(0xFF000000)
-val Gray1 = Color(0xFFF0F0F0)
+val Gray1 = Color(0xFFF4F4F4)
 val Gray2 = Color(0xFFEFEFEF)
 val Gray3 = Color(0xFFDFDFDF)
 val Gray4 = Color(0XFFEAEAEA)

@@ -205,13 +205,6 @@ fun CountListItem(
     shrink: Boolean = false,
     onClick: ()->Unit
 ) {
-    val color = when(receivingRow.progress){
-        in 0..99->{
-            Primary
-        }
-        100 -> Green
-        else -> Red
-    }
     var visibleDetails by remember {
         mutableStateOf(true)
     }
@@ -243,7 +236,7 @@ fun CountListItem(
                             .padding(vertical = 4.mdp, horizontal = 10.mdp)
                     ) {
                         MyText(
-                            text = receivingRow.receivingTypeTitle,
+                            text = receivingRow.receivingDate,
                             style = MaterialTheme.typography.labelSmall,
                             fontFamily = poppins,
                             fontWeight = FontWeight.SemiBold,
@@ -251,7 +244,7 @@ fun CountListItem(
                         )
                     }
                     MyText(
-                        text = "#${receivingRow.receivingNumber}",
+                        text = "#${receivingRow.referenceNumber?:""}",
                         style = MaterialTheme.typography.bodyLarge,
                         fontFamily = poppins,
                         fontWeight = FontWeight.SemiBold,
@@ -262,7 +255,7 @@ fun CountListItem(
                 DetailCard(
                     "Supplier",
                     icon = R.drawable.barcode,
-                    detail = receivingRow.description?:""
+                    detail = receivingRow.supplierFullName?:""
                 )
                 Spacer(modifier = Modifier.size(15.mdp))
 //                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
@@ -317,7 +310,7 @@ fun CountListItem(
                 )
                 Spacer(modifier = Modifier.size(7.mdp))
                 MyText(
-                    text = "Total: "+receivingRow.sumQuantity.toString(),
+                    text = "Total: "+receivingRow.receivingDetailSumQuantity.toString(),
                     color = Color.White,
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Medium
@@ -338,7 +331,7 @@ fun CountListItem(
                 )
                 Spacer(modifier = Modifier.size(7.mdp))
                 MyText(
-                    text = "Scan: " + receivingRow.receivingDetailSumQuantityScanCount.toString(),
+                    text = "Scan: " + receivingRow.countedQuantity.toString(),
                     color = Primary,
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Medium
@@ -348,23 +341,7 @@ fun CountListItem(
     }
 }
 
-@Composable
-fun FootText(
-    text: String,
-    modifier: Modifier = Modifier
-) {
-    MyText(
-        text = text,
-        modifier = modifier
-            .background(Black)
-            .padding(horizontal = 10.mdp, vertical = 15.mdp)
-        ,
-        color = Color.White,
-        style = MaterialTheme.typography.labelMedium,
-        fontWeight = FontWeight.Medium,
-        textAlign = TextAlign.Center
-    )
-}
+
 
 @Preview
 @Composable
@@ -372,7 +349,7 @@ private fun CountingPreview() {
     CountingContent(
         state = CountingContract.State(
             countingList = listOf(
-                ReceivingRow("today",null,50,5,4,3,1,"323232","general",10)
+                ReceivingRow(receivingDate = "today", supplierFullName = "test", countedQuantity = 50, receivingDetailSumQuantity = 20, receivingDetailCount = 13, referenceNumber = "353523525", receivingID = 0),
             )
         )
     )

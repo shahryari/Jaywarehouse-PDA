@@ -61,6 +61,7 @@ import androidx.compose.ui.unit.sp
 import com.example.jaywarehouse.MainActivity
 import com.example.jaywarehouse.data.common.utils.mdp
 import com.example.jaywarehouse.R
+import com.example.jaywarehouse.data.auth.models.DashboardModel
 import com.example.jaywarehouse.data.common.utils.restartActivity
 import com.example.jaywarehouse.presentation.common.composables.MyScaffold
 import com.example.jaywarehouse.presentation.common.composables.MyText
@@ -98,7 +99,7 @@ fun DashboardScreen(
                 }
             }
         }
-        
+
     }
 
     DashboardContent(state,onEvent = onEvent)
@@ -290,7 +291,7 @@ private fun DashboardContent(
                 Column(Modifier.verticalScroll(rememberScrollState())) {
                     Spacer(Modifier.size(10.mdp))
                     state.dashboards.forEach { entry ->
-                        DashboardListItem(entry) {
+                        DashboardListItem(entry,state.dashboard) {
                             if(it.destination!=null)onEvent(DashboardContract.Event.OnNavigate(it.destination))
                         }
                         Spacer(modifier = Modifier.size(15.mdp))
@@ -343,162 +344,9 @@ fun DrawerItem(
 }
 
 @Composable
-fun StatCard(
-    modifier: Modifier = Modifier,
-    title: String,
-    text: String,
-    icon: Int,
-    statistic: String,
-    backgroundColor: Color,
-    contentColor: Color
-) {
-    Column(
-        modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(8.mdp))
-            .background(backgroundColor)
-            .padding(vertical = 7.mdp, horizontal = 5.mdp)
-
-    ) {
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
-            Column {
-                MyText(
-                    text = title,
-                    fontWeight = FontWeight.ExtraBold,
-                    style = MaterialTheme.typography.labelMedium,
-                    color = contentColor
-                )
-                MyText(
-                    text = text,
-                    fontWeight = FontWeight.Medium,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = contentColor.copy(0.7f)
-                )
-            }
-            Icon(
-                painter = painterResource(id = icon),
-                contentDescription = "",
-                tint = contentColor
-            )
-        }
-        Spacer(modifier = Modifier.size(25.mdp))
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(4.mdp))
-                .background(
-                    Color.LightGray.copy(0.4f)
-                )
-                .padding(vertical = 3.mdp, horizontal = 7.mdp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            MyText(
-                text = statistic,
-                style = MaterialTheme.typography.labelSmall,
-                color = contentColor.copy(0.7f),
-                fontWeight = FontWeight.Medium
-            )
-            Icon(painter = painterResource(
-                id = R.drawable.vuesax_bulk_box),
-                contentDescription = "",
-                tint = Orange
-            )
-        }
-    }
-
-}
-
-@Composable
-fun IconCard(
-    icon: Int,
-    title: String,
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit
-) {
-    Row(
-        modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(6.mdp))
-            .background(Color.White)
-            .clickable { onClick() }
-            .padding(vertical = 10.mdp, horizontal = 10.mdp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Start
-    ) {
-        Icon(
-            painterResource(id = icon),
-            contentDescription = "",
-            modifier = Modifier
-                .size(24.mdp),
-            tint = Black
-        )
-        Spacer(modifier = Modifier.size(7.mdp))
-        MyText(
-            text = title,
-            fontFamily = poppins,
-            style = MaterialTheme.typography.bodyLarge,
-            fontWeight = FontWeight.Normal
-        )
-    }
-}
-
-@Composable
-fun AccessCard(
-    modifier: Modifier = Modifier,
-    onClick: ()->Unit = {},
-    title: String,
-    description: String,
-    icon: Int
-) {
-    Column(
-        modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(10.mdp))
-            .background(Color.White)
-            .clickable {
-                onClick()
-            }
-            .padding(10.mdp)
-    ) {
-        Box(
-            Modifier
-                .clip(RoundedCornerShape(10.mdp))
-                .background(Gray1)
-                .padding(7.mdp)
-        ) {
-            Icon(
-                painterResource(id = icon),
-                contentDescription = "",
-                modifier = Modifier
-                    .size(40.mdp),
-                tint = Black
-            )
-        }
-        Spacer(modifier = Modifier.size(7.mdp))
-        MyText(
-            text = title,
-            fontFamily = poppins,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold
-        )
-        Spacer(modifier = Modifier.size(5.mdp))
-        MyText(
-            text = description,
-            fontFamily = poppins,
-            style = MaterialTheme.typography.bodySmall,
-            fontWeight = FontWeight.Normal,
-            minLines = 2,
-            color = MaterialTheme.colorScheme.outline
-        )
-    }
-}
-
-
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
 fun DashboardListItem(
     item: Map.Entry<String, List<MainItems>>,
+    dashboardModel: DashboardModel?,
     onItemClick: (MainItems)-> Unit
 ) {
     MyText(
@@ -515,8 +363,7 @@ fun DashboardListItem(
             if (it != null){
                 DashboardSubItem(
                     item = it,
-                    showCount = it == MainItems.StockTaking,
-                    showDot = it == MainItems.Transfer,
+                    count = dashboardModel?.getCount(it) ,
                     onClick = {
                         onItemClick(it)
                     }
@@ -532,8 +379,7 @@ fun DashboardListItem(
             if (it != null){
                 DashboardSubItem(
                     item = it,
-                    showCount = it == MainItems.StockTaking,
-                    showDot = it == MainItems.Transfer,
+                    count = dashboardModel?.getCount(it),
                     onClick = {
                         onItemClick(it)
                     }
@@ -548,8 +394,7 @@ fun DashboardListItem(
 @Composable
 fun DashboardSubItem(
     item: MainItems,
-    showCount: Boolean = false,
-    showDot: Boolean = false,
+    count: Int? = null,
     onClick: () -> Unit
 ) {
     Column(
@@ -574,7 +419,7 @@ fun DashboardSubItem(
                         tint = Color.White
                     )
                 }
-                if (showCount) {
+                if (count!=null) {
                     Box(
                         Modifier
                             .padding(3.mdp)
@@ -584,7 +429,7 @@ fun DashboardSubItem(
                             .padding(vertical = 2.mdp, horizontal = 8.mdp)
                     ) {
                         MyText(
-                            "55",
+                            count.toString(),
                             style = MaterialTheme.typography.labelSmall,
                             fontWeight = FontWeight.W500,
                             textAlign = TextAlign.Center,
@@ -592,23 +437,23 @@ fun DashboardSubItem(
                         )
                     }
                 }
-                if (showDot){
-                    Box(
-                        Modifier
-                            .padding(2.mdp)
-                            .align(Alignment.TopEnd)
-                            .clip(CircleShape)
-                            .border(1.mdp, Red.copy(0.45f), CircleShape)
-                            .padding(3.mdp)
-                    ){
-                        Box(
-                            Modifier
-                                .size(14.mdp)
-                                .clip(CircleShape)
-                                .background(Red)
-                        )
-                    }
-                }
+//                if (showDot){
+//                    Box(
+//                        Modifier
+//                            .padding(2.mdp)
+//                            .align(Alignment.TopEnd)
+//                            .clip(CircleShape)
+//                            .border(1.mdp, Red.copy(0.45f), CircleShape)
+//                            .padding(3.mdp)
+//                    ){
+//                        Box(
+//                            Modifier
+//                                .size(14.mdp)
+//                                .clip(CircleShape)
+//                                .background(Red)
+//                        )
+//                    }
+//                }
             }
             Spacer(Modifier.size(5.mdp))
             MyText(

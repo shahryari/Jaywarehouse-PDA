@@ -28,6 +28,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.jaywarehouse.R
 import com.example.jaywarehouse.data.common.utils.mdp
 import com.example.jaywarehouse.ui.theme.Black
+import com.example.jaywarehouse.ui.theme.Gray3
+import com.example.jaywarehouse.ui.theme.Gray4
 import com.example.jaywarehouse.ui.theme.Orange
 import com.example.jaywarehouse.ui.theme.Red
 
@@ -59,6 +61,7 @@ fun BaseListItem(
     scan: Int,
     enableShowDetail: Boolean = false,
     scanTitle: String = "Scan",
+    showFooter: Boolean = true,
     scanIcon: Int = R.drawable.scanner
 ) = BaseListItem(
     modifier = modifier,
@@ -80,6 +83,7 @@ fun BaseListItem(
     quantityIcon = quantityIcon,
     scan = scan.toString(),
     scanTitle = scanTitle,
+    showFooter = showFooter,
     scanIcon = scanIcon
 )
 
@@ -104,6 +108,7 @@ fun BaseListItem(
     scan: String,
     enableShowDetail: Boolean = false,
     scanTitle: String = "Scan",
+    showFooter: Boolean = true,
     scanIcon: Int = R.drawable.scanner
 ) {
 
@@ -265,28 +270,28 @@ fun BaseListItem(
                 )
             }
         }
-        Spacer(modifier = Modifier.size(15.mdp))
-        Row(
+        if (showFooter)Spacer(modifier = Modifier.size(15.mdp))
+        if (showFooter)Row(
             Modifier
                 .fillMaxWidth()
         ) {
             Row(
                 Modifier
                     .weight(1f)
-                    .background(Black)
-                    .padding(vertical = 7.mdp),
+                    .background(Gray3)
+                    .padding(12.mdp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center) {
-                Icon(
-                    painter = painterResource(id = quantityIcon),
-                    contentDescription = "",
-                    modifier = Modifier.size(28.mdp),
-                    tint = Color.White
-                )
-                Spacer(modifier = Modifier.size(7.mdp))
+            ) {
+//                Icon(
+//                    painter = painterResource(id = quantityIcon),
+//                    contentDescription = "",
+//                    modifier = Modifier.size(28.mdp),
+//                    tint = Color.White
+//                )
+//                Spacer(modifier = Modifier.size(7.mdp))
                 MyText(
                     text = "$quantityTitle${if (quantityTitle.isNotEmpty()) ": " else ""}$quantity",
-                    color = Color.White,
+                    color = Black,
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Medium
                 )
@@ -294,21 +299,20 @@ fun BaseListItem(
             Row(
                 Modifier
                     .weight(1f)
-                    .background(Orange)
-                    .padding(vertical = 7.mdp),
+                    .background(Gray4)
+                    .padding(12.mdp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
             ) {
-                Icon(
-                    painter = painterResource(id = scanIcon),
-                    contentDescription = "",
-                    modifier = Modifier.size(28.mdp),
-                    tint = Color.White
-                )
-                Spacer(modifier = Modifier.size(7.mdp))
+//                Icon(
+//                    painter = painterResource(id = scanIcon),
+//                    contentDescription = "",
+//                    modifier = Modifier.size(28.mdp),
+//                    tint = Color.White
+//                )
+//                Spacer(modifier = Modifier.size(7.mdp))
                 MyText(
                     text = "$scanTitle${if (scanTitle.isNotEmpty()) ": " else ""}$scan",
-                    color = Color.White,
+                    color = Black,
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Medium
                 )
@@ -325,7 +329,7 @@ private fun BaseListItemPreview() {
         item1 = BaseListItemModel("Model", "Model", R.drawable.vuesax_outline_3d_cube_scan),
         item2 = BaseListItemModel("Item Code", "Item Code", R.drawable.fluent_barcode_scanner_20_regular),
         item3 = BaseListItemModel("Location Code", "Location Code test test test test", R.drawable.location),
-
+        showFooter = false,
         quantity = 10, scan = 10
     )
 }

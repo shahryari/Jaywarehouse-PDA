@@ -34,12 +34,15 @@ import com.example.jaywarehouse.data.common.utils.mdp
 import androidx.compose.ui.window.Dialog
 import com.example.jaywarehouse.ui.theme.Black
 import com.example.jaywarehouse.ui.theme.Gray3
+import com.example.jaywarehouse.ui.theme.Gray4
 import com.example.jaywarehouse.ui.theme.Orange
+import com.example.jaywarehouse.ui.theme.Primary
 
 @Composable
 fun BasicDialog(
     onDismiss:()->Unit,
     positiveButton: String? = null,
+    positiveButtonTint: Color = Primary,
     onPositiveClick:()->Unit = {},
     negativeButton: String? = null,
     onNegativeClick: ()-> Unit = {},
@@ -57,75 +60,53 @@ fun BasicDialog(
             Column(
                 Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(20.mdp))
-                    .background(Black)
+                    .clip(RoundedCornerShape(12.mdp))
+                    .background(Gray4)
                     .padding(12.mdp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Start) {
-
-                    if(showCloseIcon)Box(
-                        Modifier
-                            .clip(CircleShape)
-                            .border(1.mdp, Color.White, CircleShape)
-                            .clickable { onDismiss() }
-                            .padding(3.mdp)
-                    ) {
-                        Icon(
-                            Icons.Default.Close,
-                            contentDescription ="",
-                            modifier = Modifier.size(18.mdp),
-                            tint = Color.White
-                        )
-                    }
-                    Spacer(modifier = Modifier.size(10.mdp))
-                    MyText(
-                        text = title,
-                        color = Color.White,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                }
-                Spacer(modifier = Modifier.size(10.mdp))
                 content()
                 Spacer(modifier = Modifier.size(10.mdp))
-                Row(Modifier.fillMaxWidth()) {
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                     if (negativeButton!=null)Button(
                         onClick = onNegativeClick,
-                        shape = RoundedCornerShape(20.mdp),
+                        shape = RoundedCornerShape(4.mdp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.DarkGray
+                            containerColor = Gray4
                         ),
-                        contentPadding = PaddingValues(15.mdp),
-                        modifier = Modifier.weight(1f)
+                        contentPadding = PaddingValues(vertical = 12.mdp, horizontal = 20.mdp),
                     ) {
                         MyText(
                             text = negativeButton,
-                            color = Color.White,
+                            color = Color(0xFF0F0F0F),
                             style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.Medium
                         )
                     }
                     if (negativeButton!=null && positiveButton != null){
-                        Spacer(modifier = Modifier.size(5.mdp))
+                        Spacer(modifier = Modifier.size(10.mdp))
                     }
                     if (positiveButton!=null)Button(
                         onClick = onPositiveClick,
-                        shape = RoundedCornerShape(20.mdp),
-                        contentPadding = PaddingValues(vertical = 15.mdp),
+                        shape = RoundedCornerShape(4.mdp),
+                        contentPadding = PaddingValues(vertical =  12.mdp, horizontal = 20.mdp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Orange
+                            containerColor = positiveButtonTint.copy(0.2f)
                         ),
                         enabled = !isLoading,
-                        modifier = Modifier.weight(1f)
                     ) {
-                        if (isLoading) CircularProgressIndicator(modifier = Modifier.size(21.mdp),color = Color.White)
-                        else MyText(
-                            text = positiveButton,
-                            color = Black,
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.Medium
-                        )
+                        Box {
+                            MyText(
+                                text = positiveButton,
+                                color = if(isLoading) Color.Transparent else positiveButtonTint,
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.W500
+                            )
+                            if (isLoading) CircularProgressIndicator(
+                                modifier = Modifier.size(21.mdp),
+                                color = positiveButtonTint
+                            )
+                        }
                     }
                 }
             }
@@ -143,9 +124,8 @@ private fun BasicDialogPreview() {
 
         BasicDialog(
             onDismiss = {},
-            positiveButton = "ok",
-            isLoading = true,
-            negativeButton = "cancel"
+            positiveButton = "Yes",
+            negativeButton = "Cancel"
         ){}
     }
 }

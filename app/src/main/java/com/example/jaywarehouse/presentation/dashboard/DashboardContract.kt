@@ -1,5 +1,6 @@
 package com.example.jaywarehouse.presentation.dashboard
 
+import com.example.jaywarehouse.data.auth.models.DashboardModel
 import com.example.jaywarehouse.presentation.common.utils.MainItems
 import com.example.jaywarehouse.presentation.common.utils.UiEvent
 import com.example.jaywarehouse.presentation.common.utils.UiSideEffect
@@ -15,6 +16,7 @@ class DashboardContract {
         val newVersion: String = "",
         val updateUrl: String = "",
         val subDrawers: List<MainItems>? = null,
+        val dashboard: DashboardModel? = null,
         val selectedTab: DashboardTab = DashboardTab.Picking
     ) : UiState
 

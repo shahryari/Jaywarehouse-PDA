@@ -17,6 +17,8 @@ class CountingInceptionContract {
         val quantityInPacket: TextFieldValue = TextFieldValue(),
         val batchNumber: TextFieldValue = TextFieldValue(),
         val expireDate: TextFieldValue = TextFieldValue(),
+        val showDatePicker: Boolean = false,
+        val hideKeyboard: Boolean = false,
         val count: Int = 0,
         val toast: String = "",
         val error: String = "",
@@ -25,10 +27,15 @@ class CountingInceptionContract {
 
     sealed class Event : UiEvent {
         data object OnSubmit : Event()
+        data class OnChangeQuantity(val value: TextFieldValue) : Event()
+        data class OnChangeQuantityInPacket(val value: TextFieldValue) : Event()
+        data class OnChangeBatchNumber(val value: TextFieldValue) : Event()
+        data class OnChangeExpireDate(val value: TextFieldValue) : Event()
+        data class OnShowDatePicker(val value: Boolean) : Event()
         data object OnBack : Event()
     }
 
     sealed class Effect : UiSideEffect {
-
+        data object NavBack: Effect()
     }
 }

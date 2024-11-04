@@ -2,6 +2,7 @@ package com.example.jaywarehouse.data.auth
 
 import com.example.jaywarehouse.data.auth.models.ChangePasswordModel
 import com.example.jaywarehouse.data.auth.models.CurrentVersionModel
+import com.example.jaywarehouse.data.auth.models.DashboardModel
 import com.example.jaywarehouse.data.auth.models.LoginModel
 import com.google.gson.JsonObject
 import retrofit2.Response
@@ -13,7 +14,7 @@ import retrofit2.http.POST
 
 interface AuthApi {
 
-    @POST("login")
+    @POST("Login")
     suspend fun login(
         @Body jsonObject: JsonObject
     ): Response<LoginModel>
@@ -26,4 +27,7 @@ interface AuthApi {
 
     @POST("GetCurrentVersionInfo")
     suspend fun getCurrentVersionInfo() : Response<CurrentVersionModel>
+
+    @POST("Dashboard")
+    suspend fun getDashboard() : Response<DashboardModel>
 }

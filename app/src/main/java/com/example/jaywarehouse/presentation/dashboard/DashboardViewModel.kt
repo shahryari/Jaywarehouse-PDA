@@ -25,8 +25,9 @@ class DashboardViewModel(
                 copy(name = it)
             }
         }
-        getCurrentUser()
-        getVersionInfo()
+//        getCurrentUser()
+        getDashboard()
+//        getVersionInfo()
     }
 
     override fun onEvent(event: DashboardContract.Event) {
@@ -50,11 +51,38 @@ class DashboardViewModel(
     }
 
 
+    private fun getDashboard(){
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.getDashboard()
+                .catch {
+
+                }
+                .collect {
+                    when(it){
+                        is BaseResult.Success -> {
+                            setSuspendedState {
+                                copy(dashboard = it.data)
+                            }
+                        }
+                        is BaseResult.Error -> {}
+                        is BaseResult.UnAuthorized -> {
+                            prefs.setToken("")
+                            setEffect {
+                                DashboardContract.Effect.RestartActivity
+                            }
+                        }
+                    }
+                }
+        }
+    }
+
 
     private fun getCurrentUser() {
         viewModelScope.launch(Dispatchers.IO) {
             repository.getCurrentUser()
-                .catch {  }
+                .catch {
+
+                }
                 .collect {
                     when(it){
                         is BaseResult.Success -> {

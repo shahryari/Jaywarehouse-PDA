@@ -18,15 +18,19 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.TextFieldValue
 import com.example.jaywarehouse.R
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.jaywarehouse.data.common.utils.mdp
+import com.example.jaywarehouse.data.receiving.model.ReceivingDetailRow
+import com.example.jaywarehouse.presentation.common.composables.DatePickerDialog
 import com.example.jaywarehouse.presentation.common.composables.InputTextField
 import com.example.jaywarehouse.presentation.common.composables.MyIcon
 import com.example.jaywarehouse.presentation.common.composables.MyScaffold
@@ -34,17 +38,46 @@ import com.example.jaywarehouse.presentation.common.composables.MyText
 import com.example.jaywarehouse.presentation.common.composables.ReceivingItem
 import com.example.jaywarehouse.presentation.common.composables.TopBar
 import com.example.jaywarehouse.presentation.common.utils.MainGraph
+import com.example.jaywarehouse.presentation.common.utils.SIDE_EFFECT_KEY
 import com.example.jaywarehouse.presentation.common.utils.ScreenTransition
 import com.example.jaywarehouse.presentation.counting.contracts.CountingInceptionContract
+import com.example.jaywarehouse.presentation.counting.viewmodels.CountingInceptionViewModel
 import com.example.jaywarehouse.ui.theme.Primary
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 
 @Destination(style = ScreenTransition::class)
 @Composable
-fun CountingInceptionScreen() {
+fun CountingInceptionScreen(
+    navigator: DestinationsNavigator,
+    detail: ReceivingDetailRow,
+    viewModel: CountingInceptionViewModel = koinViewModel(
+        parameters = {
+            parametersOf(
+                detail
+            )
+        }
+    )
+) {
 
-    CountingInceptionContent()
+    val state = viewModel.state
+    val onEvent = viewModel::setEvent
+
+    LaunchedEffect(SIDE_EFFECT_KEY) {
+        viewModel.effect.collect {
+            when(it){
+                CountingInceptionContract.Effect.NavBack -> {
+                    navigator.popBackStack()
+                }
+            }
+        }
+    }
+
+    CountingInceptionContent(state = state, onEvent = onEvent)
+
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -75,7 +108,9 @@ fun CountingInceptionContent(
                         Row(Modifier.fillMaxWidth()) {
                             InputTextField(
                                 state.quantity,
-                                onValueChange = {},
+                                onValueChange = {
+                                    onEvent(CountingInceptionContract.Event.OnChangeQuantity(it))
+                                },
                                 modifier = Modifier.weight(1f),
                                 leadingIcon = R.drawable.box_search,
                                 label = "Quantity",
@@ -83,7 +118,9 @@ fun CountingInceptionContent(
                             Spacer(Modifier.size(5.mdp))
                             InputTextField(
                                 state.quantityInPacket,
-                                onValueChange = {},
+                                onValueChange = {
+                                    onEvent(CountingInceptionContract.Event.OnChangeQuantityInPacket(it))
+                                },
                                 modifier = Modifier.weight(1f),
                                 leadingIcon = R.drawable.barcode,
                                 label = "Quantity In Packet",
@@ -92,7 +129,9 @@ fun CountingInceptionContent(
                         Spacer(Modifier.size(10.mdp))
                         InputTextField(
                             state.batchNumber,
-                            onValueChange = {},
+                            onValueChange = {
+                                onEvent(CountingInceptionContract.Event.OnChangeBatchNumber(it))
+                            },
                             modifier = Modifier.fillMaxWidth(),
                             leadingIcon = R.drawable.keyboard,
                             label = "Batch Number",
@@ -100,9 +139,14 @@ fun CountingInceptionContent(
                         Spacer(Modifier.size(10.mdp))
                         InputTextField(
                             state.expireDate,
-                            onValueChange = {},
+                            onValueChange = {
+                                onEvent(CountingInceptionContract.Event.OnChangeExpireDate(it))
+                            },
                             modifier = Modifier.fillMaxWidth(),
                             leadingIcon = R.drawable.calendar_add,
+                            onLeadingClick = {
+                                onEvent(CountingInceptionContract.Event.OnShowDatePicker(true))
+                            },
                             label = "Expire Date",
                         )
                         Spacer(Modifier.size(10.mdp))
@@ -138,13 +182,18 @@ fun CountingInceptionContent(
             }
         }
     }
+    if (state.showDatePicker) {
+        DatePickerDialog(
+            onDismiss = {
+                onEvent(CountingInceptionContract.Event.OnShowDatePicker(false))
+            }
+        ) { year, month, dayOfMonth ->
+            onEvent(CountingInceptionContract.Event.OnChangeExpireDate(TextFieldValue("$dayOfMonth/${month}/$year")))
+            onEvent(CountingInceptionContract.Event.OnShowDatePicker(false))
 
-
-
-
-    
+        }
+    }
 }
-
 @Composable
 fun CountingInceptionDetailItem(
 ) {

@@ -37,7 +37,7 @@ fun MyButton(
         contentPadding = PaddingValues(vertical = 14.mdp),
         modifier = modifier
     ) {
-        if (isLoading) CircularProgressIndicator(modifier = Modifier.size(24.mdp))
+        if (isLoading) CircularProgressIndicator(modifier = Modifier.size(24.mdp), color = Color.White)
         else MyText(
             text = title,
             fontWeight = FontWeight.W500,

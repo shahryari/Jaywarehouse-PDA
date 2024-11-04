@@ -21,7 +21,7 @@ class Prefs(private val context: Context) {
     //token
     fun setToken(token: String) {
         with(preferences.edit()){
-            putString("token",if(token.isNotEmpty())".nByteAuth=$token" else "")
+            putString("token",if(token.isNotEmpty())".wmsAuth=$token" else "")
             apply()
         }
     }

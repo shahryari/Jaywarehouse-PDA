@@ -49,10 +49,12 @@ import com.example.jaywarehouse.presentation.common.utils.SIDE_EFFECT_KEY
 import com.example.jaywarehouse.presentation.common.utils.ScreenTransition
 import com.example.jaywarehouse.presentation.counting.contracts.CountingDetailContract
 import com.example.jaywarehouse.presentation.counting.viewmodels.CountingDetailViewModel
+import com.example.jaywarehouse.ui.theme.Black
 import com.example.jaywarehouse.ui.theme.Border
 import com.example.jaywarehouse.ui.theme.Gray3
 import com.example.jaywarehouse.ui.theme.Gray4
 import com.example.jaywarehouse.ui.theme.Orange
+import com.example.jaywarehouse.ui.theme.Primary
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.delay
@@ -122,7 +124,7 @@ fun CountingDetailContent(
                     .padding(15.mdp)
             ) {
                 TopBar(
-                    title = state.countingRow?.receivingNumber?:"",
+                    title = state.countingRow?.referenceNumber?:"",
                     subTitle = "Counting",
                     onBack = {
                         onEvent(CountingDetailContract.Event.OnNavBack)
@@ -171,12 +173,18 @@ fun CountingDetailContent(
                     Row(
                         Modifier.weight(1f)
                             .background(Gray3)
-                            .padding(15.mdp),
+                            .padding(10.mdp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-
+                        Icon(
+                            painter = painterResource(id = R.drawable.vuesax_outline_box_tick),
+                            contentDescription = "",
+                            modifier = Modifier.size(30.mdp),
+                            tint = Black
+                        )
+                        Spacer(modifier = Modifier.size(10.mdp))
                         MyText(
-                            "Total: "+state.countingRow?.sumQuantity.toString(),
+                            "Total: "+state.countingRow?.receivingDetailSumQuantity.toString(),
                             color = Color.Black,
                             style = MaterialTheme.typography.bodyLarge,
                             fontWeight = FontWeight.W500,
@@ -186,12 +194,19 @@ fun CountingDetailContent(
                         Modifier
                             .weight(1f)
                             .background(Gray4)
-                            .padding(15.mdp)
+                            .padding(10.mdp)
                            ,
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.scanner),
+                            contentDescription = "",
+                            modifier = Modifier.size(30.mdp),
+                            tint = Black
+                        )
+                        Spacer(modifier = Modifier.size(10.mdp))
                         MyText(
-                            "Scan: "+state.countingRow?.receivingDetailSumQuantityScanCount.toString(),
+                            "Scan: "+state.countingRow?.countedQuantity.toString(),
                             style = MaterialTheme.typography.bodyLarge,
                             fontWeight = FontWeight.W500
                         )
@@ -294,7 +309,7 @@ private fun CountingDetailPreview() {
     CountingDetailContent(
         state = CountingDetailContract.State(
             loadingState = Loading.NONE,
-            countingRow = ReceivingRow("today","",50,20,13,12,2,"2122432434","General",20),
+            countingRow = ReceivingRow(receivingDate = "today", supplierFullName = "test", countedQuantity = 50, receivingDetailSumQuantity = 20, receivingDetailCount = 13, referenceNumber = "353523525", receivingID = 0),
             countingDetailRow = listOf(
                 ReceivingDetailRow(3,"d3234424",4,"barcode","model",3,"today")
             )

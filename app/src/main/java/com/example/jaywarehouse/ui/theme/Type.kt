@@ -10,19 +10,6 @@ import androidx.compose.ui.unit.sp
 import com.example.jaywarehouse.R
 
 
-val titilliumWeb = FontFamily(listOf(
-    Font(R.font.titilliumweb_black, FontWeight.Black),
-    Font(R.font.titilliumweb_bold, FontWeight.Bold),
-    Font(R.font.titilliumweb_bolditalic, FontWeight.Bold,FontStyle.Italic),
-    Font(R.font.titilliumweb_italic, style = FontStyle.Italic),
-    Font(R.font.titilliumweb_extralight, FontWeight.ExtraLight),
-    Font(R.font.titilliumweb_extralightitalic, FontWeight.ExtraLight, FontStyle.Italic),
-    Font(R.font.titilliumweb_light, FontWeight.Light),
-    Font(R.font.titilliumweb_lightitalic, FontWeight.Light, FontStyle.Italic),
-    Font(R.font.titilliumweb_regular),
-    Font(R.font.titilliumweb_semibold, FontWeight.SemiBold),
-    Font(R.font.titilliumweb_semibolditalic, FontWeight.SemiBold, FontStyle.Italic)
-))
 val poppins = FontFamily(listOf(
     Font(R.font.poppingslation_black, FontWeight.Black),
     Font(R.font.poppingslation_bold, FontWeight.Bold),
@@ -34,6 +21,16 @@ val poppins = FontFamily(listOf(
     Font(R.font.poppingslation_extrabold, FontWeight.ExtraBold),
     Font(R.font.poppingslation_medium, FontWeight.Medium),
     Font(R.font.poppingslation_thin, FontWeight.Thin)
+))
+
+val roboto = FontFamily(listOf(
+    Font(R.font.roboto_black, FontWeight.Black),
+    Font(R.font.roboto_bold, FontWeight.Bold),
+    Font(R.font.roboto_italic, style = FontStyle.Italic),
+    Font(R.font.roboto_light, FontWeight.Light),
+    Font(R.font.roboto_regular),
+    Font(R.font.roboto_medium, FontWeight.Medium),
+    Font(R.font.roboto_thin, FontWeight.Thin)
 ))
 
 

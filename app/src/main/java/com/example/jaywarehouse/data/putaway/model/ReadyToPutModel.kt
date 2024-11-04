@@ -30,7 +30,7 @@ data class ReadyToPutRow(
     @SerializedName("ReceivingID")
     val receivingID: Int,
     @SerializedName("ReferenceNumber")
-    val referenceNumber: String,
+    val referenceNumber: String?,
     @SerializedName("Time")
     val time: String
 ) : Serializable

@@ -5,24 +5,18 @@ import java.io.Serializable
 
 
 data class ReceivingRow(
-    @SerializedName("Date")
-    val date: String,
-    @SerializedName("Description")
-    val description: String?,
-    @SerializedName("Progress")
-    val progress: Int,
-    @SerializedName("ReceivingDetailCount")
-    val receivingDetailCount: Int,
-    @SerializedName("ReceivingDetailScanCount")
-    val receivingDetailScanCount: Int,
-    @SerializedName("ReceivingDetailSumQuantityScanCount")
-    val receivingDetailSumQuantityScanCount: Int,
     @SerializedName("ReceivingID")
     val receivingID: Int,
-    @SerializedName("ReceivingNumber")
-    val receivingNumber: String,
-    @SerializedName("ReceivingTypeTitle")
-    val receivingTypeTitle: String,
-    @SerializedName("SumQuantity")
-    val sumQuantity: Int
+    @SerializedName("CountedQuantity")
+    val countedQuantity: Int,
+    @SerializedName("ReceivingDate")
+    val receivingDate: String,
+    @SerializedName("ReceivingDetailCount")
+    val receivingDetailCount: Int,
+    @SerializedName("ReceivingDetailSumQuantity")
+    val receivingDetailSumQuantity: Int,
+    @SerializedName("ReferenceNumber")
+    val referenceNumber: String?,
+    @SerializedName("SupplierFullName")
+    val supplierFullName: String
 ) : Serializable

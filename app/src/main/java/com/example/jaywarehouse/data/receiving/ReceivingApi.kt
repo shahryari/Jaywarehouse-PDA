@@ -25,7 +25,7 @@ interface ReceivingApi {
         @Header(ORDER) order: String
     ) : Response<ReceivingModel>
 
-    @POST("ReceivingDetails")
+    @POST("ReceivingDetail")
     suspend fun getReceivingDetails(
         @Body jsonObject: JsonObject,
         @Header(PAGE) page: Int,

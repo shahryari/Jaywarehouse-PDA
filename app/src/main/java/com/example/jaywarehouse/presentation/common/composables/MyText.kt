@@ -16,8 +16,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
 import com.example.jaywarehouse.localWindowFactor
 import com.example.jaywarehouse.ui.theme.Black
-import com.example.jaywarehouse.ui.theme.poppins
-import com.example.jaywarehouse.ui.theme.titilliumWeb
+import com.example.jaywarehouse.ui.theme.roboto
 
 @Composable
 fun MyText(
@@ -27,7 +26,7 @@ fun MyText(
     fontSize: TextUnit = TextUnit.Unspecified,
     fontStyle: FontStyle? = null,
     fontWeight: FontWeight? = FontWeight.Light,
-    fontFamily: FontFamily = poppins,
+    fontFamily: FontFamily = roboto,
     letterSpacing: TextUnit = TextUnit.Unspecified,
     textDecoration: TextDecoration? = null,
     textAlign: TextAlign? = null,

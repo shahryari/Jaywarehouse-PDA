@@ -10,6 +10,7 @@ import com.example.jaywarehouse.data.shipping.shippingModule
 import com.example.jaywarehouse.data.transfer.transferModule
 import com.example.jaywarehouse.presentation.auth.LoginViewModel
 import com.example.jaywarehouse.presentation.counting.viewmodels.CountingDetailViewModel
+import com.example.jaywarehouse.presentation.counting.viewmodels.CountingInceptionViewModel
 import com.example.jaywarehouse.presentation.counting.viewmodels.CountingViewModel
 import com.example.jaywarehouse.presentation.dashboard.DashboardViewModel
 import com.example.jaywarehouse.presentation.main.MainViewModel
@@ -58,6 +59,10 @@ val mainModule = module {
 
     viewModel {
         CountingDetailViewModel(get(),get(),it.get())
+    }
+
+    viewModel {
+        CountingInceptionViewModel(get(),get(),it.get())
     }
 
     viewModel {

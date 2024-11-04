@@ -4,6 +4,7 @@ import android.os.UserManager
 import android.telephony.TelephonyCallback.UserMobileDataStateListener
 import com.example.jaywarehouse.data.auth.models.ChangePasswordModel
 import com.example.jaywarehouse.data.auth.models.CurrentVersionModel
+import com.example.jaywarehouse.data.auth.models.DashboardModel
 import com.example.jaywarehouse.data.auth.models.LoginModel
 import com.example.jaywarehouse.data.common.utils.BaseResult
 import com.example.jaywarehouse.data.common.utils.Encryptor
@@ -69,6 +70,14 @@ class AuthRepository(
         return getResult(
             request = {
                 api.getCurrentVersionInfo()
+            }
+        )
+    }
+
+    suspend fun getDashboard() : Flow<BaseResult<DashboardModel>> {
+        return getResult(
+            request = {
+                api.getDashboard()
             }
         )
     }

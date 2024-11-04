@@ -173,7 +173,7 @@ fun PutawayItem(
         item2 = BaseListItemModel("Location Code",model.locationCode, R.drawable.location),
         item3 = BaseListItemModel("Barcode",model.barcode,R.drawable.fluent_barcode_scanner_20_regular),
         item4 = if (showAll)BaseListItemModel("Model",model.model, R.drawable.vuesax_outline_3d_cube_scan) else null,
-        item6 = if (showAll) BaseListItemModel("Ref Number",model.referenceNumber, R.drawable.note) else null,
+        item6 = if (showAll) BaseListItemModel("Ref Number",model.referenceNumber?:"", R.drawable.note) else null,
         enableShowDetail = enableShowDetail,
         quantity = model.quantity,
         scan = model.putCount
