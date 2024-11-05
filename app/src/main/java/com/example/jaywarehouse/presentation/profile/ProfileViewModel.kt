@@ -5,16 +5,11 @@ import com.example.jaywarehouse.data.auth.AuthRepository
 import com.example.jaywarehouse.data.auth.models.ChangePasswordModel
 import com.example.jaywarehouse.data.common.utils.BaseResult
 import com.example.jaywarehouse.data.common.utils.Prefs
-import com.example.jaywarehouse.data.putaway.model.ScanModel
-import com.example.jaywarehouse.data.receiving.model.ReceivingDetailScanModel
 import com.example.jaywarehouse.presentation.common.utils.BaseViewModel
-import com.example.jaywarehouse.presentation.packing.contracts.PackingDetailContract
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.launch
-import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 
 class ProfileViewModel(private val repository: AuthRepository,private val prefs: Prefs)
     : BaseViewModel<ProfileContract.Event,ProfileContract.State,ProfileContract.Effect>()

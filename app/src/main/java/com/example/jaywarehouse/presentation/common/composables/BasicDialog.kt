@@ -54,59 +54,55 @@ fun BasicDialog(
     Dialog(
         onDismissRequest = onDismiss,
     ) {
-        Box(modifier = Modifier
-            .fillMaxSize()
-            .padding(bottom = 30.mdp), contentAlignment = Alignment.BottomCenter){
-            Column(
-                Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(12.mdp))
-                    .background(Gray4)
-                    .padding(12.mdp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                content()
-                Spacer(modifier = Modifier.size(10.mdp))
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                    if (negativeButton!=null)Button(
-                        onClick = onNegativeClick,
-                        shape = RoundedCornerShape(4.mdp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Gray4
-                        ),
-                        contentPadding = PaddingValues(vertical = 12.mdp, horizontal = 20.mdp),
-                    ) {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(12.mdp))
+                .background(Gray4)
+                .padding(12.mdp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            content()
+            Spacer(modifier = Modifier.size(10.mdp))
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                if (negativeButton!=null)Button(
+                    onClick = onNegativeClick,
+                    shape = RoundedCornerShape(4.mdp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Gray4
+                    ),
+                    contentPadding = PaddingValues(vertical = 12.mdp, horizontal = 20.mdp),
+                ) {
+                    MyText(
+                        text = negativeButton,
+                        color = Color(0xFF0F0F0F),
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+                if (negativeButton!=null && positiveButton != null){
+                    Spacer(modifier = Modifier.size(10.mdp))
+                }
+                if (positiveButton!=null)Button(
+                    onClick = onPositiveClick,
+                    shape = RoundedCornerShape(4.mdp),
+                    contentPadding = PaddingValues(vertical =  12.mdp, horizontal = 20.mdp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = positiveButtonTint.copy(0.2f)
+                    ),
+                    enabled = !isLoading,
+                ) {
+                    Box {
                         MyText(
-                            text = negativeButton,
-                            color = Color(0xFF0F0F0F),
+                            text = positiveButton,
+                            color = if(isLoading) Color.Transparent else positiveButtonTint,
                             style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.Medium
+                            fontWeight = FontWeight.W500
                         )
-                    }
-                    if (negativeButton!=null && positiveButton != null){
-                        Spacer(modifier = Modifier.size(10.mdp))
-                    }
-                    if (positiveButton!=null)Button(
-                        onClick = onPositiveClick,
-                        shape = RoundedCornerShape(4.mdp),
-                        contentPadding = PaddingValues(vertical =  12.mdp, horizontal = 20.mdp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = positiveButtonTint.copy(0.2f)
-                        ),
-                        enabled = !isLoading,
-                    ) {
-                        Box {
-                            MyText(
-                                text = positiveButton,
-                                color = if(isLoading) Color.Transparent else positiveButtonTint,
-                                style = MaterialTheme.typography.bodyMedium,
-                                fontWeight = FontWeight.W500
-                            )
-                            if (isLoading) CircularProgressIndicator(
-                                modifier = Modifier.size(21.mdp),
-                                color = positiveButtonTint
-                            )
-                        }
+                        if (isLoading) CircularProgressIndicator(
+                            modifier = Modifier.size(21.mdp),
+                            color = positiveButtonTint
+                        )
                     }
                 }
             }

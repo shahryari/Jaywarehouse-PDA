@@ -1,8 +1,6 @@
-package com.example.jaywarehouse.presentation.manual_putaway
+package com.example.jaywarehouse.presentation.manual_putaway.contracts
 
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.datastore.preferences.protobuf.Internal.BooleanList
-import com.example.jaywarehouse.data.putaway.model.PutawaysRow
 import com.example.jaywarehouse.data.putaway.model.ReadyToPutRow
 import com.example.jaywarehouse.presentation.common.utils.Loading
 import com.example.jaywarehouse.presentation.common.utils.UiEvent

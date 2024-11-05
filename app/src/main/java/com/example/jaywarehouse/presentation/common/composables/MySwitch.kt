@@ -22,6 +22,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import com.example.jaywarehouse.data.common.utils.mdp
+import com.example.jaywarehouse.ui.theme.Gray3
+import com.example.jaywarehouse.ui.theme.Gray4
+import com.example.jaywarehouse.ui.theme.Primary
 
 @Composable
 fun MySwitch(
@@ -34,19 +37,19 @@ fun MySwitch(
     ) {
 
         val color by animateColorAsState(
-            targetValue = if (active) MaterialTheme.colorScheme.primary else Color.Gray,
+            targetValue = if (active) Primary else Color(0xFFBFBFBF),
             label = ""
         )
         Spacer(
             modifier = Modifier
-                .width(50.mdp)
-                .height(25.mdp)
+                .width(48.mdp)
+                .height(24.mdp)
                 .clip(RoundedCornerShape(15.mdp))
                 .background(color.copy(0.3f))
         )
 
         val x by animateDpAsState(
-            targetValue = if (active) 25.mdp else 0.mdp,
+            targetValue = if (active) 24.mdp else 0.mdp,
             label = ""
         )
 
@@ -78,7 +81,7 @@ fun MySwitch(
         Spacer(
             modifier = Modifier
                 .padding(start = 3.mdp)
-                .size(19.mdp)
+                .size(18.mdp)
 //                .anchoredDraggable(
 //                    state = state,
 //                    orientation = Orientation.Horizontal,

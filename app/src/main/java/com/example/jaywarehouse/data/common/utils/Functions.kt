@@ -28,7 +28,7 @@ fun <T:Any> getResult(
 //                Log.i("tradLine_req", "getResult: mutex ended")
                 req
             }
-            Log.i("jaywarehouse_req", "getResult: ${response.raw().request.url} -> ${response.code()}")
+            Log.i("jaywarehouse_req", "getResult: ${response.raw().request().url()} -> ${response.code()}")
             if (response.isSuccessful) {
                 onSuccess(response.body())
                 emit(BaseResult.Success(response.body()))

@@ -28,6 +28,7 @@ import com.example.jaywarehouse.presentation.common.composables.SortBottomSheet
 import com.example.jaywarehouse.presentation.common.composables.TopBar
 import com.example.jaywarehouse.presentation.common.utils.Loading
 import com.example.jaywarehouse.presentation.common.utils.ScreenTransition
+import com.example.jaywarehouse.presentation.manual_putaway.contracts.ManualPutawayContract
 import com.ramcosta.composedestinations.annotation.Destination
 
 

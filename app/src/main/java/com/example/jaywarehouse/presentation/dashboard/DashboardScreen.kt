@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -29,6 +30,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.ripple.createRippleModifierNode
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.DrawerValue
@@ -64,12 +66,14 @@ import com.example.jaywarehouse.R
 import com.example.jaywarehouse.data.auth.models.DashboardModel
 import com.example.jaywarehouse.data.common.utils.restartActivity
 import com.example.jaywarehouse.presentation.common.composables.MyScaffold
+import com.example.jaywarehouse.presentation.common.composables.MySwitch
 import com.example.jaywarehouse.presentation.common.composables.MyText
 import com.example.jaywarehouse.presentation.common.utils.ColoredIndication
 import com.example.jaywarehouse.presentation.common.utils.MainItems
 import com.example.jaywarehouse.presentation.common.utils.SIDE_EFFECT_KEY
 import com.example.jaywarehouse.presentation.common.utils.ScreenTransition
 import com.example.jaywarehouse.ui.theme.Black
+import com.example.jaywarehouse.ui.theme.ErrorRed
 import com.example.jaywarehouse.ui.theme.Gray1
 import com.example.jaywarehouse.ui.theme.Gray4
 import com.example.jaywarehouse.ui.theme.Orange
@@ -178,65 +182,176 @@ private fun DashboardContent(
                             }
                         }
                         Spacer(modifier = Modifier.size(15.mdp))
-                        AnimatedContent(state.subDrawers, label = "drawer Animation") { drawers ->
-                            if(drawers == null){
-                                LazyColumn(Modifier.fillMaxWidth()) {
-                                    item("Home"){
+                        Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.SpaceBetween) {
+                            AnimatedContent(state.subDrawerState, label = "drawer Animation") { subState ->
+                                when(subState){
+                                    SubDrawerState.Drawers -> {
+                                        LazyColumn(Modifier.fillMaxWidth()) {
+                                            item("Home"){
 
-                                        DrawerItem(
-                                            title = "Home",
-                                            icon = R.drawable.home_02,
-                                            selected = true,
-                                            modifier = Modifier.animateEnterExit(),
-                                            onClick = {
+                                                DrawerItem(
+                                                    title = "Home",
+                                                    icon = R.drawable.home_02,
+                                                    selected = true,
+                                                    modifier = Modifier.animateEnterExit(),
+                                                    onClick = {
 
+                                                    }
+                                                )
                                             }
-                                        )
+                                            items(state.dashboards.toList(),key = {it.first}){
+                                                DrawerItem(
+                                                    title = it.first,
+                                                    icon = R.drawable.truck_next,
+                                                    modifier = Modifier.animateEnterExit(),
+                                                    onClick = {
+                                                        onEvent(DashboardContract.Event.OnShowSubDrawers(it.second))
+                                                    }
+                                                )
+                                            }
+                                        }
                                     }
-                                    items(state.dashboards.toList(),key = {it.first}){
-                                        DrawerItem(
-                                            title = it.first,
-                                            icon = R.drawable.truck_next,
-                                            modifier = Modifier.animateEnterExit(),
-                                            onClick = {
-                                                onEvent(DashboardContract.Event.OnShowSubDrawers(it.second))
+                                    SubDrawerState.SubDrawers -> {
+                                        if (state.subDrawers!=null)LazyColumn(Modifier.fillMaxWidth()) {
+                                            item(key = "Main Menu") {
+                                                DrawerItem(
+                                                    title = "Main Menu",
+                                                    icon = R.drawable.category_2,
+                                                    selected = true,
+                                                    modifier = Modifier.animateEnterExit(),
+                                                    onClick = {
+                                                        onEvent(DashboardContract.Event.OnShowSubDrawers(null))
+                                                    }
+                                                )
                                             }
-                                        )
+                                            items(state.subDrawers, key = {
+                                                it.title
+                                            }){
+
+                                                DrawerItem(
+                                                    title = it.title.replace('\n',' '),
+                                                    icon = it.icon,
+                                                    modifier = Modifier.animateEnterExit(
+                                                        enter = slideInHorizontally(),
+                                                        exit = slideOutHorizontally()
+                                                    ),
+                                                    onClick = {
+                                                        if (it.destination!=null){
+                                                            onEvent(DashboardContract.Event.OnNavigate(it.destination))
+                                                        }
+                                                        onEvent(DashboardContract.Event.OnShowSubDrawers(null))
+                                                    }
+                                                )
+                                            }
+                                        }
+
+                                    }
+                                    SubDrawerState.Settings -> {
+                                        Column {
+                                            DrawerItem(
+                                                title = "Main Menu",
+                                                icon = R.drawable.category_2,
+                                                selected = true,
+                                                modifier = Modifier.animateEnterExit(),
+                                                onClick = {
+                                                    onEvent(DashboardContract.Event.ShowSettings(false))
+                                                }
+                                            )
+                                            HorizontalDivider(color = Gray4)
+                                            SettingDrawer(
+                                                title = "Change password",
+                                                icon = R.drawable.unlock_3,
+                                                showSwitch = false,
+                                                onClick = {
+
+                                                }
+                                            )
+                                            HorizontalDivider(color = Gray4)
+                                            SettingDrawer(
+                                                title = "Forward ot dashboard",
+                                                icon = R.drawable.home_02,
+                                                showSwitch = true,
+                                                switchState = state.forwardToDashboard,
+                                                onSwitchChange = {
+                                                    onEvent(DashboardContract.Event.OnForwardToDashboard(it))
+                                                }
+                                            )
+                                            HorizontalDivider(color = Gray4)
+                                            SettingDrawer(
+                                                title = "Open detail",
+                                                icon = R.drawable.notes,
+                                                showSwitch = true,
+                                                switchState = state.openDetail,
+                                                onSwitchChange = {
+                                                    onEvent(DashboardContract.Event.OnOpenDetail(it))
+                                                }
+                                            )
+                                        }
                                     }
                                 }
+                            }
+                            Column {
 
-                            } else {
-                                LazyColumn(Modifier.fillMaxWidth()) {
-                                    item(key = "Main Menu") {
-                                        DrawerItem(
-                                            title = "Main Menu",
-                                            icon = R.drawable.home_02,
-                                            selected = true,
-                                            modifier = Modifier.animateEnterExit(),
-                                            onClick = {
-                                                onEvent(DashboardContract.Event.OnShowSubDrawers(null))
-                                            }
-                                        )
+                                SettingDrawer(
+                                    title = "Lock keyboard",
+                                    icon = R.drawable.keyboard,
+                                    showSwitch = true,
+                                    switchState = state.lockKeyboard,
+                                    onSwitchChange = {
+                                        onEvent(DashboardContract.Event.OnLockKeyboardChange(it))
                                     }
-                                    items(drawers, key = {
-                                        it.title
-                                    }){
-
-                                        DrawerItem(
-                                            title = it.title.replace('\n',' '),
-                                            icon = it.icon,
-                                            modifier = Modifier.animateEnterExit(
-                                                enter = slideInHorizontally(),
-                                                exit = slideOutHorizontally()
-                                            ),
-                                            onClick = {
-                                                if (it.destination!=null){
-                                                    onEvent(DashboardContract.Event.OnNavigate(it.destination))
-                                                }
-                                                onEvent(DashboardContract.Event.OnShowSubDrawers(null))
-                                            }
-                                        )
-                                    }
+                                )
+                                HorizontalDivider(color = Gray4)
+                                Row(
+                                    Modifier
+                                        .padding(top = 5.mdp, bottom = 2.mdp)
+                                        .fillMaxWidth()
+                                        .clip(RoundedCornerShape(6.mdp))
+                                        .background(Color.White)
+                                        .clickable {
+                                            onEvent(DashboardContract.Event.ShowSettings(true))
+                                        }
+                                        .padding(12.mdp),
+                                    verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(
+                                        Icons.Outlined.Settings,
+                                        contentDescription = "",
+                                        modifier = Modifier.size(24.mdp),
+                                        tint = Black
+                                    )
+                                    Spacer(Modifier.size(20.mdp))
+                                    MyText(
+                                        "Settings",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        fontWeight = FontWeight.W500,
+                                        color = Black
+                                    )
+                                }
+                                Row(
+                                    Modifier
+                                        .padding(top = 5.mdp, bottom = 2.mdp)
+                                        .fillMaxWidth()
+                                        .clip(RoundedCornerShape(6.mdp))
+                                        .background(Color.White)
+                                        .border(1.mdp, ErrorRed, RoundedCornerShape(6.mdp))
+                                        .clickable {
+                                            onEvent(DashboardContract.Event.OnLogout)
+                                        }
+                                        .padding(12.mdp),
+                                    verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(
+                                        painterResource(R.drawable.logout_01),
+                                        contentDescription = "",
+                                        modifier = Modifier.size(24.mdp),
+                                        tint = ErrorRed
+                                    )
+                                    Spacer(Modifier.size(20.mdp))
+                                    MyText(
+                                        "Logout",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        fontWeight = FontWeight.W500,
+                                        color = ErrorRed
+                                    )
                                 }
                             }
                         }
@@ -303,6 +418,57 @@ private fun DashboardContent(
 }
 
 @Composable
+fun SettingDrawer(
+    modifier: Modifier = Modifier,
+    title: String,
+    icon: Int,
+    switchState: Boolean = false,
+    showSwitch: Boolean = true,
+    onClick: (() -> Unit)? = null,
+    onSwitchChange: (Boolean)->Unit = {}
+) {
+    Row(
+        modifier
+            .padding(top = 5.mdp, bottom = 2.mdp)
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(6.mdp))
+            .background(Color.White)
+            .then(
+                if (onClick != null) Modifier.clickable { onClick() } else Modifier
+            )
+            .padding(12.mdp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                painterResource(icon),
+                contentDescription = "",
+                modifier = Modifier.size(24.mdp),
+                tint = Black
+            )
+            Spacer(Modifier.size(20.mdp))
+            MyText(
+                title,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.W500,
+                color = Black
+            )
+        }
+        if (showSwitch) MySwitch(switchState) {
+            onSwitchChange(it)
+        } else {
+            Icon(
+                painterResource(R.drawable.direction_right_2),
+                contentDescription = "",
+                modifier = Modifier.size(24.mdp),
+                tint = Black
+            )
+        }
+    }
+}
+
+@Composable
 fun DrawerItem(
     title: String,
     icon: Int,
@@ -321,7 +487,11 @@ fun DrawerItem(
             .fillMaxWidth()
             .clip(RoundedCornerShape(6.mdp))
             .background(if (selected) Primary.copy(0.2f) else Color.White)
-            .clickable(indication = ripple(color = Primary), interactionSource =interactionSource,onClick = onClick )
+            .clickable(
+                indication = ripple(color = Primary),
+                interactionSource = interactionSource,
+                onClick = onClick
+            )
             .padding(12.mdp),
         verticalAlignment = Alignment.CenterVertically) {
         Icon(
@@ -419,7 +589,7 @@ fun DashboardSubItem(
                         tint = Color.White
                     )
                 }
-                if (count!=null) {
+                if (count!=null && count > 0) {
                     Box(
                         Modifier
                             .padding(3.mdp)

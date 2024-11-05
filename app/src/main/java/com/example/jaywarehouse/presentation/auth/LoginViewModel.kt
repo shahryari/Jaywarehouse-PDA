@@ -6,20 +6,17 @@ import androidx.lifecycle.viewModelScope
 import com.example.jaywarehouse.data.auth.AuthRepository
 import com.example.jaywarehouse.data.auth.authModule
 import com.example.jaywarehouse.data.auth.models.LoginErrorModel
-import com.example.jaywarehouse.data.auth.models.LoginModel
 import com.example.jaywarehouse.data.common.modules.mainModule
 import com.example.jaywarehouse.data.common.modules.networkModule
 import com.example.jaywarehouse.data.common.utils.BaseResult
 import com.example.jaywarehouse.data.common.utils.Encryptor
 import com.example.jaywarehouse.data.common.utils.Prefs
-import com.example.jaywarehouse.data.receiving.model.ReceivingDetailScanModel
 import com.example.jaywarehouse.presentation.common.utils.BaseViewModel
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.cancellable
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
-import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
+import okhttp3.HttpUrl
 import org.koin.core.context.loadKoinModules
 import org.koin.core.context.unloadKoinModules
 
@@ -111,7 +108,10 @@ class LoginViewModel(
             }
 
             LoginContract.Event.OnChangeDomain -> {
-                if (state.address.text.toHttpUrlOrNull()!=null){
+
+
+
+                if (HttpUrl.parse(state.address.text)!=null){
                     prefs.setAddress(state.address.text)
                     setState {
                         copy(toast = "Address changed successfully", showDomain = false)

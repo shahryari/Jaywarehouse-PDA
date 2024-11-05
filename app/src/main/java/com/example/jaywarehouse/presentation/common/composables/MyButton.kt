@@ -13,9 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.font.FontWeight
-import coil.size.Size
 import com.example.jaywarehouse.data.common.utils.mdp
-import com.example.jaywarehouse.ui.theme.Black
 import com.example.jaywarehouse.ui.theme.Primary
 
 @Composable

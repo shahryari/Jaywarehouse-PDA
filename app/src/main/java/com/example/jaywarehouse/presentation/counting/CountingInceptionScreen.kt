@@ -102,7 +102,7 @@ fun CountingInceptionContent(
                 stickyHeader{
                     Column {
                         if (state.countingDetailRow!=null){
-                            ReceivingItem(state.countingDetailRow)
+                            ReceivingItem(state.countingDetailRow){}
                         }
                         Spacer(Modifier.size(10.mdp))
                         Row(Modifier.fillMaxWidth()) {

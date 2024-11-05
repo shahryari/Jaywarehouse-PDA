@@ -15,8 +15,13 @@ class DashboardContract {
         val showUpdateDialog: Boolean = false,
         val newVersion: String = "",
         val updateUrl: String = "",
+        val subDrawerState: SubDrawerState = SubDrawerState.Drawers,
         val subDrawers: List<MainItems>? = null,
         val dashboard: DashboardModel? = null,
+        val lockKeyboard: Boolean = false,
+        val forwardToDashboard: Boolean = false,
+        val openDetail: Boolean = false,
+        val showChangPasswordDialog: Boolean = false,
         val selectedTab: DashboardTab = DashboardTab.Picking
     ) : UiState
 
@@ -24,6 +29,12 @@ class DashboardContract {
         data class OnNavigate(val destination: DirectionDestinationSpec) : Event()
         data class OnSelectTab(val tab: DashboardTab) : Event()
         data class OnShowSubDrawers(val drawers: List<MainItems>?) : Event()
+        data class ShowSettings(val show: Boolean) : Event()
+        data object OnLogout: Event()
+        data class OnLockKeyboardChange(val lock: Boolean) : Event()
+        data class OnForwardToDashboard(val forward: Boolean) : Event()
+        data class OnOpenDetail(val open: Boolean) : Event()
+        data class OnShowChangePasswordDialog(val show: Boolean) : Event()
     }
 
     sealed class Effect : UiSideEffect {
@@ -34,4 +45,8 @@ class DashboardContract {
 
 enum class DashboardTab(val title: String) {
     Picking("Picking"),CrossDock("Cross Dock")
+}
+
+enum class SubDrawerState {
+    Drawers,SubDrawers,Settings
 }

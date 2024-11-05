@@ -38,7 +38,7 @@ val networkModule = module {
                         .build()
                     val response = it.proceed(request).apply {
 
-                        if (body?.contentType()?.toString()?.contains("text/html") == true) {
+                        if (body()?.contentType()?.toString()?.contains("text/html") == true) {
                             prefs.setToken("")
                             androidContext().restartActivity()
                         }

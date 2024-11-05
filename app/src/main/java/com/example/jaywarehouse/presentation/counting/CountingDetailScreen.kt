@@ -49,6 +49,7 @@ import com.example.jaywarehouse.presentation.common.utils.SIDE_EFFECT_KEY
 import com.example.jaywarehouse.presentation.common.utils.ScreenTransition
 import com.example.jaywarehouse.presentation.counting.contracts.CountingDetailContract
 import com.example.jaywarehouse.presentation.counting.viewmodels.CountingDetailViewModel
+import com.example.jaywarehouse.presentation.destinations.CountingInceptionScreenDestination
 import com.example.jaywarehouse.ui.theme.Black
 import com.example.jaywarehouse.ui.theme.Border
 import com.example.jaywarehouse.ui.theme.Gray3
@@ -79,6 +80,9 @@ fun CountingDetailScreen(
         viewModel.effect.collect {
             when(it){
                 CountingDetailContract.Effect.NavBack -> navigator.popBackStack()
+                is CountingDetailContract.Effect.OnNavToInception -> {
+                    navigator.navigate(CountingInceptionScreenDestination(it.detail))
+                }
             }
         }
     }
@@ -93,7 +97,6 @@ fun CountingDetailContent(
 ) {
     val focusRequester = FocusRequester()
 
-    val sortList = mapOf("Created On" to "CreatedOn","Product Name" to "ProductName","Product Code" to "ProductCode","Reference Number" to "ReferenceNumber")
     val refreshState = rememberPullRefreshState(
         refreshing = state.loadingState == Loading.REFRESHING,
         onRefresh = { onEvent(CountingDetailContract.Event.OnRefresh) }
@@ -150,7 +153,9 @@ fun CountingDetailContent(
                 Spacer(modifier = Modifier.size(20.mdp))
                 LazyColumn(Modifier.fillMaxSize()) {
                     items(state.countingDetailRow){
-                        ReceivingItem(it)
+                        ReceivingItem(it) {
+                            onEvent(CountingDetailContract.Event.OnDetailClick(it))
+                        }
                         Spacer(modifier = Modifier.size(7.mdp))
                     }
                     item {
@@ -231,15 +236,11 @@ fun CountingDetailContent(
             onDismiss = {
                 onEvent(CountingDetailContract.Event.OnShowSortList(false))
             },
-            sortOptions = sortList,
+            sortOptions = state.sortList,
             selectedSort = state.sort,
             onSelectSort = {
                 onEvent(CountingDetailContract.Event.OnSelectSort(it))
             },
-            selectedOrder = state.order,
-            onSelectOrder = {
-                onEvent(CountingDetailContract.Event.OnSelectOrder(it))
-            }
         )
     }
     if (state.showConfirm){

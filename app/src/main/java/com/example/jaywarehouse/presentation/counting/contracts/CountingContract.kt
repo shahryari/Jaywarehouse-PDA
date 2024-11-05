@@ -4,6 +4,8 @@ import androidx.compose.ui.text.input.TextFieldValue
 import com.example.jaywarehouse.data.receiving.model.ReceivingModel
 import com.example.jaywarehouse.data.receiving.model.ReceivingRow
 import com.example.jaywarehouse.presentation.common.utils.Loading
+import com.example.jaywarehouse.presentation.common.utils.Order
+import com.example.jaywarehouse.presentation.common.utils.SortItem
 import com.example.jaywarehouse.presentation.common.utils.UiEvent
 import com.example.jaywarehouse.presentation.common.utils.UiSideEffect
 import com.example.jaywarehouse.presentation.common.utils.UiState
@@ -15,7 +17,15 @@ class CountingContract {
         val keyword: TextFieldValue = TextFieldValue(),
         val loadingState: Loading = Loading.NONE,
         val showSortList: Boolean = false,
-        val sort: String = "CreatedOn",
+        val sortList: List<SortItem> = listOf(
+            SortItem("Created On closed to now", "CreatedOn",Order.Desc),
+            SortItem("Created On farthest from now", "CreatedOn",Order.Asc),
+            SortItem("Receiving Number Descending", "Receiving",Order.Desc),
+            SortItem("Receiving Number Ascending", "Receiving",Order.Asc),
+            SortItem("Most Progress", "Progress",Order.Desc),
+            SortItem("Least Progress", "Progress",Order.Asc)
+        ),
+        val sort: SortItem = sortList.first(),
         val order: String = "Desc",
         val page: Int = 1,
         val error: String = "",
@@ -26,7 +36,7 @@ class CountingContract {
         data class OnKeywordChange(val keyword: TextFieldValue) : Event()
         data class OnNavToReceivingDetail(val receivingRow: ReceivingRow) : Event()
         data object ClearError : Event()
-        data class OnSelectSort(val sort: String) : Event()
+        data class OnSelectSort(val sort: SortItem) : Event()
         data class OnSelectOrder(val order: String) : Event()
         data class OnShowSortList(val show: Boolean) : Event()
         data object OnListEndReached : Event()

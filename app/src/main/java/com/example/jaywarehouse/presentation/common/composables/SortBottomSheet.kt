@@ -32,6 +32,7 @@ import androidx.compose.ui.text.font.FontWeight
 import com.example.jaywarehouse.R
 import com.example.jaywarehouse.data.common.utils.mdp
 import com.example.jaywarehouse.presentation.common.utils.Order
+import com.example.jaywarehouse.presentation.common.utils.SortItem
 import com.example.jaywarehouse.presentation.counting.contracts.CountingContract
 import com.example.jaywarehouse.ui.theme.Black
 import com.example.jaywarehouse.ui.theme.Gray1
@@ -59,7 +60,7 @@ fun SortBottomSheet(
     ) {
         Column(
         ) {
-            Box(Modifier.padding(15.mdp)){
+            Box(Modifier.padding(horizontal = 24.mdp)){
                 MyText(
                     "Sort By",
                     style = MaterialTheme.typography.titleMedium,
@@ -67,7 +68,7 @@ fun SortBottomSheet(
                     color = Color.Black
                 )
             }
-            Spacer(Modifier.size(5.mdp))
+            Spacer(Modifier.size(15.mdp))
             HorizontalDivider(color = Gray1)
 
             for (sort in sortOptions) {
@@ -79,7 +80,7 @@ fun SortBottomSheet(
                                 onDismiss()
                             }
                         }
-                        .padding(15.mdp),
+                        .padding(vertical = 12.mdp, horizontal = 24.mdp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
@@ -90,6 +91,70 @@ fun SortBottomSheet(
                         color = Color.Black
                     )
                     if(selectedSort == sort.value) {
+                        Icon(
+                            painter = painterResource(R.drawable.tick),
+                            contentDescription = "",
+                            tint = Primary,
+                            modifier = Modifier.size(24.mdp)
+                        )
+                    }
+                }
+                HorizontalDivider(color = Gray1)
+
+            }
+        }
+    }
+}
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SortBottomSheet(
+    onDismiss: ()->Unit,
+    sortOptions: List<SortItem>,
+    selectedSort: SortItem,
+    onSelectSort: (SortItem)-> Unit,
+) {
+    val sheetState = rememberModalBottomSheetState()
+    val scope = rememberCoroutineScope()
+    ModalBottomSheet(
+        onDismiss,
+        sheetState = sheetState,
+        containerColor = Color.White
+    ) {
+        Column(
+        ) {
+            Box(Modifier.padding(horizontal = 24.mdp)){
+                MyText(
+                    "Sort By",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.W500,
+                    color = Color.Black
+                )
+            }
+            Spacer(Modifier.size(15.mdp))
+            HorizontalDivider(color = Gray1)
+
+            for (sort in sortOptions) {
+                Row(
+                    Modifier.fillMaxWidth()
+                        .clickable {
+                            onSelectSort(sort)
+                            scope.launch { sheetState.hide() }.invokeOnCompletion {
+                                onDismiss()
+                            }
+                        }
+                        .padding(vertical = 12.mdp, horizontal = 24.mdp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    MyText(
+                        text = sort.title,
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.W400,
+                        color = Color.Black
+                    )
+                    if(selectedSort == sort) {
                         Icon(
                             painter = painterResource(R.drawable.tick),
                             contentDescription = "",

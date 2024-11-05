@@ -116,7 +116,6 @@ private fun CountingContent(
             onEvent(CountingContract.Event.OnRefresh)
         }
     )
-    val sortList = mapOf("Created On" to "CreatedOn","Receiving" to "Receiving","Progress" to "Progress")
 
     LaunchedEffect(key1 = Unit) {
         searchFocusRequester.requestFocus()
@@ -186,14 +185,10 @@ private fun CountingContent(
             onDismiss = {
                 onEvent(CountingContract.Event.OnShowSortList(false))
             },
-            sortOptions = sortList,
+            sortOptions = state.sortList,
             selectedSort = state.sort,
             onSelectSort = {
                 onEvent(CountingContract.Event.OnSelectSort(it))
-            },
-            selectedOrder = state.order,
-            onSelectOrder = {
-                onEvent(CountingContract.Event.OnSelectOrder(it))
             }
         )
     }
@@ -350,7 +345,8 @@ private fun CountingPreview() {
         state = CountingContract.State(
             countingList = listOf(
                 ReceivingRow(receivingDate = "today", supplierFullName = "test", countedQuantity = 50, receivingDetailSumQuantity = 20, receivingDetailCount = 13, referenceNumber = "353523525", receivingID = 0),
-            )
+            ),
+            showSortList = true
         )
     )
 }

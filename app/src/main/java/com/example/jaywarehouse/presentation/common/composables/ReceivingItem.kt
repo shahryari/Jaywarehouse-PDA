@@ -39,7 +39,8 @@ import com.example.jaywarehouse.ui.theme.Gray4
 
 @Composable
 fun ReceivingItem(
-    receivingDetailRow: ReceivingDetailRow
+    receivingDetailRow: ReceivingDetailRow,
+    onClick: ()->Unit,
 ) {
     Column(
         Modifier
@@ -47,6 +48,9 @@ fun ReceivingItem(
             .fillMaxWidth()
             .clip(RoundedCornerShape(8.mdp))
             .background(Color.White)
+            .clickable {
+                onClick()
+            }
     ) {
         if(receivingDetailRow.model.isNotEmpty()) Row(
             Modifier
@@ -189,6 +193,6 @@ fun DetailCard(
 @Preview
 @Composable
 private fun ReceivingItemPreview() {
-    ReceivingItem(ReceivingDetailRow(100,"",200,"3903099390","3333",33,""))
+    ReceivingItem(ReceivingDetailRow(100,"",200,"3903099390","3333",33,"")){}
 
 }

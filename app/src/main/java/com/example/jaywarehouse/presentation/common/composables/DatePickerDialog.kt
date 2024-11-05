@@ -10,6 +10,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -35,22 +36,13 @@ fun DatePickerDialog(
     yearsRange: IntRange = 1900..2100,
     onSave: (year: Int, month: Int, dayOfMonth: Int) -> Unit
 ) {
-    var selectedYear by remember {
-        mutableIntStateOf(LocalDate.now().year)
-    }
-    var selectedMonth by remember {
-        mutableIntStateOf(LocalDate.now().monthValue)
-    }
-    var selectedDayOfMonth by remember {
-        mutableIntStateOf(LocalDate.now().dayOfMonth)
-    }
-    val days = calculateDayOfMonths(selectedMonth, selectedYear)
 
+    val days = calculateDayOfMonths(LocalDate.now().monthValue, LocalDate.now().year)
     val months = (1..12).map {
         Month(
             text =
 //            if(size.width / 3 < 55.dp){
-                DateFormatSymbols().shortMonths[it - 1]
+            DateFormatSymbols().shortMonths[it - 1]
 //            } else
 //                DateFormatSymbols().months[it - 1]
             ,
@@ -66,11 +58,34 @@ fun DatePickerDialog(
             index = yearsRange.indexOf(it)
         )
     }
+    var selectedYear by remember {
+        mutableStateOf(
+            years.find { it.value == LocalDate.now().year }
+        )
+    }
+    var selectedMonth by remember {
+        mutableStateOf(
+            months.find { it.value == LocalDate.now().monthValue } ?: Month(
+                text = DateFormatSymbols().shortMonths[1],
+                value = 1,
+                index = 0
+
+            )
+        )
+    }
+    var selectedDayOfMonth by remember {
+        mutableStateOf(
+            days.find { it.value == LocalDate.now().dayOfMonth }
+        )
+    }
+
+
+
     BasicDialog(
         onDismiss,
         positiveButton = "Save",
         negativeButton = "Cancel",
-        onPositiveClick = { onSave(selectedYear, selectedMonth, selectedDayOfMonth) }
+        onPositiveClick = { onSave(selectedYear!!.value, selectedMonth.value, selectedDayOfMonth!!.value) }
     ) {
         Row(
             Modifier
@@ -79,22 +94,23 @@ fun DatePickerDialog(
             Picker(
                 items = years,
                 modifier = Modifier.weight(1f),
-                onSelect = { selectedYear = it.value },
-                startIndex = years.indexOf(Year(text = selectedYear.toString(), value = selectedYear, index = yearsRange.indexOf(selectedYear)))
+                onSelect = { selectedYear = it },
+                startIndex = years.indexOf(selectedYear)
             )
+
             Spacer(Modifier.size(10.mdp))
             Picker(
                 items = months,
                 modifier = Modifier.weight(1f),
-                onSelect = { selectedMonth = it.value },
-                startIndex = months.indexOf(Month(text = DateFormatSymbols().months[selectedMonth - 1], value = selectedMonth, index = selectedMonth - 1))
+                onSelect = { selectedMonth = it },
+                startIndex = months.indexOf(selectedMonth)
             )
             Spacer(Modifier.size(10.mdp))
             Picker(
                 items = days,
                 modifier = Modifier.weight(1f),
-                onSelect = { selectedDayOfMonth = it.value },
-                startIndex = days.indexOf(DayOfMonth(text = selectedDayOfMonth.toString(), value = selectedDayOfMonth, index = selectedDayOfMonth - 1))
+                onSelect = { selectedDayOfMonth = it },
+                startIndex = days.indexOf(selectedDayOfMonth)
             )
         }
     }

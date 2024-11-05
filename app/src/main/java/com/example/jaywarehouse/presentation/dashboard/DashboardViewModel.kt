@@ -20,9 +20,18 @@ class DashboardViewModel(
         return DashboardContract.State()
     }
     init {
-        prefs.getFullName().let {
-            setState {
-                copy(name = it)
+        setState {
+            copy(
+                name = prefs.getFullName(),
+                forwardToDashboard = prefs.getIsNavToParent(),
+                openDetail = prefs.getIsNavToDetail()
+            )
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            prefs.getLockKeyboard().collect {
+                setSuspendedState {
+                    copy(lockKeyboard = it)
+                }
             }
         }
 //        getCurrentUser()
@@ -44,7 +53,47 @@ class DashboardViewModel(
 
             is DashboardContract.Event.OnShowSubDrawers -> {
                 setState {
-                    copy(subDrawers = event.drawers)
+                    copy(subDrawers = event.drawers, subDrawerState = if(event.drawers!=null) SubDrawerState.SubDrawers else SubDrawerState.Drawers)
+                }
+            }
+
+            DashboardContract.Event.OnLogout -> {
+                prefs.setToken("")
+                setEffect {
+                    DashboardContract.Effect.RestartActivity
+                }
+            }
+
+            is DashboardContract.Event.OnLockKeyboardChange ->{
+                viewModelScope.launch(Dispatchers.IO) {
+                    prefs.setLockKeyboard(event.lock)
+                }
+                setState {
+                    copy(lockKeyboard = event.lock)
+                }
+            }
+
+            is DashboardContract.Event.ShowSettings -> {
+                setState {
+                    copy(subDrawerState = if (event.show) SubDrawerState.Settings else SubDrawerState.Drawers)
+                }
+            }
+
+            is DashboardContract.Event.OnForwardToDashboard -> {
+                prefs.setIsNavToParent(event.forward)
+                setState {
+                    copy(forwardToDashboard = event.forward)
+                }
+            }
+            is DashboardContract.Event.OnOpenDetail -> {
+                prefs.setIsNavToDetail(event.open)
+                setState {
+                    copy(openDetail = event.open)
+                }
+            }
+            is DashboardContract.Event.OnShowChangePasswordDialog -> {
+                setState {
+                    copy(showChangPasswordDialog = event.show)
                 }
             }
         }

@@ -8,6 +8,7 @@ import com.example.jaywarehouse.data.receiving.repository.ReceivingRepository
 import com.example.jaywarehouse.presentation.common.utils.BaseViewModel
 import com.example.jaywarehouse.presentation.common.utils.Loading
 import com.example.jaywarehouse.presentation.common.utils.Order
+import com.example.jaywarehouse.presentation.common.utils.SortItem
 import com.example.jaywarehouse.presentation.counting.contracts.CountingContract
 import com.example.jaywarehouse.presentation.counting.contracts.CountingContract.Effect.*
 import kotlinx.coroutines.Dispatchers
@@ -24,10 +25,12 @@ class CountingViewModel(
     }
 
     init {
-        setState {
+        val sort = state.sortList.find {
+            it.sort == prefs.getCountingSort() && it.order == Order.getFromValue(prefs.getCountingOrder())
+        }
+        if (sort!=null)setState {
             copy(
-                sort = prefs.getCountingSort(),
-                order = prefs.getCountingOrder(),
+                sort = sort,
             )
         }
         viewModelScope.launch(Dispatchers.IO) {
@@ -39,9 +42,9 @@ class CountingViewModel(
         }
     }
 
-    private fun getCountingList(keyword: String = "",page: Int = 1, order: String = Order.Desc.value,sort: String = "CreatedOn") {
+    private fun getCountingList(keyword: String = "",page: Int = 1, sort: SortItem) {
         viewModelScope.launch(Dispatchers.IO) {
-            repository.getReceivingList(keyword,page,10,order,sort,)
+            repository.getReceivingList(keyword,page,10,order = sort.order.value,sort = sort.sort)
                 .catch {
                     setSuspendedState {
                         copy(error = it.message?:"", loadingState = Loading.NONE)
@@ -87,11 +90,12 @@ class CountingViewModel(
             }
 
             is CountingContract.Event.OnSelectSort -> {
-                prefs.setCountingSort(event.sort)
+                prefs.setCountingSort(event.sort.sort)
+                prefs.setCountingOrder(event.sort.order.value)
                 setState {
                     copy(sort = event.sort, page = 1, countingList = emptyList(), loadingState = Loading.LOADING)
                 }
-                getCountingList(state.keyword.text,state.page,state.order,event.sort)
+                getCountingList(state.keyword.text,state.page,event.sort)
             }
             is CountingContract.Event.OnShowSortList -> {
                 setState { copy(showSortList = event.show) }
@@ -102,7 +106,7 @@ class CountingViewModel(
                 setState {
                     copy(order = event.order, page = 1, countingList = emptyList(), loadingState = Loading.LOADING)
                 }
-                getCountingList(state.keyword.text,state.page,event.order,state.sort)
+//                getCountingList(state.keyword.text,state.page,event.order,stat)
             }
 
             CountingContract.Event.OnListEndReached -> {
@@ -110,7 +114,7 @@ class CountingViewModel(
                     setState {
                         copy(page = page+1, loadingState = Loading.LOADING)
                     }
-                    getCountingList(state.keyword.text,state.page,state.order,state.sort)
+                    getCountingList(state.keyword.text,state.page,state.sort)
                 }
             }
 
@@ -118,21 +122,21 @@ class CountingViewModel(
                 setState {
                     copy(loadingState = Loading.REFRESHING, page = 1, countingList = emptyList())
                 }
-                getCountingList(state.keyword.text,state.page,state.order,state.sort)
+                getCountingList(state.keyword.text,state.page,state.sort)
             }
 
             CountingContract.Event.OnSearch -> {
                 setState {
                     copy(loadingState = Loading.SEARCHING, page = 1, countingList = emptyList())
                 }
-                getCountingList(state.keyword.text,state.page,state.order,state.sort)
+                getCountingList(state.keyword.text,state.page,state.sort)
             }
 
             CountingContract.Event.FetchData -> {
                 setState {
                     copy(loadingState = Loading.LOADING, page = 1, countingList = emptyList(), keyword = TextFieldValue())
                 }
-                getCountingList(state.keyword.text,state.page,state.order,state.sort)
+                getCountingList(state.keyword.text,state.page,state.sort)
             }
 
             CountingContract.Event.OnBackPressed -> {
