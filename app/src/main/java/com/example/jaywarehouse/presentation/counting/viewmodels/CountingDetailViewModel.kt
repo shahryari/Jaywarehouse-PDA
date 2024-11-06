@@ -50,86 +50,7 @@ class CountingDetailViewModel(
 
     override fun onEvent(event: CountingDetailContract.Event) {
         when(event){
-            is CountingDetailContract.Event.OnChangeBarcode -> {
-                setState {
-                    copy(
-                        barcode = event.barcode
-                    )
-                }
-                if (event.barcode.text.endsWith('\n') || event.barcode.text.endsWith('\r')){
-                    val countingDetail = state.countingDetailRow.find { it.barcode == event.barcode.text}
 
-                    if (countingDetail!=null){
-                        if (countingDetail.scanCount >= countingDetail.quantity){
-                            setState {
-                                copy(showConfirm = true)
-                            }
-                            return
-                        }
-                    }
-                    if (state.loadingState == Loading.NONE)scanBarcode(event.barcode.text)
-                }
-            }
-
-            is CountingDetailContract.Event.RemoveScanBarcode -> {
-                viewModelScope.launch(Dispatchers.IO) {
-                    setSuspendedState {
-                        copy(loadingState = Loading.LOADING)
-                    }
-                    repository.removeReceivingDetailScan(receivingRow.receivingID,event.barcode)
-                        .catch {
-                            setSuspendedState {
-                                copy(error = it.message?:"", selectedDetail = null, loadingState = Loading.NONE)
-                            }
-                        }
-                        .collect {
-                            when(it){
-                                is BaseResult.Error -> {
-                                    setSuspendedState {
-                                        val data = if(it.message.isNotEmpty()){
-                                            try {
-                                                Gson().fromJson(it.message,ReceivingDetailScanRemoveModel::class.java).messages.firstOrNull()?:""
-                                            }catch (e:Exception){
-                                                it.message
-                                            }
-                                        } else it.data?.messages?.firstOrNull()?:""
-                                        copy(error = data, selectedDetail = null, loadingState = Loading.NONE)
-                                    }
-                                }
-                                is BaseResult.Success -> {
-                                    if (it.data?.isSucceed == true){
-                                        setSuspendedState {
-                                            copy(toast = "Removed successfully", selectedDetail = null, page = 1, countingDetailRow = emptyList(), loadingState = Loading.LOADING)
-                                        }
-                                        getReceivingDetailList(state.countingRow!!.receivingID,state.keyword.text,sort = state.sort)
-                                    } else {
-                                        setSuspendedState {
-                                            copy(error = it.data?.messages?.firstOrNull()?:"", selectedDetail = null)
-                                        }
-                                    }
-                                }
-                                else ->{
-                                    setState {
-                                        copy(selectedDetail = null, loadingState = Loading.NONE)
-                                    }
-                                }
-                            }
-                        }
-                }
-            }
-            CountingDetailContract.Event.ScanBarcode -> {
-                val countingDetail = state.countingDetailRow.find { it.barcode == state.barcode.text}
-
-                if (countingDetail!=null){
-                    if (countingDetail.scanCount >= countingDetail.quantity){
-                        setState {
-                            copy(showConfirm = true)
-                        }
-                        return
-                    }
-                }
-                if (state.loadingState == Loading.NONE)scanBarcode(state.barcode.text)
-            }
 
             CountingDetailContract.Event.OnNavBack -> setEffect {
                 CountingDetailContract.Effect.NavBack
@@ -186,11 +107,6 @@ class CountingDetailViewModel(
                 }
             }
 
-            is CountingDetailContract.Event.OnShowConfirm -> {
-                setState {
-                    copy(showConfirm = event.show)
-                }
-            }
 
             CountingDetailContract.Event.OnReachedEnd -> {
                 if (10*state.page <= state.countingDetailRow.size){
@@ -199,13 +115,6 @@ class CountingDetailViewModel(
                     }
                     getReceivingDetailList(receivingRow.receivingID,state.keyword.text,state.page,state.sort)
                 }
-            }
-
-            CountingDetailContract.Event.ConfirmScanBarcode -> {
-                setState {
-                    copy(showConfirm = false)
-                }
-                if (state.loadingState == Loading.NONE)scanBarcode(state.barcode.text)
             }
 
             CountingDetailContract.Event.OnSearch -> {
@@ -229,63 +138,6 @@ class CountingDetailViewModel(
             }
         }
     }
-
-    private fun scanBarcode(barcode: String){
-
-        if (barcode.isNotEmpty()) if (state.countingRow!=null)
-            viewModelScope.launch(Dispatchers.IO) {
-                setSuspendedState {
-                    copy(isScanLoading = true, loadingState = Loading.LOADING)
-                }
-                repository.scanReceivingDetail(
-                    state.countingRow!!.receivingID,
-                    barcode,
-                    1
-                )
-                    .catch {
-                        setSuspendedState {
-                            copy(isScanLoading = false, error = it.message?:"", loadingState = Loading.NONE)
-                        }
-                    }
-                    .collect {
-                    setSuspendedState {
-                        copy(isScanLoading = false)
-                    }
-                    when(it){
-                        is BaseResult.Error -> {
-                            setSuspendedState {
-                                val data = if (it.message.isNotEmpty()) {
-                                    try {
-                                        Gson().fromJson(it.message,ReceivingDetailScanModel::class.java).message
-                                    }catch (e:Exception){
-                                        it.message
-                                    }
-                                } else it.data?.message
-                                copy(error = data?:"", showClearIcon = true, loadingState = Loading.NONE)
-                            }
-                        }
-                        is BaseResult.Success ->{
-                            if (it.data?.isSucceed == true && state.countingRow!=null) {
-                                setSuspendedState {
-                                    copy(barcode = TextFieldValue(), toast = "Scan completed successfully", page = 1, countingDetailRow = emptyList(), loadingState = Loading.LOADING)
-                                }
-                                getReceivingDetailList(state.countingRow!!.receivingID,state.keyword.text,state.page,state.sort)
-                            } else {
-                                setSuspendedState {
-                                    copy(error = it.data?.message?:"", showClearIcon = true)
-                                }
-                            }
-                        }
-                        else -> {
-                            setSuspendedState {
-                                copy(loadingState = Loading.NONE)
-                            }
-                        }
-                    }
-                }
-            }
-    }
-
 
     private fun getReceivingDetailList(receivingID: Int,keyword: String,page: Int = 1,sort: SortItem) {
         viewModelScope.launch(Dispatchers.IO) {

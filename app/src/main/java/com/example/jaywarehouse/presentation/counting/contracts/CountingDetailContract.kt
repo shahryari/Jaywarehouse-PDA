@@ -41,11 +41,7 @@ class CountingDetailContract {
     ) : UiState
 
     sealed class Event : UiEvent {
-        data class OnChangeBarcode(val barcode: TextFieldValue) : Event()
-        data object ScanBarcode : Event()
-        data object ConfirmScanBarcode: Event()
         data object CloseError: Event()
-        data class RemoveScanBarcode(val barcode: String): Event()
         data object OnNavBack : Event()
         data object OnClearBarcode: Event()
         data object HideToast: Event()
@@ -54,7 +50,6 @@ class CountingDetailContract {
         data class OnSelectSort(val sort: SortItem) : Event()
         data class OnSelectOrder(val order: String) : Event()
         data class OnShowSortList(val show: Boolean) : Event()
-        data class OnShowConfirm(val show: Boolean) : Event()
         data object OnReachedEnd: Event()
         data object OnSearch: Event()
         data object OnRefresh: Event()

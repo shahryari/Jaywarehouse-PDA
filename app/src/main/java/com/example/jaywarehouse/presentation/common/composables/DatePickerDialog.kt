@@ -25,6 +25,7 @@ import com.example.jaywarehouse.presentation.common.utils.calculateDayOfMonths
 import com.example.jaywarehouse.ui.theme.Primary
 import java.text.DateFormatSymbols
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 
 @Composable
@@ -33,11 +34,12 @@ fun DatePickerDialog(
 //    year: Int,
 //    month: Int,
 //    dayOfMonth: Int,
+    selectedDate: String? = null,
     yearsRange: IntRange = 1900..2100,
-    onSave: (year: Int, month: Int, dayOfMonth: Int) -> Unit
+    onSave: (String) -> Unit
 ) {
-
-    val days = calculateDayOfMonths(LocalDate.now().monthValue, LocalDate.now().year)
+    val date = selectedDate?.let { LocalDate.parse(it, DateTimeFormatter.ofPattern("yyyy-MM-dd"))} ?: LocalDate.now()
+    val days = calculateDayOfMonths(date.monthValue, date.year)
     val months = (1..12).map {
         Month(
             text =
@@ -60,12 +62,12 @@ fun DatePickerDialog(
     }
     var selectedYear by remember {
         mutableStateOf(
-            years.find { it.value == LocalDate.now().year }
+            years.find { it.value == date.year }
         )
     }
     var selectedMonth by remember {
         mutableStateOf(
-            months.find { it.value == LocalDate.now().monthValue } ?: Month(
+            months.find { it.value == date.monthValue } ?: Month(
                 text = DateFormatSymbols().shortMonths[1],
                 value = 1,
                 index = 0
@@ -75,7 +77,7 @@ fun DatePickerDialog(
     }
     var selectedDayOfMonth by remember {
         mutableStateOf(
-            days.find { it.value == LocalDate.now().dayOfMonth }
+            days.find { it.value == date.dayOfMonth }
         )
     }
 
@@ -85,7 +87,10 @@ fun DatePickerDialog(
         onDismiss,
         positiveButton = "Save",
         negativeButton = "Cancel",
-        onPositiveClick = { onSave(selectedYear!!.value, selectedMonth.value, selectedDayOfMonth!!.value) }
+        onPositiveClick = {
+
+            onSave("${selectedYear!!.value}-${selectedMonth.value}-${selectedDayOfMonth!!.value}")
+        }
     ) {
         Row(
             Modifier
@@ -121,6 +126,6 @@ fun DatePickerDialog(
 @Composable
 private fun DatePickerDialogPreview() {
     MyScaffold {
-        DatePickerDialog({}) {_,_,_-> }
+        DatePickerDialog({}) { }
     }
 }

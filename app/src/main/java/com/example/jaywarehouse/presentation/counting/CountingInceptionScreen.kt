@@ -3,6 +3,7 @@ package com.example.jaywarehouse.presentation.counting
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,7 +13,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Icon
@@ -25,10 +29,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import com.example.jaywarehouse.R
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.jaywarehouse.data.common.utils.mdp
+import com.example.jaywarehouse.data.receiving.model.ReceivingDetailCountModel
 import com.example.jaywarehouse.data.receiving.model.ReceivingDetailRow
 import com.example.jaywarehouse.presentation.common.composables.DatePickerDialog
 import com.example.jaywarehouse.presentation.common.composables.InputTextField
@@ -86,7 +92,16 @@ fun CountingInceptionContent(
     state: CountingInceptionContract.State = CountingInceptionContract.State(),
     onEvent: (CountingInceptionContract.Event)->Unit = {}
 ) {
-    MyScaffold {
+    MyScaffold(
+        error = state.error,
+        onCloseError = {
+            onEvent(CountingInceptionContract.Event.CloseError)
+        },
+        toast = state.toast,
+        onHideToast = {
+            onEvent(CountingInceptionContract.Event.HideToast)
+        }
+    ) {
         Column(
             Modifier
                 .fillMaxSize()
@@ -94,8 +109,13 @@ fun CountingInceptionContent(
             TopBar(
                 title = state.countingDetailRow?.referenceNumber?:"",
                 subTitle = "Counting/Inception",
-                onBack = {},
-                endIcon = R.drawable.tick
+                onBack = {
+                    onEvent(CountingInceptionContract.Event.OnBack)
+                },
+                endIcon = R.drawable.tick,
+                onEndClick = {
+                    onEvent(CountingInceptionContract.Event.OnSubmit)
+                }
             )
             Spacer(Modifier.size(20.mdp))
             LazyColumn {
@@ -112,6 +132,7 @@ fun CountingInceptionContent(
                                     onEvent(CountingInceptionContract.Event.OnChangeQuantity(it))
                                 },
                                 modifier = Modifier.weight(1f),
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                                 leadingIcon = R.drawable.box_search,
                                 label = "Quantity",
                             )
@@ -122,6 +143,7 @@ fun CountingInceptionContent(
                                     onEvent(CountingInceptionContract.Event.OnChangeQuantityInPacket(it))
                                 },
                                 modifier = Modifier.weight(1f),
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                                 leadingIcon = R.drawable.barcode,
                                 label = "Quantity In Packet",
                             )
@@ -144,6 +166,7 @@ fun CountingInceptionContent(
                             },
                             modifier = Modifier.fillMaxWidth(),
                             leadingIcon = R.drawable.calendar_add,
+                            keyboardOptions = KeyboardOptions(),
                             onLeadingClick = {
                                 onEvent(CountingInceptionContract.Event.OnShowDatePicker(true))
                             },
@@ -155,6 +178,9 @@ fun CountingInceptionContent(
                                 .fillMaxWidth()
                                 .clip(RoundedCornerShape(6.mdp))
                                 .background(Primary.copy(0.2f))
+                                .clickable {
+                                    onEvent(CountingInceptionContract.Event.OnAddClick)
+                                }
                                 .border(1.mdp, Primary, RoundedCornerShape(6.mdp))
                                 .padding(9.mdp),
                             verticalAlignment = Alignment.CenterVertically,
@@ -175,8 +201,8 @@ fun CountingInceptionContent(
                         Spacer(Modifier.size(20.mdp))
                     }
                 }
-                items(3){
-                    CountingInceptionDetailItem()
+                itemsIndexed(state.details.reversed()){i,it->
+                    CountingInceptionDetailItem(state.details.size-i,it)
                     Spacer(Modifier.size(5.mdp))
                 }
             }
@@ -186,9 +212,10 @@ fun CountingInceptionContent(
         DatePickerDialog(
             onDismiss = {
                 onEvent(CountingInceptionContract.Event.OnShowDatePicker(false))
-            }
-        ) { year, month, dayOfMonth ->
-            onEvent(CountingInceptionContract.Event.OnChangeExpireDate(TextFieldValue("$dayOfMonth/${month}/$year")))
+            },
+            selectedDate = state.expireDate.text.ifEmpty { null }
+        ) {
+            onEvent(CountingInceptionContract.Event.OnChangeExpireDate(TextFieldValue(it)))
             onEvent(CountingInceptionContract.Event.OnShowDatePicker(false))
 
         }
@@ -196,6 +223,8 @@ fun CountingInceptionContent(
 }
 @Composable
 fun CountingInceptionDetailItem(
+    i: Int,
+    model: ReceivingDetailCountModel
 ) {
     Row(
         Modifier
@@ -207,7 +236,7 @@ fun CountingInceptionDetailItem(
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         MyText(
-            text = "1",
+            text = i.toString(),
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.W500,
             color = Color.Black
@@ -222,7 +251,7 @@ fun CountingInceptionDetailItem(
             )
             Spacer(Modifier.size(10.mdp))
             MyText(
-                text = "123456",
+                text = model.batchNumber,
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.W500,
                 color = Color.Black
@@ -237,7 +266,7 @@ fun CountingInceptionDetailItem(
             )
             Spacer(Modifier.size(10.mdp))
             MyText(
-                text = "123456",
+                text = model.quantity.toString(),
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.W500,
                 color = Color.Black
@@ -252,7 +281,7 @@ fun CountingInceptionDetailItem(
             )
             Spacer(Modifier.size(10.mdp))
             MyText(
-                text = "today",
+                text = model.expireDate,
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.W500,
                 color = Color.Black

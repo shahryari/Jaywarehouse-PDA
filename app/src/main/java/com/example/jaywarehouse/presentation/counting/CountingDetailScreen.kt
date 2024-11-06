@@ -221,16 +221,7 @@ fun CountingDetailContent(
             }
         }
     }
-    if (state.selectedDetail!=null){
-        ConfirmDialog(
-            onDismiss = {
-                onEvent(CountingDetailContract.Event.OnSelectDetail(null))
-            },
-            onConfirm = {
-                onEvent(CountingDetailContract.Event.RemoveScanBarcode(state.selectedDetail))
-            }
-        )
-    }
+
     if (state.showSortList){
         SortBottomSheet(
             onDismiss = {
@@ -242,17 +233,6 @@ fun CountingDetailContent(
                 onEvent(CountingDetailContract.Event.OnSelectSort(it))
             },
         )
-    }
-    if (state.showConfirm){
-        ConfirmDialog(
-            onDismiss = {
-                onEvent(CountingDetailContract.Event.OnShowConfirm(false))
-            },
-            message = "You scanned all item, Are you sure to scan more?",
-            description = ""
-        ) {
-            onEvent(CountingDetailContract.Event.ConfirmScanBarcode)
-        }
     }
 
 }
@@ -312,7 +292,7 @@ private fun CountingDetailPreview() {
             loadingState = Loading.NONE,
             countingRow = ReceivingRow(receivingDate = "today", supplierFullName = "test", countedQuantity = 50, receivingDetailSumQuantity = 20, receivingDetailCount = 13, referenceNumber = "353523525", receivingID = 0),
             countingDetailRow = listOf(
-                ReceivingDetailRow(3,"d3234424",4,"barcode","model",3,"today")
+                ReceivingDetailRow(3,"d3234424",33,33, receivingDetailID = 3, quantity = 3,"barcode","model",3,"today")
             )
         )
     )

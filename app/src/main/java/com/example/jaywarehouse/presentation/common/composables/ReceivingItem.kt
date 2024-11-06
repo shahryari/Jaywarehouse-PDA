@@ -193,6 +193,6 @@ fun DetailCard(
 @Preview
 @Composable
 private fun ReceivingItemPreview() {
-    ReceivingItem(ReceivingDetailRow(100,"",200,"3903099390","3333",33,"")){}
+    ReceivingItem(ReceivingDetailRow(100,"",333,33,2, quantity = 3,"3903099390","3333",33,"")){}
 
 }

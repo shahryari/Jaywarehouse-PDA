@@ -4,6 +4,7 @@ import com.example.jaywarehouse.data.common.utils.ORDER
 import com.example.jaywarehouse.data.common.utils.PAGE
 import com.example.jaywarehouse.data.common.utils.ROWS
 import com.example.jaywarehouse.data.common.utils.SORT
+import com.example.jaywarehouse.data.receiving.model.ReceivingDetailCountModel
 import com.example.jaywarehouse.data.receiving.model.ReceivingDetailModel
 import com.example.jaywarehouse.data.receiving.model.ReceivingDetailScanModel
 import com.example.jaywarehouse.data.receiving.model.ReceivingDetailScanRemoveModel
@@ -34,13 +35,24 @@ interface ReceivingApi {
         @Header(ORDER) order: String
     ) : Response<ReceivingDetailModel>
 
-    @POST("ReceivingDetailScan")
-    suspend fun scanReceivingDetail(
-        @Body jsonObject: JsonObject
+    @POST("ReceivingDetailCount")
+    suspend fun countReceivingDetail(
+        @Body jsonObject: JsonObject,
     ) : Response<ReceivingDetailScanModel>
 
-    @POST("ReceivingDetailScanRemove")
-    suspend fun removeReceivingDetailScan(
+    @POST("ReceivingDetailCountGetItems")
+    suspend fun getReceivingDetailCountItems(
+        @Body jsonObject: JsonObject,
+
+        @Header(PAGE) page: Int,
+        @Header(ROWS) rows: Int,
+        @Header(SORT) sort: String,
+        @Header(ORDER) order: String
+    ) : Response<List<ReceivingDetailCountModel>>
+
+
+    @POST("ReceivingDetailCountConfirm")
+    suspend fun confirmReceivingDetailCount(
         @Body jsonObject: JsonObject
-    ) : Response<ReceivingDetailScanRemoveModel>
+    ) : Response<ReceivingDetailScanModel>
 }
