@@ -150,6 +150,30 @@ class Prefs(private val context: Context) {
         return preferences.getString("countingDetailOrder", Order.Desc.value)?: Order.Desc.value
     }
 
+
+    //putaway detail
+    fun setPutawayDetailSort(sort: String) {
+        with(preferences.edit()){
+            putString("putawayDetailSort",sort)
+            apply()
+        }
+    }
+
+    fun getPutawayDetailSort() : String {
+        return preferences.getString("putawayDetailSort", DEFAULT_SORT)?: DEFAULT_SORT
+    }
+
+    fun setPutawayDetailOrder(order: String) {
+        with(preferences.edit()){
+            putString("putawayDetailOrder",order)
+            apply()
+        }
+    }
+
+    fun getPutawayDetailOrder() : String {
+        return preferences.getString("putawayDetailOrder", Order.Desc.value)?: Order.Desc.value
+    }
+
     //picking
     fun setPickingSort(sort: String) {
         with(preferences.edit()){

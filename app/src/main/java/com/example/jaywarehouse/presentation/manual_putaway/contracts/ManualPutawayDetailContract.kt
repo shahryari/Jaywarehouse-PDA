@@ -41,6 +41,7 @@ class ManualPutawayDetailContract {
         data object OnRefresh: Event()
         data object OnReachEnd: Event()
         data object OnNavBack: Event()
+        data object OnAddClick: Event()
     }
 
     sealed class Effect : UiSideEffect {

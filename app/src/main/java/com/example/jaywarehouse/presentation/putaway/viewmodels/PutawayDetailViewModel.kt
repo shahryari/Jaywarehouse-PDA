@@ -5,14 +5,12 @@ import androidx.lifecycle.viewModelScope
 import com.example.jaywarehouse.data.common.utils.BaseResult
 import com.example.jaywarehouse.data.common.utils.Prefs
 import com.example.jaywarehouse.data.putaway.PutawayRepository
-import com.example.jaywarehouse.data.putaway.model.PutRemoveModel
-import com.example.jaywarehouse.data.putaway.model.ScanModel
-import com.example.jaywarehouse.data.putaway.model.ReadyToPutRow
-import com.example.jaywarehouse.data.receiving.model.ReceivingDetailScanModel
+import com.example.jaywarehouse.data.putaway.model.PutawayListGroupedRow
+import com.example.jaywarehouse.data.putaway.model.PutawayListRow
 import com.example.jaywarehouse.presentation.common.utils.BaseViewModel
 import com.example.jaywarehouse.presentation.common.utils.Loading
+import com.example.jaywarehouse.presentation.common.utils.SortItem
 import com.example.jaywarehouse.presentation.putaway.contracts.PutawayDetailContract
-import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
@@ -20,14 +18,14 @@ import kotlinx.coroutines.launch
 class PutawayDetailViewModel(
     private val repository: PutawayRepository,
     private val prefs: Prefs,
-    putRow: ReadyToPutRow,
-    private val fillLocation: Boolean
+    private val putRow: PutawayListGroupedRow,
 ) : BaseViewModel<PutawayDetailContract.Event,PutawayDetailContract.State,PutawayDetailContract.Effect>(){
     init {
         setState {
             copy(
-                putRow = putRow,boxNumber = TextFieldValue(putRow.boxNumber?:""),
-                enableBoxNumber = putRow.boxNumber?.isEmpty() ?: true
+                putRow = putRow,
+//                boxNumber = TextFieldValue(putRow.boxNumber?:""),
+//                enableBoxNumber = putRow.boxNumber?.isEmpty() ?: true
             )
         }
         viewModelScope.launch(Dispatchers.IO) {
@@ -37,46 +35,9 @@ class PutawayDetailViewModel(
                 }
             }
         }
-        getPutaways(putRow.receivingDetailID)
+        getPutaways(putRow.referenceNumber,sort = state.sort)
     }
 
-    private fun getPutaways(receivingDetailId: Int, page: Int = 1){
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.getPutaways(receivingDetailId,"",page,10,"asc","CreatedOn")
-                .catch {
-                    setSuspendedState {
-                        copy(error = it.message.toString(), loadingState = Loading.NONE)
-                    }
-                }
-                .collect {
-                    setSuspendedState {
-                        copy(loadingState = Loading.NONE)
-                    }
-                when(it){
-                    is BaseResult.Error -> {
-                        setSuspendedState {
-                            copy(error = it.message)
-                        }
-                    }
-                    is BaseResult.Success -> {
-                        val enableLocation = it.data?.rows?.isEmpty()==true && !fillLocation
-                        val showFinishDialog = it.data?.putRow != null && it.data.putRow.quantity == it.data.putRow.putCount
-                        setSuspendedState {
-                            copy(
-                                details = it.data,
-                                putaways = putaways + (it.data?.rows ?: emptyList()),
-                                putRow = it.data?.putRow,
-                                enableLocation =  enableLocation,
-                                location = if (!enableLocation)TextFieldValue(it.data?.putRow?.locationCode?:"") else TextFieldValue(),
-                                showFinishAlertDialog = showFinishDialog
-                            )
-                        }
-                    }
-                    else -> {}
-                }
-            }
-        }
-    }
     override fun setInitState(): PutawayDetailContract.State {
         return PutawayDetailContract.State()
     }
@@ -87,106 +48,12 @@ class PutawayDetailViewModel(
                 setState {
                     copy(barcode = event.barcode)
                 }
-                if ((event.barcode.text.endsWith('\n') || (event.barcode.text.endsWith('\r'))) && state.putRow!=null){
-                    if (state.loadingState == Loading.NONE)scanBarcode(event.barcode.text,state.boxNumber.text)
-                }
-            }
-            is PutawayDetailContract.Event.OnChangeLocation -> {
-                setState {
-                    copy(location = event.location)
-                }
-                if((event.location.text.endsWith('\n') || event.location.text.endsWith('\r'))&& state.putRow!=null){
-                    setState {
-                        copy(isScanning = true)
-                    }
-                    if (state.putRow?.locationCode == event.location.text){
-                        setState {
-                            copy(isScanning = false, enableLocation = false)
-                        }
-                        setEffect {
-                            PutawayDetailContract.Effect.MoveFocus
-                        }
-                    } else {
-                        setState {
-                            copy(isScanning = false, error = "Invalid Location")
-                        }
-                    }
-                }
             }
             PutawayDetailContract.Event.OnNavBack -> {
                 setEffect {
                     PutawayDetailContract.Effect.NavBack
                 }
             }
-
-            is PutawayDetailContract.Event.OnRemovePut -> {
-                viewModelScope.launch(Dispatchers.IO) {
-                    setSuspendedState {
-                        copy(loadingState = Loading.LOADING)
-                    }
-                    repository.putRemove(event.putawayScanId)
-                        .catch {
-                            setSuspendedState {
-                                copy(error = it.message?:"", selectedPutaway = null, loadingState = Loading.NONE)
-                            }
-                        }
-                        .collect{
-                            when(it){
-                                is BaseResult.Error -> {
-                                    val data = if (it.message.isNotEmpty()) {
-                                        try {
-                                            Gson().fromJson(it.message, PutRemoveModel::class.java).message
-                                        }catch (e:Exception){
-                                            it.message
-                                        }
-                                    } else it.data?.message
-                                    setSuspendedState {
-                                        copy(error = data?:"", selectedPutaway = null, loadingState = Loading.NONE)
-                                    }
-                                }
-                                is BaseResult.Success -> {
-                                    if (it.data?.isSucceed == true && state.putRow!=null){
-                                        setSuspendedState {
-                                            copy(toast = "Item removed successfully.", selectedPutaway = null, page = 1, putaways = emptyList(), loadingState = Loading.LOADING)
-                                        }
-                                        getPutaways(state.putRow!!.receivingDetailID,state.page)
-                                    } else {
-                                        setSuspendedState {
-                                            copy(error = it.data?.message?:"", selectedPutaway = null)
-                                        }
-                                    }
-                                }
-                                else -> {
-                                    setSuspendedState {
-                                        copy(loadingState = Loading.NONE)
-                                    }
-                                }
-                            }
-                        }
-                }
-            }
-
-            PutawayDetailContract.Event.CheckLocation -> {
-                setState {
-                    copy(isScanning = true)
-                }
-                if (state.putRow?.locationCode == state.location.text){
-                    setState {
-                        copy(isScanning = false, enableLocation = false)
-                    }
-                    setEffect {
-                        PutawayDetailContract.Effect.MoveFocus
-                    }
-                } else {
-                    setState {
-                        copy(isScanning = false, error = "Invalid Location")
-                    }
-                }
-            }
-            PutawayDetailContract.Event.ScanBarcode -> {
-                if (state.loadingState == Loading.NONE)scanBarcode(state.barcode.text,state.boxNumber.text)
-            }
-
             PutawayDetailContract.Event.CloseError -> {
                 setState {
                     copy(error = "")
@@ -194,7 +61,7 @@ class PutawayDetailViewModel(
             }
             is PutawayDetailContract.Event.OnSelectPut -> {
                 setState {
-                    copy(selectedPutaway = event.putawayScanId)
+                    copy(selectedPutaway = event.put)
                 }
             }
 
@@ -204,21 +71,12 @@ class PutawayDetailViewModel(
                 }
             }
 
-            PutawayDetailContract.Event.HideFinishDialog -> {
-                setState {
-                    copy(showFinishAlertDialog = false)
-                }
-                setEffect {
-                    PutawayDetailContract.Effect.NavBack
-                }
-            }
-
             PutawayDetailContract.Event.OnReachEnd -> {
                 if (10*state.page<=state.putaways.size){
                     setState {
                         copy(page = state.page+1, loadingState = Loading.LOADING)
                     }
-                    getPutaways(state.putRow!!.receivingDetailID,state.page)
+                    getPutaways(putRow.referenceNumber,keyword = state.keyword.text,page = state.page,sort = state.sort)
                 }
             }
 
@@ -226,80 +84,151 @@ class PutawayDetailViewModel(
                 setState {
                     copy(page = 1, putaways = emptyList(), loadingState = Loading.REFRESHING)
                 }
-                getPutaways(state.putRow!!.receivingDetailID)
+                getPutaways(putRow.referenceNumber,keyword = state.keyword.text,page = state.page,sort = state.sort)
             }
-
-            is PutawayDetailContract.Event.OnChangeBoxNumber -> {
+            is PutawayDetailContract.Event.OnChangeLocation -> {
                 setState {
-                    copy(boxNumber = event.boxNumber)
+                    copy(location = event.location)
                 }
             }
-
-            PutawayDetailContract.Event.CheckBoxNumber -> {
+            is PutawayDetailContract.Event.OnSavePutaway -> {
+                finishPutaway(event.putaway,state.location.text.trim(), state.barcode.text.trim())
+            }
+            is PutawayDetailContract.Event.OnChangeKeyword -> {
                 setState {
-                    copy(enableBoxNumber = !state.enableBoxNumber)
+                    copy(keyword = event.keyword)
                 }
             }
-
-            is PutawayDetailContract.Event.OnShowHeaderDetail -> {
+            PutawayDetailContract.Event.OnSearch -> {
                 setState {
-                    copy(showHeaderDetail = event.show)
+                    copy(loadingState = Loading.SEARCHING, putaways = emptyList(), page = 1)
                 }
+                getPutaways(putRow.referenceNumber,keyword = state.keyword.text,page = state.page,sort = state.sort)
+            }
+            is PutawayDetailContract.Event.OnShowSortList -> {
+                setState {
+                    copy(showSortList = event.show)
+                }
+            }
+            is PutawayDetailContract.Event.OnSortChange -> {
+                prefs.setPutawayDetailSort(event.sortItem.sort)
+                prefs.setPutawayDetailOrder(event.sortItem.order.value)
+                setState {
+                    copy(sort = event.sortItem, page = 1, putaways = emptyList(), loadingState = Loading.LOADING)
+                }
+                getPutaways(putRow.referenceNumber,keyword = state.keyword.text,page = state.page,sort = event.sortItem)
             }
         }
     }
 
-    private fun scanBarcode(barcode: String, boxNumber: String){
-        viewModelScope.launch(Dispatchers.IO) {
-            setSuspendedState {
-                copy(isScanning = true, loadingState = Loading.LOADING)
+
+    private fun finishPutaway(
+        selectedPutaway: PutawayListRow,
+        locationCode: String,
+        barcode: String
+    ) {
+
+
+        if (selectedPutaway.warehouseLocationCode != locationCode){
+            setState {
+                copy(toast = "Please select correct location")
             }
-            repository
-                .put(state.putRow!!.receivingDetailID,state.location.text,barcode,boxNumber,1)
+            return
+        }
+
+        if (selectedPutaway.productBarcodeNumber != barcode){
+            setState {
+                copy(toast = "Please select correct barcode")
+            }
+            return
+        }
+        setState {
+            copy(onSaving = true)
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            if (state.selectedPutaway!=null)
+            repository.finishPutaway(
+                selectedPutaway.receiptDetailID.toString(),
+                selectedPutaway.productLocationActivityID.toString(),
+                selectedPutaway.receivingDetailID.toString())
                 .catch {
-                    setSuspendedState {
-                        copy(isScanning = false,error = it.message?:"", loadingState = Loading.NONE)
+                    setState {
+                        copy(
+                            error = it.message ?: "",
+                            onSaving = false
+                        )
                     }
                 }
                 .collect {
                     setSuspendedState {
-                        copy(isScanning = false)
+                        copy(onSaving = false)
                     }
                     when(it){
-                        is BaseResult.Error -> {
-                            val data = if(it.message.isNotEmpty()){
-                                try {
-                                    Gson().fromJson(it.message, ScanModel::class.java).message
-                                }catch (e:Exception){
-                                    it.message
-                                }
-                            } else it.data?.message?:""
-                            setSuspendedState {
-                                copy(error = data, loadingState = Loading.NONE)
-                            }
-                        }
                         is BaseResult.Success -> {
-                            if (it.data?.isSucceed == true) {
-                                setSuspendedState {
-                                    copy(barcode = TextFieldValue(), toast = "Scan successfully completed.", page = 1, putaways = emptyList(), loadingState = Loading.LOADING)
-                                }
-                                getPutaways(state.putRow!!.receivingDetailID,state.page)
-                            } else {
-                                setSuspendedState {
-                                    copy(error = it.data?.message?:"")
-                                }
-                            }
-                            if (it.data?.isNavigateToParent == true && prefs.getIsNavToParent()){
-                                setEffect {
-                                    PutawayDetailContract.Effect.NavToDashboard
-                                }
-                            }
-                        }
-                        else -> {
                             setSuspendedState {
-                                copy(loadingState = Loading.NONE)
+                                copy(
+                                    location = TextFieldValue(),
+                                    barcode = TextFieldValue(),
+                                    putaways = emptyList(),
+                                    page = 1,
+                                    selectedPutaway = null,
+                                    toast = it.data?.messages?.first() ?: "",
+                                    loadingState = Loading.LOADING
+                                )
+                            }
+                            getPutaways(putRow.referenceNumber,keyword = state.keyword.text,page = state.page,sort = state.sort)
+                        }
+                        is BaseResult.Error -> {
+                            setState {
+                                copy(
+                                    error = it.message,
+                                )
                             }
                         }
+                        else -> {}
+                    }
+                }
+        }
+    }
+
+
+    private fun getPutaways(referenceNumber: String,keyword: String = "",page: Int = 1, sort: SortItem) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.getPutawayList(
+                referenceNumber = referenceNumber,
+                keyword = keyword,
+                sort = sort.sort,
+                page = page,
+                order = sort.order.value
+            )
+                .catch {
+                    setState {
+                        copy(
+                            error = it.message ?: "",
+                            loadingState = Loading.NONE
+                        )
+                    }
+                }
+                .collect {
+                    setSuspendedState {
+                        copy(loadingState = Loading.NONE)
+                    }
+                    when(it){
+                        is BaseResult.Success -> {
+                            setState {
+                                copy(
+                                    putaways = putaways + (it.data?.rows ?: emptyList()),
+                                )
+                            }
+                        }
+                        is BaseResult.Error -> {
+                            setState {
+                                copy(
+                                    error = it.message,
+                                )
+                            }
+                        }
+                        else -> {}
                     }
                 }
         }

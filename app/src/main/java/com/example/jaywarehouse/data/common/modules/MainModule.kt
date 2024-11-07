@@ -54,7 +54,7 @@ val mainModule = module {
     }
 
     viewModel {
-        PutawayDetailViewModel(get(),get(),it.get(),it.get())
+        PutawayDetailViewModel(get(),get(),it.get())
     }
 
     viewModel {

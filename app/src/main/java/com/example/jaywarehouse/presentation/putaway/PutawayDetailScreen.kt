@@ -9,84 +9,84 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.jaywarehouse.R
 import com.example.jaywarehouse.data.common.utils.mdp
-import com.example.jaywarehouse.data.putaway.model.PutawaysRow
-import com.example.jaywarehouse.data.putaway.model.ReadyToPutRow
+import com.example.jaywarehouse.data.putaway.model.PutawayListGroupedRow
+import com.example.jaywarehouse.data.putaway.model.PutawayListRow
+import com.example.jaywarehouse.presentation.common.composables.BaseListItem
+import com.example.jaywarehouse.presentation.common.composables.BaseListItemModel
 import com.example.jaywarehouse.presentation.common.composables.BasicDialog
-import com.example.jaywarehouse.presentation.common.composables.ErrorDialog
-import com.example.jaywarehouse.presentation.common.composables.MyIcon
-import com.example.jaywarehouse.presentation.common.composables.MyInput
+import com.example.jaywarehouse.presentation.common.composables.DetailCard
+import com.example.jaywarehouse.presentation.common.composables.DetailItem
+import com.example.jaywarehouse.presentation.common.composables.InputTextField
+import com.example.jaywarehouse.presentation.common.composables.MyButton
 import com.example.jaywarehouse.presentation.common.composables.MyScaffold
 import com.example.jaywarehouse.presentation.common.composables.MyText
-import com.example.jaywarehouse.presentation.common.composables.RefreshIcon
-import com.example.jaywarehouse.presentation.common.composables.SuccessToast
+import com.example.jaywarehouse.presentation.common.composables.SearchInput
+import com.example.jaywarehouse.presentation.common.composables.SortBottomSheet
+import com.example.jaywarehouse.presentation.common.composables.TitleView
+import com.example.jaywarehouse.presentation.common.composables.TopBar
 import com.example.jaywarehouse.presentation.common.utils.Loading
 import com.example.jaywarehouse.presentation.common.utils.MainGraph
 import com.example.jaywarehouse.presentation.common.utils.SIDE_EFFECT_KEY
 import com.example.jaywarehouse.presentation.common.utils.ScreenTransition
-import com.example.jaywarehouse.presentation.counting.ConfirmDialog
 import com.example.jaywarehouse.presentation.destinations.DashboardScreenDestination
 import com.example.jaywarehouse.presentation.destinations.PutawayScreenDestination
-import com.example.jaywarehouse.presentation.packing.contracts.PackingDetailContract
-import com.example.jaywarehouse.presentation.picking.contracts.PickingDetailContract
 import com.example.jaywarehouse.presentation.putaway.contracts.PutawayDetailContract
 import com.example.jaywarehouse.presentation.putaway.viewmodels.PutawayDetailViewModel
 import com.example.jaywarehouse.ui.theme.Black
 import com.example.jaywarehouse.ui.theme.Gray2
+import com.example.jaywarehouse.ui.theme.Gray3
+import com.example.jaywarehouse.ui.theme.Gray5
 import com.example.jaywarehouse.ui.theme.Orange
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.popUpTo
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
-@MainGraph
 @Destination(style = ScreenTransition::class)
 @Composable
 fun PutawayDetailScreen(
     navigator: DestinationsNavigator,
-    putRow: ReadyToPutRow,
-    fillLocation: Boolean,
+    putRow: PutawayListGroupedRow,
     viewModel: PutawayDetailViewModel = koinViewModel(
         parameters = {
-            parametersOf(putRow,fillLocation)
+            parametersOf(putRow)
         }
     )
 ) {
@@ -111,10 +111,6 @@ fun PutawayDetailScreen(
                         }
                     }
                 }
-
-                PutawayDetailContract.Effect.MoveFocus -> {
-//                    barcodeFocusRequester.requestFocus()
-                }
             }
         }
     }
@@ -127,235 +123,92 @@ fun PutawayDetailContent(
     state: PutawayDetailContract.State = PutawayDetailContract.State(),
     onEvent: (PutawayDetailContract.Event)->Unit = {}
 ) {
+    val focusRequester = FocusRequester()
+
     val refreshState = rememberPullRefreshState(
         refreshing = state.loadingState == Loading.REFRESHING,
-        onRefresh = {
-            onEvent(PutawayDetailContract.Event.OnRefresh)
-        }
+        onRefresh = { onEvent(PutawayDetailContract.Event.OnRefresh) }
     )
-    val locationFocusRequester = remember {
-        FocusRequester()
-    }
-    val barcodeFocusRequester = remember {
-        FocusRequester()
-    }
-    val focusManager = LocalFocusManager.current
-
-    LaunchedEffect(key1 = state.toast) {
-        if(state.toast.isNotEmpty()){
-            delay(3000)
-            onEvent(PutawayDetailContract.Event.HideToast)
-        }
+    LaunchedEffect(key1 = Unit) {
+        focusRequester.requestFocus()
     }
     MyScaffold(
-        loadingState = state.loadingState
+        loadingState = state.loadingState,
+        error = state.error,
+        onCloseError = {
+            onEvent(PutawayDetailContract.Event.CloseError)
+        },
+        toast = state.toast,
+        onHideToast = {
+            onEvent(PutawayDetailContract.Event.HideToast)
+        }
     ) {
 
-        Box(Modifier.fillMaxSize()) {
-
+        Box(
+            Modifier
+                .fillMaxSize()) {
             Column(
                 Modifier
+                    .pullRefresh(refreshState)
                     .fillMaxSize()
                     .padding(15.mdp)
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(12.mdp))
-                            .background(Color.Black.copy(0.85f))
-                            .clickable {
-                                onEvent(PutawayDetailContract.Event.OnNavBack)
-                            }
-                            .padding(5.mdp)
-                    ) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                            contentDescription = "",
-                            tint = Color.White,
-                            modifier = Modifier.size(26.mdp)
-                        )
-                    }
-                    Spacer(modifier = Modifier.size(10.mdp))
-                    MyText(
-                        stringResource(id = R.string.putaway),
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Bold,
-                    )
-                }
-                Spacer(modifier = Modifier.size(15.mdp))
-                if(state.putRow!=null)
-                    PutawayItem(
-                        model = state.putRow,
-                        enableShowDetail = true,
-                        showAll = state.showHeaderDetail,
-                        onClick = {
-                            onEvent(PutawayDetailContract.Event.OnShowHeaderDetail(!state.showHeaderDetail))
-                        }
-                    )
-                Spacer(modifier = Modifier.size(15.mdp))
-                MyInput(
-                    value = state.boxNumber,
-                    onValueChange = {
-                        onEvent(PutawayDetailContract.Event.OnChangeBoxNumber(it))
-                    },
-                    label = "Box Number ...",
-                    focusRequester = FocusRequester(),
-                    onAny = {
-                        onEvent(PutawayDetailContract.Event.CheckBoxNumber)
-                        locationFocusRequester.requestFocus()
-                    },
-                    enabled = (state.enableLocation && state.enableBoxNumber) || state.putaways.isEmpty(),
-                    hideKeyboard = state.lockKeyboard,
-                    trailingIcon = {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            if (state.enableBoxNumber && state.boxNumber.text.isNotEmpty())MyIcon(icon = R.drawable.vuesax_bulk_broom) {
-                                onEvent(PutawayDetailContract.Event.OnChangeBoxNumber(TextFieldValue()))
-                            }
-                            Spacer(modifier = Modifier.size(7.mdp))
-                            MyIcon(icon = R.drawable.vuesax_bulk_box) {
-                                onEvent(PutawayDetailContract.Event.CheckBoxNumber)
-                                locationFocusRequester.requestFocus()
-                            }
-                        }
+                TopBar(
+                    title = "Puaway",
+                    onBack = {
+                        onEvent(PutawayDetailContract.Event.OnNavBack)
                     }
                 )
-                Spacer(modifier = Modifier.size(15.mdp))
-                MyInput(
-                    value = state.location,
+                Spacer(modifier = Modifier.size(20.mdp))
+                SearchInput(
+                    value = state.keyword,
                     onValueChange = {
-                        onEvent(PutawayDetailContract.Event.OnChangeLocation(it))
+                        onEvent(PutawayDetailContract.Event.OnChangeKeyword(it))
                     },
-                    label = "Location ...",
-                    focusRequester = locationFocusRequester,
-                    onAny = {
-                        onEvent(PutawayDetailContract.Event.CheckLocation)
-                        if (!state.enableLocation) barcodeFocusRequester.requestFocus()
+                    onSearch = {
+                        onEvent(PutawayDetailContract.Event.OnSearch)
                     },
-                    enabled = state.enableLocation,
+                    isLoading = state.loadingState == Loading.SEARCHING,
+                    onSortClick = {
+                        onEvent(PutawayDetailContract.Event.OnShowSortList(true))
+                    },
                     hideKeyboard = state.lockKeyboard,
-                    trailingIcon = {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
+                    focusRequester = focusRequester
+                )
 
-                            if (state.enableLocation && state.location.text.isNotEmpty())MyIcon(icon = R.drawable.vuesax_bulk_broom) {
-                                onEvent(PutawayDetailContract.Event.OnChangeLocation(TextFieldValue()))
-                            }
-                            Spacer(modifier = Modifier.size(7.mdp))
-                            if (state.isScanning && state.enableLocation) {
-                                RefreshIcon(isRefreshing = true)
-                            } else {
-                                MyIcon(icon = R.drawable.location) {
-                                    onEvent(PutawayDetailContract.Event.CheckLocation)
-                                    if (!state.enableLocation) barcodeFocusRequester.requestFocus()
-                                }
-                            }
+                Spacer(modifier = Modifier.size(20.mdp))
+                LazyColumn(Modifier.fillMaxSize()) {
+                    items(state.putaways){
+                        PutawayDetailItem(it){
+                            onEvent(PutawayDetailContract.Event.OnSelectPut(it))
                         }
+                        Spacer(modifier = Modifier.size(7.mdp))
                     }
-                )
-                Spacer(modifier = Modifier.size(15.mdp))
-                MyInput(
-                    value = state.barcode,
-                    onValueChange = {
-                        onEvent(PutawayDetailContract.Event.OnChangeBarcode(it))
-                    },
-                    label = "Barcode ...",
-                    enabled = !state.enableLocation,
-                    onAny = {
-                        onEvent(PutawayDetailContract.Event.ScanBarcode)
-                    },
-                    focusRequester = barcodeFocusRequester,
-                    readOnly = state.loadingState != Loading.NONE,
-                    hideKeyboard = state.lockKeyboard,
-                    trailingIcon = {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-
-                            if (!state.enableLocation && state.barcode.text.isNotEmpty())MyIcon(icon = R.drawable.vuesax_bulk_broom) {
-                                onEvent(PutawayDetailContract.Event.OnChangeBarcode(TextFieldValue()))
-                            }
-                            Spacer(modifier = Modifier.size(7.mdp))
-                            if (state.isScanning && !state.enableLocation){
-                                RefreshIcon(isRefreshing = true)
-                            }
-                            else {
-                                MyIcon(icon = R.drawable.barcode) {
-                                    onEvent(PutawayDetailContract.Event.ScanBarcode)
-                                }
-                            }
-                        }
+                    item {
+                        onEvent(PutawayDetailContract.Event.OnReachEnd)
                     }
-                )
-                Spacer(modifier = Modifier.size(15.mdp))
-                if (state.putaways.isNotEmpty())Column(
-                    Modifier
-                        .shadow(2.mdp, RoundedCornerShape(10.mdp))
-                        .fillMaxWidth()
-                        .pullRefresh(refreshState)
-                        .clip(RoundedCornerShape(10.mdp))
-                        .background(Color.White)
-                        .padding(12.mdp)
-                ) {
-                    MyText(
-                        "Registered On",
-                        fontWeight = FontWeight.SemiBold,
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                    Spacer(modifier = Modifier.size(15.mdp))
-                    LazyColumn(
-                        Modifier.heightIn(min = 100.mdp)
-                    ) {
-                        itemsIndexed(state.putaways.reversed()){ i, it->
-                            RegisteredItem(
-                                state.putaways.size-i,it.date,it.time
-                            ) {
-                                onEvent(PutawayDetailContract.Event.OnSelectPut(it.putawayScanID))
-                            }
-                            Spacer(modifier = Modifier.size(7.mdp))
-                        }
-                        item {
-                            onEvent(PutawayDetailContract.Event.OnReachEnd)
-                        }
+                    item {
+                        Spacer(modifier = Modifier.size(70.mdp))
                     }
-                    Spacer(modifier = Modifier.size(80.mdp))
                 }
             }
-            SuccessToast(
-                Modifier
-                    .padding(12.mdp)
-                    .align(alignment = Alignment.TopCenter),message = state.toast)
-//            if (state.loadingState == Loading.LOADING) CircularProgressIndicator(modifier = Modifier.align(alignment = Alignment.Center))
-            PullRefreshIndicator(refreshing = state.loadingState == Loading.REFRESHING, state = refreshState, modifier = Modifier.align(Alignment.TopCenter) )
-
+            PullRefreshIndicator(refreshing = state.loadingState == Loading.REFRESHING, state = refreshState, modifier = Modifier.align(
+                Alignment.TopCenter) )
         }
     }
-    if (state.selectedPutaway!=null){
-        ConfirmDialog(onDismiss = {
-            onEvent(PutawayDetailContract.Event.OnSelectPut(null))
-        }) {
-            onEvent(PutawayDetailContract.Event.OnRemovePut(state.selectedPutaway))
-        }
-    }
-    if (state.error.isNotEmpty()) {
-        ErrorDialog(
+    if (state.showSortList){
+        SortBottomSheet(
             onDismiss = {
-                onEvent(PutawayDetailContract.Event.CloseError)
+                onEvent(PutawayDetailContract.Event.OnShowSortList(false))
             },
-            message = state.error
-        )
-    }
-    if (state.showFinishAlertDialog){
-        MyAlertDialog(
-            onDismiss = {
-                onEvent(PutawayDetailContract.Event.HideFinishDialog)
+            sortOptions = state.sortList,
+            selectedSort = state.sort,
+            onSelectSort = {
+                onEvent(PutawayDetailContract.Event.OnSortChange(it))
             }
         )
     }
-    LaunchedEffect(key1 = state.enableLocation) {
-        if (state.enableLocation){
-            locationFocusRequester.requestFocus()
-        } else {
-            focusManager.clearFocus()
-            barcodeFocusRequester.requestFocus()
-        }
-    }
+    PutawayBottomSheet(state,onEvent)
 }
 
 @Composable
@@ -447,9 +300,204 @@ fun RegisteredItem(i: Int, date: String , time: String,onRemove:()->Unit) {
     }
 }
 
+
+@Composable
+fun PutawayDetailItem(
+    model: PutawayListRow,
+    onClick: ()->Unit
+) {
+    BaseListItem(
+        onClick = onClick,
+        item1 = BaseListItemModel("Name",model.productName, R.drawable.vuesax_outline_3d_cube_scan),
+        item2 = BaseListItemModel("Product Code",model.productCode,R.drawable.barcode),
+        item3 = BaseListItemModel("Barcode",model.productBarcodeNumber,R.drawable.note),
+        item4 = BaseListItemModel("Batch Number",model.batchNumber?:"",R.drawable.vuesax_linear_box),
+        item5 = BaseListItemModel("Expiration Date",model.expireDateString?:"",R.drawable.calendar_add),
+        quantity = model.warehouseLocationCode,
+        quantityTitle = "Location",
+        scan = model.quantity.toString(),
+        scanTitle = "Quantity"
+    )
+}
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun PutawayBottomSheet(
+    state: PutawayDetailContract.State,
+    onEvent: (PutawayDetailContract.Event) -> Unit
+) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val scope = rememberCoroutineScope()
+
+
+    if (state.selectedPutaway!=null){
+
+        val locationFocusRequester = remember {
+            FocusRequester()
+        }
+        val barcodeFocusRequester = remember {
+            FocusRequester()
+        }
+
+        LaunchedEffect(Unit) {
+            locationFocusRequester.requestFocus()
+        }
+        ModalBottomSheet(
+            sheetState = sheetState,
+            onDismissRequest = {
+                onEvent(PutawayDetailContract.Event.OnSelectPut(null))
+            },
+            containerColor = Color.White
+        ) {
+            Column (
+                Modifier
+                    .padding(horizontal = 24.mdp)
+                    .padding(bottom = 24.mdp)
+            ){
+                MyText(
+                    text = "Putaway",
+                    fontWeight = FontWeight.W500,
+                    style = MaterialTheme.typography.titleLarge
+                )
+                Spacer(Modifier.size(10.mdp))
+
+                DetailCard(
+                    title = "Name",
+                    icon = R.drawable.vuesax_outline_3d_cube_scan,
+                    detail = state.selectedPutaway.productName,
+                )
+                Spacer(Modifier.size(10.mdp))
+                Row(Modifier.fillMaxWidth()) {
+                    DetailCard(
+                        title = "Product Code",
+                        icon = R.drawable.note,
+                        detail = state.selectedPutaway.productCode,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Spacer(Modifier.size(5.mdp))
+                    DetailCard(
+                        title = "Barcode",
+                        icon = R.drawable.barcode,
+                        detail = state.selectedPutaway.productBarcodeNumber,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+                Spacer(Modifier.size(10.mdp))
+                if(state.selectedPutaway.batchNumber!=null || state.selectedPutaway.expireDateString!=null)Row(Modifier.fillMaxWidth()) {
+                    if(state.selectedPutaway.batchNumber!=null)DetailCard(
+                        title = "Batch Number",
+                        icon = R.drawable.vuesax_linear_box,
+                        detail = state.selectedPutaway.batchNumber,
+                        modifier = Modifier.weight(1f)
+                    )
+                    if(state.selectedPutaway.batchNumber!=null && state.selectedPutaway.expireDateString!=null)Spacer(Modifier.size(5.mdp))
+                    if(state.selectedPutaway.expireDateString != null)DetailCard(
+                        title = "Expiration Date",
+                        icon = R.drawable.calendar_add,
+                        detail = state.selectedPutaway.expireDateString,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+                Spacer(Modifier.size(10.mdp))
+                Row(Modifier.fillMaxWidth()) {
+                    DetailCard(
+                        title = "Location",
+                        icon = R.drawable.location,
+                        detail = state.selectedPutaway.warehouseLocationCode,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Spacer(Modifier.size(5.mdp))
+                    DetailCard(
+                        title = "Quantity",
+                        icon = R.drawable.vuesax_linear_box,
+                        detail = state.selectedPutaway.quantity.toString(),
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+                Spacer(Modifier.size(10.mdp))
+                TitleView(
+                    title = "Location Code"
+                )
+                Spacer(Modifier.size(5.mdp))
+                InputTextField(
+                    state.location,
+                    onValueChange = {
+                        onEvent(PutawayDetailContract.Event.OnChangeLocation(it))
+                    },
+                    onAny = {
+                        barcodeFocusRequester.requestFocus()
+                    },
+                    leadingIcon = R.drawable.location,
+//                    hideKeyboard = state.lockKeyboard,
+                    focusRequester = locationFocusRequester,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
+                )
+                Spacer(Modifier.size(10.mdp))
+                TitleView(title = "Barcode")
+                Spacer(Modifier.size(5.mdp))
+                InputTextField(
+                    state.barcode,
+                    onValueChange = {
+                        onEvent(PutawayDetailContract.Event.OnChangeBarcode(it))
+                    },
+                    onAny = {},
+                    leadingIcon = R.drawable.barcode,
+//                    hideKeyboard = state.lockKeyboard,
+                    focusRequester = barcodeFocusRequester,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
+                )
+                Spacer(Modifier.size(15.mdp))
+                Row(Modifier.fillMaxWidth()) {
+                    MyButton(
+                        onClick = {
+                            scope.launch { sheetState.hide() }.invokeOnCompletion {
+                                onEvent(PutawayDetailContract.Event.OnSelectPut(null))
+                            }
+                        },
+                        title = "Cancel",
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Gray3,
+                            contentColor = Gray5
+                        ),
+                        modifier = Modifier.weight(1f)
+                    )
+                    Spacer(Modifier.size(10.mdp))
+                    MyButton(
+                        onClick = {
+
+                            onEvent(PutawayDetailContract.Event.OnSavePutaway(state.selectedPutaway))
+                        },
+                        title = "Save",
+                        isLoading = state.onSaving,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+        }
+    }
+}
+
 @Preview
 @Composable
 private fun PutawayDetailPreview() {
-    PutawayDetailContent()
+    PutawayDetailContent(
+        state = PutawayDetailContract.State(
+            selectedPutaway = PutawayListRow(
+                batchNumber = "test",
+                expireDateString = "today",
+                ownerFullName = "mohyeddin",
+                productBarcodeNumber = "e342432",
+                productCode = "dkfsodif",
+                32002,
+                productName = "osdkod",
+                30220,
+                20,
+                32002,
+                20202,
+                "A-01-01"
+            )
+        )
+    )
 
 }

@@ -37,6 +37,7 @@ import com.example.jaywarehouse.data.common.utils.mdp
 import com.example.jaywarehouse.data.receiving.model.ReceivingDetailCountModel
 import com.example.jaywarehouse.data.receiving.model.ReceivingDetailRow
 import com.example.jaywarehouse.presentation.common.composables.DatePickerDialog
+import com.example.jaywarehouse.presentation.common.composables.DetailItem
 import com.example.jaywarehouse.presentation.common.composables.InputTextField
 import com.example.jaywarehouse.presentation.common.composables.MyIcon
 import com.example.jaywarehouse.presentation.common.composables.MyScaffold
@@ -221,73 +222,19 @@ fun CountingInceptionContent(
         }
     }
 }
+
+
 @Composable
 fun CountingInceptionDetailItem(
     i: Int,
     model: ReceivingDetailCountModel
 ) {
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(6.mdp))
-            .background(Color.White)
-            .padding(10.mdp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        MyText(
-            text = i.toString(),
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.W500,
-            color = Color.Black
-        )
-
-        Row {
-            Icon(
-                painterResource(R.drawable.barcode),
-                contentDescription = "",
-                modifier = Modifier.size(20.mdp),
-                tint = Color.Black
-            )
-            Spacer(Modifier.size(10.mdp))
-            MyText(
-                text = model.batchNumber,
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.W500,
-                color = Color.Black
-            )
-        }
-        Row {
-            Icon(
-                painterResource(R.drawable.barcode),
-                contentDescription = "",
-                modifier = Modifier.size(20.mdp),
-                tint = Color.Black
-            )
-            Spacer(Modifier.size(10.mdp))
-            MyText(
-                text = model.quantity.toString(),
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.W500,
-                color = Color.Black
-            )
-        }
-        Row {
-            Icon(
-                painterResource(R.drawable.vuesax_linear_calendar_2),
-                contentDescription = "",
-                modifier = Modifier.size(20.mdp),
-                tint = Color.Black
-            )
-            Spacer(Modifier.size(10.mdp))
-            MyText(
-                text = model.expireDate,
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.W500,
-                color = Color.Black
-            )
-        }
-    }
+    DetailItem(
+        i,
+        model.batchNumber,
+        model.quantity.toString(),
+        model.expireDate
+    )
 }
 
 

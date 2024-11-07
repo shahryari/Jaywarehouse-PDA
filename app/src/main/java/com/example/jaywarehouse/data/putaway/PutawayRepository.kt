@@ -1,81 +1,76 @@
 package com.example.jaywarehouse.data.putaway
 
 import com.example.jaywarehouse.data.common.utils.BaseResult
+import com.example.jaywarehouse.data.common.utils.ResultMessageModel
 import com.example.jaywarehouse.data.common.utils.getResult
 import com.example.jaywarehouse.data.putaway.model.ScanModel
-import com.example.jaywarehouse.data.putaway.model.PutRemoveModel
-import com.example.jaywarehouse.data.putaway.model.PutawaysModel
-import com.example.jaywarehouse.data.putaway.model.ReadyToPutModel
+import com.example.jaywarehouse.data.putaway.model.PutawayListModel
+import com.example.jaywarehouse.data.putaway.model.PutawayListGroupedModel
 import com.google.gson.JsonObject
 import kotlinx.coroutines.flow.Flow
 
 class PutawayRepository(
     private val api: PutawayApi
 ) {
-    suspend fun getReadyToPut(
+    fun getPutawayListGrouped(
         keyword: String,
         page: Int,
-        rows: Int,
         sort: String,
         order: String
-    ) : Flow<BaseResult<ReadyToPutModel>> {
+    ) : Flow<BaseResult<PutawayListGroupedModel>> {
         val jsonObject = JsonObject()
         jsonObject.addProperty("Keyword",keyword)
         return getResult(
             request = {
-                api.getReadyToPut(jsonObject, page, rows, sort, order)
+                api.getPutawayListGrouped(
+                    jsonObject = jsonObject,
+                    page = page,
+                    rows = 10,
+                    sort = sort,
+                    order = order
+                )
             }
         )
     }
 
-    suspend fun put(
-        receivingDetailID: Int,
-        locationCode: String,
-        barcode: String,
-        boxNumber: String,
-        quantity: Int
-    ) : Flow<BaseResult<ScanModel>> {
-        val jsonObject = JsonObject()
-        jsonObject.addProperty("ReceivingDetailID",receivingDetailID)
-        jsonObject.addProperty("LocationCode",locationCode.trim().trimIndent())
-        jsonObject.addProperty("Barcode",barcode.trim().trimIndent())
-        jsonObject.addProperty("BoxNumber",boxNumber.trim().trimIndent())
-        jsonObject.addProperty("Quantity",quantity)
-        return getResult(
-            request = {
-                api.put(jsonObject)
-            }
-        )
-    }
-
-
-    suspend fun getPutaways(
-        receivingDetailID: Int,
+    fun getPutawayList(
         keyword: String,
+        referenceNumber: String,
         page: Int,
-        rows: Int,
         sort: String,
         order: String
-    ) : Flow<BaseResult<PutawaysModel>> {
+    ) : Flow<BaseResult<PutawayListModel>> {
         val jsonObject = JsonObject()
-        jsonObject.addProperty("ReceivingDetailID",receivingDetailID)
         jsonObject.addProperty("Keyword",keyword)
+        jsonObject.addProperty("ReferenceNumber",referenceNumber)
+
         return getResult(
             request = {
-                api.getPutaways(jsonObject,page, rows, sort, order)
+                api.getPutawayList(
+                    jsonObject = jsonObject,
+                    page = page,
+                    rows = 10,
+                    sort = sort,
+                    order =order
+                )
             }
         )
     }
 
-
-    suspend fun putRemove(
-        putawayScanID: Int
-    ) : Flow<BaseResult<PutRemoveModel>> {
+    fun finishPutaway(
+        receiptDetailId: String,
+        productLocationActivityId: String,
+        receivingDetailId: String
+    ) : Flow<BaseResult<ResultMessageModel>> {
         val jsonObject = JsonObject()
-        jsonObject.addProperty("PutawayScanID",putawayScanID)
+        jsonObject.addProperty("ReceiptDetailID",receiptDetailId)
+        jsonObject.addProperty("ProductLocationActivityID",productLocationActivityId)
+        jsonObject.addProperty("ReceivingDetailID",receivingDetailId)
         return getResult(
             request = {
-                api.putRemove(jsonObject)
+                api.finishPutaway(
+                    jsonObject
+                )
             }
         )
     }

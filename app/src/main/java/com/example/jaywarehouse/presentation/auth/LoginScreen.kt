@@ -55,6 +55,7 @@ import com.example.jaywarehouse.presentation.common.composables.MyScaffold
 import com.example.jaywarehouse.presentation.common.composables.MyText
 import com.example.jaywarehouse.presentation.common.composables.MyTextField
 import com.example.jaywarehouse.presentation.common.composables.SuccessToast
+import com.example.jaywarehouse.presentation.common.composables.TitleView
 import com.example.jaywarehouse.presentation.common.utils.SIDE_EFFECT_KEY
 import com.example.jaywarehouse.presentation.counting.contracts.CountingDetailContract
 import com.example.jaywarehouse.presentation.destinations.DashboardScreenDestination
@@ -293,28 +294,6 @@ fun ChangeAddressDialog(
     }
 }
 
-@Composable
-private fun TitleView(
-    modifier: Modifier = Modifier,
-    title: String
-) {
-    Row(
-        modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        MyText(
-            title,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.W500
-        )
-        Spacer(Modifier.size(3.mdp))
-        MyText(
-            "*",
-            style = MaterialTheme.typography.titleLarge,
-            color = Color.Red
-        )
-    }
-}
 
 @Preview
 @Composable

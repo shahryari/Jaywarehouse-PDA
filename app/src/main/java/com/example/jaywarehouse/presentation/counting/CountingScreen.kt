@@ -253,37 +253,7 @@ fun CountListItem(
                     detail = receivingRow.supplierFullName?:""
                 )
                 Spacer(modifier = Modifier.size(15.mdp))
-//                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-//                    Box(Modifier.weight(1f), contentAlignment = Alignment.CenterStart) {
-//                        Box(
-//                            modifier = Modifier
-//                                .fillMaxWidth()
-//                                .height(4.mdp)
-//                                .clip(RoundedCornerShape(5.mdp))
-//                                .background(color.copy(0.2f))
-//                        ) {
-//                            Box(
-//                                modifier = Modifier
-//                                    .fillMaxWidth(receivingRow.progress.toFloat() / 100f)
-//                                    .height(6.mdp)
-//                                    .clip(RoundedCornerShape(5.mdp))
-//                                    .background(color)
-//                            )
-//                        }
-//                        Spacer(modifier = Modifier
-//                            .size(17.mdp)
-//                            .clip(CircleShape)
-//                            .background(color))
-//                    }
-//                    Spacer(modifier = Modifier.size(4.mdp))
-//                    MyText(
-//                        text = "${receivingRow.progress}%",
-//                        fontWeight = FontWeight.SemiBold,
-//                        fontFamily = poppins,
-//                        style = MaterialTheme.typography.labelSmall,
-//                        color = color.copy(0.7f)
-//                    )
-//                }
+
             }
         }
         Row(

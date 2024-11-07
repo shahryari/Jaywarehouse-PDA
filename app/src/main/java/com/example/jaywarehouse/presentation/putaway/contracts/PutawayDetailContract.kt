@@ -1,56 +1,74 @@
 package com.example.jaywarehouse.presentation.putaway.contracts
 
 import androidx.compose.ui.text.input.TextFieldValue
-import com.example.jaywarehouse.data.putaway.model.PutawaysModel
-import com.example.jaywarehouse.data.putaway.model.PutawaysRow
-import com.example.jaywarehouse.data.putaway.model.ReadyToPutRow
+import com.example.jaywarehouse.data.putaway.model.PutawayListGroupedRow
+import com.example.jaywarehouse.data.putaway.model.PutawayListModel
+import com.example.jaywarehouse.data.putaway.model.PutawayListRow
 import com.example.jaywarehouse.presentation.common.utils.Loading
+import com.example.jaywarehouse.presentation.common.utils.Order
+import com.example.jaywarehouse.presentation.common.utils.SortItem
 import com.example.jaywarehouse.presentation.common.utils.UiEvent
 import com.example.jaywarehouse.presentation.common.utils.UiSideEffect
 import com.example.jaywarehouse.presentation.common.utils.UiState
 
 class PutawayDetailContract {
     data class State(
-        val putRow: ReadyToPutRow? = null,
-        val details: PutawaysModel? = null,
-        val putaways: List<PutawaysRow> = emptyList(),
-        val enableLocation: Boolean = true,
-        val enableBoxNumber: Boolean = true,
-        val boxNumber: TextFieldValue = TextFieldValue(),
+        val putRow: PutawayListGroupedRow? = null,
+        val details: PutawayListModel? = null,
+        val putaways: List<PutawayListRow> = emptyList(),
+//        val enableLocation: Boolean = true,
+//        val enableBoxNumber: Boolean = true,
+//        val boxNumber: TextFieldValue = TextFieldValue(),
         val location: TextFieldValue = TextFieldValue(),
         val barcode: TextFieldValue = TextFieldValue(),
-        val isScanning: Boolean = false,
-        val showHeaderDetail: Boolean = false,
+//        val isScanning: Boolean = false,
+//        val showHeaderDetail: Boolean = false,
         val loadingState: Loading = Loading.NONE,
-        val selectedPutaway: Int? = null,
-        val showFinishAlertDialog: Boolean = false,
+        val selectedPutaway: PutawayListRow? = null,
+//        val showFinishAlertDialog: Boolean = false,
+        val showSortList: Boolean = false,
         val error: String = "",
         val page: Int = 1,
         val toast: String = "",
         val lockKeyboard: Boolean = false,
+        val keyword: TextFieldValue = TextFieldValue(),
+        val sortList: List<SortItem> = listOf(
+            SortItem("Created On closed to now", "CreatedOn", Order.Desc),
+            SortItem("Created On farthest from now", "CreatedOn",Order.Asc),
+            SortItem("Receiving Number Descending", "Receiving",Order.Desc),
+            SortItem("Receiving Number Ascending", "Receiving",Order.Asc),
+            SortItem("Most Progress", "Progress",Order.Desc),
+            SortItem("Least Progress", "Progress",Order.Asc)
+        ),
+        val sort: SortItem = sortList.first(),
+        val onSaving: Boolean = false,
     ) : UiState
 
     sealed class Event : UiEvent {
         data class OnChangeBarcode(val barcode: TextFieldValue) : Event()
         data class OnChangeLocation(val location: TextFieldValue) : Event()
-        data class OnChangeBoxNumber(val boxNumber: TextFieldValue) : Event()
-        data object CheckLocation : Event()
-        data object CheckBoxNumber : Event()
-        data object ScanBarcode: Event()
-        data class OnRemovePut(val putawayScanId: Int) : Event()
-        data class OnSelectPut(val putawayScanId: Int?) : Event()
+        data class OnChangeKeyword(val keyword: TextFieldValue) : Event()
+//        data class OnChangeBoxNumber(val boxNumber: TextFieldValue) : Event()
+//        data object CheckLocation : Event()
+//        data object CheckBoxNumber : Event()
+//        data object ScanBarcode: Event()
+//        data class OnRemovePut(val putawayScanId: Int) : Event()
+        data class OnSelectPut(val put: PutawayListRow?) : Event()
         data object OnNavBack : Event()
         data object CloseError: Event()
         data object HideToast: Event()
-        data object HideFinishDialog: Event()
+//        data object HideFinishDialog: Event()
         data object OnReachEnd: Event()
         data object OnRefresh: Event()
-        data class OnShowHeaderDetail(val show: Boolean): Event()
+//        data class OnShowHeaderDetail(val show: Boolean): Event()
+        data class OnSavePutaway(val putaway: PutawayListRow): Event()
+        data class OnShowSortList(val show: Boolean) : Event()
+        data object OnSearch: Event()
+        data class OnSortChange(val sortItem: SortItem): Event()
     }
 
     sealed class Effect: UiSideEffect {
         data object NavBack : Effect()
         data object NavToDashboard: Effect()
-        data object MoveFocus: Effect()
     }
 }

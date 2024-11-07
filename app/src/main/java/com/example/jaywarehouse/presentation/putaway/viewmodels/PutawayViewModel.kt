@@ -7,6 +7,8 @@ import com.example.jaywarehouse.data.common.utils.Prefs
 import com.example.jaywarehouse.data.putaway.PutawayRepository
 import com.example.jaywarehouse.presentation.common.utils.BaseViewModel
 import com.example.jaywarehouse.presentation.common.utils.Loading
+import com.example.jaywarehouse.presentation.common.utils.Order
+import com.example.jaywarehouse.presentation.common.utils.SortItem
 import com.example.jaywarehouse.presentation.putaway.contracts.PutawayContract
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.catch
@@ -18,8 +20,11 @@ class PutawayViewModel(
 ) : BaseViewModel<PutawayContract.Event,PutawayContract.State,PutawayContract.Effect>(){
 
     init {
-        setState {
-            copy(sort = prefs.getPutawaySort(), order = prefs.getPutawayOrder())
+        val sort = state.sortList.find {
+            it.sort == prefs.getPutawaySort() && it.order == Order.getFromValue(prefs.getPutawayOrder())
+        }
+        if (sort!=null) setState {
+            copy(sort = sort)
         }
         viewModelScope.launch(Dispatchers.IO) {
             prefs.getLockKeyboard().collect {
@@ -50,20 +55,13 @@ class PutawayViewModel(
                     copy(error = "")
                 }
             }
-
-            is PutawayContract.Event.OnChangeOrder -> {
-                prefs.setPutawayOrder(event.order)
-                setState {
-                    copy(order = event.order, puts = emptyList(), page = 1, loadingState = Loading.LOADING)
-                }
-                getReadyToPut("",state.page,state.sort,event.order)
-            }
             is PutawayContract.Event.OnChangeSort -> {
-                prefs.setPutawaySort(event.sort)
+                prefs.setPutawaySort(event.sort.sort)
+                prefs.setPutawayOrder(event.sort.order.value)
                 setState {
                     copy(sort = event.sort, puts = emptyList(), page = 1, loadingState = Loading.LOADING)
                 }
-                getReadyToPut("",state.page,event.sort,state.order)
+                getPutawayList(state.keyword.text,state.page,event.sort)
             }
             is PutawayContract.Event.OnShowSortList -> {
                 setState {
@@ -76,7 +74,8 @@ class PutawayViewModel(
                 setState {
                     copy(page = 1, puts = emptyList(), loadingState = Loading.LOADING, keyword = TextFieldValue())
                 }
-                getReadyToPut(state.keyword.text,state.page,state.sort,state.order)
+
+                getPutawayList(state.keyword.text,state.page,state.sort)
             }
 
             PutawayContract.Event.OnReachedEnd -> {
@@ -84,7 +83,7 @@ class PutawayViewModel(
                     setState {
                         copy(page = state.page+1, loadingState = Loading.LOADING)
                     }
-                    getReadyToPut(state.keyword.text,state.page,state.sort,state.order)
+                    getPutawayList(state.keyword.text,state.page,state.sort)
                 }
             }
 
@@ -92,57 +91,61 @@ class PutawayViewModel(
                 setState {
                     copy(page = 1, puts = emptyList(), loadingState = Loading.SEARCHING)
                 }
-                getReadyToPut(
-                    state.keyword.text,
-                    page = state.page,
-                    sort = state.sort,
-                    order = state.order,
-                    isSearching = true
-                )
+                getPutawayList(state.keyword.text,state.page,state.sort)
             }
 
             PutawayContract.Event.OnRefresh -> {
                 setState {
                     copy(page = 1, puts = emptyList(), loadingState = Loading.REFRESHING)
                 }
-                getReadyToPut(state.keyword.text,state.page,state.sort,state.order)
+                getPutawayList(state.keyword.text,state.page,state.sort)
             }
+
+            PutawayContract.Event.OnBackPressed -> {
+                setEffect {
+                    PutawayContract.Effect.NavBack
+                }
+            }
+
         }
     }
 
-    private fun getReadyToPut(keyword: String, page: Int = 1, sort: String, order: String,isSearching: Boolean = false){
-        viewModelScope.launch(Dispatchers.IO) {
 
-            repository.getReadyToPut(keyword,page,10,sort, order)
+    private fun getPutawayList(
+        keyword: String,
+        page: Int = 1,
+        sort: SortItem
+    ) {
+        viewModelScope.launch {
+            repository.getPutawayListGrouped(
+                keyword = keyword,page,sort.sort,sort.order.value
+            )
                 .catch {
                     setSuspendedState {
-                        copy(loadingState = Loading.NONE, error = it.message?:"")
+                        copy(error = it.message?:"", loadingState = Loading.NONE)
                     }
                 }
-                .collect{
+                .collect {
                     setSuspendedState {
                         copy(loadingState = Loading.NONE)
                     }
                     when(it){
-                        is BaseResult.Error -> {
+                        is BaseResult.Error ->  {
                             setSuspendedState {
                                 copy(error = it.message)
                             }
                         }
                         is BaseResult.Success -> {
                             setSuspendedState {
-                                copy(readToPut = it.data, puts = puts+(it.data?.rows?: emptyList()))
-                            }
-                            if (state.puts.size == 1 && prefs.getIsNavToDetail() && isSearching){
-                                val put = state.puts.first()
-                                setEffect {
-                                    PutawayContract.Effect.NavToPutawayDetail(put,state.keyword.text==put.locationCode)
-                                }
+                                copy(puts = puts + (it.data?.rows?: emptyList()), loadingState = Loading.NONE)
                             }
                         }
-                        else -> {}
+                        BaseResult.UnAuthorized -> {
+
+                        }
                     }
                 }
         }
     }
+
 }

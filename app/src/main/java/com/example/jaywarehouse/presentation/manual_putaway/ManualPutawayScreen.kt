@@ -17,11 +17,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
-import com.example.jaywarehouse.R
 import com.example.jaywarehouse.data.common.utils.mdp
-import com.example.jaywarehouse.data.putaway.model.ReadyToPutRow
+import com.example.jaywarehouse.data.manual_putaway.repository.ManualPutawayRow
 import com.example.jaywarehouse.presentation.common.composables.BaseListItem
-import com.example.jaywarehouse.presentation.common.composables.BaseListItemModel
 import com.example.jaywarehouse.presentation.common.composables.MyScaffold
 import com.example.jaywarehouse.presentation.common.composables.SearchInput
 import com.example.jaywarehouse.presentation.common.composables.SortBottomSheet
@@ -129,17 +127,17 @@ fun ManualPutawayContent(
 
 
 @Composable
-private fun ManualPutawayItem(
-    item: ReadyToPutRow,
+fun ManualPutawayItem(
+    item: ManualPutawayRow,
 ) {
     BaseListItem(
         onClick = {},
-        item1 = BaseListItemModel("Model", item.model, R.drawable.vuesax_outline_3d_cube_scan),
-        item2 = BaseListItemModel("Item Code", item.barcode, R.drawable.fluent_barcode_scanner_20_regular),
-        item3 = BaseListItemModel("Location Code", item.locationCode, R.drawable.location),
-        item4 = BaseListItemModel("Reference Number", item.referenceNumber?:"", R.drawable.note),
+//        item1 = BaseListItemModel("Model", item.model, R.drawable.vuesax_outline_3d_cube_scan),
+//        item2 = BaseListItemModel("Item Code", item.barcode, R.drawable.fluent_barcode_scanner_20_regular),
+//        item3 = BaseListItemModel("Location Code", item.locationCode, R.drawable.location),
+//        item4 = BaseListItemModel("Reference Number", item.referenceNumber?:"", R.drawable.note),
         showFooter = false,
-        scan = item.putCount,
-        quantity = item.quantity
+        scan = 0,
+        quantity = 0
     )
 }
