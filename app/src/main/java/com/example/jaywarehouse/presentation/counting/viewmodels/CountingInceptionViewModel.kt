@@ -150,7 +150,7 @@ class CountingInceptionViewModel(
                     }
                     is BaseResult.Success -> {
                         setSuspendedState {
-                            copy(details = it.data?: emptyList())
+                            copy(details = it.data?.rows?: emptyList())
                         }
                     }
                     else ->{}

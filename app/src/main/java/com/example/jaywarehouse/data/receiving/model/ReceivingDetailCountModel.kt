@@ -16,3 +16,8 @@ data class ReceivingDetailCountModel(
     @SerializedName("ExpireDateString")
     val expireDate: String
 )
+
+data class ReceivingDetailGetItemsModel(
+    @SerializedName("rows") val rows: List<ReceivingDetailCountModel>,
+    @SerializedName("total") val total: Int
+)

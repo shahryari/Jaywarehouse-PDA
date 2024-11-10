@@ -5,6 +5,7 @@ import com.example.jaywarehouse.data.common.utils.PAGE
 import com.example.jaywarehouse.data.common.utils.ROWS
 import com.example.jaywarehouse.data.common.utils.SORT
 import com.example.jaywarehouse.data.receiving.model.ReceivingDetailCountModel
+import com.example.jaywarehouse.data.receiving.model.ReceivingDetailGetItemsModel
 import com.example.jaywarehouse.data.receiving.model.ReceivingDetailModel
 import com.example.jaywarehouse.data.receiving.model.ReceivingDetailScanModel
 import com.example.jaywarehouse.data.receiving.model.ReceivingDetailScanRemoveModel
@@ -48,7 +49,7 @@ interface ReceivingApi {
         @Header(ROWS) rows: Int,
         @Header(SORT) sort: String,
         @Header(ORDER) order: String
-    ) : Response<List<ReceivingDetailCountModel>>
+    ) : Response<ReceivingDetailGetItemsModel>
 
 
     @POST("ReceivingDetailCountConfirm")

@@ -4,6 +4,7 @@ import com.example.jaywarehouse.data.common.utils.BaseResult
 import com.example.jaywarehouse.data.common.utils.getResult
 import com.example.jaywarehouse.data.receiving.ReceivingApi
 import com.example.jaywarehouse.data.receiving.model.ReceivingDetailCountModel
+import com.example.jaywarehouse.data.receiving.model.ReceivingDetailGetItemsModel
 import com.example.jaywarehouse.data.receiving.model.ReceivingDetailModel
 import com.example.jaywarehouse.data.receiving.model.ReceivingDetailScanModel
 import com.example.jaywarehouse.data.receiving.model.ReceivingDetailScanRemoveModel
@@ -90,7 +91,7 @@ class ReceivingRepository(
 
     suspend fun getReceivingDetailCountModel(
         receivingWorkerTaskId: Int
-    ) : Flow<BaseResult<List<ReceivingDetailCountModel>>>{
+    ) : Flow<BaseResult<ReceivingDetailGetItemsModel>>{
         val jsonObject = JsonObject()
         jsonObject.addProperty("ReceivingWorkerTaskID",receivingWorkerTaskId)
 
