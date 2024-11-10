@@ -1,6 +1,7 @@
 package com.example.jaywarehouse.data.common.modules
 
 import com.example.jaywarehouse.data.auth.authModule
+import com.example.jaywarehouse.data.manual_putaway.manualPutawayModule
 import com.example.jaywarehouse.data.packing.model.PackingDetailModel
 import com.example.jaywarehouse.data.packing.packingModule
 import com.example.jaywarehouse.data.picking.pickingModule
@@ -33,8 +34,17 @@ import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
 val mainModule = module {
-    includes(receivingModule, putawayModule, authModule, prefsModule, pickingModule, packingModule, shippingModule,
-        transferModule)
+    includes(
+        receivingModule,
+        putawayModule,
+        authModule,
+        prefsModule,
+        pickingModule,
+        packingModule,
+        shippingModule,
+        transferModule,
+        manualPutawayModule
+    )
 
     viewModel {
         LoginViewModel(get(),get())
