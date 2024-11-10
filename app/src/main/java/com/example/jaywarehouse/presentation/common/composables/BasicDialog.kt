@@ -45,7 +45,7 @@ fun BasicDialog(
     positiveButtonTint: Color = Primary,
     onPositiveClick:()->Unit = {},
     negativeButton: String? = null,
-    onNegativeClick: ()-> Unit = {},
+    onNegativeClick: (()-> Unit)? = null,
     showCloseIcon: Boolean = false,
     title: String = "",
     isLoading: Boolean = false,
@@ -66,7 +66,7 @@ fun BasicDialog(
             Spacer(modifier = Modifier.size(12.mdp))
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                 if (negativeButton!=null)Button(
-                    onClick = onNegativeClick,
+                    onClick = onNegativeClick ?: onDismiss,
                     shape = RoundedCornerShape(4.mdp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Gray4

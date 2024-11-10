@@ -15,14 +15,14 @@ import com.example.jaywarehouse.presentation.counting.viewmodels.CountingDetailV
 import com.example.jaywarehouse.presentation.counting.viewmodels.CountingInceptionViewModel
 import com.example.jaywarehouse.presentation.counting.viewmodels.CountingViewModel
 import com.example.jaywarehouse.presentation.dashboard.DashboardViewModel
+import com.example.jaywarehouse.presentation.destinations.PickingScreenDestination
 import com.example.jaywarehouse.presentation.main.MainViewModel
 import com.example.jaywarehouse.presentation.manual_putaway.viewmodels.ManualPutawayDetailViewModel
 import com.example.jaywarehouse.presentation.manual_putaway.viewmodels.ManualPutawayViewModel
 import com.example.jaywarehouse.presentation.packing.viewmodels.PackingDetailViewModel
 import com.example.jaywarehouse.presentation.packing.viewmodels.PackingViewModel
-import com.example.jaywarehouse.presentation.picking.viewmodels.PickingCustomerViewModel
-import com.example.jaywarehouse.presentation.picking.viewmodels.PickingDetailViewModel
-import com.example.jaywarehouse.presentation.picking.viewmodels.PickingListViewModel
+import com.example.jaywarehouse.presentation.picking.viewModels.PickingDetailViewModel
+import com.example.jaywarehouse.presentation.picking.viewModels.PickingViewModel
 import com.example.jaywarehouse.presentation.profile.ProfileViewModel
 import com.example.jaywarehouse.presentation.putaway.viewmodels.PutawayDetailViewModel
 import com.example.jaywarehouse.presentation.putaway.viewmodels.PutawayViewModel
@@ -85,15 +85,13 @@ val mainModule = module {
     viewModel {
         ManualPutawayDetailViewModel(get(),get(),it.get())
     }
+
     viewModel {
-        PickingCustomerViewModel(get(),get())
+        PickingViewModel(get(),get())
     }
 
     viewModel {
-        PickingListViewModel(get(),get(),it.get())
-    }
-    viewModel {
-        PickingDetailViewModel(get(),get(),it.get(),it.get(),it.get())
+        PickingDetailViewModel(get(),get(),it.get())
     }
     viewModel {
         PackingViewModel(get(),get())

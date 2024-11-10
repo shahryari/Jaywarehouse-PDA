@@ -1,4 +1,4 @@
-package com.example.jaywarehouse.presentation.putaway
+package com.example.jaywarehouse.presentation.picking
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
@@ -39,9 +39,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.jaywarehouse.data.common.utils.mdp
 import com.example.jaywarehouse.R
+import com.example.jaywarehouse.data.picking.models.PickingListGroupedRow
 import com.example.jaywarehouse.data.putaway.model.PutawayListGroupedRow
-import com.example.jaywarehouse.presentation.common.composables.BaseListItem
-import com.example.jaywarehouse.presentation.common.composables.BaseListItemModel
 import com.example.jaywarehouse.presentation.common.composables.DetailCard
 import com.example.jaywarehouse.presentation.common.composables.MyScaffold
 import com.example.jaywarehouse.presentation.common.composables.MyText
@@ -49,12 +48,11 @@ import com.example.jaywarehouse.presentation.common.composables.SearchInput
 import com.example.jaywarehouse.presentation.common.composables.SortBottomSheet
 import com.example.jaywarehouse.presentation.common.composables.TopBar
 import com.example.jaywarehouse.presentation.common.utils.Loading
-import com.example.jaywarehouse.presentation.common.utils.MainGraph
 import com.example.jaywarehouse.presentation.common.utils.SIDE_EFFECT_KEY
 import com.example.jaywarehouse.presentation.common.utils.ScreenTransition
-import com.example.jaywarehouse.presentation.destinations.PutawayDetailScreenDestination
-import com.example.jaywarehouse.presentation.putaway.contracts.PutawayContract
-import com.example.jaywarehouse.presentation.putaway.viewmodels.PutawayViewModel
+import com.example.jaywarehouse.presentation.destinations.PickingDetailScreenDestination
+import com.example.jaywarehouse.presentation.picking.contracts.PickingContract
+import com.example.jaywarehouse.presentation.picking.viewModels.PickingViewModel
 import com.example.jaywarehouse.ui.theme.Primary
 import com.example.jaywarehouse.ui.theme.poppins
 import com.ramcosta.composedestinations.annotation.Destination
@@ -63,9 +61,9 @@ import org.koin.androidx.compose.koinViewModel
 
 @Destination(style = ScreenTransition::class)
 @Composable
-fun PutawayScreen(
+fun PickingScreen(
     navigator: DestinationsNavigator,
-    viewModel: PutawayViewModel = koinViewModel()
+    viewModel: PickingViewModel = koinViewModel()
 ) {
     val state = viewModel.state
     val onEvent = viewModel::setEvent
@@ -73,24 +71,24 @@ fun PutawayScreen(
     LaunchedEffect(key1 = SIDE_EFFECT_KEY) {
         viewModel.effect.collect {
             when(it){
-                is PutawayContract.Effect.NavToPutawayDetail -> {
-                    navigator.navigate(PutawayDetailScreenDestination(it.readyToPutRow))
+                is PickingContract.Effect.NavToPickingDetail -> {
+                    navigator.navigate(PickingDetailScreenDestination(it.pick))
                 }
 
-                PutawayContract.Effect.NavBack -> {
+                PickingContract.Effect.NavBack -> {
                     navigator.popBackStack()
                 }
             }
         }
     }
-    PutawayContent(state,onEvent)
+    PickingContent(state,onEvent)
 }
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun PutawayContent(
-    state: PutawayContract.State = PutawayContract.State(),
-    onEvent: (PutawayContract.Event)->Unit = {}
+fun PickingContent(
+    state: PickingContract.State = PickingContract.State(),
+    onEvent: (PickingContract.Event)->Unit = {}
 ) {
     val searchFocusRequester = remember {
         FocusRequester()
@@ -100,19 +98,19 @@ fun PutawayContent(
     val refreshState = rememberPullRefreshState(
         refreshing =  state.loadingState == Loading.REFRESHING,
         onRefresh = {
-            onEvent(PutawayContract.Event.OnRefresh)
+            onEvent(PickingContract.Event.OnRefresh)
         }
     )
 
     LaunchedEffect(key1 = Unit) {
         searchFocusRequester.requestFocus()
-        onEvent(PutawayContract.Event.ReloadScreen)
+        onEvent(PickingContract.Event.ReloadScreen)
     }
     MyScaffold(
         loadingState = state.loadingState,
         error = state.error,
         onCloseError = {
-            onEvent(PutawayContract.Event.ClearError)
+            onEvent(PickingContract.Event.ClearError)
         }
     ) {
 
@@ -124,23 +122,23 @@ fun PutawayContent(
                     .padding(15.mdp)
             ) {
                 TopBar(
-                    stringResource(R.string.putaway),
+                    stringResource(R.string.picking),
                     onBack = {
-                        onEvent(PutawayContract.Event.OnBackPressed)
+                        onEvent(PickingContract.Event.OnBackPressed)
                     }
                 )
                 Spacer(modifier = Modifier.size(10.mdp))
                 SearchInput(
                     value = state.keyword,
                     onValueChange = {
-                        onEvent(PutawayContract.Event.OnChangeKeyword(it))
+                        onEvent(PickingContract.Event.OnChangeKeyword(it))
                     },
                     onSearch = {
-                        onEvent(PutawayContract.Event.OnSearch)
+                        onEvent(PickingContract.Event.OnSearch)
                     },
                     isLoading = state.loadingState == Loading.SEARCHING,
                     onSortClick = {
-                        onEvent(PutawayContract.Event.OnShowSortList(true))
+                        onEvent(PickingContract.Event.OnShowSortList(true))
                     },
                     hideKeyboard = state.lockKeyboard,
                     focusRequester = searchFocusRequester
@@ -149,14 +147,14 @@ fun PutawayContent(
                 LazyColumn(Modifier
                     .fillMaxSize()
                 ) {
-                    items(state.puts){
-                        PutawayItem(it) {
-                            onEvent(PutawayContract.Event.OnNavToPutawayDetail(it))
+                    items(state.pickings){
+                        PickingItem(it) {
+                            onEvent(PickingContract.Event.OnNavToPickingDetail(it))
                         }
                         Spacer(modifier = Modifier.size(10.mdp))
                     }
                     item {
-                        onEvent(PutawayContract.Event.OnReachedEnd)
+                        onEvent(PickingContract.Event.OnReachedEnd)
                     }
                     item { Spacer(modifier = Modifier.size(70.mdp)) }
                 }
@@ -170,12 +168,12 @@ fun PutawayContent(
     if (state.showSortList){
         SortBottomSheet(
             onDismiss = {
-                onEvent(PutawayContract.Event.OnShowSortList(false))
+                onEvent(PickingContract.Event.OnShowSortList(false))
             },
             sortOptions = state.sortList,
             selectedSort = state.sort,
             onSelectSort = {
-                onEvent(PutawayContract.Event.OnChangeSort(it))
+                onEvent(PickingContract.Event.OnChangeSort(it))
             }
         )
     }
@@ -183,11 +181,10 @@ fun PutawayContent(
 
 
 @Composable
-fun PutawayItem(
-    model: PutawayListGroupedRow,
+fun PickingItem(
+    model: PickingListGroupedRow,
     enableShowDetail: Boolean = false,
-    showAll: Boolean = true,
-    onClick:()->Unit
+    onClick: () -> Unit
 ) {
     var visibleDetails by remember {
         mutableStateOf(true)
@@ -229,7 +226,7 @@ fun PutawayItem(
 //                    }
                     Spacer(Modifier.size(10.mdp))
                     MyText(
-                        text = "#${model.referenceNumber?:""}",
+                        text = "#${model.customerCode?:""}",
                         style = MaterialTheme.typography.bodyLarge,
                         fontFamily = poppins,
                         fontWeight = FontWeight.SemiBold,
@@ -240,7 +237,7 @@ fun PutawayItem(
                 DetailCard(
                     "Supplier",
                     icon = R.drawable.barcode,
-                    detail = model.supplierFullName?:""
+                    detail = model.customerName?:""
                 )
                 Spacer(modifier = Modifier.size(15.mdp))
 
@@ -265,7 +262,7 @@ fun PutawayItem(
                 )
                 Spacer(modifier = Modifier.size(7.mdp))
                 MyText(
-                    text = "Total: "+model.putCount,
+                    text = "Total: "+model.total,
                     color = Color.White,
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Medium
@@ -286,7 +283,7 @@ fun PutawayItem(
                 )
                 Spacer(modifier = Modifier.size(7.mdp))
                 MyText(
-                    text = "Scan: " + model.onPuting,
+                    text = "Scan: " + model.count,
                     color = Primary,
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Medium
@@ -298,6 +295,6 @@ fun PutawayItem(
 
 @Preview
 @Composable
-private fun PoutawayPreview() {
-    PutawayContent()
+private fun PickingPreview() {
+    PickingContent()
 }

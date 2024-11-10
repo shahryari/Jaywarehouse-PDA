@@ -35,14 +35,14 @@ class PutawayRepository(
 
     fun getPutawayList(
         keyword: String,
-        referenceNumber: String,
+        receiptId: Int,
         page: Int,
         sort: String,
         order: String
     ) : Flow<BaseResult<PutawayListModel>> {
         val jsonObject = JsonObject()
         jsonObject.addProperty("Keyword",keyword)
-        jsonObject.addProperty("ReferenceNumber",referenceNumber)
+        jsonObject.addProperty("ReceiptID",receiptId)
 
         return getResult(
             request = {

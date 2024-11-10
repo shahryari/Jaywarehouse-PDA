@@ -1,54 +1,64 @@
 package com.example.jaywarehouse.presentation.picking.contracts
 
 import androidx.compose.ui.text.input.TextFieldValue
-import com.example.jaywarehouse.data.picking.models.CustomerToPickRow
-import com.example.jaywarehouse.data.picking.models.PickedScanItemRow
-import com.example.jaywarehouse.data.picking.models.PickedScanItemsModel
-import com.example.jaywarehouse.data.picking.models.ReadyToPickRow
+import com.example.jaywarehouse.data.picking.models.PickingListGroupedRow
+import com.example.jaywarehouse.data.picking.models.PickingListModel
+import com.example.jaywarehouse.data.picking.models.PickingListRow
+import com.example.jaywarehouse.data.putaway.model.PutawayListGroupedRow
+import com.example.jaywarehouse.data.putaway.model.PutawayListModel
+import com.example.jaywarehouse.data.putaway.model.PutawayListRow
 import com.example.jaywarehouse.presentation.common.utils.Loading
+import com.example.jaywarehouse.presentation.common.utils.Order
+import com.example.jaywarehouse.presentation.common.utils.SortItem
 import com.example.jaywarehouse.presentation.common.utils.UiEvent
 import com.example.jaywarehouse.presentation.common.utils.UiSideEffect
 import com.example.jaywarehouse.presentation.common.utils.UiState
 
 class PickingDetailContract {
     data class State(
-        val pickingRow: ReadyToPickRow? = null,
-        val page: Int = 1,
-        val showDetail: Boolean = false,
-        val pickings: List<PickedScanItemRow> = emptyList(),
-        val customer: CustomerToPickRow? = null,
-        val pickedScanList: PickedScanItemsModel? = null,
-        val barcode: TextFieldValue = TextFieldValue(),
+        val pickRow: PickingListGroupedRow? = null,
+        val pickDetailModel: PickingListModel? = null,
+        val pickingList: List<PickingListRow> = emptyList(),
         val location: TextFieldValue = TextFieldValue(),
-        val error: String = "",
-        val showFinishDialog: Boolean = false,
+        val barcode: TextFieldValue = TextFieldValue(),
         val loadingState: Loading = Loading.NONE,
-        val isScanning: Boolean = false,
-        val enableLocation: Boolean = true,
-        val selectedItem: Int? = null,
-        val navigateToParent: Boolean =false,
+        val selectedPick: PickingListRow? = null,
+        val showSortList: Boolean = false,
+        val error: String = "",
+        val page: Int = 1,
         val toast: String = "",
-        val lockKeyboard: Boolean = false
+        val lockKeyboard: Boolean = false,
+        val keyword: TextFieldValue = TextFieldValue(),
+        val sortList: List<SortItem> = listOf(
+            SortItem("Created On closed to now", "CreatedOn", Order.Desc),
+            SortItem("Created On farthest from now", "CreatedOn",Order.Asc),
+            SortItem("Receiving Number Descending", "Receiving",Order.Desc),
+            SortItem("Receiving Number Ascending", "Receiving",Order.Asc),
+            SortItem("Most Progress", "Progress",Order.Desc),
+            SortItem("Least Progress", "Progress",Order.Asc)
+        ),
+        val sort: SortItem = sortList.first(),
+        val onSaving: Boolean = false,
     ) : UiState
 
     sealed class Event : UiEvent {
-        data class OnBarcodeChanged(val barcode: TextFieldValue) : Event()
-        data class OnLocationChanged(val location: TextFieldValue) : Event()
+        data class OnChangeBarcode(val barcode: TextFieldValue) : Event()
+        data class OnChangeLocation(val location: TextFieldValue) : Event()
+        data class OnChangeKeyword(val keyword: TextFieldValue) : Event()
+        data class OnSelectPick(val put: PickingListRow?) : Event()
         data object OnNavBack : Event()
-        data object ClearError : Event()
-        data object HideToast : Event()
-        data class OnRemovePickedItem(val pickingScanId: Int) : Event()
-        data object OnScan: Event()
-        data object OnCheckLocation: Event()
-        data class OnShowDetailChange(val show: Boolean) : Event()
-        data class OnSelectPickedItem(val pickingScanId: Int?) : Event()
-        data object OnReachToEnd: Event()
+        data object CloseError: Event()
+        data object HideToast: Event()
+        data object OnReachEnd: Event()
         data object OnRefresh: Event()
-        data object HideFinish: Event()
+        data class OnCompletePick(val pick: PickingListRow): Event()
+        data class OnShowSortList(val show: Boolean) : Event()
+        data object OnSearch: Event()
+        data class OnSortChange(val sortItem: SortItem): Event()
     }
 
-    sealed class Effect : UiSideEffect {
-        data object NavigateBack : Effect()
-        data object NavigateToParent : Effect()
+    sealed class Effect: UiSideEffect {
+        data object NavBack : Effect()
+        data object NavToDashboard: Effect()
     }
 }

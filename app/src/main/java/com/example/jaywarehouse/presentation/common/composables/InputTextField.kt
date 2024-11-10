@@ -54,6 +54,7 @@ fun InputTextField(
     onValueChange: (TextFieldValue)-> Unit,
     modifier: Modifier = Modifier,
     onAny: ()->Unit = {},
+    onClick: ()-> Unit = {},
     label: String = "",
     leadingIcon: Int? = null,
     trailingIcon: Int? = null,
@@ -129,6 +130,14 @@ fun InputTextField(
                             1.mdp, Border,
                             RoundedCornerShape(6.mdp)
                         )
+                        .then(
+                            if (readOnly)
+                                Modifier
+                                    .clickable {
+                                        onClick()
+                                    }
+                            else Modifier
+                        )
                         .padding(vertical = 9.mdp, horizontal = 10.mdp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
@@ -161,7 +170,7 @@ fun InputTextField(
 
                     }
                     Box{
-                        if (trailingIcon!=null) Row(verticalAlignment = Alignment.CenterVertically) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
                             if (enabled && value.text.isNotEmpty()){
                                 MyIcon(icon = R.drawable.vuesax_bulk_broom, showBorder = false) {
                                     onValueChange(TextFieldValue(""))
@@ -172,7 +181,8 @@ fun InputTextField(
                                 RefreshIcon(isRefreshing = true)
                             }
                             else {
-                                MyIcon(icon = trailingIcon) {
+                                if(trailingIcon!=null
+                                    )MyIcon(icon = trailingIcon) {
                                     onTrailingClick()
                                 }
                             }

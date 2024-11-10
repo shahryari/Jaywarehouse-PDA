@@ -53,8 +53,6 @@ import com.example.jaywarehouse.presentation.common.utils.SIDE_EFFECT_KEY
 import com.example.jaywarehouse.presentation.destinations.CountingDetailScreenDestination
 import com.example.jaywarehouse.presentation.destinations.CountingScreenDestination
 import com.example.jaywarehouse.presentation.destinations.PackingDetailScreenDestination
-import com.example.jaywarehouse.presentation.destinations.PickingDetailScreenDestination
-import com.example.jaywarehouse.presentation.destinations.PickingListScreenDestination
 import com.example.jaywarehouse.presentation.destinations.ProfileScreenDestination
 import com.example.jaywarehouse.presentation.destinations.PutawayDetailScreenDestination
 import com.example.jaywarehouse.presentation.destinations.ShippingDetailScreenDestination
@@ -112,9 +110,7 @@ fun MainContent(
     val showAppbar = when(currentDestination){
         is PutawayDetailScreenDestination,
             CountingDetailScreenDestination,
-            PickingListScreenDestination,
             CountingScreenDestination,
-            PickingDetailScreenDestination,
             PackingDetailScreenDestination,
             ShippingDetailScreenDestination,
             ProfileScreenDestination->false

@@ -168,6 +168,10 @@ fun CountingInceptionContent(
                             onLeadingClick = {
                                 onEvent(CountingInceptionContract.Event.OnShowDatePicker(true))
                             },
+                            readOnly = true,
+                            onClick = {
+                                onEvent(CountingInceptionContract.Event.OnShowDatePicker(true))
+                            },
                             label = "Expire Date",
                         )
                         Spacer(Modifier.size(10.mdp))

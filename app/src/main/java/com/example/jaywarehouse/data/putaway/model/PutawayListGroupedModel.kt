@@ -11,10 +11,14 @@ data class PutawayListGroupedModel(
 )
 
 data class PutawayListGroupedRow(
-    @SerializedName("GroupCount")
-    val groupCount: Int,
-    @SerializedName("OwnerFullName")
-    val ownerFullName: String,
+    @SerializedName("ReceiptID")
+    val receiptId: Int,
+    @SerializedName("ReceivingTypeID")
+    val receivingTypeId: Int,
+    @SerializedName("PutCount")
+    val putCount: Int,
+    @SerializedName("OnPuting")
+    val onPuting: Int,
     @SerializedName("ReferenceNumber")
     val referenceNumber: String,
     @SerializedName("SupplierFullName")

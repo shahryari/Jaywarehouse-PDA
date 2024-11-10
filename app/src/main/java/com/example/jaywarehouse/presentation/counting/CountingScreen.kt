@@ -231,7 +231,7 @@ fun CountListItem(
                             .padding(vertical = 4.mdp, horizontal = 10.mdp)
                     ) {
                         MyText(
-                            text = receivingRow.receivingDate,
+                            text = receivingRow.receivingTypeTitle,
                             style = MaterialTheme.typography.labelSmall,
                             fontFamily = poppins,
                             fontWeight = FontWeight.SemiBold,
@@ -275,7 +275,7 @@ fun CountListItem(
                 )
                 Spacer(modifier = Modifier.size(7.mdp))
                 MyText(
-                    text = "Total: "+receivingRow.receivingDetailSumQuantity.toString(),
+                    text = "Total: "+receivingRow.total.toString(),
                     color = Color.White,
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Medium
@@ -296,7 +296,7 @@ fun CountListItem(
                 )
                 Spacer(modifier = Modifier.size(7.mdp))
                 MyText(
-                    text = "Scan: " + receivingRow.countedQuantity.toString(),
+                    text = "Scan: " + receivingRow.count.toString(),
                     color = Primary,
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Medium
@@ -314,7 +314,7 @@ private fun CountingPreview() {
     CountingContent(
         state = CountingContract.State(
             countingList = listOf(
-                ReceivingRow(receivingDate = "today", supplierFullName = "test", countedQuantity = 50, receivingDetailSumQuantity = 20, receivingDetailCount = 13, referenceNumber = "353523525", receivingID = 0),
+                ReceivingRow(receivingDate = "today", supplierFullName = "test", countedQuantity = 50, receivingDetailSumQuantity = 20, receivingDetailCount = 13, referenceNumber = "353523525", receivingID = 0, receivingTypeTitle = "general", receivingTypeID = 3, total = 0, count = 0),
             ),
             showSortList = true
         )

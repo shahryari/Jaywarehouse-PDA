@@ -6,9 +6,6 @@ import com.example.jaywarehouse.presentation.destinations.CountingScreenDestinat
 import com.example.jaywarehouse.presentation.destinations.DashboardScreenDestination
 import com.example.jaywarehouse.presentation.destinations.PackingDetailScreenDestination
 import com.example.jaywarehouse.presentation.destinations.PackingScreenDestination
-import com.example.jaywarehouse.presentation.destinations.PickingCustomerScreenDestination
-import com.example.jaywarehouse.presentation.destinations.PickingDetailScreenDestination
-import com.example.jaywarehouse.presentation.destinations.PickingListScreenDestination
 import com.example.jaywarehouse.presentation.destinations.PutawayDetailScreenDestination
 import com.example.jaywarehouse.presentation.destinations.PutawayScreenDestination
 import com.example.jaywarehouse.presentation.destinations.ShippingDetailScreenDestination
@@ -42,16 +39,6 @@ enum class DashboardItem(
         R.drawable.put_icon,
         PutawayScreenDestination,
         listOf(PutawayScreenDestination,PutawayDetailScreenDestination)
-    ),
-    Picking(
-        R.string.picking,
-        R.drawable.picking_icon,
-        PickingCustomerScreenDestination,
-        listOf(
-            PickingCustomerScreenDestination,
-            PickingListScreenDestination,
-            PickingDetailScreenDestination
-        )
     ),
     Packing(
         R.string.packing,

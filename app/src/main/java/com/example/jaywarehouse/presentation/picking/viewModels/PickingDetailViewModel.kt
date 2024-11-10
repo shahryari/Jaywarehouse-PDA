@@ -1,29 +1,29 @@
-package com.example.jaywarehouse.presentation.putaway.viewmodels
+package com.example.jaywarehouse.presentation.picking.viewModels
 
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.viewModelScope
 import com.example.jaywarehouse.data.common.utils.BaseResult
 import com.example.jaywarehouse.data.common.utils.Prefs
-import com.example.jaywarehouse.data.putaway.PutawayRepository
-import com.example.jaywarehouse.data.putaway.model.PutawayListGroupedRow
-import com.example.jaywarehouse.data.putaway.model.PutawayListRow
+import com.example.jaywarehouse.data.picking.PickingRepository
+import com.example.jaywarehouse.data.picking.models.PickingListGroupedRow
+import com.example.jaywarehouse.data.picking.models.PickingListRow
 import com.example.jaywarehouse.presentation.common.utils.BaseViewModel
 import com.example.jaywarehouse.presentation.common.utils.Loading
 import com.example.jaywarehouse.presentation.common.utils.Order
 import com.example.jaywarehouse.presentation.common.utils.SortItem
-import com.example.jaywarehouse.presentation.putaway.contracts.PutawayDetailContract
+import com.example.jaywarehouse.presentation.picking.contracts.PickingDetailContract
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 
-class PutawayDetailViewModel(
-    private val repository: PutawayRepository,
+class PickingDetailViewModel(
+    private val repository: PickingRepository,
     private val prefs: Prefs,
-    private val putRow: PutawayListGroupedRow,
-) : BaseViewModel<PutawayDetailContract.Event,PutawayDetailContract.State,PutawayDetailContract.Effect>(){
+    private val row: PickingListGroupedRow,
+) : BaseViewModel<PickingDetailContract.Event,PickingDetailContract.State,PickingDetailContract.Effect>(){
     init {
         val selectedSort = state.sortList.find {
-            it.sort == prefs.getPutawayDetailSort() && it.order == Order.getFromValue(prefs.getPutawayDetailOrder())
+            it.sort == prefs.getPickingSort() && it.order == Order.getFromValue(prefs.getPickingOrder())
         }
         if (selectedSort!=null) {
             setState {
@@ -32,7 +32,7 @@ class PutawayDetailViewModel(
         }
         setState {
             copy(
-                putRow = putRow,
+                pickRow = row,
 //                boxNumber = TextFieldValue(putRow.boxNumber?:""),
 //                enableBoxNumber = putRow.boxNumber?.isEmpty() ?: true
             )
@@ -44,110 +44,110 @@ class PutawayDetailViewModel(
                 }
             }
         }
-        getPutaways(putRow.receiptId,sort = state.sort)
+        getPickings(row.customerID,sort = state.sort)
     }
 
-    override fun setInitState(): PutawayDetailContract.State {
-        return PutawayDetailContract.State()
+    override fun setInitState(): PickingDetailContract.State {
+        return PickingDetailContract.State()
     }
 
-    override fun onEvent(event: PutawayDetailContract.Event) {
+    override fun onEvent(event: PickingDetailContract.Event) {
         when(event){
-            is PutawayDetailContract.Event.OnChangeBarcode -> {
+            is PickingDetailContract.Event.OnChangeBarcode -> {
                 setState {
                     copy(barcode = event.barcode)
                 }
             }
-            PutawayDetailContract.Event.OnNavBack -> {
+            PickingDetailContract.Event.OnNavBack -> {
                 setEffect {
-                    PutawayDetailContract.Effect.NavBack
+                    PickingDetailContract.Effect.NavBack
                 }
             }
-            PutawayDetailContract.Event.CloseError -> {
+            PickingDetailContract.Event.CloseError -> {
                 setState {
                     copy(error = "")
                 }
             }
-            is PutawayDetailContract.Event.OnSelectPut -> {
+            is PickingDetailContract.Event.OnSelectPick -> {
                 setState {
-                    copy(selectedPutaway = event.put)
+                    copy(selectedPick = event.put)
                 }
             }
 
-            PutawayDetailContract.Event.HideToast -> {
+            PickingDetailContract.Event.HideToast -> {
                 setState {
                     copy(toast = "")
                 }
             }
 
-            PutawayDetailContract.Event.OnReachEnd -> {
-                if (10*state.page<=state.putaways.size){
+            PickingDetailContract.Event.OnReachEnd -> {
+                if (10*state.page<=state.pickingList.size){
                     setState {
                         copy(page = state.page+1, loadingState = Loading.LOADING)
                     }
-                    getPutaways(putRow.receiptId,keyword = state.keyword.text,page = state.page,sort = state.sort)
+                    getPickings(row.customerID,keyword = state.keyword.text,page = state.page,sort = state.sort)
                 }
             }
 
-            PutawayDetailContract.Event.OnRefresh -> {
+            PickingDetailContract.Event.OnRefresh -> {
                 setState {
-                    copy(page = 1, putaways = emptyList(), loadingState = Loading.REFRESHING)
+                    copy(page = 1, pickingList = emptyList(), loadingState = Loading.REFRESHING)
                 }
-                getPutaways(putRow.receiptId,keyword = state.keyword.text,page = state.page,sort = state.sort)
+                getPickings(row.customerID,keyword = state.keyword.text,page = state.page,sort = state.sort)
             }
-            is PutawayDetailContract.Event.OnChangeLocation -> {
+            is PickingDetailContract.Event.OnChangeLocation -> {
                 setState {
                     copy(location = event.location)
                 }
             }
-            is PutawayDetailContract.Event.OnSavePutaway -> {
-                finishPutaway(event.putaway,state.location.text.trim(), state.barcode.text.trim())
+            is PickingDetailContract.Event.OnCompletePick -> {
+                completePicking(event.pick,state.location.text.trim(), state.barcode.text.trim())
             }
-            is PutawayDetailContract.Event.OnChangeKeyword -> {
+            is PickingDetailContract.Event.OnChangeKeyword -> {
                 setState {
                     copy(keyword = event.keyword)
                 }
             }
-            PutawayDetailContract.Event.OnSearch -> {
+            PickingDetailContract.Event.OnSearch -> {
                 setState {
-                    copy(loadingState = Loading.SEARCHING, putaways = emptyList(), page = 1)
+                    copy(loadingState = Loading.SEARCHING, pickingList = emptyList(), page = 1)
                 }
-                getPutaways(putRow.receiptId,keyword = state.keyword.text,page = state.page,sort = state.sort)
+                getPickings(row.customerID,keyword = state.keyword.text,page = state.page,sort = state.sort)
             }
-            is PutawayDetailContract.Event.OnShowSortList -> {
+            is PickingDetailContract.Event.OnShowSortList -> {
                 setState {
                     copy(showSortList = event.show)
                 }
             }
-            is PutawayDetailContract.Event.OnSortChange -> {
+            is PickingDetailContract.Event.OnSortChange -> {
                 prefs.setPutawayDetailSort(event.sortItem.sort)
                 prefs.setPutawayDetailOrder(event.sortItem.order.value)
                 setState {
-                    copy(sort = event.sortItem, page = 1, putaways = emptyList(), loadingState = Loading.LOADING)
+                    copy(sort = event.sortItem, page = 1, pickingList = emptyList(), loadingState = Loading.LOADING)
                 }
-                getPutaways(putRow.receiptId,keyword = state.keyword.text,page = state.page,sort = event.sortItem)
+                getPickings(row.customerID,keyword = state.keyword.text,page = state.page,sort = event.sortItem)
             }
         }
     }
 
 
-    private fun finishPutaway(
-        selectedPutaway: PutawayListRow,
+    private fun completePicking(
+        pick: PickingListRow,
         locationCode: String,
         barcode: String
     ) {
 
 
-        if (selectedPutaway.warehouseLocationCode != locationCode){
+        if (locationCode.isEmpty()){
             setState {
-                copy(toast = "Please select correct location")
+                copy(toast = "Please fill location")
             }
             return
         }
 
-        if (selectedPutaway.productBarcodeNumber != barcode){
+        if (locationCode.isEmpty()){
             setState {
-                copy(toast = "Please select correct barcode")
+                copy(toast = "Please fill barcode")
             }
             return
         }
@@ -155,11 +155,11 @@ class PutawayDetailViewModel(
             copy(onSaving = true)
         }
         viewModelScope.launch(Dispatchers.IO) {
-            if (state.selectedPutaway!=null)
-            repository.finishPutaway(
-                selectedPutaway.receiptDetailID.toString(),
-                selectedPutaway.productLocationActivityID.toString(),
-                selectedPutaway.receivingDetailID.toString())
+            if (state.selectedPick!=null)
+            repository.completePicking(
+                locationCode,
+                barcode,
+                pick.productLocationActivityID.toString())
                 .catch {
                     setState {
                         copy(
@@ -178,14 +178,14 @@ class PutawayDetailViewModel(
                                 copy(
                                     location = TextFieldValue(),
                                     barcode = TextFieldValue(),
-                                    putaways = emptyList(),
+                                    pickingList = emptyList(),
                                     page = 1,
-                                    selectedPutaway = null,
+                                    selectedPick = null,
                                     toast = it.data?.messages?.first() ?: "",
                                     loadingState = Loading.LOADING
                                 )
                             }
-                            getPutaways(putRow.receiptId,keyword = state.keyword.text,page = state.page,sort = state.sort)
+                            getPickings(row.customerID,keyword = state.keyword.text,page = state.page,sort = state.sort)
                         }
                         is BaseResult.Error -> {
                             setState {
@@ -201,12 +201,13 @@ class PutawayDetailViewModel(
     }
 
 
-    private fun getPutaways(receiptId: Int,keyword: String = "",page: Int = 1, sort: SortItem) {
+    private fun getPickings(customerId: Int, keyword: String = "", page: Int = 1, sort: SortItem) {
         viewModelScope.launch(Dispatchers.IO) {
-            repository.getPutawayList(
-                receiptId = receiptId,
+            repository.getPickingList(
+                customerId = customerId.toString(),
                 keyword = keyword,
                 sort = sort.sort,
+                rows = 10,
                 page = page,
                 order = sort.order.value
             )
@@ -226,7 +227,7 @@ class PutawayDetailViewModel(
                         is BaseResult.Success -> {
                             setState {
                                 copy(
-                                    putaways = putaways + (it.data?.rows ?: emptyList()),
+                                    pickingList = pickingList + (it.data?.rows ?: emptyList()),
                                 )
                             }
                         }

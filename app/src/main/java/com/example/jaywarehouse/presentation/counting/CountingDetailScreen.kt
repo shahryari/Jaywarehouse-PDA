@@ -296,7 +296,7 @@ private fun CountingDetailPreview() {
     CountingDetailContent(
         state = CountingDetailContract.State(
             loadingState = Loading.NONE,
-            countingRow = ReceivingRow(receivingDate = "today", supplierFullName = "test", countedQuantity = 50, receivingDetailSumQuantity = 20, receivingDetailCount = 13, referenceNumber = "353523525", receivingID = 0),
+            countingRow = ReceivingRow(receivingDate = "today", supplierFullName = "test", countedQuantity = 50, receivingDetailSumQuantity = 20, receivingDetailCount = 13, referenceNumber = "353523525", receivingID = 0, receivingTypeID = 3, receivingTypeTitle = "test",total =0 , count = 2),
             countingDetailRow = listOf(
             )
         )

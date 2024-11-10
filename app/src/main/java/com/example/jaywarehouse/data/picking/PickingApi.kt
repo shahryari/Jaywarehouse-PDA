@@ -1,10 +1,12 @@
 package com.example.jaywarehouse.data.picking
 
-import com.example.jaywarehouse.data.picking.models.CustomerToPickModel
-import com.example.jaywarehouse.data.picking.models.PickedRemoveModel
-import com.example.jaywarehouse.data.picking.models.PickedScanItemsModel
-import com.example.jaywarehouse.data.picking.models.ReadyToPickModel
-import com.example.jaywarehouse.data.putaway.model.ScanModel
+import com.example.jaywarehouse.data.common.utils.ORDER
+import com.example.jaywarehouse.data.common.utils.PAGE
+import com.example.jaywarehouse.data.common.utils.ROWS
+import com.example.jaywarehouse.data.common.utils.ResultMessageModel
+import com.example.jaywarehouse.data.common.utils.SORT
+import com.example.jaywarehouse.data.picking.models.PickingListGroupedModel
+import com.example.jaywarehouse.data.picking.models.PickingListModel
 import com.google.gson.JsonObject
 import retrofit2.Response
 import retrofit2.http.Body
@@ -13,40 +15,26 @@ import retrofit2.http.POST
 
 interface PickingApi {
 
-    @POST("CustomerToPick")
-    suspend fun getCustomerToPick(
+    @POST("PickingListGrouped")
+    suspend fun getPickingListGrouped(
         @Body jsonObject: JsonObject,
-        @Header("page") page: Int,
-        @Header("rows") rows: Int,
-        @Header("sort") sort: String,
-        @Header("order") order: String
-    ): Response<CustomerToPickModel>
+        @Header(PAGE) page: Int,
+        @Header(ROWS) rows: Int,
+        @Header(SORT) sort: String,
+        @Header(ORDER) order: String
+    ) : Response<PickingListGroupedModel>
 
-    @POST("ReadyToPick")
-    suspend fun getReadyToPicked(
+    @POST("PickingList")
+    suspend fun getPickingList(
         @Body jsonObject: JsonObject,
-        @Header("page") page: Int,
-        @Header("rows") rows: Int,
-        @Header("sort") sort: String,
-        @Header("order") order: String
-    ): Response<ReadyToPickModel>
+        @Header(PAGE) page: Int,
+        @Header(ROWS) rows: Int,
+        @Header(SORT) sort: String,
+        @Header(ORDER) order: String
+    ) : Response<PickingListModel>
 
-    @POST("PickingScan")
-    suspend fun scanPicking(
+    @POST("PickingComplete")
+    suspend fun completePicking(
         @Body jsonObject: JsonObject
-    ) : Response<ScanModel>
-
-    @POST("PieckedScanItems")
-    suspend fun getPickedScanItems(
-        @Body jsonObject: JsonObject,
-        @Header("page") page: Int,
-        @Header("rows") rows: Int,
-        @Header("sort") sort: String,
-        @Header("order") order: String
-    ) : Response<PickedScanItemsModel>
-
-    @POST("PickedRemove")
-    suspend fun removePicked(
-        @Body jsonObject: JsonObject
-    ) : Response<PickedRemoveModel>
+    ) : Response<ResultMessageModel>
 }
