@@ -5,6 +5,7 @@ import com.example.jaywarehouse.data.packing.model.PackingDetailModel
 import com.example.jaywarehouse.data.packing.packingModule
 import com.example.jaywarehouse.data.picking.pickingModule
 import com.example.jaywarehouse.data.putaway.putawayModule
+import com.example.jaywarehouse.data.receiving.model.ReceivingDetailRow
 import com.example.jaywarehouse.data.receiving.receivingModule
 import com.example.jaywarehouse.data.shipping.shippingModule
 import com.example.jaywarehouse.data.transfer.transferModule
@@ -14,6 +15,8 @@ import com.example.jaywarehouse.presentation.counting.viewmodels.CountingIncepti
 import com.example.jaywarehouse.presentation.counting.viewmodels.CountingViewModel
 import com.example.jaywarehouse.presentation.dashboard.DashboardViewModel
 import com.example.jaywarehouse.presentation.main.MainViewModel
+import com.example.jaywarehouse.presentation.manual_putaway.viewmodels.ManualPutawayDetailViewModel
+import com.example.jaywarehouse.presentation.manual_putaway.viewmodels.ManualPutawayViewModel
 import com.example.jaywarehouse.presentation.packing.viewmodels.PackingDetailViewModel
 import com.example.jaywarehouse.presentation.packing.viewmodels.PackingViewModel
 import com.example.jaywarehouse.presentation.picking.viewmodels.PickingCustomerViewModel
@@ -62,9 +65,16 @@ val mainModule = module {
     }
 
     viewModel {
-        CountingInceptionViewModel(get(),get(),it.get())
+        CountingInceptionViewModel(get(),get(), it[0], it[1])
     }
 
+    viewModel {
+        ManualPutawayViewModel(get(),get())
+    }
+
+    viewModel {
+        ManualPutawayDetailViewModel(get(),get(),it.get())
+    }
     viewModel {
         PickingCustomerViewModel(get(),get())
     }

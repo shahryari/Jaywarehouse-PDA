@@ -59,11 +59,11 @@ fun BasicDialog(
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(12.mdp))
                 .background(Gray4)
-                .padding(12.mdp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(15.mdp),
         ) {
+            Spacer(Modifier.size(7.mdp))
             content()
-            Spacer(modifier = Modifier.size(10.mdp))
+            Spacer(modifier = Modifier.size(12.mdp))
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                 if (negativeButton!=null)Button(
                     onClick = onNegativeClick,
@@ -88,7 +88,7 @@ fun BasicDialog(
                     shape = RoundedCornerShape(4.mdp),
                     contentPadding = PaddingValues(vertical =  12.mdp, horizontal = 20.mdp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = positiveButtonTint.copy(0.2f)
+                        containerColor = positiveButtonTint.copy(0.1f)
                     ),
                     enabled = !isLoading,
                 ) {

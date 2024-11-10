@@ -159,7 +159,7 @@ class CountingDetailViewModel(
                         }
                         is BaseResult.Success -> {
                             setSuspendedState {
-                                copy(countingDetailModel = it.data, countingRow = it.data?.receiving, countingDetailRow = it.data?.rows?: emptyList())
+                                copy(countingDetailModel = it.data, countingDetailRow = it.data?.rows?: emptyList())
                             }
                         }
                         else ->{}

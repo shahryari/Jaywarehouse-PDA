@@ -3,6 +3,7 @@ package com.example.jaywarehouse.presentation.common.utils
 import androidx.compose.ui.graphics.Color
 import com.example.jaywarehouse.R
 import com.example.jaywarehouse.presentation.destinations.CountingScreenDestination
+import com.example.jaywarehouse.presentation.destinations.ManualPutawayScreenDestination
 import com.example.jaywarehouse.presentation.destinations.PutawayScreenDestination
 import com.example.jaywarehouse.ui.theme.Blue
 import com.example.jaywarehouse.ui.theme.Primary
@@ -35,7 +36,8 @@ enum class MainItems(
         "Manual\nPutaway",
         R.drawable.manual_putaway,
         "Count",
-        Primary
+        Primary,
+        ManualPutawayScreenDestination
     ),
     ReturnReceiving(
         "Return\nReceiving",

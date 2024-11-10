@@ -28,23 +28,20 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.jaywarehouse.R
 import com.example.jaywarehouse.data.common.utils.mdp
 import com.example.jaywarehouse.data.receiving.model.ReceivingDetailRow
 import com.example.jaywarehouse.data.receiving.model.ReceivingRow
+import com.example.jaywarehouse.presentation.common.composables.BaseListItem
+import com.example.jaywarehouse.presentation.common.composables.BaseListItemModel
 import com.example.jaywarehouse.presentation.common.composables.BasicDialog
-import com.example.jaywarehouse.presentation.common.composables.ErrorDialog
 import com.example.jaywarehouse.presentation.common.composables.MyScaffold
 import com.example.jaywarehouse.presentation.common.composables.MyText
-import com.example.jaywarehouse.presentation.common.composables.ReceivingItem
 import com.example.jaywarehouse.presentation.common.composables.SearchInput
 import com.example.jaywarehouse.presentation.common.composables.SortBottomSheet
-import com.example.jaywarehouse.presentation.common.composables.SuccessToast
 import com.example.jaywarehouse.presentation.common.composables.TopBar
 import com.example.jaywarehouse.presentation.common.utils.Loading
-import com.example.jaywarehouse.presentation.common.utils.MainGraph
 import com.example.jaywarehouse.presentation.common.utils.SIDE_EFFECT_KEY
 import com.example.jaywarehouse.presentation.common.utils.ScreenTransition
 import com.example.jaywarehouse.presentation.counting.contracts.CountingDetailContract
@@ -52,13 +49,12 @@ import com.example.jaywarehouse.presentation.counting.viewmodels.CountingDetailV
 import com.example.jaywarehouse.presentation.destinations.CountingInceptionScreenDestination
 import com.example.jaywarehouse.ui.theme.Black
 import com.example.jaywarehouse.ui.theme.Border
+import com.example.jaywarehouse.ui.theme.DarkGray
+import com.example.jaywarehouse.ui.theme.ErrorRed
 import com.example.jaywarehouse.ui.theme.Gray3
 import com.example.jaywarehouse.ui.theme.Gray4
-import com.example.jaywarehouse.ui.theme.Orange
-import com.example.jaywarehouse.ui.theme.Primary
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -81,7 +77,7 @@ fun CountingDetailScreen(
             when(it){
                 CountingDetailContract.Effect.NavBack -> navigator.popBackStack()
                 is CountingDetailContract.Effect.OnNavToInception -> {
-                    navigator.navigate(CountingInceptionScreenDestination(it.detail))
+                    navigator.navigate(CountingInceptionScreenDestination(it.detail,receivingRow.receivingID))
                 }
             }
         }
@@ -153,7 +149,7 @@ fun CountingDetailContent(
                 Spacer(modifier = Modifier.size(20.mdp))
                 LazyColumn(Modifier.fillMaxSize()) {
                     items(state.countingDetailRow){
-                        ReceivingItem(it) {
+                        CountingDetailItem(it) {
                             onEvent(CountingDetailContract.Event.OnDetailClick(it))
                         }
                         Spacer(modifier = Modifier.size(7.mdp))
@@ -176,7 +172,8 @@ fun CountingDetailContent(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Row(
-                        Modifier.weight(1f)
+                        Modifier
+                            .weight(1f)
                             .background(Gray3)
                             .padding(10.mdp),
                         verticalAlignment = Alignment.CenterVertically
@@ -242,11 +239,13 @@ fun ConfirmDialog(
     onDismiss: ()->Unit,
     message: String = "Are you sure to remove this item?",
     description: String = "You are not able to retrieve this item.",
+    tint: Color = ErrorRed,
     onConfirm: ()->Unit
 ) {
     BasicDialog(
         onDismiss = onDismiss,
         positiveButton = "Yes",
+        positiveButtonTint = tint,
         negativeButton = "Cancel",
         onPositiveClick = {
             onConfirm()
@@ -255,31 +254,38 @@ fun ConfirmDialog(
             onDismiss()
         }
     ) {
-        Icon(
-            painterResource(id = R.drawable.broken___essentional__ui___danger_triang),
-            contentDescription = "",
-            tint = Orange,
-            modifier = Modifier.size(80.mdp)
-        )
-        Spacer(Modifier.size(10.mdp))
-        MyText(
+        if (message.isNotEmpty())MyText(
             text = message,
-            style = MaterialTheme.typography.bodyMedium,
-            textAlign = TextAlign.Center,
-            color = Color.White,
-            fontWeight = FontWeight.SemiBold
+            style = MaterialTheme.typography.titleLarge,
+            color = tint,
+            fontWeight = FontWeight.W400
         )
-        Spacer(modifier = Modifier.size(7.mdp))
-        MyText(
+        if (description.isNotEmpty() && message.isNotEmpty())Spacer(modifier = Modifier.size(10.mdp))
+        if (description.isNotEmpty())MyText(
             text = description,
-            style = MaterialTheme.typography.bodySmall,
-            color = Color.White.copy(0.6f),
-            textAlign = TextAlign.Center,
-            fontWeight = FontWeight.Normal
+            style = MaterialTheme.typography.bodyMedium,
+            color = DarkGray,
+            fontWeight = FontWeight.W400
         )
-    }
+    }   
 }
 
+
+@Composable
+fun CountingDetailItem(
+    model: ReceivingDetailRow,
+    onClick: () -> Unit
+) {
+    BaseListItem(
+        onClick = onClick,
+        item1 = BaseListItemModel("Name",model.productName,R.drawable.vuesax_outline_3d_cube_scan),
+        item2 = BaseListItemModel("Product Code",model.productCode,R.drawable.fluent_barcode_scanner_20_regular),
+        item3 = BaseListItemModel("Barcode",model.productBarcodeNumber,R.drawable.note),
+        item4 = BaseListItemModel("Product Type",model.quiddityTypeTitle,R.drawable.vuesax_linear_box),
+        scan = model.countQuantity?:0,
+        quantity = model.quantity
+    )
+}
 
 
 
@@ -292,8 +298,8 @@ private fun CountingDetailPreview() {
             loadingState = Loading.NONE,
             countingRow = ReceivingRow(receivingDate = "today", supplierFullName = "test", countedQuantity = 50, receivingDetailSumQuantity = 20, receivingDetailCount = 13, referenceNumber = "353523525", receivingID = 0),
             countingDetailRow = listOf(
-                ReceivingDetailRow(3,"d3234424",33,33, receivingDetailID = 3, quantity = 3,"barcode","model",3,"today")
             )
         )
     )
+    ConfirmDialog({}) { }
 }

@@ -18,7 +18,8 @@ import kotlinx.coroutines.launch
 class CountingInceptionViewModel(
    private val repository: ReceivingRepository,
     prefs: Prefs,
-    private val detail: ReceivingDetailRow
+    private val detail: ReceivingDetailRow,
+    private val receivingId: Int,
 ) : BaseViewModel<CountingInceptionContract.Event,CountingInceptionContract.State,CountingInceptionContract.Effect>(){
     init {
         setState {
@@ -161,9 +162,9 @@ class CountingInceptionViewModel(
     private fun countItems() {
         viewModelScope.launch {
             repository.countReceivingDetail(
-                detail.receivingID,
+                receivingId,
                 state.count,
-                receivingTypeId = detail.receivingDetailID,
+                receivingTypeId = detail.receivingTypeID,
                 counts = state.details
             ).catch {
                 setSuspendedState {

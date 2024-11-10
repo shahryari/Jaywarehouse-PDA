@@ -9,6 +9,7 @@ import com.example.jaywarehouse.data.putaway.model.PutawayListGroupedRow
 import com.example.jaywarehouse.data.putaway.model.PutawayListRow
 import com.example.jaywarehouse.presentation.common.utils.BaseViewModel
 import com.example.jaywarehouse.presentation.common.utils.Loading
+import com.example.jaywarehouse.presentation.common.utils.Order
 import com.example.jaywarehouse.presentation.common.utils.SortItem
 import com.example.jaywarehouse.presentation.putaway.contracts.PutawayDetailContract
 import kotlinx.coroutines.Dispatchers
@@ -21,6 +22,14 @@ class PutawayDetailViewModel(
     private val putRow: PutawayListGroupedRow,
 ) : BaseViewModel<PutawayDetailContract.Event,PutawayDetailContract.State,PutawayDetailContract.Effect>(){
     init {
+        val selectedSort = state.sortList.find {
+            it.sort == prefs.getPutawayDetailSort() && it.order == Order.getFromValue(prefs.getPutawayDetailOrder())
+        }
+        if (selectedSort!=null) {
+            setState {
+                copy(sort = selectedSort)
+            }
+        }
         setState {
             copy(
                 putRow = putRow,

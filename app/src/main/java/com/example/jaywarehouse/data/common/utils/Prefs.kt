@@ -174,6 +174,52 @@ class Prefs(private val context: Context) {
         return preferences.getString("putawayDetailOrder", Order.Desc.value)?: Order.Desc.value
     }
 
+    //manual putaway
+    fun setManualPutawaySort(sort: String) {
+        with(preferences.edit()) {
+            putString("manualPutawaySort",sort)
+            apply()
+        }
+    }
+
+    fun getManualPutawaySort() : String {
+        return preferences.getString("manualPutawaySort", DEFAULT_SORT) ?: DEFAULT_SORT
+    }
+
+    fun setManualPutawayOrder(order: String) {
+        with(preferences.edit()) {
+            putString("manualPutawayOrder",order)
+            apply()
+        }
+    }
+
+    fun getManualPutawayOrder() : String {
+        return preferences.getString("manualPutawayOrder",Order.Desc.value) ?: Order.Desc.value
+    }
+
+    //manual putaway detail
+    fun setManualPutawayDetailSort(sort: String) {
+        with(preferences.edit()) {
+            putString("manualPutawayDetailSort",sort)
+            apply()
+        }
+    }
+
+    fun getManualPutawayDetailSort() : String {
+        return preferences.getString("manualPutawayDetailSort", DEFAULT_SORT) ?: DEFAULT_SORT
+    }
+
+    fun setManualPutawayDetailOrder(order: String) {
+        with(preferences.edit()) {
+            putString("manualPutawayDetailOrder",order)
+            apply()
+        }
+    }
+
+    fun getManualPutawayDetailOrder() : String {
+        return preferences.getString("manualPutawayDetailOrder",Order.Desc.value) ?: Order.Desc.value
+    }
+
     //picking
     fun setPickingSort(sort: String) {
         with(preferences.edit()){

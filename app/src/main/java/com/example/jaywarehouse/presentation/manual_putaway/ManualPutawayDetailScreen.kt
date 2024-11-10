@@ -20,32 +20,64 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.jaywarehouse.R
 import com.example.jaywarehouse.data.common.utils.mdp
 import com.example.jaywarehouse.data.manual_putaway.repository.ManualPutawayDetailRow
-import com.example.jaywarehouse.presentation.common.composables.DatePickerDialog
+import com.example.jaywarehouse.data.manual_putaway.repository.ManualPutawayRow
 import com.example.jaywarehouse.presentation.common.composables.DetailItem
 import com.example.jaywarehouse.presentation.common.composables.InputTextField
 import com.example.jaywarehouse.presentation.common.composables.MyIcon
 import com.example.jaywarehouse.presentation.common.composables.MyScaffold
 import com.example.jaywarehouse.presentation.common.composables.MyText
+import com.example.jaywarehouse.presentation.common.composables.SearchInput
+import com.example.jaywarehouse.presentation.common.composables.SortBottomSheet
 import com.example.jaywarehouse.presentation.common.composables.TopBar
-import com.example.jaywarehouse.presentation.counting.CountingInceptionDetailItem
-import com.example.jaywarehouse.presentation.counting.contracts.CountingInceptionContract
+import com.example.jaywarehouse.presentation.common.utils.Loading
+import com.example.jaywarehouse.presentation.common.utils.SIDE_EFFECT_KEY
+import com.example.jaywarehouse.presentation.common.utils.ScreenTransition
+import com.example.jaywarehouse.presentation.counting.ConfirmDialog
 import com.example.jaywarehouse.presentation.manual_putaway.contracts.ManualPutawayDetailContract
+import com.example.jaywarehouse.presentation.manual_putaway.viewmodels.ManualPutawayDetailViewModel
 import com.example.jaywarehouse.ui.theme.Primary
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
+
+@Destination(style = ScreenTransition::class)
 @Composable
-fun ManualPutawayDetailScreen() {
+fun ManualPutawayDetailScreen(
+    navigator: DestinationsNavigator,
+    putaway: ManualPutawayRow,
+    viewModel: ManualPutawayDetailViewModel = koinViewModel(
+        parameters = {
+            parametersOf(putaway)
+        }
+    )
+) {
+    val state = viewModel.state
+    val onEvent = viewModel::setEvent
 
+    LaunchedEffect(SIDE_EFFECT_KEY) {
+        viewModel.effect.collect {
+            when (it) {
+                ManualPutawayDetailContract.Effect.NavBack -> {
+                    navigator.popBackStack()
+                }
+            }
+        }
+    }
+
+    ManualPutawayDetailContent(state, onEvent)
 }
 
 
@@ -76,15 +108,30 @@ private fun ManualPutawayDetailContent(
                 },
                 endIcon = R.drawable.tick,
                 onEndClick = {
-                    onEvent(ManualPutawayDetailContract.Event.OnSubmit)
+                    onEvent(ManualPutawayDetailContract.Event.OnShowConfirmFinish(true))
                 }
             )
             Spacer(Modifier.size(20.mdp))
+            SearchInput(
+                state.keyword,
+                onValueChange = {
+                    onEvent(ManualPutawayDetailContract.Event.OnKeywordChange(it))
+                },
+                onSearch = {
+                    onEvent(ManualPutawayDetailContract.Event.OnSearch)
+                },
+                onSortClick = {
+                    onEvent(ManualPutawayDetailContract.Event.OnShowSortList(true))
+                },
+                hideKeyboard = state.lockKeyboard,
+                isLoading = state.loadingState == Loading.SEARCHING
+            )
+            Spacer(Modifier.size(10.mdp))
             LazyColumn {
                 stickyHeader{
                     Column {
                         if (state.putaway!=null){
-                            ManualPutawayItem(state.putaway)
+                            ManualPutawayItem(state.putaway){}
                         }
                         Spacer(Modifier.size(10.mdp))
                         Row(Modifier.fillMaxWidth()) {
@@ -96,6 +143,7 @@ private fun ManualPutawayDetailContent(
                                 modifier = Modifier.weight(1f),
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                                 leadingIcon = R.drawable.box_search,
+                                hideKeyboard = state.lockKeyboard,
                                 label = "Quantity",
                             )
                             Spacer(Modifier.size(5.mdp))
@@ -107,6 +155,7 @@ private fun ManualPutawayDetailContent(
                                 modifier = Modifier.weight(1f),
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                                 leadingIcon = R.drawable.barcode,
+                                hideKeyboard = state.lockKeyboard,
                                 label = "Quantity In Packet",
                             )
                         }
@@ -117,8 +166,9 @@ private fun ManualPutawayDetailContent(
                                 onEvent(ManualPutawayDetailContract.Event.OnLocationCodeChange(it))
                             },
                             modifier = Modifier.fillMaxWidth(),
-                            leadingIcon = R.drawable.keyboard,
-                            label = "Batch Number",
+                            leadingIcon = R.drawable.location,
+                            hideKeyboard = state.lockKeyboard,
+                            label = "Location Code",
                         )
                         Spacer(Modifier.size(10.mdp))
                         Row(
@@ -156,19 +206,53 @@ private fun ManualPutawayDetailContent(
             }
         }
     }
+    if (state.showSortList){
+        SortBottomSheet(
+            onDismiss = {
+                onEvent(ManualPutawayDetailContract.Event.OnShowSortList(false))
+            },
+            sortOptions = state.sortList,
+            selectedSort = state.selectedSort,
+            onSelectSort = {
+                onEvent(ManualPutawayDetailContract.Event.OnSortChange(it))
+            }
+        )
+    }
+    if (state.selectedDetail!=null){
+        ConfirmDialog(
+            onDismiss = {
+                onEvent(ManualPutawayDetailContract.Event.OnSelectDetail(null))
+            },
+            onConfirm = {
+                onEvent(ManualPutawayDetailContract.Event.OnRemove(state.selectedDetail))
+            }
+        )
+    }
+    if(state.showConfirmFinish){
+        ConfirmDialog(
+            onDismiss = {
+                onEvent(ManualPutawayDetailContract.Event.OnShowConfirmFinish(false))
+            },
+            onConfirm = {
+                onEvent(ManualPutawayDetailContract.Event.OnSubmit)
+            },
+            message = "Are you sure to finish this putaway?",
+            description = ""
+        )
+    }
 }
 
 
 @Composable
 fun ManualPutawayDetailItem(
     i: Int,
-    detail: ManualPutawayDetailRow
+    detail: ManualPutawayDetailRow,
 ) {
     DetailItem(
         i,
-        "",
-        "",
-        "today"
+        detail.quantity.toString(),
+        detail.warehouseLocationCode,
+        detail.createdOn
     )
 }
 

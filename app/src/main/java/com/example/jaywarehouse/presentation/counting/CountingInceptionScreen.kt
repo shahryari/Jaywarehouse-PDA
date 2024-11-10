@@ -13,13 +13,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -27,12 +25,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
-import com.example.jaywarehouse.R
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.jaywarehouse.R
 import com.example.jaywarehouse.data.common.utils.mdp
 import com.example.jaywarehouse.data.receiving.model.ReceivingDetailCountModel
 import com.example.jaywarehouse.data.receiving.model.ReceivingDetailRow
@@ -42,9 +39,7 @@ import com.example.jaywarehouse.presentation.common.composables.InputTextField
 import com.example.jaywarehouse.presentation.common.composables.MyIcon
 import com.example.jaywarehouse.presentation.common.composables.MyScaffold
 import com.example.jaywarehouse.presentation.common.composables.MyText
-import com.example.jaywarehouse.presentation.common.composables.ReceivingItem
 import com.example.jaywarehouse.presentation.common.composables.TopBar
-import com.example.jaywarehouse.presentation.common.utils.MainGraph
 import com.example.jaywarehouse.presentation.common.utils.SIDE_EFFECT_KEY
 import com.example.jaywarehouse.presentation.common.utils.ScreenTransition
 import com.example.jaywarehouse.presentation.counting.contracts.CountingInceptionContract
@@ -61,10 +56,12 @@ import org.koin.core.parameter.parametersOf
 fun CountingInceptionScreen(
     navigator: DestinationsNavigator,
     detail: ReceivingDetailRow,
+    receivingId: Int,
     viewModel: CountingInceptionViewModel = koinViewModel(
         parameters = {
             parametersOf(
-                detail
+                detail,
+                receivingId
             )
         }
     )
@@ -123,7 +120,7 @@ fun CountingInceptionContent(
                 stickyHeader{
                     Column {
                         if (state.countingDetailRow!=null){
-                            ReceivingItem(state.countingDetailRow){}
+                            CountingDetailItem(state.countingDetailRow){}
                         }
                         Spacer(Modifier.size(10.mdp))
                         Row(Modifier.fillMaxWidth()) {

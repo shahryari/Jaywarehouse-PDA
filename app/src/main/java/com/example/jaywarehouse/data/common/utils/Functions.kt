@@ -35,10 +35,11 @@ fun <T:Any> getResult(
             } else if (response.code() == 401 && !isLogin) {
                 emit(BaseResult.UnAuthorized)
             } else {
+
                 if (onFailure != null) {
                     emit(BaseResult.Error(onFailure(response), null))
                 } else {
-                    emit(BaseResult.Error(response.errorBody()?.string() ?: "", response.body()))
+                    emit(BaseResult.Error(getErrorMessage(response), response.body()))
                 }
                 Log.e(
                     "jaywarehouse",
@@ -48,6 +49,21 @@ fun <T:Any> getResult(
         }catch (e: NoJsonException){
             emit(BaseResult.UnAuthorized)
         }
+    }
+}
+
+fun getErrorMessage(response: Response<*>) : String{
+    val body = response.errorBody()?.string()
+    if (body?.contains("Messages") == true){
+        val index = body.lastIndexOf("Messages:")
+        val cammaIndex = body.indexOf(',',index+9)
+        return body.substring(index+9,cammaIndex-1).trim().trimStart(':').trimStart('[').trimEnd(']',',')
+    } else if(body?.contains("Message") == true){
+        val index = body.lastIndexOf("Message:")
+        val cammaIndex = body.indexOf(',',index+8)
+        return body.substring(index+9,cammaIndex-1).trim().trimStart(':').trimStart('[').trimEnd(']',',')
+    } else {
+        return ""
     }
 }
 
