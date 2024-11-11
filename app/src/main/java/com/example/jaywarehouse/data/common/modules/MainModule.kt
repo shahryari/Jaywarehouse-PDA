@@ -2,11 +2,9 @@ package com.example.jaywarehouse.data.common.modules
 
 import com.example.jaywarehouse.data.auth.authModule
 import com.example.jaywarehouse.data.manual_putaway.manualPutawayModule
-import com.example.jaywarehouse.data.packing.model.PackingDetailModel
 import com.example.jaywarehouse.data.packing.packingModule
 import com.example.jaywarehouse.data.picking.pickingModule
 import com.example.jaywarehouse.data.putaway.putawayModule
-import com.example.jaywarehouse.data.receiving.model.ReceivingDetailRow
 import com.example.jaywarehouse.data.receiving.receivingModule
 import com.example.jaywarehouse.data.shipping.shippingModule
 import com.example.jaywarehouse.data.transfer.transferModule
@@ -15,12 +13,9 @@ import com.example.jaywarehouse.presentation.counting.viewmodels.CountingDetailV
 import com.example.jaywarehouse.presentation.counting.viewmodels.CountingInceptionViewModel
 import com.example.jaywarehouse.presentation.counting.viewmodels.CountingViewModel
 import com.example.jaywarehouse.presentation.dashboard.DashboardViewModel
-import com.example.jaywarehouse.presentation.destinations.PickingScreenDestination
 import com.example.jaywarehouse.presentation.main.MainViewModel
 import com.example.jaywarehouse.presentation.manual_putaway.viewmodels.ManualPutawayDetailViewModel
 import com.example.jaywarehouse.presentation.manual_putaway.viewmodels.ManualPutawayViewModel
-import com.example.jaywarehouse.presentation.packing.viewmodels.PackingDetailViewModel
-import com.example.jaywarehouse.presentation.packing.viewmodels.PackingViewModel
 import com.example.jaywarehouse.presentation.picking.viewModels.PickingDetailViewModel
 import com.example.jaywarehouse.presentation.picking.viewModels.PickingViewModel
 import com.example.jaywarehouse.presentation.profile.ProfileViewModel
@@ -93,12 +88,7 @@ val mainModule = module {
     viewModel {
         PickingDetailViewModel(get(),get(),it.get())
     }
-    viewModel {
-        PackingViewModel(get(),get())
-    }
-    viewModel {
-        PackingDetailViewModel(get(),get(),it.get())
-    }
+
     viewModel {
         ShippingViewModel(get(),get())
     }

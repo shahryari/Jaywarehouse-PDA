@@ -235,7 +235,7 @@ fun PickingItem(
                 }
                 Spacer(modifier = Modifier.size(10.mdp))
                 DetailCard(
-                    "Supplier",
+                    "Customer",
                     icon = R.drawable.barcode,
                     detail = model.customerName?:""
                 )

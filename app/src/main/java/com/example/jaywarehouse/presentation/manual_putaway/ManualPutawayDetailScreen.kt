@@ -194,7 +194,8 @@ private fun ManualPutawayDetailContent(
                                 icon = Icons.Default.Add, showBorder = false,
                                 background = Color.Transparent,
                                 tint = Primary,
-                            ) { }
+                                clickable = false,
+                            )
                         }
                         Spacer(Modifier.size(20.mdp))
                     }
