@@ -3,6 +3,7 @@ package com.example.jaywarehouse.data.receiving
 import com.example.jaywarehouse.data.common.utils.ORDER
 import com.example.jaywarehouse.data.common.utils.PAGE
 import com.example.jaywarehouse.data.common.utils.ROWS
+import com.example.jaywarehouse.data.common.utils.ResultMessageModel
 import com.example.jaywarehouse.data.common.utils.SORT
 import com.example.jaywarehouse.data.receiving.model.ReceivingDetailCountModel
 import com.example.jaywarehouse.data.receiving.model.ReceivingDetailGetItemsModel
@@ -39,7 +40,7 @@ interface ReceivingApi {
     @POST("ReceivingDetailCount")
     suspend fun countReceivingDetail(
         @Body jsonObject: JsonObject,
-    ) : Response<ReceivingDetailScanModel>
+    ) : Response<ResultMessageModel>
 
     @POST("ReceivingDetailCountGetItems")
     suspend fun getReceivingDetailCountItems(

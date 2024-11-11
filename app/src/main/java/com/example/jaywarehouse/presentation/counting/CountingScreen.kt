@@ -231,7 +231,7 @@ fun CountListItem(
                             .padding(vertical = 4.mdp, horizontal = 10.mdp)
                     ) {
                         MyText(
-                            text = receivingRow.receivingTypeTitle,
+                            text = receivingRow.receivingTypeTitle?:"",
                             style = MaterialTheme.typography.labelSmall,
                             fontFamily = poppins,
                             fontWeight = FontWeight.SemiBold,

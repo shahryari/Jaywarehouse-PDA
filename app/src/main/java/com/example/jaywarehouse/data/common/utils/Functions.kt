@@ -55,13 +55,11 @@ fun <T:Any> getResult(
 fun getErrorMessage(response: Response<*>) : String{
     val body = response.errorBody()?.string()
     if (body?.contains("Messages") == true){
-        val index = body.lastIndexOf("Messages:")
-        val cammaIndex = body.indexOf(',',index+9)
-        return body.substring(index+9,cammaIndex-1).trim().trimStart(':').trimStart('[').trimEnd(']',',')
+        val bodyData = Gson().fromJson(body,ErrorMessages::class.java)
+        return bodyData.messages.first()
     } else if(body?.contains("Message") == true){
-        val index = body.lastIndexOf("Message:")
-        val cammaIndex = body.indexOf(',',index+8)
-        return body.substring(index+9,cammaIndex-1).trim().trimStart(':').trimStart('[').trimEnd(']',',')
+        val bodyData = Gson().fromJson(body,ErrorMessage::class.java)
+        return bodyData.message
     } else {
         return ""
     }

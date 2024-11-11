@@ -1,6 +1,7 @@
 package com.example.jaywarehouse.data.receiving.repository
 
 import com.example.jaywarehouse.data.common.utils.BaseResult
+import com.example.jaywarehouse.data.common.utils.ResultMessageModel
 import com.example.jaywarehouse.data.common.utils.getResult
 import com.example.jaywarehouse.data.receiving.ReceivingApi
 import com.example.jaywarehouse.data.receiving.model.ReceivingDetailCountModel
@@ -60,7 +61,7 @@ class ReceivingRepository(
         quantity: Int,
         receivingTypeId: Int,
         counts: List<ReceivingDetailCountModel>
-    ) : Flow<BaseResult<ReceivingDetailScanModel>> {
+    ) : Flow<BaseResult<ResultMessageModel>> {
         val jsonArray = JsonArray()
         counts.map {
             val countObject = JsonObject()

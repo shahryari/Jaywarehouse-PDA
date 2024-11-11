@@ -14,15 +14,17 @@ class CountingInceptionContract {
         val countingDetailRow: ReceivingDetailRow? = null,
         val loadingState: Loading = Loading.NONE,
         val quantity: TextFieldValue = TextFieldValue(),
-        val quantityInPacket: TextFieldValue = TextFieldValue(),
+        val quantityInPacket: TextFieldValue = TextFieldValue("1"),
         val batchNumber: TextFieldValue = TextFieldValue(),
         val expireDate: TextFieldValue = TextFieldValue(),
         val showDatePicker: Boolean = false,
         val hideKeyboard: Boolean = false,
+        val selectedItem: ReceivingDetailCountModel? = null,
         val count: Int = 0,
         val toast: String = "",
         val error: String = "",
-        val details: List<ReceivingDetailCountModel> = emptyList()
+        val details: List<ReceivingDetailCountModel> = emptyList(),
+        val showConfirm: Boolean = false,
     ) : UiState
 
     sealed class Event : UiEvent {
@@ -34,9 +36,11 @@ class CountingInceptionContract {
         data class OnShowDatePicker(val value: Boolean) : Event()
         data object OnAddClick: Event()
         data object OnBack : Event()
+        data class OnShowConfirmDialog(val show: Boolean) : Event()
         data object CloseError: Event()
         data object HideToast: Event()
         data class OnDeleteCount(val model: ReceivingDetailCountModel) : Event()
+        data class OnSelectedItem(val item: ReceivingDetailCountModel?) : Event()
     }
 
     sealed class Effect : UiSideEffect {

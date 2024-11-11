@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Linari</string>
+    <string name="app_name">JayWarehouse</string>
     <string name="login">Sign in</string>
     <string name="login_notice">Login to your account to start a journey</string>
     <string name="username">Username</string>

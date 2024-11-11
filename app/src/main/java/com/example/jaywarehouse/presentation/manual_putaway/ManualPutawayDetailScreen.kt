@@ -200,7 +200,9 @@ private fun ManualPutawayDetailContent(
                     }
                 }
                 itemsIndexed(state.details.reversed()){i,it->
-                    ManualPutawayDetailItem(state.details.size-i,it)
+                    ManualPutawayDetailItem(state.details.size-i,it,selected = it == state.selectedDetail){
+                        onEvent(ManualPutawayDetailContract.Event.OnSelectDetail(it))
+                    }
                     Spacer(Modifier.size(5.mdp))
                 }
             }
@@ -247,12 +249,16 @@ private fun ManualPutawayDetailContent(
 fun ManualPutawayDetailItem(
     i: Int,
     detail: ManualPutawayDetailRow,
+    selected: Boolean = false,
+    onRemove: ()->Unit
 ) {
     DetailItem(
         i,
         detail.quantity.toString(),
         detail.warehouseLocationCode,
-        detail.createdOn
+        detail.createdOn,
+        selected,
+        onRemove
     )
 }
 

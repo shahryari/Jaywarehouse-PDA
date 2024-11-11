@@ -112,7 +112,7 @@ fun CountingInceptionContent(
                 },
                 endIcon = R.drawable.tick,
                 onEndClick = {
-                    onEvent(CountingInceptionContract.Event.OnSubmit)
+                    onEvent(CountingInceptionContract.Event.OnShowConfirmDialog(true))
                 }
             )
             Spacer(Modifier.size(20.mdp))
@@ -198,13 +198,17 @@ fun CountingInceptionContent(
                                 icon = Icons.Default.Add, showBorder = false,
                                 background = Color.Transparent,
                                 tint = Primary,
-                            ) { }
+                                clickable = false,
+                            )
                         }
                         Spacer(Modifier.size(20.mdp))
                     }
                 }
-                itemsIndexed(state.details.reversed()){i,it->
-                    CountingInceptionDetailItem(state.details.size-i,it)
+                val list = state.details.filterNot { it.entityState == "Deleted" }
+                itemsIndexed(list.reversed()){i,it->
+                    CountingInceptionDetailItem(list.size-i,it,it == state.selectedItem){
+                        onEvent(CountingInceptionContract.Event.OnSelectedItem(it))
+                    }
                     Spacer(Modifier.size(5.mdp))
                 }
             }
@@ -222,19 +226,46 @@ fun CountingInceptionContent(
 
         }
     }
+    if (state.selectedItem != null){
+        ConfirmDialog(
+            onDismiss = {
+                onEvent(CountingInceptionContract.Event.OnSelectedItem(null))
+            },
+            onConfirm = {
+                onEvent(CountingInceptionContract.Event.OnDeleteCount(state.selectedItem))
+            }
+        )
+    }
+    if (state.showConfirm) {
+        ConfirmDialog(
+            onDismiss = {
+                onEvent(CountingInceptionContract.Event.OnShowConfirmDialog(false))
+            },
+            message = "Are you sure to count this items?",
+            description = "",
+            tint = Primary,
+            onConfirm = {
+                onEvent(CountingInceptionContract.Event.OnSubmit)
+            }
+        )
+    }
 }
 
 
 @Composable
 fun CountingInceptionDetailItem(
     i: Int,
-    model: ReceivingDetailCountModel
+    model: ReceivingDetailCountModel,
+    selected: Boolean = false,
+    onRemove: ()->Unit
 ) {
     DetailItem(
         i,
         model.batchNumber,
         model.quantity.toString(),
-        model.expireDate
+        model.expireDate,
+        onRemove = onRemove,
+        selected = selected
     )
 }
 

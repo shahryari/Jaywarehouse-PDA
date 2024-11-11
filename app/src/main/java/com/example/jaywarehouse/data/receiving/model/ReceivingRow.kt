@@ -18,7 +18,7 @@ data class ReceivingRow(
     @SerializedName("ReceivingTypeID")
     val receivingTypeID: Int,
     @SerializedName("ReceivingTypeTitle")
-    val receivingTypeTitle: String,
+    val receivingTypeTitle: String?,
     @SerializedName("ReferenceNumber")
     val referenceNumber: String?,
     @SerializedName("SupplierFullName")

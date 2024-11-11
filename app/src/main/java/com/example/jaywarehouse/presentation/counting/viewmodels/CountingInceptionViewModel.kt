@@ -59,13 +59,18 @@ class CountingInceptionViewModel(
                 }
             }
             is CountingInceptionContract.Event.OnChangeQuantity -> {
+                val quantity = event.value.text.toIntOrNull() ?: 0
+                val inPack = state.quantityInPacket.text.toIntOrNull() ?: 1
                 setState {
-                    copy(quantity = event.value)
+                    copy(quantity = event.value, count = quantity*inPack)
                 }
             }
             is CountingInceptionContract.Event.OnChangeQuantityInPacket -> {
+
+                val quantity = state.quantity.text.toIntOrNull() ?: 0
+                val inPack = event.value.text.toIntOrNull() ?: 1
                 setState {
-                    copy(quantityInPacket = event.value)
+                    copy(quantityInPacket = event.value, count = quantity*inPack)
                 }
             }
             is CountingInceptionContract.Event.OnShowDatePicker -> {
@@ -75,7 +80,7 @@ class CountingInceptionViewModel(
             }
 
             CountingInceptionContract.Event.OnAddClick -> {
-                if (state.quantity.text.isEmpty() || state.quantityInPacket.text.isEmpty() || state.expireDate.text.isEmpty()) {
+                if (state.quantity.text.isEmpty() || state.quantityInPacket.text.isEmpty()) {
                     setState {
                         copy(error = "Please fill all fields")
                     }
@@ -93,7 +98,7 @@ class CountingInceptionViewModel(
                     copy(
                         details = details + countItem,
                         quantity = TextFieldValue(),
-                        quantityInPacket = TextFieldValue(),
+                        quantityInPacket = TextFieldValue("1"),
                         batchNumber = TextFieldValue(),
                         expireDate = TextFieldValue()
                     )
@@ -120,7 +125,19 @@ class CountingInceptionViewModel(
                         else if (it.receivingWorkerTaskCountId == event.model.receivingWorkerTaskCountId) {
                             it.copy(entityState = "Deleted")
                         } else it
-                    })
+                    }, selectedItem = null)
+                }
+            }
+
+            is CountingInceptionContract.Event.OnSelectedItem -> {
+                setState {
+                    copy(selectedItem = event.item)
+                }
+            }
+
+            is CountingInceptionContract.Event.OnShowConfirmDialog -> {
+                setState {
+                    copy(showConfirm = event.show)
                 }
             }
         }
@@ -163,14 +180,17 @@ class CountingInceptionViewModel(
         viewModelScope.launch {
             repository.countReceivingDetail(
                 receivingId,
-                state.count,
+                state.details.sumOf { it.quantity },
                 receivingTypeId = detail.receivingTypeID,
                 counts = state.details
             ).catch {
                 setSuspendedState {
-                    copy(error = it.message?:"")
+                    copy(error = it.message?:"", showConfirm = false)
                 }
             }.collect {
+                setSuspendedState {
+                    copy(showConfirm = false)
+                }
                 when(it){
                     is BaseResult.Error -> {
                         setSuspendedState {
@@ -178,6 +198,9 @@ class CountingInceptionViewModel(
                         }
                     }
                     is BaseResult.Success -> {
+                        setState {
+                            copy(toast = it.data?.messages?.firstOrNull()?: "Finished Successfully")
+                        }
                         setEffect {
                             CountingInceptionContract.Effect.NavBack
                         }
