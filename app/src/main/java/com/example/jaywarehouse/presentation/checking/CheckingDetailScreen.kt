@@ -1,4 +1,4 @@
-package com.example.jaywarehouse.presentation.picking
+package com.example.jaywarehouse.presentation.checking
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,9 +32,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.jaywarehouse.R
+import com.example.jaywarehouse.data.checking.models.CheckingListGroupedRow
+import com.example.jaywarehouse.data.checking.models.CheckingListRow
 import com.example.jaywarehouse.data.common.utils.mdp
-import com.example.jaywarehouse.data.picking.models.PickingListGroupedRow
-import com.example.jaywarehouse.data.picking.models.PickingListRow
+import com.example.jaywarehouse.presentation.checking.contracts.CheckingDetailContract
+import com.example.jaywarehouse.presentation.checking.viewModels.CheckingDetailViewModel
 import com.example.jaywarehouse.presentation.common.composables.BaseListItem
 import com.example.jaywarehouse.presentation.common.composables.BaseListItemModel
 import com.example.jaywarehouse.presentation.common.composables.DetailCard
@@ -51,8 +53,6 @@ import com.example.jaywarehouse.presentation.common.utils.SIDE_EFFECT_KEY
 import com.example.jaywarehouse.presentation.common.utils.ScreenTransition
 import com.example.jaywarehouse.presentation.destinations.DashboardScreenDestination
 import com.example.jaywarehouse.presentation.destinations.PutawayScreenDestination
-import com.example.jaywarehouse.presentation.picking.contracts.PickingDetailContract
-import com.example.jaywarehouse.presentation.picking.viewModels.PickingDetailViewModel
 import com.example.jaywarehouse.ui.theme.Gray3
 import com.example.jaywarehouse.ui.theme.Gray5
 import com.ramcosta.composedestinations.annotation.Destination
@@ -64,12 +64,12 @@ import org.koin.core.parameter.parametersOf
 
 @Destination(style = ScreenTransition::class)
 @Composable
-fun PickingDetailScreen(
+fun CheckingDetailScreen(
     navigator: DestinationsNavigator,
-    pickRow: PickingListGroupedRow,
-    viewModel: PickingDetailViewModel = koinViewModel(
+    checkingRow: CheckingListGroupedRow,
+    viewModel: CheckingDetailViewModel = koinViewModel(
         parameters = {
-            parametersOf(pickRow)
+            parametersOf(checkingRow)
         }
     )
 ) {
@@ -86,8 +86,8 @@ fun PickingDetailScreen(
     LaunchedEffect(key1 = SIDE_EFFECT_KEY) {
         viewModel.effect.collect {
             when(it){
-                PickingDetailContract.Effect.NavBack -> navigator.popBackStack()
-                PickingDetailContract.Effect.NavToDashboard -> {
+                CheckingDetailContract.Effect.NavBack -> navigator.popBackStack()
+                CheckingDetailContract.Effect.NavToDashboard -> {
                     navigator.navigate(DashboardScreenDestination){
                         popUpTo(PutawayScreenDestination){
                             inclusive = true
@@ -97,20 +97,20 @@ fun PickingDetailScreen(
             }
         }
     }
-    PickingDetailContent(state,onEvent)
+    CheckingDetailContent(state,onEvent)
 }
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun PickingDetailContent(
-    state: PickingDetailContract.State = PickingDetailContract.State(),
-    onEvent: (PickingDetailContract.Event)->Unit = {}
+fun CheckingDetailContent(
+    state: CheckingDetailContract.State = CheckingDetailContract.State(),
+    onEvent: (CheckingDetailContract.Event)->Unit = {}
 ) {
     val focusRequester = FocusRequester()
 
     val refreshState = rememberPullRefreshState(
         refreshing = state.loadingState == Loading.REFRESHING,
-        onRefresh = { onEvent(PickingDetailContract.Event.OnRefresh) }
+        onRefresh = { onEvent(CheckingDetailContract.Event.OnRefresh) }
     )
     LaunchedEffect(key1 = Unit) {
         focusRequester.requestFocus()
@@ -119,11 +119,11 @@ fun PickingDetailContent(
         loadingState = state.loadingState,
         error = state.error,
         onCloseError = {
-            onEvent(PickingDetailContract.Event.CloseError)
+            onEvent(CheckingDetailContract.Event.CloseError)
         },
         toast = state.toast,
         onHideToast = {
-            onEvent(PickingDetailContract.Event.HideToast)
+            onEvent(CheckingDetailContract.Event.HideToast)
         }
     ) {
 
@@ -137,24 +137,24 @@ fun PickingDetailContent(
                     .padding(15.mdp)
             ) {
                 TopBar(
-                    title = state.pickRow?.customerName?.trim()?:"",
-                    subTitle = "Picking",
+                    title = state.checkRow?.customerName?.trim()?:"",
+                    subTitle = "Checking",
                     onBack = {
-                        onEvent(PickingDetailContract.Event.OnNavBack)
+                        onEvent(CheckingDetailContract.Event.OnNavBack)
                     }
                 )
                 Spacer(modifier = Modifier.size(20.mdp))
                 SearchInput(
                     value = state.keyword,
                     onValueChange = {
-                        onEvent(PickingDetailContract.Event.OnChangeKeyword(it))
+                        onEvent(CheckingDetailContract.Event.OnChangeKeyword(it))
                     },
                     onSearch = {
-                        onEvent(PickingDetailContract.Event.OnSearch)
+                        onEvent(CheckingDetailContract.Event.OnSearch)
                     },
                     isLoading = state.loadingState == Loading.SEARCHING,
                     onSortClick = {
-                        onEvent(PickingDetailContract.Event.OnShowSortList(true))
+                        onEvent(CheckingDetailContract.Event.OnShowSortList(true))
                     },
                     hideKeyboard = state.lockKeyboard,
                     focusRequester = focusRequester
@@ -162,14 +162,14 @@ fun PickingDetailContent(
 
                 Spacer(modifier = Modifier.size(20.mdp))
                 LazyColumn(Modifier.fillMaxSize()) {
-                    items(state.pickingList){
-                        PickingDetailItem(it){
-                            onEvent(PickingDetailContract.Event.OnSelectPick(it))
+                    items(state.checkingList){
+                        CheckingDetailItem(it){
+                            onEvent(CheckingDetailContract.Event.OnSelectCheck(it))
                         }
                         Spacer(modifier = Modifier.size(7.mdp))
                     }
                     item {
-                        onEvent(PickingDetailContract.Event.OnReachEnd)
+                        onEvent(CheckingDetailContract.Event.OnReachEnd)
                     }
                     item {
                         Spacer(modifier = Modifier.size(70.mdp))
@@ -183,22 +183,22 @@ fun PickingDetailContent(
     if (state.showSortList){
         SortBottomSheet(
             onDismiss = {
-                onEvent(PickingDetailContract.Event.OnShowSortList(false))
+                onEvent(CheckingDetailContract.Event.OnShowSortList(false))
             },
             sortOptions = state.sortList,
             selectedSort = state.sort,
             onSelectSort = {
-                onEvent(PickingDetailContract.Event.OnSortChange(it))
+                onEvent(CheckingDetailContract.Event.OnSortChange(it))
             }
         )
     }
-    PickingBottomSheet(state,onEvent)
+    CheckingBottomSheet(state,onEvent)
 }
 
 
 @Composable
-fun PickingDetailItem(
-    model: PickingListRow,
+fun CheckingDetailItem(
+    model: CheckingListRow,
     onClick: ()->Unit
 ) {
     BaseListItem(
@@ -206,9 +206,10 @@ fun PickingDetailItem(
         item1 = BaseListItemModel("Name",model.productName, R.drawable.vuesax_outline_3d_cube_scan),
         item2 = BaseListItemModel("Product Code",model.productCode,R.drawable.barcode),
         item3 = BaseListItemModel("Barcode",model.barcodeNumber,R.drawable.note),
-        item4 = BaseListItemModel("LPO", model.customerName,R.drawable.vuesax_linear_box),
-        item5 = BaseListItemModel("Type of order acquisition", model.typeofOrderAcquisition,R.drawable.calendar_add),
-        quantity = model.warehouseLocationCode,
+        item4 = BaseListItemModel("Reference", model.referenceNumber,R.drawable.hashtag),
+        item5 = BaseListItemModel("Quantity", model.quantity.toString(),R.drawable.vuesax_linear_box),
+        showFooter = false,
+        quantity = "",
         quantityTitle = "Location",
         scan = model.quantity.toString(),
         scanTitle = "Quantity"
@@ -218,15 +219,15 @@ fun PickingDetailItem(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PickingBottomSheet(
-    state: PickingDetailContract.State,
-    onEvent: (PickingDetailContract.Event) -> Unit
+fun CheckingBottomSheet(
+    state: CheckingDetailContract.State,
+    onEvent: (CheckingDetailContract.Event) -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
 
 
-    if (state.selectedPick!=null){
+    if (state.selectedChecking!=null){
 
         val locationFocusRequester = remember {
             FocusRequester()
@@ -241,7 +242,7 @@ fun PickingBottomSheet(
         ModalBottomSheet(
             sheetState = sheetState,
             onDismissRequest = {
-                onEvent(PickingDetailContract.Event.OnSelectPick(null))
+                onEvent(CheckingDetailContract.Event.OnSelectCheck(null))
             },
             containerColor = Color.White
         ) {
@@ -260,65 +261,49 @@ fun PickingBottomSheet(
                 DetailCard(
                     title = "Name",
                     icon = R.drawable.vuesax_outline_3d_cube_scan,
-                    detail = state.selectedPick.productName,
+                    detail = state.selectedChecking.productName,
                 )
                 Spacer(Modifier.size(10.mdp))
                 Row(Modifier.fillMaxWidth()) {
                     DetailCard(
                         title = "Product Code",
                         icon = R.drawable.note,
-                        detail = state.selectedPick.productCode,
+                        detail = state.selectedChecking.productCode,
                         modifier = Modifier.weight(1f)
                     )
                     Spacer(Modifier.size(5.mdp))
                     DetailCard(
                         title = "Barcode",
                         icon = R.drawable.barcode,
-                        detail = state.selectedPick.barcodeNumber,
+                        detail = state.selectedChecking.barcodeNumber,
                         modifier = Modifier.weight(1f)
                     )
                 }
                 Spacer(Modifier.size(10.mdp))
                 Row(Modifier.fillMaxWidth()) {
                     DetailCard(
-                        title = "LPO",
-                        icon = R.drawable.vuesax_linear_box,
-                        detail = state.selectedPick.customerName,
-                        modifier = Modifier.weight(1f)
-                    )
-                    Spacer(Modifier.size(5.mdp))
-                    DetailCard(
-                        title = "Type of order acquisition",
-                        icon = R.drawable.calendar_add,
-                        detail = state.selectedPick.typeofOrderAcquisition,
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-                Spacer(Modifier.size(10.mdp))
-                Row(Modifier.fillMaxWidth()) {
-                    DetailCard(
-                        title = "Location",
-                        icon = R.drawable.location,
-                        detail = state.selectedPick.warehouseLocationCode,
+                        title = "Reference",
+                        icon = R.drawable.hashtag,
+                        detail = state.selectedChecking.referenceNumber,
                         modifier = Modifier.weight(1f)
                     )
                     Spacer(Modifier.size(5.mdp))
                     DetailCard(
                         title = "Quantity",
                         icon = R.drawable.vuesax_linear_box,
-                        detail = state.selectedPick.quantity.toString(),
+                        detail = state.selectedChecking.quantity.toString(),
                         modifier = Modifier.weight(1f)
                     )
                 }
                 Spacer(Modifier.size(10.mdp))
                 TitleView(
-                    title = "Location Code"
+                    title = "Quantity"
                 )
                 Spacer(Modifier.size(5.mdp))
                 InputTextField(
-                    state.location,
+                    state.count,
                     onValueChange = {
-                        onEvent(PickingDetailContract.Event.OnChangeLocation(it))
+                        onEvent(CheckingDetailContract.Event.OnChangeLocation(it))
                     },
                     onAny = {
                         barcodeFocusRequester.requestFocus()
@@ -326,15 +311,15 @@ fun PickingBottomSheet(
                     leadingIcon = R.drawable.location,
 //                    hideKeyboard = state.lockKeyboard,
                     focusRequester = locationFocusRequester,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                 )
                 Spacer(Modifier.size(10.mdp))
-                TitleView(title = "Barcode")
+                TitleView(title = "Pallet(PM-yyMMdd-xxx)")
                 Spacer(Modifier.size(5.mdp))
                 InputTextField(
                     state.barcode,
                     onValueChange = {
-                        onEvent(PickingDetailContract.Event.OnChangeBarcode(it))
+                        onEvent(CheckingDetailContract.Event.OnChangeBarcode(it))
                     },
                     onAny = {},
                     leadingIcon = R.drawable.barcode,
@@ -347,7 +332,7 @@ fun PickingBottomSheet(
                     MyButton(
                         onClick = {
                             scope.launch { sheetState.hide() }.invokeOnCompletion {
-                                onEvent(PickingDetailContract.Event.OnSelectPick(null))
+                                onEvent(CheckingDetailContract.Event.OnSelectCheck(null))
                             }
                         },
                         title = "Cancel",
@@ -361,7 +346,7 @@ fun PickingBottomSheet(
                     MyButton(
                         onClick = {
 
-                            onEvent(PickingDetailContract.Event.OnCompletePick(state.selectedPick))
+                            onEvent(CheckingDetailContract.Event.OnCompleteChecking(state.selectedChecking))
                         },
                         title = "Save",
                         isLoading = state.onSaving,
@@ -375,11 +360,7 @@ fun PickingBottomSheet(
 
 @Preview
 @Composable
-private fun PickingDetailPreview() {
-    PickingDetailContent(
-        state = PickingDetailContract.State(
-
-        )
-    )
+private fun CheckingDetailPreview() {
+    CheckingDetailContent()
 
 }

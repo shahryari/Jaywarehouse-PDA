@@ -2,6 +2,7 @@ package com.example.jaywarehouse.presentation.common.utils
 
 import androidx.compose.ui.graphics.Color
 import com.example.jaywarehouse.R
+import com.example.jaywarehouse.presentation.destinations.CheckingScreenDestination
 import com.example.jaywarehouse.presentation.destinations.CountingScreenDestination
 import com.example.jaywarehouse.presentation.destinations.ManualPutawayScreenDestination
 import com.example.jaywarehouse.presentation.destinations.PickingScreenDestination
@@ -57,7 +58,8 @@ enum class MainItems(
         "Checking",
         R.drawable.trolley_check,
         "Shipping",
-        Blue
+        Blue,
+        CheckingScreenDestination
     ),
     PalletConfirm(
         "Pallet\nConfirm",

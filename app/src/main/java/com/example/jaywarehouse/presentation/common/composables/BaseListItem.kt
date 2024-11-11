@@ -270,7 +270,7 @@ fun BaseListItem(
                 )
             }
         }
-        if (showFooter)Spacer(modifier = Modifier.size(15.mdp))
+        Spacer(modifier = Modifier.size(15.mdp))
         if (showFooter)Row(
             Modifier
                 .fillMaxWidth()

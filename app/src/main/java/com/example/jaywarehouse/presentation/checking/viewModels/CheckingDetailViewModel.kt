@@ -1,26 +1,26 @@
-package com.example.jaywarehouse.presentation.picking.viewModels
+package com.example.jaywarehouse.presentation.checking.viewModels
 
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.viewModelScope
+import com.example.jaywarehouse.data.checking.CheckingRepository
+import com.example.jaywarehouse.data.checking.models.CheckingListGroupedRow
+import com.example.jaywarehouse.data.checking.models.CheckingListRow
 import com.example.jaywarehouse.data.common.utils.BaseResult
 import com.example.jaywarehouse.data.common.utils.Prefs
-import com.example.jaywarehouse.data.picking.PickingRepository
-import com.example.jaywarehouse.data.picking.models.PickingListGroupedRow
-import com.example.jaywarehouse.data.picking.models.PickingListRow
+import com.example.jaywarehouse.presentation.checking.contracts.CheckingDetailContract
 import com.example.jaywarehouse.presentation.common.utils.BaseViewModel
 import com.example.jaywarehouse.presentation.common.utils.Loading
 import com.example.jaywarehouse.presentation.common.utils.Order
 import com.example.jaywarehouse.presentation.common.utils.SortItem
-import com.example.jaywarehouse.presentation.picking.contracts.PickingDetailContract
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 
-class PickingDetailViewModel(
-    private val repository: PickingRepository,
+class CheckingDetailViewModel(
+    private val repository: CheckingRepository,
     private val prefs: Prefs,
-    private val row: PickingListGroupedRow,
-) : BaseViewModel<PickingDetailContract.Event,PickingDetailContract.State,PickingDetailContract.Effect>(){
+    private val row: CheckingListGroupedRow,
+) : BaseViewModel<CheckingDetailContract.Event,CheckingDetailContract.State,CheckingDetailContract.Effect>(){
     init {
         val selectedSort = state.sortList.find {
             it.sort == prefs.getPickingSort() && it.order == Order.getFromValue(prefs.getPickingOrder())
@@ -32,7 +32,7 @@ class PickingDetailViewModel(
         }
         setState {
             copy(
-                pickRow = row,
+                checkRow = row,
 //                boxNumber = TextFieldValue(putRow.boxNumber?:""),
 //                enableBoxNumber = putRow.boxNumber?.isEmpty() ?: true
             )
@@ -44,122 +44,110 @@ class PickingDetailViewModel(
                 }
             }
         }
-        getPickings(row.customerID,sort = state.sort)
+        getCheckings(row.customerID,sort = state.sort)
     }
 
-    override fun setInitState(): PickingDetailContract.State {
-        return PickingDetailContract.State()
+    override fun setInitState(): CheckingDetailContract.State {
+        return CheckingDetailContract.State()
     }
 
-    override fun onEvent(event: PickingDetailContract.Event) {
+    override fun onEvent(event: CheckingDetailContract.Event) {
         when(event){
-            is PickingDetailContract.Event.OnChangeBarcode -> {
+            is CheckingDetailContract.Event.OnChangeBarcode -> {
                 setState {
                     copy(barcode = event.barcode)
                 }
             }
-            PickingDetailContract.Event.OnNavBack -> {
+            CheckingDetailContract.Event.OnNavBack -> {
                 setEffect {
-                    PickingDetailContract.Effect.NavBack
+                    CheckingDetailContract.Effect.NavBack
                 }
             }
-            PickingDetailContract.Event.CloseError -> {
+            CheckingDetailContract.Event.CloseError -> {
                 setState {
                     copy(error = "")
                 }
             }
-            is PickingDetailContract.Event.OnSelectPick -> {
+            is CheckingDetailContract.Event.OnSelectCheck -> {
                 setState {
-                    copy(selectedPick = event.put)
+                    copy(selectedChecking = event.checking)
                 }
             }
 
-            PickingDetailContract.Event.HideToast -> {
+            CheckingDetailContract.Event.HideToast -> {
                 setState {
                     copy(toast = "")
                 }
             }
 
-            PickingDetailContract.Event.OnReachEnd -> {
-                if (10*state.page<=state.pickingList.size){
+            CheckingDetailContract.Event.OnReachEnd -> {
+                if (10*state.page<=state.checkingList.size){
                     setState {
                         copy(page = state.page+1, loadingState = Loading.LOADING)
                     }
-                    getPickings(row.customerID,keyword = state.keyword.text,page = state.page,sort = state.sort)
+                    getCheckings(row.customerID,keyword = state.keyword.text,page = state.page,sort = state.sort)
                 }
             }
 
-            PickingDetailContract.Event.OnRefresh -> {
+            CheckingDetailContract.Event.OnRefresh -> {
                 setState {
-                    copy(page = 1, pickingList = emptyList(), loadingState = Loading.REFRESHING)
+                    copy(page = 1, checkingList = emptyList(), loadingState = Loading.REFRESHING)
                 }
-                getPickings(row.customerID,keyword = state.keyword.text,page = state.page,sort = state.sort)
+                getCheckings(row.customerID,keyword = state.keyword.text,page = state.page,sort = state.sort)
             }
-            is PickingDetailContract.Event.OnChangeLocation -> {
+            is CheckingDetailContract.Event.OnChangeLocation -> {
                 setState {
-                    copy(location = event.location)
+                    copy(count = event.location)
                 }
             }
-            is PickingDetailContract.Event.OnCompletePick -> {
-                completePicking(event.pick,state.location.text.trim(), state.barcode.text.trim())
+            is CheckingDetailContract.Event.OnCompleteChecking -> {
+                completeChecking(event.checking,state.count.text.trim().toInt(), state.barcode.text.trim())
             }
-            is PickingDetailContract.Event.OnChangeKeyword -> {
+            is CheckingDetailContract.Event.OnChangeKeyword -> {
                 setState {
                     copy(keyword = event.keyword)
                 }
             }
-            PickingDetailContract.Event.OnSearch -> {
+            CheckingDetailContract.Event.OnSearch -> {
                 setState {
-                    copy(loadingState = Loading.SEARCHING, pickingList = emptyList(), page = 1)
+                    copy(loadingState = Loading.SEARCHING, checkingList = emptyList(), page = 1)
                 }
-                getPickings(row.customerID,keyword = state.keyword.text,page = state.page,sort = state.sort)
+                getCheckings(row.customerID,keyword = state.keyword.text,page = state.page,sort = state.sort)
             }
-            is PickingDetailContract.Event.OnShowSortList -> {
+            is CheckingDetailContract.Event.OnShowSortList -> {
                 setState {
                     copy(showSortList = event.show)
                 }
             }
-            is PickingDetailContract.Event.OnSortChange -> {
+            is CheckingDetailContract.Event.OnSortChange -> {
                 prefs.setPutawayDetailSort(event.sortItem.sort)
                 prefs.setPutawayDetailOrder(event.sortItem.order.value)
                 setState {
-                    copy(sort = event.sortItem, page = 1, pickingList = emptyList(), loadingState = Loading.LOADING)
+                    copy(sort = event.sortItem, page = 1, checkingList = emptyList(), loadingState = Loading.LOADING)
                 }
-                getPickings(row.customerID,keyword = state.keyword.text,page = state.page,sort = event.sortItem)
+                getCheckings(row.customerID,keyword = state.keyword.text,page = state.page,sort = event.sortItem)
             }
         }
     }
 
 
-    private fun completePicking(
-        pick: PickingListRow,
-        locationCode: String,
+    private fun completeChecking(
+        checking: CheckingListRow,
+        count: Int,
         barcode: String
     ) {
 
-
-        if (locationCode.isEmpty()){
-            setState {
-                copy(toast = "Please fill location")
-            }
-            return
-        }
-
-        if (barcode.isEmpty()){
-            setState {
-                copy(toast = "Please fill barcode")
-            }
-            return
-        }
         setState {
             copy(onSaving = true)
         }
         viewModelScope.launch(Dispatchers.IO) {
-            if (state.selectedPick!=null)
-            repository.completePicking(
-                locationCode,
-                barcode,
-                pick.productLocationActivityID.toString())
+            if (state.selectedChecking!=null)
+            repository.checking(
+                checking.isCrossDock,
+                0,
+                checking.customerID.toString(),
+                checking.checkingWorkerTaskID.toString(),
+                barcode)
                 .catch {
                     setState {
                         copy(
@@ -176,16 +164,16 @@ class PickingDetailViewModel(
                         is BaseResult.Success -> {
                             setSuspendedState {
                                 copy(
-                                    location = TextFieldValue(),
+                                    count = TextFieldValue(),
                                     barcode = TextFieldValue(),
-                                    pickingList = emptyList(),
+                                    checkingList = emptyList(),
                                     page = 1,
-                                    selectedPick = null,
+                                    selectedChecking = null,
                                     toast = it.data?.messages?.first() ?: "",
                                     loadingState = Loading.LOADING
                                 )
                             }
-                            getPickings(row.customerID,keyword = state.keyword.text,page = state.page,sort = state.sort)
+                            getCheckings(row.customerID,keyword = state.keyword.text,page = state.page,sort = state.sort)
                         }
                         is BaseResult.Error -> {
                             setState {
@@ -201,13 +189,12 @@ class PickingDetailViewModel(
     }
 
 
-    private fun getPickings(customerId: Int, keyword: String = "", page: Int = 1, sort: SortItem) {
+    private fun getCheckings(customerId: Int, keyword: String = "", page: Int = 1, sort: SortItem) {
         viewModelScope.launch(Dispatchers.IO) {
-            repository.getPickingList(
+            repository.getCheckingList(
                 customerId = customerId.toString(),
                 keyword = keyword,
                 sort = sort.sort,
-                rows = 10,
                 page = page,
                 order = sort.order.value
             )
@@ -227,7 +214,7 @@ class PickingDetailViewModel(
                         is BaseResult.Success -> {
                             setState {
                                 copy(
-                                    pickingList = pickingList + (it.data?.rows ?: emptyList()),
+                                    checkingList = checkingList + (it.data?.rows ?: emptyList()),
                                 )
                             }
                         }

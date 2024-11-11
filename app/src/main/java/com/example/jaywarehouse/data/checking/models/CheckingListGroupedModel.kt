@@ -1,17 +1,17 @@
-package com.example.jaywarehouse.data.picking.models
+package com.example.jaywarehouse.data.checking.models
 
 import com.google.gson.annotations.SerializedName
 import java.io.Serializable
 
 
-data class PickingListGroupedModel(
+data class CheckingListGroupedModel(
     @SerializedName("rows")
-    val rows: List<PickingListGroupedRow>,
+    val rows: List<CheckingListGroupedRow>,
     @SerializedName("total")
     val total: Int
 )
 
-data class PickingListGroupedRow(
+data class CheckingListGroupedRow(
     @SerializedName("B2BCustomer")
     val b2BCustomer: String?,
     @SerializedName("CustomerCode")
@@ -20,8 +20,6 @@ data class PickingListGroupedRow(
     val customerID: Int,
     @SerializedName("CustomerName")
     val customerName: String,
-    @SerializedName("Total")
-    val total: Int,
-    @SerializedName("Count")
-    val count: Int
+    @SerializedName("GroupedProductCount")
+    val groupedProductCount: Int
 ) : Serializable

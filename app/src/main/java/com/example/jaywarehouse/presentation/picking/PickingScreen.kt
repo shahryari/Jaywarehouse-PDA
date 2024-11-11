@@ -210,21 +210,20 @@ fun PickingItem(
             ) {
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
 
-//                    Box(
-//                        modifier = Modifier
-//                            .clip(RoundedCornerShape(4.mdp))
-//                            .background(Primary.copy(0.2f))
-//                            .padding(vertical = 4.mdp, horizontal = 10.mdp)
-//                    ) {
-//                        MyText(
-//                            text = model.re,
-//                            style = MaterialTheme.typography.labelSmall,
-//                            fontFamily = poppins,
-//                            fontWeight = FontWeight.SemiBold,
-//                            color = Primary
-//                        )
-//                    }
-                    Spacer(Modifier.size(10.mdp))
+                    if(model.b2BCustomer != null) Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(4.mdp))
+                            .background(Primary.copy(0.2f))
+                            .padding(vertical = 4.mdp, horizontal = 10.mdp)
+                    ) {
+                        MyText(
+                            text = model.b2BCustomer,
+                            style = MaterialTheme.typography.labelSmall,
+                            fontFamily = poppins,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Primary
+                        )
+                    }
                     MyText(
                         text = "#${model.customerCode?:""}",
                         style = MaterialTheme.typography.bodyLarge,

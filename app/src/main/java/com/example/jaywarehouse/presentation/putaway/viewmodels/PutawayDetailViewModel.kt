@@ -44,7 +44,7 @@ class PutawayDetailViewModel(
                 }
             }
         }
-        getPutaways(putRow.receiptId,sort = state.sort)
+        getPutaways(putRow.receiptID,sort = state.sort)
     }
 
     override fun setInitState(): PutawayDetailContract.State {
@@ -85,7 +85,7 @@ class PutawayDetailViewModel(
                     setState {
                         copy(page = state.page+1, loadingState = Loading.LOADING)
                     }
-                    getPutaways(putRow.receiptId,keyword = state.keyword.text,page = state.page,sort = state.sort)
+                    getPutaways(putRow.receiptID,keyword = state.keyword.text,page = state.page,sort = state.sort)
                 }
             }
 
@@ -93,7 +93,7 @@ class PutawayDetailViewModel(
                 setState {
                     copy(page = 1, putaways = emptyList(), loadingState = Loading.REFRESHING)
                 }
-                getPutaways(putRow.receiptId,keyword = state.keyword.text,page = state.page,sort = state.sort)
+                getPutaways(putRow.receiptID,keyword = state.keyword.text,page = state.page,sort = state.sort)
             }
             is PutawayDetailContract.Event.OnChangeLocation -> {
                 setState {
@@ -112,7 +112,7 @@ class PutawayDetailViewModel(
                 setState {
                     copy(loadingState = Loading.SEARCHING, putaways = emptyList(), page = 1)
                 }
-                getPutaways(putRow.receiptId,keyword = state.keyword.text,page = state.page,sort = state.sort)
+                getPutaways(putRow.receiptID,keyword = state.keyword.text,page = state.page,sort = state.sort)
             }
             is PutawayDetailContract.Event.OnShowSortList -> {
                 setState {
@@ -125,7 +125,7 @@ class PutawayDetailViewModel(
                 setState {
                     copy(sort = event.sortItem, page = 1, putaways = emptyList(), loadingState = Loading.LOADING)
                 }
-                getPutaways(putRow.receiptId,keyword = state.keyword.text,page = state.page,sort = event.sortItem)
+                getPutaways(putRow.receiptID,keyword = state.keyword.text,page = state.page,sort = event.sortItem)
             }
         }
     }
@@ -185,7 +185,7 @@ class PutawayDetailViewModel(
                                     loadingState = Loading.LOADING
                                 )
                             }
-                            getPutaways(putRow.receiptId,keyword = state.keyword.text,page = state.page,sort = state.sort)
+                            getPutaways(putRow.receiptID,keyword = state.keyword.text,page = state.page,sort = state.sort)
                         }
                         is BaseResult.Error -> {
                             setState {

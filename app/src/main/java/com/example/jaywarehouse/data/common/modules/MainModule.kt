@@ -1,6 +1,7 @@
 package com.example.jaywarehouse.data.common.modules
 
 import com.example.jaywarehouse.data.auth.authModule
+import com.example.jaywarehouse.data.checking.checkingModule
 import com.example.jaywarehouse.data.manual_putaway.manualPutawayModule
 import com.example.jaywarehouse.data.packing.packingModule
 import com.example.jaywarehouse.data.picking.pickingModule
@@ -9,6 +10,8 @@ import com.example.jaywarehouse.data.receiving.receivingModule
 import com.example.jaywarehouse.data.shipping.shippingModule
 import com.example.jaywarehouse.data.transfer.transferModule
 import com.example.jaywarehouse.presentation.auth.LoginViewModel
+import com.example.jaywarehouse.presentation.checking.viewModels.CheckingDetailViewModel
+import com.example.jaywarehouse.presentation.checking.viewModels.CheckingViewModel
 import com.example.jaywarehouse.presentation.counting.viewmodels.CountingDetailViewModel
 import com.example.jaywarehouse.presentation.counting.viewmodels.CountingInceptionViewModel
 import com.example.jaywarehouse.presentation.counting.viewmodels.CountingViewModel
@@ -38,7 +41,8 @@ val mainModule = module {
         packingModule,
         shippingModule,
         transferModule,
-        manualPutawayModule
+        manualPutawayModule,
+        checkingModule
     )
 
     viewModel {
@@ -106,5 +110,13 @@ val mainModule = module {
 
     viewModel {
         TransferPutViewModel(get(),get())
+    }
+
+    viewModel {
+        CheckingViewModel(get(),get())
+    }
+
+    viewModel {
+        CheckingDetailViewModel(get(),get(),it.get())
     }
 }
