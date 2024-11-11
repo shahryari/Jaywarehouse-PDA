@@ -223,6 +223,8 @@ fun PickingItem(
                             fontWeight = FontWeight.SemiBold,
                             color = Primary
                         )
+                    } else {
+                        Spacer(Modifier.size(10.mdp))
                     }
                     MyText(
                         text = "#${model.customerCode?:""}",
