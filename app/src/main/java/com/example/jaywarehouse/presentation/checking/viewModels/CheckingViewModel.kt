@@ -21,7 +21,7 @@ class CheckingViewModel(
 
     init {
         val sort = state.sortList.find {
-            it.sort == prefs.getPickingCustomerSort() && it.order == Order.getFromValue(prefs.getPickingCustomerOrder())
+            it.sort == prefs.getCheckingSort() && it.order == Order.getFromValue(prefs.getCheckingOrder())
         }
         if (sort!=null) setState {
             copy(sort = sort)
@@ -56,8 +56,8 @@ class CheckingViewModel(
                 }
             }
             is CheckingContract.Event.OnChangeSort -> {
-                prefs.setPickingCustomerSort(event.sort.sort)
-                prefs.setPickingCustomerOrder(event.sort.order.value)
+                prefs.setCheckingSort(event.sort.sort)
+                prefs.setCheckingOrder(event.sort.order.value)
                 setState {
                     copy(sort = event.sort, checkingList = emptyList(), page = 1, loadingState = Loading.LOADING)
                 }

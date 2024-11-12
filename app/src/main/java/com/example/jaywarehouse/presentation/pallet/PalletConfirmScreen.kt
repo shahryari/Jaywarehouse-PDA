@@ -1,8 +1,13 @@
-package com.example.jaywarehouse.presentation.picking
+package com.example.jaywarehouse.presentation.pallet
 
+import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection.Companion.Start
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.AnchoredDraggableState
+import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,6 +26,9 @@ import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -33,14 +41,20 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.example.jaywarehouse.data.common.utils.mdp
 import com.example.jaywarehouse.R
+import com.example.jaywarehouse.data.checking.models.CheckingListGroupedModel
+import com.example.jaywarehouse.data.checking.models.CheckingListGroupedRow
+import com.example.jaywarehouse.data.pallet.model.PalletConfirmRow
 import com.example.jaywarehouse.data.picking.models.PickingListGroupedRow
-import com.example.jaywarehouse.data.putaway.model.PutawayListGroupedRow
+import com.example.jaywarehouse.presentation.checking.contracts.CheckingContract
+import com.example.jaywarehouse.presentation.checking.viewModels.CheckingViewModel
 import com.example.jaywarehouse.presentation.common.composables.DetailCard
 import com.example.jaywarehouse.presentation.common.composables.MyScaffold
 import com.example.jaywarehouse.presentation.common.composables.MyText
@@ -50,6 +64,8 @@ import com.example.jaywarehouse.presentation.common.composables.TopBar
 import com.example.jaywarehouse.presentation.common.utils.Loading
 import com.example.jaywarehouse.presentation.common.utils.SIDE_EFFECT_KEY
 import com.example.jaywarehouse.presentation.common.utils.ScreenTransition
+import com.example.jaywarehouse.presentation.counting.ConfirmDialog
+import com.example.jaywarehouse.presentation.destinations.CheckingDetailScreenDestination
 import com.example.jaywarehouse.presentation.destinations.PickingDetailScreenDestination
 import com.example.jaywarehouse.presentation.picking.contracts.PickingContract
 import com.example.jaywarehouse.presentation.picking.viewModels.PickingViewModel
@@ -61,9 +77,9 @@ import org.koin.androidx.compose.koinViewModel
 
 @Destination(style = ScreenTransition::class)
 @Composable
-fun PickingScreen(
+fun PalletScreen(
     navigator: DestinationsNavigator,
-    viewModel: PickingViewModel = koinViewModel()
+    viewModel: PalletConfirmViewModel = koinViewModel()
 ) {
     val state = viewModel.state
     val onEvent = viewModel::setEvent
@@ -71,24 +87,21 @@ fun PickingScreen(
     LaunchedEffect(key1 = SIDE_EFFECT_KEY) {
         viewModel.effect.collect {
             when(it){
-                is PickingContract.Effect.NavToPickingDetail -> {
-                    navigator.navigate(PickingDetailScreenDestination(it.pick))
-                }
 
-                PickingContract.Effect.NavBack -> {
+                PalletConfirmContract.Effect.NavBack -> {
                     navigator.popBackStack()
                 }
             }
         }
     }
-    PickingContent(state,onEvent)
+    PalletContent(state,onEvent)
 }
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun PickingContent(
-    state: PickingContract.State = PickingContract.State(),
-    onEvent: (PickingContract.Event)->Unit = {}
+fun PalletContent(
+    state: PalletConfirmContract.State = PalletConfirmContract.State(),
+    onEvent: (PalletConfirmContract.Event)->Unit = {}
 ) {
     val searchFocusRequester = remember {
         FocusRequester()
@@ -98,19 +111,23 @@ fun PickingContent(
     val refreshState = rememberPullRefreshState(
         refreshing =  state.loadingState == Loading.REFRESHING,
         onRefresh = {
-            onEvent(PickingContract.Event.OnRefresh)
+            onEvent(PalletConfirmContract.Event.OnRefresh)
         }
     )
 
     LaunchedEffect(key1 = Unit) {
         searchFocusRequester.requestFocus()
-        onEvent(PickingContract.Event.ReloadScreen)
+        onEvent(PalletConfirmContract.Event.ReloadScreen)
     }
     MyScaffold(
         loadingState = state.loadingState,
         error = state.error,
         onCloseError = {
-            onEvent(PickingContract.Event.ClearError)
+            onEvent(PalletConfirmContract.Event.ClearError)
+        },
+        toast = state.toast,
+        onHideToast = {
+            onEvent(PalletConfirmContract.Event.HideToast)
         }
     ) {
 
@@ -122,23 +139,23 @@ fun PickingContent(
                     .padding(15.mdp)
             ) {
                 TopBar(
-                    stringResource(R.string.picking),
+                    title = "Pallet Confirm",
                     onBack = {
-                        onEvent(PickingContract.Event.OnBackPressed)
+                        onEvent(PalletConfirmContract.Event.OnBackPressed)
                     }
                 )
                 Spacer(modifier = Modifier.size(10.mdp))
                 SearchInput(
                     value = state.keyword,
                     onValueChange = {
-                        onEvent(PickingContract.Event.OnChangeKeyword(it))
+                        onEvent(PalletConfirmContract.Event.OnChangeKeyword(it))
                     },
                     onSearch = {
-                        onEvent(PickingContract.Event.OnSearch)
+                        onEvent(PalletConfirmContract.Event.OnSearch)
                     },
                     isLoading = state.loadingState == Loading.SEARCHING,
                     onSortClick = {
-                        onEvent(PickingContract.Event.OnShowSortList(true))
+                        onEvent(PalletConfirmContract.Event.OnShowSortList(true))
                     },
                     hideKeyboard = state.lockKeyboard,
                     focusRequester = searchFocusRequester
@@ -147,14 +164,14 @@ fun PickingContent(
                 LazyColumn(Modifier
                     .fillMaxSize()
                 ) {
-                    items(state.pickings){
-                        PickingItem(it) {
-                            onEvent(PickingContract.Event.OnNavToPickingDetail(it))
+                    items(state.palletList){
+                        PalletItem(it) {
+                            onEvent(PalletConfirmContract.Event.OnSelectPallet(it))
                         }
                         Spacer(modifier = Modifier.size(10.mdp))
                     }
                     item {
-                        onEvent(PickingContract.Event.OnReachedEnd)
+                        onEvent(PalletConfirmContract.Event.OnReachedEnd)
                     }
                     item { Spacer(modifier = Modifier.size(70.mdp)) }
                 }
@@ -168,134 +185,125 @@ fun PickingContent(
     if (state.showSortList){
         SortBottomSheet(
             onDismiss = {
-                onEvent(PickingContract.Event.OnShowSortList(false))
+                onEvent(PalletConfirmContract.Event.OnShowSortList(false))
             },
             sortOptions = state.sortList,
             selectedSort = state.sort,
             onSelectSort = {
-                onEvent(PickingContract.Event.OnChangeSort(it))
+                onEvent(PalletConfirmContract.Event.OnChangeSort(it))
             }
         )
+    }
+    if (state.selectedPallet!=null){
+        ConfirmDialog(
+            onDismiss = {
+                onEvent(PalletConfirmContract.Event.OnSelectPallet(null))
+            },
+            description = "Are you sure to confirm this pallet ${state.selectedPallet.palletBarcode}?",
+            message = "Confirm Pallet",
+            tint = Primary,
+            onConfirm = {
+                onEvent(PalletConfirmContract.Event.ConfirmPallet(state.selectedPallet))
+            }
+        ) 
     }
 }
 
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun PickingItem(
-    model: PickingListGroupedRow,
-    enableShowDetail: Boolean = false,
-    onClick: () -> Unit
+fun PalletItem(
+    model: PalletConfirmRow,
+    onSelect: () -> Unit
 ) {
-    var visibleDetails by remember {
-        mutableStateOf(true)
-    }
-    Column(
-        Modifier
-            .shadow(1.mdp, RoundedCornerShape(6.mdp))
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(6.mdp))
-            .background(Color.White)
-            .clickable {
-                if (enableShowDetail) visibleDetails = !visibleDetails
-                onClick()
-            }
-    ) {
-        AnimatedVisibility(visible = visibleDetails) {
-
-            Column(
-                Modifier
-                    .fillMaxWidth()
-                    .background(Color.White)
-                    .padding(15.mdp)
-            ) {
-                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
-
-                    if(model.typeTitle != null) Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(4.mdp))
-                            .background(Primary.copy(0.2f))
-                            .padding(vertical = 4.mdp, horizontal = 10.mdp)
-                    ) {
-                        MyText(
-                            text = model.typeTitle,
-                            style = MaterialTheme.typography.labelSmall,
-                            fontFamily = poppins,
-                            fontWeight = FontWeight.SemiBold,
-                            color = Primary
-                        )
-                    } else {
-                        Spacer(Modifier.size(10.mdp))
-                    }
-                    MyText(
-                        text = "#${model.customerCode?:""}",
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontFamily = poppins,
-                        fontWeight = FontWeight.SemiBold,
-                    )
-
+    val swipeState = rememberSwipeToDismissBoxState(
+        positionalThreshold = {it*0.25f},
+        confirmValueChange = {
+            when(it){
+                SwipeToDismissBoxValue.StartToEnd,
+                SwipeToDismissBoxValue.EndToStart -> {
+                    onSelect()
                 }
-                Spacer(modifier = Modifier.size(10.mdp))
-                DetailCard(
-                    "Customer",
-                    icon = R.drawable.barcode,
-                    detail = model.customerName?:""
-                )
-                Spacer(modifier = Modifier.size(15.mdp))
-
+                SwipeToDismissBoxValue.Settled -> {}
             }
+            true
         }
-        Row(
+    )
+    LaunchedEffect(swipeState.currentValue) {
+        swipeState.reset()
+    }
+    SwipeToDismissBox(
+        state = swipeState,
+        backgroundContent = {}
+    ) {
+        Column(
+            Modifier
+                .shadow(1.mdp, RoundedCornerShape(6.mdp))
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(6.mdp))
+                .background(Color.White)
+        ) {
+        Column(
             Modifier
                 .fillMaxWidth()
+                .background(Color.White)
+                .padding(15.mdp)
         ) {
-            Row(
-                Modifier
-                    .weight(1f)
-                    .background(Primary)
-                    .padding(vertical = 7.mdp, horizontal = 10.mdp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.vuesax_outline_box_tick),
-                    contentDescription = "",
-                    modifier = Modifier.size(28.mdp),
-                    tint = Color.White
-                )
-                Spacer(modifier = Modifier.size(7.mdp))
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
+
+                if(model.total!=null)Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(4.mdp))
+                        .background(Primary.copy(0.2f))
+                        .padding(vertical = 4.mdp, horizontal = 10.mdp)
+                ) {
+                    MyText(
+                        text = "",
+                        style = MaterialTheme.typography.labelSmall,
+                        fontFamily = poppins,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Primary
+                    )
+                } else  {
+                    Spacer(Modifier.size(10.mdp))
+                }
                 MyText(
-                    text = "Total: "+model.total,
-                    color = Color.White,
+                    text = "#${model.palletBarcode?:""}",
                     style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Medium
+                    fontFamily = poppins,
+                    fontWeight = FontWeight.SemiBold,
                 )
+
             }
-            Row(
-                Modifier
-                    .weight(1f)
-                    .background(Primary.copy(0.2f))
-                    .padding(vertical = 7.mdp, horizontal = 10.mdp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.scanner),
-                    contentDescription = "",
-                    modifier = Modifier.size(28.mdp),
-                    tint = Primary
-                )
-                Spacer(modifier = Modifier.size(7.mdp))
-                MyText(
-                    text = "Scan: " + model.count,
-                    color = Primary,
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Medium
-                )
-            }
+            Spacer(modifier = Modifier.size(10.mdp))
+            DetailCard(
+                "Customer",
+                icon = R.drawable.barcode,
+                detail = model.customerName?:""
+            )
+        }
         }
     }
 }
 
 @Preview
 @Composable
-private fun PickingPreview() {
-    PickingContent()
+private fun PalletPreview() {
+    var selected by remember {
+        mutableStateOf(false)
+    }
+    Column {
+        PalletItem(
+            PalletConfirmRow(
+                palletManifestID = 10,
+                palletBarcode = "test",
+                customerName = "",
+                total = 3
+            ),
+            onSelect = {
+                selected = !selected
+            }
+        )
+        MyText("$selected")
+    }
 }

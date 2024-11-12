@@ -108,6 +108,8 @@ class ManualPutawayDetailViewModel(
                 }
             }
             is ManualPutawayDetailContract.Event.OnSortChange -> {
+                prefs.setManualPutawayDetailSort(event.sort.sort)
+                prefs.setManualPutawayDetailOrder(event.sort.order.value)
                 setState {
                     copy(selectedSort = event.sort,page = 1, details = emptyList(), loadingState = Loading.LOADING)
                 }

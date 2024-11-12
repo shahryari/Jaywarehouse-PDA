@@ -120,8 +120,8 @@ class PickingDetailViewModel(
                 }
             }
             is PickingDetailContract.Event.OnSortChange -> {
-                prefs.setPutawayDetailSort(event.sortItem.sort)
-                prefs.setPutawayDetailOrder(event.sortItem.order.value)
+                prefs.setPickingSort(event.sortItem.sort)
+                prefs.setPickingOrder(event.sortItem.order.value)
                 setState {
                     copy(sort = event.sortItem, page = 1, pickingList = emptyList(), loadingState = Loading.LOADING)
                 }

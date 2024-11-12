@@ -23,5 +23,7 @@ data class PickingListGroupedRow(
     @SerializedName("Total")
     val total: Int,
     @SerializedName("Count")
-    val count: Int
+    val count: Int,
+    @SerializedName("ShippingOrderTypeTitle")
+    val typeTitle: String?
 ) : Serializable

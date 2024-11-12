@@ -23,7 +23,7 @@ class CheckingDetailViewModel(
 ) : BaseViewModel<CheckingDetailContract.Event,CheckingDetailContract.State,CheckingDetailContract.Effect>(){
     init {
         val selectedSort = state.sortList.find {
-            it.sort == prefs.getPickingSort() && it.order == Order.getFromValue(prefs.getPickingOrder())
+            it.sort == prefs.getCheckingDetailSort() && it.order == Order.getFromValue(prefs.getCheckingDetailOrder())
         }
         if (selectedSort!=null) {
             setState {
@@ -120,8 +120,8 @@ class CheckingDetailViewModel(
                 }
             }
             is CheckingDetailContract.Event.OnSortChange -> {
-                prefs.setPutawayDetailSort(event.sortItem.sort)
-                prefs.setPutawayDetailOrder(event.sortItem.order.value)
+                prefs.setCheckingDetailSort(event.sortItem.sort)
+                prefs.setCheckingDetailOrder(event.sortItem.order.value)
                 setState {
                     copy(sort = event.sortItem, page = 1, checkingList = emptyList(), loadingState = Loading.LOADING)
                 }

@@ -404,6 +404,80 @@ class Prefs(private val context: Context) {
     }
 
 
+    //checking
+
+    fun setCheckingSort(sort: String) {
+        with(preferences.edit()){
+            putString("checkingSort",sort)
+            apply()
+        }
+    }
+
+    fun getCheckingSort() : String {
+        return preferences.getString("checkingSort", DEFAULT_SORT) ?: DEFAULT_SORT
+    }
+
+    fun setCheckingOrder(order: String) {
+        with(preferences.edit()) {
+            putString("checkingOrder",order)
+            apply()
+        }
+    }
+
+    fun getCheckingOrder() : String {
+        return preferences.getString("checkingOrder", Order.Desc.value) ?: Order.Desc.value
+    }
+
+    //checking detail
+
+    fun setCheckingDetailSort(sort: String) {
+        with(preferences.edit()){
+            putString("checkingDetailSort",sort)
+            apply()
+        }
+    }
+
+    fun getCheckingDetailSort() : String {
+        return preferences.getString("checkingDetailSort", DEFAULT_SORT) ?: DEFAULT_SORT
+    }
+
+    fun setCheckingDetailOrder(order: String) {
+        with(preferences.edit()) {
+            putString("checkingDetailOrder",order)
+            apply()
+        }
+    }
+
+    fun getCheckingDetailOrder() : String {
+        return preferences.getString("checkingDetailOrder", Order.Desc.value) ?: Order.Desc.value
+    }
+
+
+    //pallet confirm
+    fun setPalletSort(sort: String) {
+        with(preferences.edit()){
+            putString("palletSort",sort)
+            apply()
+        }
+    }
+
+    fun getPalletSort() : String {
+        return preferences.getString("palletSort", DEFAULT_SORT) ?: DEFAULT_SORT
+    }
+
+    fun setPalletOrder(order: String) {
+        with(preferences.edit()) {
+            putString("palletOrder", order)
+            apply()
+        }
+    }
+
+    fun getPalletOrder() : String {
+        return preferences.getString("palletOrder",Order.Desc.value) ?: Order.Desc.value
+    }
+
+
+
 
 
     //lock keyboard
