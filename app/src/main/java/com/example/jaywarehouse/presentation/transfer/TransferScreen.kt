@@ -22,7 +22,6 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -59,7 +58,6 @@ import com.example.jaywarehouse.presentation.transfer.viewmodels.TransferPickVie
 import com.example.jaywarehouse.presentation.transfer.viewmodels.TransferPutViewModel
 import com.example.jaywarehouse.ui.theme.Black
 import com.example.jaywarehouse.ui.theme.Orange
-import com.example.jaywarehouse.ui.theme.poppins
 import com.ramcosta.composedestinations.annotation.Destination
 import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
@@ -132,7 +130,6 @@ fun TransferContent(
                 MyText(
                     text = "Transfer ${if (state.isPick) "Pick" else "Put"}",
                     style = MaterialTheme.typography.titleLarge,
-                    fontFamily = poppins,
                     fontWeight = FontWeight.Medium
                 )
                 Spacer(modifier = Modifier.size(10.mdp))
@@ -650,7 +647,6 @@ fun SelectableInput(
             MyText(
                 text = label,
                 style = MaterialTheme.typography.bodyLarge,
-                fontFamily = poppins,
                 fontWeight = FontWeight.Normal,
                 color = MaterialTheme.colorScheme.outlineVariant
             )
@@ -658,7 +654,6 @@ fun SelectableInput(
         MyText(
             text = value,
             style = MaterialTheme.typography.bodyLarge,
-            fontFamily = poppins,
             fontWeight = FontWeight.Normal,
             color = Black
         )

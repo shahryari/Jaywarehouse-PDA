@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -23,14 +22,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import com.example.jaywarehouse.R
+import androidx.compose.ui.text.style.TextOverflow
 import com.example.jaywarehouse.data.common.utils.mdp
 import com.example.jaywarehouse.ui.theme.Black
 import com.example.jaywarehouse.ui.theme.Border
 import com.example.jaywarehouse.ui.theme.Primary
-import com.example.jaywarehouse.ui.theme.poppins
 
 @Composable
 fun TopBar(
@@ -60,12 +57,17 @@ fun TopBar(
                 tint = Black
             )
         }
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Spacer(Modifier.size(5.mdp))
+        Column(
+            modifier = Modifier.weight(1f),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
             MyText(
                 text = title,
                 style = MaterialTheme.typography.titleLarge,
-                fontFamily = poppins,
-                fontWeight = FontWeight.W400
+                fontWeight = FontWeight.W400,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
             if (subTitle.isNotEmpty())Spacer(Modifier.size(3.mdp))
             if (subTitle.isNotEmpty())MyText(
@@ -75,6 +77,7 @@ fun TopBar(
                 color = Border
             )
         }
+        Spacer(Modifier.size(5.mdp))
         if (endIcon!=null){
             Box(
                 modifier =Modifier

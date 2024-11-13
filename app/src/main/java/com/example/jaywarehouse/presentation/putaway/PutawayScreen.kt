@@ -40,8 +40,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.jaywarehouse.data.common.utils.mdp
 import com.example.jaywarehouse.R
 import com.example.jaywarehouse.data.putaway.model.PutawayListGroupedRow
-import com.example.jaywarehouse.presentation.common.composables.BaseListItem
-import com.example.jaywarehouse.presentation.common.composables.BaseListItemModel
 import com.example.jaywarehouse.presentation.common.composables.DetailCard
 import com.example.jaywarehouse.presentation.common.composables.MyScaffold
 import com.example.jaywarehouse.presentation.common.composables.MyText
@@ -49,14 +47,12 @@ import com.example.jaywarehouse.presentation.common.composables.SearchInput
 import com.example.jaywarehouse.presentation.common.composables.SortBottomSheet
 import com.example.jaywarehouse.presentation.common.composables.TopBar
 import com.example.jaywarehouse.presentation.common.utils.Loading
-import com.example.jaywarehouse.presentation.common.utils.MainGraph
 import com.example.jaywarehouse.presentation.common.utils.SIDE_EFFECT_KEY
 import com.example.jaywarehouse.presentation.common.utils.ScreenTransition
 import com.example.jaywarehouse.presentation.destinations.PutawayDetailScreenDestination
 import com.example.jaywarehouse.presentation.putaway.contracts.PutawayContract
 import com.example.jaywarehouse.presentation.putaway.viewmodels.PutawayViewModel
 import com.example.jaywarehouse.ui.theme.Primary
-import com.example.jaywarehouse.ui.theme.poppins
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import org.koin.androidx.compose.koinViewModel
@@ -222,7 +218,6 @@ fun PutawayItem(
                         MyText(
                             text = model.receivingTypeTitle,
                             style = MaterialTheme.typography.labelSmall,
-                            fontFamily = poppins,
                             fontWeight = FontWeight.SemiBold,
                             color = Primary
                         )
@@ -230,7 +225,6 @@ fun PutawayItem(
                     MyText(
                         text = "#${model.referenceNumber?:""}",
                         style = MaterialTheme.typography.bodyLarge,
-                        fontFamily = poppins,
                         fontWeight = FontWeight.SemiBold,
                     )
 

@@ -52,7 +52,6 @@ import com.example.jaywarehouse.presentation.destinations.ShippingDetailScreenDe
 import com.example.jaywarehouse.presentation.shipping.contracts.ShippingContract
 import com.example.jaywarehouse.presentation.shipping.viewmodels.ShippingViewModel
 import com.example.jaywarehouse.ui.theme.Orange
-import com.example.jaywarehouse.ui.theme.poppins
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.delay
@@ -114,7 +113,6 @@ fun ShippingContent(
                 MyText(
                     text = stringResource(id = R.string.shipping),
                     style = MaterialTheme.typography.titleLarge,
-                    fontFamily = poppins,
                     fontWeight = FontWeight.Medium
                 )
                 Spacer(modifier = Modifier.size(10.mdp))

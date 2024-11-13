@@ -4,7 +4,9 @@ import androidx.compose.ui.graphics.Color
 import com.example.jaywarehouse.R
 import com.example.jaywarehouse.presentation.destinations.CheckingScreenDestination
 import com.example.jaywarehouse.presentation.destinations.CountingScreenDestination
+import com.example.jaywarehouse.presentation.destinations.LoadingScreenDestination
 import com.example.jaywarehouse.presentation.destinations.ManualPutawayScreenDestination
+import com.example.jaywarehouse.presentation.destinations.PalletScreenDestination
 import com.example.jaywarehouse.presentation.destinations.PickingScreenDestination
 import com.example.jaywarehouse.presentation.destinations.PutawayScreenDestination
 import com.example.jaywarehouse.ui.theme.Blue
@@ -65,13 +67,15 @@ enum class MainItems(
         "Pallet\nConfirm",
         R.drawable.pallet,
         "Shipping",
-        Blue
+        Blue,
+        PalletScreenDestination
     ),
     Loading(
         "Loading",
         R.drawable.cargo,
         "Shipping",
-        Blue
+        Blue,
+        LoadingScreenDestination
     ),
     ShippingTruck(
         "Shipping\nTruck",

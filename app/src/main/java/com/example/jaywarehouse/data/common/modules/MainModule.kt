@@ -2,6 +2,7 @@ package com.example.jaywarehouse.data.common.modules
 
 import com.example.jaywarehouse.data.auth.authModule
 import com.example.jaywarehouse.data.checking.checkingModule
+import com.example.jaywarehouse.data.loading.loadingModule
 import com.example.jaywarehouse.data.manual_putaway.manualPutawayModule
 import com.example.jaywarehouse.data.packing.packingModule
 import com.example.jaywarehouse.data.pallet.palletModule
@@ -17,6 +18,8 @@ import com.example.jaywarehouse.presentation.counting.viewmodels.CountingDetailV
 import com.example.jaywarehouse.presentation.counting.viewmodels.CountingInceptionViewModel
 import com.example.jaywarehouse.presentation.counting.viewmodels.CountingViewModel
 import com.example.jaywarehouse.presentation.dashboard.DashboardViewModel
+import com.example.jaywarehouse.presentation.loading.viewmodels.LoadingDetailViewModel
+import com.example.jaywarehouse.presentation.loading.viewmodels.LoadingViewModel
 import com.example.jaywarehouse.presentation.main.MainViewModel
 import com.example.jaywarehouse.presentation.manual_putaway.viewmodels.ManualPutawayDetailViewModel
 import com.example.jaywarehouse.presentation.manual_putaway.viewmodels.ManualPutawayViewModel
@@ -45,7 +48,8 @@ val mainModule = module {
         transferModule,
         manualPutawayModule,
         checkingModule,
-        palletModule
+        palletModule,
+        loadingModule
     )
 
     viewModel {
@@ -125,5 +129,14 @@ val mainModule = module {
 
     viewModel {
         PalletConfirmViewModel(get(),get())
+    }
+
+    viewModel { class LoadingModule {
+}
+        LoadingViewModel(get(),get())
+    }
+
+    viewModel {
+        LoadingDetailViewModel(get(),get(),it.get())
     }
 }

@@ -1,6 +1,5 @@
 package com.example.jaywarehouse.presentation.common.composables
 
-import android.app.Activity
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -28,7 +27,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
@@ -38,15 +36,12 @@ import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import com.example.jaywarehouse.data.common.utils.mdp
 import com.example.jaywarehouse.R
 import com.example.jaywarehouse.ui.theme.Border
-import com.example.jaywarehouse.ui.theme.Gray3
-import com.example.jaywarehouse.ui.theme.poppins
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -127,7 +122,6 @@ fun SearchInput(
                                 MyText(
                                     text = "Search Keyword ...",
                                     style = MaterialTheme.typography.bodyLarge,
-                                    fontFamily = poppins,
                                     fontWeight = FontWeight.Normal,
                                     color = Color.LightGray
                                 )

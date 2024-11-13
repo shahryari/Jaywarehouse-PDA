@@ -1,29 +1,28 @@
-package com.example.jaywarehouse.presentation.checking.viewModels
+package com.example.jaywarehouse.presentation.loading.viewmodels
 
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.viewModelScope
-import com.example.jaywarehouse.data.checking.CheckingRepository
-import com.example.jaywarehouse.data.checking.models.CheckingListGroupedRow
-import com.example.jaywarehouse.data.checking.models.CheckingListRow
 import com.example.jaywarehouse.data.common.utils.BaseResult
 import com.example.jaywarehouse.data.common.utils.Prefs
-import com.example.jaywarehouse.presentation.checking.contracts.CheckingDetailContract
+import com.example.jaywarehouse.data.loading.LoadingRepository
+import com.example.jaywarehouse.data.loading.models.LoadingListGroupedRow
+import com.example.jaywarehouse.data.pallet.model.PalletConfirmRow
 import com.example.jaywarehouse.presentation.common.utils.BaseViewModel
 import com.example.jaywarehouse.presentation.common.utils.Loading
 import com.example.jaywarehouse.presentation.common.utils.Order
 import com.example.jaywarehouse.presentation.common.utils.SortItem
+import com.example.jaywarehouse.presentation.loading.contracts.LoadingDetailContract
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 
-class CheckingDetailViewModel(
-    private val repository: CheckingRepository,
+class LoadingDetailViewModel(
+    private val repository: LoadingRepository,
     private val prefs: Prefs,
-    private val row: CheckingListGroupedRow,
-) : BaseViewModel<CheckingDetailContract.Event,CheckingDetailContract.State,CheckingDetailContract.Effect>(){
+    private val row: LoadingListGroupedRow,
+) : BaseViewModel<LoadingDetailContract.Event,LoadingDetailContract.State,LoadingDetailContract.Effect>(){
     init {
         val selectedSort = state.sortList.find {
-            it.sort == prefs.getCheckingDetailSort() && it.order == Order.getFromValue(prefs.getCheckingDetailOrder())
+            it.sort == prefs.getLoadingDetailSort() && it.order == Order.getFromValue(prefs.getLoadingDetailOrder())
         }
         if (selectedSort!=null) {
             setState {
@@ -32,9 +31,7 @@ class CheckingDetailViewModel(
         }
         setState {
             copy(
-                checkRow = row,
-//                boxNumber = TextFieldValue(putRow.boxNumber?:""),
-//                enableBoxNumber = putRow.boxNumber?.isEmpty() ?: true
+                loadingRow = row,
             )
         }
         viewModelScope.launch(Dispatchers.IO) {
@@ -44,110 +41,94 @@ class CheckingDetailViewModel(
                 }
             }
         }
-        getCheckings(row.customerID,sort = state.sort)
+        getDetails(row.customerCode,sort = state.sort)
     }
 
-    override fun setInitState(): CheckingDetailContract.State {
-        return CheckingDetailContract.State()
+    override fun setInitState(): LoadingDetailContract.State {
+        return LoadingDetailContract.State()
     }
 
-    override fun onEvent(event: CheckingDetailContract.Event) {
+    override fun onEvent(event: LoadingDetailContract.Event) {
         when(event){
-            is CheckingDetailContract.Event.OnChangeBarcode -> {
-                setState {
-                    copy(barcode = event.barcode)
-                }
-            }
-            CheckingDetailContract.Event.OnNavBack -> {
+            LoadingDetailContract.Event.OnNavBack -> {
                 setEffect {
-                    CheckingDetailContract.Effect.NavBack
+                    LoadingDetailContract.Effect.NavBack
                 }
             }
-            CheckingDetailContract.Event.CloseError -> {
+            LoadingDetailContract.Event.CloseError -> {
                 setState {
                     copy(error = "")
                 }
             }
-            is CheckingDetailContract.Event.OnSelectCheck -> {
+            is LoadingDetailContract.Event.OnSelectDetail -> {
                 setState {
-                    copy(selectedChecking = event.checking)
+                    copy(selectedLoading = event.detail)
                 }
             }
 
-            CheckingDetailContract.Event.HideToast -> {
+            LoadingDetailContract.Event.HideToast -> {
                 setState {
                     copy(toast = "")
                 }
             }
 
-            CheckingDetailContract.Event.OnReachEnd -> {
-                if (10*state.page<=state.checkingList.size){
+            LoadingDetailContract.Event.OnReachEnd -> {
+                if (10*state.page<=state.details.size){
                     setState {
                         copy(page = state.page+1, loadingState = Loading.LOADING)
                     }
-                    getCheckings(row.customerID,keyword = state.keyword.text,page = state.page,sort = state.sort)
+                    getDetails(row.customerCode,keyword = state.keyword.text,page = state.page,sort = state.sort)
                 }
             }
 
-            CheckingDetailContract.Event.OnRefresh -> {
+            LoadingDetailContract.Event.OnRefresh -> {
                 setState {
-                    copy(page = 1, checkingList = emptyList(), loadingState = Loading.REFRESHING)
+                    copy(page = 1, details = emptyList(), loadingState = Loading.REFRESHING)
                 }
-                getCheckings(row.customerID,keyword = state.keyword.text,page = state.page,sort = state.sort)
+                getDetails(row.customerCode,keyword = state.keyword.text,page = state.page,sort = state.sort)
             }
-            is CheckingDetailContract.Event.OnChangeLocation -> {
-                setState {
-                    copy(count = event.location)
-                }
+            is LoadingDetailContract.Event.OnConfirmLoading -> {
+                completeChecking(event.item)
             }
-            is CheckingDetailContract.Event.OnCompleteChecking -> {
-                completeChecking(event.checking,state.count.text.trim().toInt(), state.barcode.text.trim())
-            }
-            is CheckingDetailContract.Event.OnChangeKeyword -> {
+            is LoadingDetailContract.Event.OnChangeKeyword -> {
                 setState {
                     copy(keyword = event.keyword)
                 }
             }
-            CheckingDetailContract.Event.OnSearch -> {
+            LoadingDetailContract.Event.OnSearch -> {
                 setState {
-                    copy(loadingState = Loading.SEARCHING, checkingList = emptyList(), page = 1)
+                    copy(loadingState = Loading.SEARCHING, details = emptyList(), page = 1)
                 }
-                getCheckings(row.customerID,keyword = state.keyword.text,page = state.page,sort = state.sort)
+                getDetails(row.customerCode,keyword = state.keyword.text,page = state.page,sort = state.sort)
             }
-            is CheckingDetailContract.Event.OnShowSortList -> {
+            is LoadingDetailContract.Event.OnShowSortList -> {
                 setState {
                     copy(showSortList = event.show)
                 }
             }
-            is CheckingDetailContract.Event.OnSortChange -> {
-                prefs.setCheckingDetailSort(event.sortItem.sort)
-                prefs.setCheckingDetailOrder(event.sortItem.order.value)
+            is LoadingDetailContract.Event.OnSortChange -> {
+                prefs.setLoadingDetailSort(event.sortItem.sort)
+                prefs.setLoadingDetailOrder(event.sortItem.order.value)
                 setState {
-                    copy(sort = event.sortItem, page = 1, checkingList = emptyList(), loadingState = Loading.LOADING)
+                    copy(sort = event.sortItem, page = 1, details = emptyList(), loadingState = Loading.LOADING)
                 }
-                getCheckings(row.customerID,keyword = state.keyword.text,page = state.page,sort = event.sortItem)
+                getDetails(row.customerCode,keyword = state.keyword.text,page = state.page,sort = event.sortItem)
             }
         }
     }
 
 
     private fun completeChecking(
-        checking: CheckingListRow,
-        count: Int,
-        barcode: String
+        loading: PalletConfirmRow,
     ) {
 
         setState {
             copy(onSaving = true)
         }
         viewModelScope.launch(Dispatchers.IO) {
-            if (state.selectedChecking!=null)
-            repository.checking(
-                checking.isCrossDock,
-                count,
-                checking.customerID.toString(),
-                checking.checkingWorkerTaskID.toString(),
-                barcode)
+            repository.confirmLoading(
+                loading.palletManifestID
+            )
                 .catch {
                     setState {
                         copy(
@@ -164,16 +145,14 @@ class CheckingDetailViewModel(
                         is BaseResult.Success -> {
                             setSuspendedState {
                                 copy(
-                                    count = TextFieldValue(),
-                                    barcode = TextFieldValue(),
-                                    checkingList = emptyList(),
+                                    details = emptyList(),
                                     page = 1,
-                                    selectedChecking = null,
+                                    selectedLoading = null,
                                     toast = it.data?.messages?.first() ?: "",
                                     loadingState = Loading.LOADING
                                 )
                             }
-                            getCheckings(row.customerID,keyword = state.keyword.text,page = state.page,sort = state.sort)
+                            getDetails(row.customerCode,keyword = state.keyword.text,page = state.page,sort = state.sort)
                         }
                         is BaseResult.Error -> {
                             setState {
@@ -189,10 +168,10 @@ class CheckingDetailViewModel(
     }
 
 
-    private fun getCheckings(customerId: Int, keyword: String = "", page: Int = 1, sort: SortItem) {
+    private fun getDetails(customerCode: String, keyword: String = "", page: Int = 1, sort: SortItem) {
         viewModelScope.launch(Dispatchers.IO) {
-            repository.getCheckingList(
-                customerId = customerId.toString(),
+            repository.getLoadingList(
+                customerCode = customerCode,
                 keyword = keyword,
                 sort = sort.sort,
                 page = page,
@@ -214,7 +193,7 @@ class CheckingDetailViewModel(
                         is BaseResult.Success -> {
                             setState {
                                 copy(
-                                    checkingList = checkingList + (it.data?.rows ?: emptyList()),
+                                    details = details + (it.data?.rows ?: emptyList()),
                                 )
                             }
                         }

@@ -18,7 +18,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import com.example.jaywarehouse.data.common.utils.mdp
 import com.example.jaywarehouse.localWindowFactor
 import com.example.jaywarehouse.ui.theme.Black
-import com.example.jaywarehouse.ui.theme.poppins
+import com.example.jaywarehouse.ui.theme.roboto
 
 @Composable
 fun MyTextField(
@@ -56,7 +56,7 @@ fun MyTextField(
         modifier,
         enabled,
         readOnly,
-        if (textStyle == LocalTextStyle.current)textStyle.copy(fontFamily = poppins) else textStyle.copy(fontFamily = poppins, fontSize = textStyle.fontSize*factor),
+        if (textStyle == LocalTextStyle.current)textStyle.copy(fontFamily = roboto) else textStyle.copy(fontFamily = roboto, fontSize = textStyle.fontSize*factor),
         label,
         placeholder,
         leadingIcon,

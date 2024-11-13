@@ -40,7 +40,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.jaywarehouse.data.common.utils.mdp
 import com.example.jaywarehouse.R
 import com.example.jaywarehouse.data.picking.models.PickingListGroupedRow
-import com.example.jaywarehouse.data.putaway.model.PutawayListGroupedRow
 import com.example.jaywarehouse.presentation.common.composables.DetailCard
 import com.example.jaywarehouse.presentation.common.composables.MyScaffold
 import com.example.jaywarehouse.presentation.common.composables.MyText
@@ -54,7 +53,6 @@ import com.example.jaywarehouse.presentation.destinations.PickingDetailScreenDes
 import com.example.jaywarehouse.presentation.picking.contracts.PickingContract
 import com.example.jaywarehouse.presentation.picking.viewModels.PickingViewModel
 import com.example.jaywarehouse.ui.theme.Primary
-import com.example.jaywarehouse.ui.theme.poppins
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import org.koin.androidx.compose.koinViewModel
@@ -219,7 +217,6 @@ fun PickingItem(
                         MyText(
                             text = model.typeTitle,
                             style = MaterialTheme.typography.labelSmall,
-                            fontFamily = poppins,
                             fontWeight = FontWeight.SemiBold,
                             color = Primary
                         )
@@ -229,7 +226,6 @@ fun PickingItem(
                     MyText(
                         text = "#${model.customerCode?:""}",
                         style = MaterialTheme.typography.bodyLarge,
-                        fontFamily = poppins,
                         fontWeight = FontWeight.SemiBold,
                     )
 

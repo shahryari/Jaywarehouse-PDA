@@ -27,7 +27,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
@@ -42,10 +41,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import com.example.jaywarehouse.R
 import com.example.jaywarehouse.data.common.utils.mdp
-import com.example.jaywarehouse.presentation.packing.contracts.PackingDetailContract
 import com.example.jaywarehouse.ui.theme.Border
 import com.example.jaywarehouse.ui.theme.Gray1
-import com.example.jaywarehouse.ui.theme.poppins
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -152,7 +149,6 @@ fun InputTextField(
                                 MyText(
                                     text = label,
                                     style = MaterialTheme.typography.bodyMedium,
-                                    fontFamily = poppins,
                                     fontWeight = FontWeight.Medium,
                                     maxLines = 1,
                                     color = Color.LightGray

@@ -1,6 +1,5 @@
-package com.example.jaywarehouse.presentation.checking
+package com.example.jaywarehouse.presentation.loading
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -22,10 +21,7 @@ import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,9 +32,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.jaywarehouse.data.common.utils.mdp
 import com.example.jaywarehouse.R
-import com.example.jaywarehouse.data.checking.models.CheckingListGroupedRow
-import com.example.jaywarehouse.presentation.checking.contracts.CheckingContract
-import com.example.jaywarehouse.presentation.checking.viewModels.CheckingViewModel
+import com.example.jaywarehouse.data.loading.models.LoadingListGroupedRow
 import com.example.jaywarehouse.presentation.common.composables.DetailCard
 import com.example.jaywarehouse.presentation.common.composables.MyScaffold
 import com.example.jaywarehouse.presentation.common.composables.MyText
@@ -48,17 +42,18 @@ import com.example.jaywarehouse.presentation.common.composables.TopBar
 import com.example.jaywarehouse.presentation.common.utils.Loading
 import com.example.jaywarehouse.presentation.common.utils.SIDE_EFFECT_KEY
 import com.example.jaywarehouse.presentation.common.utils.ScreenTransition
-import com.example.jaywarehouse.presentation.destinations.CheckingDetailScreenDestination
-import com.example.jaywarehouse.ui.theme.Primary
+import com.example.jaywarehouse.presentation.destinations.LoadingDetailScreenDestination
+import com.example.jaywarehouse.presentation.loading.contracts.LoadingContract
+import com.example.jaywarehouse.presentation.loading.viewmodels.LoadingViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import org.koin.androidx.compose.koinViewModel
 
 @Destination(style = ScreenTransition::class)
 @Composable
-fun CheckingScreen(
+fun LoadingScreen(
     navigator: DestinationsNavigator,
-    viewModel: CheckingViewModel = koinViewModel()
+    viewModel: LoadingViewModel = koinViewModel()
 ) {
     val state = viewModel.state
     val onEvent = viewModel::setEvent
@@ -66,11 +61,11 @@ fun CheckingScreen(
     LaunchedEffect(key1 = SIDE_EFFECT_KEY) {
         viewModel.effect.collect {
             when(it){
-                is CheckingContract.Effect.NavToCheckingDetail -> {
-                    navigator.navigate(CheckingDetailScreenDestination(it.item))
+                is LoadingContract.Effect.NavToLoadingDetail -> {
+                    navigator.navigate(LoadingDetailScreenDestination(it.item))
                 }
 
-                CheckingContract.Effect.NavBack -> {
+                LoadingContract.Effect.NavBack -> {
                     navigator.popBackStack()
                 }
             }
@@ -82,8 +77,8 @@ fun CheckingScreen(
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun CheckingContent(
-    state: CheckingContract.State = CheckingContract.State(),
-    onEvent: (CheckingContract.Event)->Unit = {}
+    state: LoadingContract.State = LoadingContract.State(),
+    onEvent: (LoadingContract.Event)->Unit = {}
 ) {
     val searchFocusRequester = remember {
         FocusRequester()
@@ -93,19 +88,19 @@ fun CheckingContent(
     val refreshState = rememberPullRefreshState(
         refreshing =  state.loadingState == Loading.REFRESHING,
         onRefresh = {
-            onEvent(CheckingContract.Event.OnRefresh)
+            onEvent(LoadingContract.Event.OnRefresh)
         }
     )
 
     LaunchedEffect(key1 = Unit) {
         searchFocusRequester.requestFocus()
-        onEvent(CheckingContract.Event.ReloadScreen)
+        onEvent(LoadingContract.Event.ReloadScreen)
     }
     MyScaffold(
         loadingState = state.loadingState,
         error = state.error,
         onCloseError = {
-            onEvent(CheckingContract.Event.ClearError)
+            onEvent(LoadingContract.Event.ClearError)
         }
     ) {
 
@@ -117,23 +112,23 @@ fun CheckingContent(
                     .padding(15.mdp)
             ) {
                 TopBar(
-                    title = "Checking",
+                    title = "Loading",
                     onBack = {
-                        onEvent(CheckingContract.Event.OnBackPressed)
+                        onEvent(LoadingContract.Event.OnBackPressed)
                     }
                 )
                 Spacer(modifier = Modifier.size(10.mdp))
                 SearchInput(
                     value = state.keyword,
                     onValueChange = {
-                        onEvent(CheckingContract.Event.OnChangeKeyword(it))
+                        onEvent(LoadingContract.Event.OnChangeKeyword(it))
                     },
                     onSearch = {
-                        onEvent(CheckingContract.Event.OnSearch)
+                        onEvent(LoadingContract.Event.OnSearch)
                     },
                     isLoading = state.loadingState == Loading.SEARCHING,
                     onSortClick = {
-                        onEvent(CheckingContract.Event.OnShowSortList(true))
+                        onEvent(LoadingContract.Event.OnShowSortList(true))
                     },
                     hideKeyboard = state.lockKeyboard,
                     focusRequester = searchFocusRequester
@@ -142,14 +137,14 @@ fun CheckingContent(
                 LazyColumn(Modifier
                     .fillMaxSize()
                 ) {
-                    items(state.checkingList){
-                        CheckingItem(it) {
-                            onEvent(CheckingContract.Event.OnNavToCheckingDetail(it))
+                    items(state.loadingList){
+                        LoadingItem(it) {
+                            onEvent(LoadingContract.Event.OnNavToLoadingDetail(it))
                         }
                         Spacer(modifier = Modifier.size(10.mdp))
                     }
                     item {
-                        onEvent(CheckingContract.Event.OnReachedEnd)
+                        onEvent(LoadingContract.Event.OnReachedEnd)
                     }
                     item { Spacer(modifier = Modifier.size(70.mdp)) }
                 }
@@ -163,12 +158,12 @@ fun CheckingContent(
     if (state.showSortList){
         SortBottomSheet(
             onDismiss = {
-                onEvent(CheckingContract.Event.OnShowSortList(false))
+                onEvent(LoadingContract.Event.OnShowSortList(false))
             },
             sortOptions = state.sortList,
             selectedSort = state.sort,
             onSelectSort = {
-                onEvent(CheckingContract.Event.OnChangeSort(it))
+                onEvent(LoadingContract.Event.OnChangeSort(it))
             }
         )
     }
@@ -176,14 +171,10 @@ fun CheckingContent(
 
 
 @Composable
-fun CheckingItem(
-    model: CheckingListGroupedRow,
-    enableShowDetail: Boolean = false,
+fun LoadingItem(
+    model: LoadingListGroupedRow,
     onClick: () -> Unit
 ) {
-    var visibleDetails by remember {
-        mutableStateOf(true)
-    }
     Column(
         Modifier
             .shadow(1.mdp, RoundedCornerShape(6.mdp))
@@ -191,49 +182,46 @@ fun CheckingItem(
             .clip(RoundedCornerShape(6.mdp))
             .background(Color.White)
             .clickable {
-                if (enableShowDetail) visibleDetails = !visibleDetails
                 onClick()
             }
     ) {
-        AnimatedVisibility(visible = visibleDetails) {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .background(Color.White)
+                .padding(15.mdp)
+        ) {
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
 
-            Column(
-                Modifier
-                    .fillMaxWidth()
-                    .background(Color.White)
-                    .padding(15.mdp)
-            ) {
-                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
-
-                    if(model.b2BCustomer!=null)Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(4.mdp))
-                            .background(Primary.copy(0.2f))
-                            .padding(vertical = 4.mdp, horizontal = 10.mdp)
-                    ) {
-                        MyText(
-                            text = model.b2BCustomer,
-                            style = MaterialTheme.typography.labelSmall,
-                            fontWeight = FontWeight.SemiBold,
-                            color = Primary
-                        )
-                    } else  {
-                        Spacer(Modifier.size(10.mdp))
-                    }
-                    MyText(
-                        text = "#${model.customerCode?:""}",
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.SemiBold,
-                    )
-
-                }
-                Spacer(modifier = Modifier.size(10.mdp))
-                DetailCard(
-                    "Customer",
-                    icon = R.drawable.barcode,
-                    detail = model.customerName?:""
+//                if(model.b2BCustomer!=null)Box(
+//                    modifier = Modifier
+//                        .clip(RoundedCornerShape(4.mdp))
+//                        .background(Primary.copy(0.2f))
+//                        .padding(vertical = 4.mdp, horizontal = 10.mdp)
+//                ) {
+//                    MyText(
+//                        text = model.b2BCustomer,
+//                        style = MaterialTheme.typography.labelSmall,
+//                        fontFamily = poppins,
+//                        fontWeight = FontWeight.SemiBold,
+//                        color = Primary
+//                    )
+//                } else  {
+                    Spacer(Modifier.size(10.mdp))
+//                }
+                MyText(
+                    text = "#${model.customerCode?:""}",
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.SemiBold,
                 )
+
             }
+            Spacer(modifier = Modifier.size(10.mdp))
+            DetailCard(
+                "Customer",
+                icon = R.drawable.vuesax_linear_user_tag,
+                detail = model.customerName?:""
+            )
         }
     }
 }

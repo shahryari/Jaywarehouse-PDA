@@ -476,6 +476,51 @@ class Prefs(private val context: Context) {
         return preferences.getString("palletOrder",Order.Desc.value) ?: Order.Desc.value
     }
 
+    //loading
+    fun setLoadingSort(sort: String) {
+        with(preferences.edit()){
+            putString("loadingSort",sort)
+            apply()
+        }
+    }
+
+    fun getLoadingSort() : String {
+        return preferences.getString("loadingSort", DEFAULT_SORT) ?: DEFAULT_SORT
+    }
+
+    fun setLoadingOrder(order: String) {
+        with(preferences.edit()) {
+            putString("loadingOrder",order)
+            apply()
+        }
+    }
+
+    fun getLoadingOrder() : String {
+        return preferences.getString("loadingOrder", Order.Desc.value) ?: Order.Desc.value
+    }
+
+    //loading detail
+    fun setLoadingDetailSort(sort: String) {
+        with(preferences.edit()){
+            putString("loadingDetailSort",sort)
+            apply()
+        }
+    }
+
+    fun getLoadingDetailSort() : String {
+        return preferences.getString("loadingDetailSort", DEFAULT_SORT) ?: DEFAULT_SORT
+    }
+
+    fun setLoadingDetailOrder(order: String) {
+        with(preferences.edit()) {
+            putString("loadingDetailOrder",order)
+            apply()
+        }
+    }
+
+    fun getLoadingDetailOrder() : String {
+        return preferences.getString("loadingDetailOrder", Order.Desc.value) ?: Order.Desc.value
+    }
 
 
 

@@ -82,7 +82,6 @@ import com.example.jaywarehouse.presentation.destinations.PackingDetailScreenDes
 import com.example.jaywarehouse.presentation.packing.contracts.PackingContract
 import com.example.jaywarehouse.presentation.packing.viewmodels.PackingViewModel
 import com.example.jaywarehouse.ui.theme.Orange
-import com.example.jaywarehouse.ui.theme.poppins
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.delay
@@ -149,7 +148,6 @@ fun PackingContent(
                 MyText(
                     text = stringResource(id = R.string.packing),
                     style = MaterialTheme.typography.titleLarge,
-                    fontFamily = poppins,
                     fontWeight = FontWeight.Medium
                 )
                 Spacer(modifier = Modifier.size(10.mdp))

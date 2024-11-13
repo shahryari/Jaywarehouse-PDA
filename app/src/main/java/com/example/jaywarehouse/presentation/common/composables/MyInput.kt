@@ -27,9 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
@@ -42,7 +40,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import com.example.jaywarehouse.data.common.utils.mdp
 import com.example.jaywarehouse.ui.theme.Gray1
-import com.example.jaywarehouse.ui.theme.poppins
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -134,7 +131,6 @@ fun MyInput(
                                 MyText(
                                     text = label,
                                     style = MaterialTheme.typography.bodyLarge,
-                                    fontFamily = poppins,
                                     fontWeight = FontWeight.Medium,
                                     color = Color.LightGray
                                 )
