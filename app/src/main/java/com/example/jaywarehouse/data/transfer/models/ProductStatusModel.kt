@@ -13,4 +13,8 @@ data class ProductStatusRow(
     val quiddityTypeId: Int,
     @SerializedName("QuiddityTypeTitle")
     val quiddityTypeTitle: String
-)
+) {
+    override fun toString(): String {
+        return quiddityTypeTitle
+    }
+}

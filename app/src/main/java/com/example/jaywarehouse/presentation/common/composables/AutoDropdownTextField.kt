@@ -34,6 +34,7 @@ fun <T>AutoDropDownTextField(
     onSuggestionClick: (T)->Unit,
     modifier: Modifier = Modifier,
     showSuggestion: Boolean = true,
+    label:String = "",
     icon: Int = R.drawable.vuesax_linear_user
 ) {
     var isExpanded by remember {
@@ -61,6 +62,7 @@ fun <T>AutoDropDownTextField(
                     isExpanded = it.text.isNotEmpty()
             },
             focusRequester = focusRequester,
+            label = label,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
             modifier = Modifier.onGloballyPositioned {
                 textFieldSize = it.size

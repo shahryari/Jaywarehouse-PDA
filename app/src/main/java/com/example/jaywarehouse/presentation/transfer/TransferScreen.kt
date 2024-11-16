@@ -44,6 +44,7 @@ import com.example.jaywarehouse.data.common.utils.mdp
 import com.example.jaywarehouse.R
 import com.example.jaywarehouse.data.putaway.model.PutawayListGroupedRow
 import com.example.jaywarehouse.data.transfer.models.TransferRow
+import com.example.jaywarehouse.presentation.common.composables.AutoDropDownTextField
 import com.example.jaywarehouse.presentation.common.composables.DatePickerDialog
 import com.example.jaywarehouse.presentation.common.composables.DetailCard
 import com.example.jaywarehouse.presentation.common.composables.InputTextField
@@ -393,30 +394,33 @@ fun TransferBottomSheet(
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                     )
                     Spacer(Modifier.size(5.mdp))
-                    InputTextField(
+                    AutoDropDownTextField(
                         state.destination,
                         onValueChange = {
                             onEvent(TransferContract.Event.OnChangeDestination(it))
                         },
-                        onAny = {
-                        },
                         label = "Destination",
-                        leadingIcon = R.drawable.location,
+                        icon = R.drawable.location,
+                        suggestions = state.locationList,
+                        onSuggestionClick = {
+                            onEvent(TransferContract.Event.OnSelectWarehouseLocation(it))
+                        }
 //                    hideKeyboard = state.lockKeyboard,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
                     )
                 }
                 Spacer(Modifier.size(10.mdp))
-                InputTextField(
+                AutoDropDownTextField(
                     state.productStatus,
                     onValueChange = {
                         onEvent(TransferContract.Event.OnChangeProductStatus(it))
                     },
-                    onAny = {},
-                    leadingIcon = R.drawable.keyboard2,
+                    icon = R.drawable.keyboard2,
                     label = "Product Status",
+                    suggestions = state.productStatusList,
+                    onSuggestionClick = {
+                        onEvent(TransferContract.Event.OnSelectProductStatus(it))
+                    }
 //                    hideKeyboard = state.lockKeyboard,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
                 )
                 Spacer(Modifier.size(10.mdp))
                 InputTextField(

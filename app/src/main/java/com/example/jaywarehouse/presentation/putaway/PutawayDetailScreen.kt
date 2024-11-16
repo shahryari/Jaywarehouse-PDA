@@ -142,7 +142,7 @@ fun PutawayDetailContent(
                     .padding(15.mdp)
             ) {
                 TopBar(
-                    title = "Puaway",
+                    title = "Putaway",
                     onBack = {
                         onEvent(PutawayDetailContract.Event.OnNavBack)
                     }

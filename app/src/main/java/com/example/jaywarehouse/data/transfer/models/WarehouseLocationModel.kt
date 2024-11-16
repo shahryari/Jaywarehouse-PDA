@@ -1,6 +1,5 @@
 package com.example.jaywarehouse.data.transfer.models
 
-import com.example.jaywarehouse.data.common.utils.ROWS
 import com.google.gson.annotations.SerializedName
 
 
@@ -14,4 +13,8 @@ data class WarehouseLocationRow(
     val locationId: Int,
     @SerializedName("WarehouseLocationCode")
     val locationCode: String
-)
+) {
+    override fun toString(): String {
+        return locationCode
+    }
+}
