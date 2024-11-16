@@ -17,7 +17,6 @@ import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -29,10 +28,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.jaywarehouse.R
 import com.example.jaywarehouse.data.common.utils.mdp
@@ -40,7 +37,6 @@ import com.example.jaywarehouse.data.putaway.model.PutawayListGroupedRow
 import com.example.jaywarehouse.data.putaway.model.PutawayListRow
 import com.example.jaywarehouse.presentation.common.composables.BaseListItem
 import com.example.jaywarehouse.presentation.common.composables.BaseListItemModel
-import com.example.jaywarehouse.presentation.common.composables.BasicDialog
 import com.example.jaywarehouse.presentation.common.composables.DetailCard
 import com.example.jaywarehouse.presentation.common.composables.InputTextField
 import com.example.jaywarehouse.presentation.common.composables.MyButton
@@ -59,7 +55,6 @@ import com.example.jaywarehouse.presentation.putaway.contracts.PutawayDetailCont
 import com.example.jaywarehouse.presentation.putaway.viewmodels.PutawayDetailViewModel
 import com.example.jaywarehouse.ui.theme.Gray3
 import com.example.jaywarehouse.ui.theme.Gray5
-import com.example.jaywarehouse.ui.theme.Orange
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.popUpTo
@@ -197,35 +192,6 @@ fun PutawayDetailContent(
         )
     }
     PutawayBottomSheet(state,onEvent)
-}
-
-@Composable
-fun MyAlertDialog(
-    onDismiss: ()->Unit,
-    message: String = "Your put operation is completed successfully",
-) {
-    BasicDialog(
-        onDismiss = onDismiss,
-        positiveButton = "Ok",
-        onPositiveClick = {
-            onDismiss()
-        },
-    ) {
-        Icon(
-            painterResource(id = R.drawable.broken___essentional__ui___danger_triang),
-            contentDescription = "",
-            tint = Orange,
-            modifier = Modifier.size(80.mdp)
-        )
-        Spacer(Modifier.size(10.mdp))
-        MyText(
-            text = message,
-            style = MaterialTheme.typography.bodyMedium,
-            textAlign = TextAlign.Center,
-            color = Color.White,
-            fontWeight = FontWeight.SemiBold
-        )
-    }
 }
 
 @Composable

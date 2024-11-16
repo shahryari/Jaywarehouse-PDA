@@ -4,6 +4,7 @@ import androidx.compose.ui.graphics.Color
 import com.example.jaywarehouse.R
 import com.example.jaywarehouse.presentation.destinations.CheckingScreenDestination
 import com.example.jaywarehouse.presentation.destinations.CountingScreenDestination
+import com.example.jaywarehouse.presentation.destinations.CycleScreenDestination
 import com.example.jaywarehouse.presentation.destinations.LoadingScreenDestination
 import com.example.jaywarehouse.presentation.destinations.ManualPutawayScreenDestination
 import com.example.jaywarehouse.presentation.destinations.PalletScreenDestination
@@ -99,11 +100,12 @@ enum class MainItems(
         Yellow,
         TransferScreenDestination
     ),
-    StockTaking(
-        "Stock\nTaking",
+    CycleCount(
+        "Cycle\nCount",
         R.drawable.task,
         "Stock",
-        Yellow
+        Yellow,
+        CycleScreenDestination
     ),
     RS(
         "RS",

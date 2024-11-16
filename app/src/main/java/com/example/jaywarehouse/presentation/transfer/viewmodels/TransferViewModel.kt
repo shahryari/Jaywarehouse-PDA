@@ -9,7 +9,6 @@ import com.example.jaywarehouse.data.transfer.models.TransferRow
 import com.example.jaywarehouse.presentation.common.utils.BaseViewModel
 import com.example.jaywarehouse.presentation.common.utils.Loading
 import com.example.jaywarehouse.presentation.common.utils.Order
-import com.example.jaywarehouse.presentation.common.utils.SortItem
 import com.example.jaywarehouse.presentation.transfer.contracts.TransferContract
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.catch
@@ -22,7 +21,7 @@ class TransferViewModel(
 
     init {
         val sort = state.sortList.find {
-            it.sort == prefs.getTransferPutSort() && it.order == Order.getFromValue(prefs.getTransferPutOrder())
+            it.sort == prefs.getTransferSort() && it.order == Order.getFromValue(prefs.getTransferOrder())
         }
         if (sort!=null) setState {
             copy(sort = sort)
@@ -54,8 +53,8 @@ class TransferViewModel(
                 }
             }
             is TransferContract.Event.OnChangeSort -> {
-                prefs.setPutawaySort(event.sort.sort)
-                prefs.setPutawayOrder(event.sort.order.value)
+                prefs.setTransferSort(event.sort.sort)
+                prefs.setTransferOrder(event.sort.order.value)
                 setState {
                     copy(sort = event.sort, transferList = emptyList(), page = 1, loadingState = Loading.LOADING)
                 }

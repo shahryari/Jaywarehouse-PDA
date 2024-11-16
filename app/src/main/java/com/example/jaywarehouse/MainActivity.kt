@@ -10,7 +10,6 @@ import com.example.jaywarehouse.data.common.utils.Prefs
 import com.example.jaywarehouse.presentation.NavGraphs
 import com.example.jaywarehouse.presentation.destinations.DashboardScreenDestination
 import com.example.jaywarehouse.presentation.destinations.LoginScreenDestination
-import com.example.jaywarehouse.presentation.destinations.MainScreenDestination
 import com.example.jaywarehouse.ui.theme.JayWarehouseTheme
 import com.ramcosta.composedestinations.DestinationsNavHost
 import org.koin.compose.koinInject

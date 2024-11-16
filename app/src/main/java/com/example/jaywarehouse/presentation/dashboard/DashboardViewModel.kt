@@ -6,7 +6,6 @@ import com.example.jaywarehouse.data.auth.AuthRepository
 import com.example.jaywarehouse.data.common.utils.BaseResult
 import com.example.jaywarehouse.data.common.utils.Prefs
 import com.example.jaywarehouse.presentation.common.utils.BaseViewModel
-import com.example.jaywarehouse.presentation.main.MainContract
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch

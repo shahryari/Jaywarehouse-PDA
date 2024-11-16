@@ -39,10 +39,8 @@ import com.example.jaywarehouse.presentation.common.composables.MyScaffold
 import com.example.jaywarehouse.presentation.common.composables.MySwitch
 import com.example.jaywarehouse.presentation.common.composables.MyText
 import com.example.jaywarehouse.presentation.common.composables.SuccessToast
-import com.example.jaywarehouse.presentation.common.utils.MainGraph
 import com.example.jaywarehouse.presentation.common.utils.SIDE_EFFECT_KEY
 import com.example.jaywarehouse.presentation.common.utils.ScreenTransition
-import com.example.jaywarehouse.presentation.packing.DialogInput
 import com.example.jaywarehouse.ui.theme.Black
 import com.example.jaywarehouse.ui.theme.Gray2
 import com.example.jaywarehouse.ui.theme.Green
@@ -52,7 +50,6 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
 
-@MainGraph
 @Destination(style = ScreenTransition::class)
 @Composable
 fun ProfileScreen(
@@ -359,13 +356,13 @@ fun ChangePasswordDialog(
             onEvent(ProfileContract.Event.OnSubmitPassword)
         }
     ){
-        DialogInput(value = state.password,
-            onValueChange = {
-                onEvent(ProfileContract.Event.OnPasswordChange(it))
-            },
-            keyboardType = KeyboardType.Password,
-            icon = R.drawable.lock
-        )
+//        DialogInput(value = state.password,
+//            onValueChange = {
+//                onEvent(ProfileContract.Event.OnPasswordChange(it))
+//            },
+//            keyboardType = KeyboardType.Password,
+//            icon = R.drawable.lock
+//        )
     }
 }
 

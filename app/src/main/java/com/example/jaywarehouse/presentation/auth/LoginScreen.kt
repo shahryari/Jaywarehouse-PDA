@@ -1,7 +1,5 @@
 package com.example.jaywarehouse.presentation.auth
 
-import android.app.Activity
-import android.app.Application
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -15,7 +13,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -39,9 +36,6 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.jaywarehouse.data.common.utils.mdp
-import androidx.core.os.BuildCompat
-import com.example.jaywarehouse.BuildConfig
 import com.example.jaywarehouse.MainActivity
 import com.example.jaywarehouse.R
 import com.example.jaywarehouse.data.common.utils.mdp
@@ -49,24 +43,18 @@ import com.example.jaywarehouse.data.common.utils.restartActivity
 import com.example.jaywarehouse.presentation.common.composables.BasicDialog
 import com.example.jaywarehouse.presentation.common.composables.ContainerBox
 import com.example.jaywarehouse.presentation.common.composables.ErrorDialog
+import com.example.jaywarehouse.presentation.common.composables.InputTextField
 import com.example.jaywarehouse.presentation.common.composables.MyButton
 import com.example.jaywarehouse.presentation.common.composables.MyCheckBox
-import com.example.jaywarehouse.presentation.common.composables.MyScaffold
 import com.example.jaywarehouse.presentation.common.composables.MyText
 import com.example.jaywarehouse.presentation.common.composables.MyTextField
 import com.example.jaywarehouse.presentation.common.composables.SuccessToast
 import com.example.jaywarehouse.presentation.common.composables.TitleView
 import com.example.jaywarehouse.presentation.common.utils.SIDE_EFFECT_KEY
-import com.example.jaywarehouse.presentation.counting.contracts.CountingDetailContract
 import com.example.jaywarehouse.presentation.destinations.DashboardScreenDestination
 import com.example.jaywarehouse.presentation.destinations.LoginScreenDestination
-import com.example.jaywarehouse.presentation.destinations.MainScreenDestination
-import com.example.jaywarehouse.presentation.packing.DialogInput
-import com.example.jaywarehouse.presentation.profile.ProfileContract
 import com.example.jaywarehouse.ui.theme.Black
-import com.example.jaywarehouse.ui.theme.Orange
 import com.example.jaywarehouse.ui.theme.Primary
-import com.example.jaywarehouse.ui.theme.Red
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -285,11 +273,11 @@ fun ChangeAddressDialog(
             onEvent(LoginContract.Event.OnChangeDomain)
         }
     ){
-        DialogInput(value = state.address,
+        InputTextField(value = state.address,
             onValueChange = {
                 onEvent(LoginContract.Event.OnAddressChange(it))
             },
-            keyboardType = KeyboardType.Uri
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri)
         )
     }
 }

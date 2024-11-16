@@ -5,13 +5,9 @@ import android.content.SharedPreferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import com.example.jaywarehouse.data.common.modules.dataStore
-import com.example.jaywarehouse.data.common.modules.networkModule
 import com.example.jaywarehouse.presentation.common.utils.Order
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.single
-import org.koin.core.context.loadKoinModules
-import org.koin.core.context.unloadKoinModules
 
 
 class Prefs(private val context: Context) {
@@ -335,71 +331,71 @@ class Prefs(private val context: Context) {
         return preferences.getString("shippingOrder", Order.Desc.value)?: Order.Desc.value
     }
 
-    //shipping detail
-    fun setShippingDetailSort(sort: String) {
+    //cycle
+    fun setCycleSort(sort: String) {
         with(preferences.edit()){
             putString("shippingDetailSort",sort)
             apply()
         }
     }
 
-    fun getShippingDetailSort() : String {
+    fun getCycleSort() : String {
         return preferences.getString("shippingDetailSort", DEFAULT_SORT)?: DEFAULT_SORT
     }
 
-    fun setShippingDetailOrder(order: String) {
+    fun setCycleOrder(order: String) {
         with(preferences.edit()){
             putString("shippingDetailOrder",order)
             apply()
         }
     }
 
-    fun getShippingDetailOrder() : String {
+    fun getCycleOrder() : String {
         return preferences.getString("shippingDetailOrder", Order.Desc.value)?: Order.Desc.value
     }
     //transfer put
-    fun setTransferPutSort(sort: String) {
+    fun setTransferSort(sort: String) {
         with(preferences.edit()){
             putString("transferPutSort",sort)
             apply()
         }
     }
 
-    fun getTransferPutSort() : String {
+    fun getTransferSort() : String {
         return preferences.getString("transferPutSort", DEFAULT_SORT)?: DEFAULT_SORT
     }
 
-    fun setTransferPutOrder(order: String) {
+    fun setTransferOrder(order: String) {
         with(preferences.edit()){
             putString("transferPutOrder",order)
             apply()
         }
     }
 
-    fun getTransferPutOrder() : String {
+    fun getTransferOrder() : String {
         return preferences.getString("transferPutOrder", Order.Desc.value)?: Order.Desc.value
     }
 
-    //transfer pick
-    fun setTransferPickSort(sort: String) {
+    //cycle detail
+    fun setCycleDetailSort(sort: String) {
         with(preferences.edit()){
             putString("transferPickSort",sort)
             apply()
         }
     }
 
-    fun getTransferPickSort() : String {
+    fun getCycleDetailSort() : String {
         return preferences.getString("transferPickSort", DEFAULT_SORT)?: DEFAULT_SORT
     }
 
-    fun setTransferPickOrder(order: String) {
+    fun setCycleDetailOrder(order: String) {
         with(preferences.edit()){
             putString("transferPickOrder",order)
             apply()
         }
     }
 
-    fun getTransferPickOrder() : String {
+    fun getCycleDetailOrder() : String {
         return preferences.getString("transferPickOrder", Order.Desc.value)?: Order.Desc.value
     }
 

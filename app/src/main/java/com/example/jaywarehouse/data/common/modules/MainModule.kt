@@ -2,6 +2,7 @@ package com.example.jaywarehouse.data.common.modules
 
 import com.example.jaywarehouse.data.auth.authModule
 import com.example.jaywarehouse.data.checking.checkingModule
+import com.example.jaywarehouse.data.cycle_count.cycleModule
 import com.example.jaywarehouse.data.loading.loadingModule
 import com.example.jaywarehouse.data.manual_putaway.manualPutawayModule
 import com.example.jaywarehouse.data.packing.packingModule
@@ -17,10 +18,11 @@ import com.example.jaywarehouse.presentation.checking.viewModels.CheckingViewMod
 import com.example.jaywarehouse.presentation.counting.viewmodels.CountingDetailViewModel
 import com.example.jaywarehouse.presentation.counting.viewmodels.CountingInceptionViewModel
 import com.example.jaywarehouse.presentation.counting.viewmodels.CountingViewModel
+import com.example.jaywarehouse.presentation.cycle_count.viewmodels.CycleDetailViewModel
+import com.example.jaywarehouse.presentation.cycle_count.viewmodels.CycleViewModel
 import com.example.jaywarehouse.presentation.dashboard.DashboardViewModel
 import com.example.jaywarehouse.presentation.loading.viewmodels.LoadingDetailViewModel
 import com.example.jaywarehouse.presentation.loading.viewmodels.LoadingViewModel
-import com.example.jaywarehouse.presentation.main.MainViewModel
 import com.example.jaywarehouse.presentation.manual_putaway.viewmodels.ManualPutawayDetailViewModel
 import com.example.jaywarehouse.presentation.manual_putaway.viewmodels.ManualPutawayViewModel
 import com.example.jaywarehouse.presentation.pallet.PalletConfirmViewModel
@@ -47,15 +49,12 @@ val mainModule = module {
         manualPutawayModule,
         checkingModule,
         palletModule,
-        loadingModule
+        loadingModule,
+        cycleModule
     )
 
     viewModel {
         LoginViewModel(get(),get())
-    }
-
-    viewModel {
-        MainViewModel(get(),get())
     }
 
     viewModel {
@@ -128,5 +127,13 @@ val mainModule = module {
 
     viewModel {
         TransferViewModel(get(),get())
+    }
+
+    viewModel {
+        CycleViewModel(get(),get())
+    }
+
+    viewModel {
+        CycleDetailViewModel(get(),get(),it.get())
     }
 }

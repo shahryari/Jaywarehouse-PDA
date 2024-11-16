@@ -1,4 +1,4 @@
-package com.example.jaywarehouse.presentation.loading
+package com.example.jaywarehouse.presentation.cycle_count
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -32,6 +32,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.jaywarehouse.data.common.utils.mdp
 import com.example.jaywarehouse.R
+import com.example.jaywarehouse.data.cycle_count.models.CycleRow
 import com.example.jaywarehouse.data.loading.models.LoadingListGroupedRow
 import com.example.jaywarehouse.presentation.common.composables.DetailCard
 import com.example.jaywarehouse.presentation.common.composables.MyScaffold
@@ -42,6 +43,10 @@ import com.example.jaywarehouse.presentation.common.composables.TopBar
 import com.example.jaywarehouse.presentation.common.utils.Loading
 import com.example.jaywarehouse.presentation.common.utils.SIDE_EFFECT_KEY
 import com.example.jaywarehouse.presentation.common.utils.ScreenTransition
+import com.example.jaywarehouse.presentation.cycle_count.contracts.CycleCountContract
+import com.example.jaywarehouse.presentation.cycle_count.viewmodels.CycleViewModel
+import com.example.jaywarehouse.presentation.destinations.CountingDetailScreenDestination
+import com.example.jaywarehouse.presentation.destinations.CycleDetailScreenDestination
 import com.example.jaywarehouse.presentation.destinations.LoadingDetailScreenDestination
 import com.example.jaywarehouse.presentation.loading.contracts.LoadingContract
 import com.example.jaywarehouse.presentation.loading.viewmodels.LoadingViewModel
@@ -51,9 +56,9 @@ import org.koin.androidx.compose.koinViewModel
 
 @Destination(style = ScreenTransition::class)
 @Composable
-fun LoadingScreen(
+fun CycleScreen(
     navigator: DestinationsNavigator,
-    viewModel: LoadingViewModel = koinViewModel()
+    viewModel: CycleViewModel = koinViewModel()
 ) {
     val state = viewModel.state
     val onEvent = viewModel::setEvent
@@ -61,24 +66,24 @@ fun LoadingScreen(
     LaunchedEffect(key1 = SIDE_EFFECT_KEY) {
         viewModel.effect.collect {
             when(it){
-                is LoadingContract.Effect.NavToLoadingDetail -> {
-                    navigator.navigate(LoadingDetailScreenDestination(it.item))
+                is CycleCountContract.Effect.NavToCycleCountDetail -> {
+                    navigator.navigate(CycleDetailScreenDestination(it.item))
                 }
 
-                LoadingContract.Effect.NavBack -> {
+                CycleCountContract.Effect.NavBack -> {
                     navigator.popBackStack()
                 }
             }
         }
     }
-    LoadingContent(state,onEvent)
+    CheckingContent(state,onEvent)
 }
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun LoadingContent(
-    state: LoadingContract.State = LoadingContract.State(),
-    onEvent: (LoadingContract.Event)->Unit = {}
+fun CheckingContent(
+    state: CycleCountContract.State = CycleCountContract.State(),
+    onEvent: (CycleCountContract.Event)->Unit = {}
 ) {
     val searchFocusRequester = remember {
         FocusRequester()
@@ -88,19 +93,19 @@ fun LoadingContent(
     val refreshState = rememberPullRefreshState(
         refreshing =  state.loadingState == Loading.REFRESHING,
         onRefresh = {
-            onEvent(LoadingContract.Event.OnRefresh)
+            onEvent(CycleCountContract.Event.OnRefresh)
         }
     )
 
     LaunchedEffect(key1 = Unit) {
         searchFocusRequester.requestFocus()
-        onEvent(LoadingContract.Event.ReloadScreen)
+        onEvent(CycleCountContract.Event.ReloadScreen)
     }
     MyScaffold(
         loadingState = state.loadingState,
         error = state.error,
         onCloseError = {
-            onEvent(LoadingContract.Event.ClearError)
+            onEvent(CycleCountContract.Event.ClearError)
         }
     ) {
 
@@ -112,23 +117,23 @@ fun LoadingContent(
                     .padding(15.mdp)
             ) {
                 TopBar(
-                    title = "Loading",
+                    title = "Cycle Count",
                     onBack = {
-                        onEvent(LoadingContract.Event.OnBackPressed)
+                        onEvent(CycleCountContract.Event.OnBackPressed)
                     }
                 )
                 Spacer(modifier = Modifier.size(10.mdp))
                 SearchInput(
                     value = state.keyword,
                     onValueChange = {
-                        onEvent(LoadingContract.Event.OnChangeKeyword(it))
+                        onEvent(CycleCountContract.Event.OnChangeKeyword(it))
                     },
                     onSearch = {
-                        onEvent(LoadingContract.Event.OnSearch)
+                        onEvent(CycleCountContract.Event.OnSearch)
                     },
                     isLoading = state.loadingState == Loading.SEARCHING,
                     onSortClick = {
-                        onEvent(LoadingContract.Event.OnShowSortList(true))
+                        onEvent(CycleCountContract.Event.OnShowSortList(true))
                     },
                     hideKeyboard = state.lockKeyboard,
                     focusRequester = searchFocusRequester
@@ -137,14 +142,14 @@ fun LoadingContent(
                 LazyColumn(Modifier
                     .fillMaxSize()
                 ) {
-                    items(state.loadingList){
-                        LoadingItem(it) {
-                            onEvent(LoadingContract.Event.OnNavToLoadingDetail(it))
+                    items(state.cycleList){
+                        CycleItem(it) {
+                            onEvent(CycleCountContract.Event.OnNavToCycleCountDetail(it))
                         }
                         Spacer(modifier = Modifier.size(10.mdp))
                     }
                     item {
-                        onEvent(LoadingContract.Event.OnReachedEnd)
+                        onEvent(CycleCountContract.Event.OnReachedEnd)
                     }
                     item { Spacer(modifier = Modifier.size(70.mdp)) }
                 }
@@ -158,12 +163,12 @@ fun LoadingContent(
     if (state.showSortList){
         SortBottomSheet(
             onDismiss = {
-                onEvent(LoadingContract.Event.OnShowSortList(false))
+                onEvent(CycleCountContract.Event.OnShowSortList(false))
             },
             sortOptions = state.sortList,
             selectedSort = state.sort,
             onSelectSort = {
-                onEvent(LoadingContract.Event.OnChangeSort(it))
+                onEvent(CycleCountContract.Event.OnChangeSort(it))
             }
         )
     }
@@ -171,8 +176,8 @@ fun LoadingContent(
 
 
 @Composable
-fun LoadingItem(
-    model: LoadingListGroupedRow,
+fun CycleItem(
+    model: CycleRow,
     onClick: () -> Unit
 ) {
     Column(
@@ -207,13 +212,13 @@ fun LoadingItem(
 //                        color = Primary
 //                    )
 //                } else  {
-                    Spacer(Modifier.size(10.mdp))
+//                    Spacer(Modifier.size(10.mdp))
 //                }
-                MyText(
-                    text = "#${model.customerCode?:""}",
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.SemiBold,
-                )
+//                MyText(
+//                    text = "#${model?:""}",
+//                    style = MaterialTheme.typography.bodyLarge,
+//                    fontWeight = FontWeight.SemiBold,
+//                )
 
             }
             Spacer(modifier = Modifier.size(10.mdp))
@@ -229,5 +234,5 @@ fun LoadingItem(
 @Preview
 @Composable
 private fun CheckingPreview() {
-    LoadingContent()
+    CheckingContent()
 }
