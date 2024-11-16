@@ -55,7 +55,6 @@ import com.example.jaywarehouse.presentation.destinations.CountingScreenDestinat
 import com.example.jaywarehouse.presentation.destinations.PackingDetailScreenDestination
 import com.example.jaywarehouse.presentation.destinations.ProfileScreenDestination
 import com.example.jaywarehouse.presentation.destinations.PutawayDetailScreenDestination
-import com.example.jaywarehouse.presentation.destinations.ShippingDetailScreenDestination
 import com.example.jaywarehouse.presentation.destinations.TypedDestination
 import com.example.jaywarehouse.presentation.startAppDestination
 import com.example.jaywarehouse.ui.theme.Black
@@ -112,7 +111,6 @@ fun MainContent(
             CountingDetailScreenDestination,
             CountingScreenDestination,
             PackingDetailScreenDestination,
-            ShippingDetailScreenDestination,
             ProfileScreenDestination->false
         else -> true
     }

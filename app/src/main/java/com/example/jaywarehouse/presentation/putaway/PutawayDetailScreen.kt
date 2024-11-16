@@ -1,8 +1,5 @@
 package com.example.jaywarehouse.presentation.putaway
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,12 +10,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
@@ -34,7 +27,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -50,7 +42,6 @@ import com.example.jaywarehouse.presentation.common.composables.BaseListItem
 import com.example.jaywarehouse.presentation.common.composables.BaseListItemModel
 import com.example.jaywarehouse.presentation.common.composables.BasicDialog
 import com.example.jaywarehouse.presentation.common.composables.DetailCard
-import com.example.jaywarehouse.presentation.common.composables.DetailItem
 import com.example.jaywarehouse.presentation.common.composables.InputTextField
 import com.example.jaywarehouse.presentation.common.composables.MyButton
 import com.example.jaywarehouse.presentation.common.composables.MyScaffold
@@ -60,15 +51,12 @@ import com.example.jaywarehouse.presentation.common.composables.SortBottomSheet
 import com.example.jaywarehouse.presentation.common.composables.TitleView
 import com.example.jaywarehouse.presentation.common.composables.TopBar
 import com.example.jaywarehouse.presentation.common.utils.Loading
-import com.example.jaywarehouse.presentation.common.utils.MainGraph
 import com.example.jaywarehouse.presentation.common.utils.SIDE_EFFECT_KEY
 import com.example.jaywarehouse.presentation.common.utils.ScreenTransition
 import com.example.jaywarehouse.presentation.destinations.DashboardScreenDestination
 import com.example.jaywarehouse.presentation.destinations.PutawayScreenDestination
 import com.example.jaywarehouse.presentation.putaway.contracts.PutawayDetailContract
 import com.example.jaywarehouse.presentation.putaway.viewmodels.PutawayDetailViewModel
-import com.example.jaywarehouse.ui.theme.Black
-import com.example.jaywarehouse.ui.theme.Gray2
 import com.example.jaywarehouse.ui.theme.Gray3
 import com.example.jaywarehouse.ui.theme.Gray5
 import com.example.jaywarehouse.ui.theme.Orange
@@ -239,67 +227,6 @@ fun MyAlertDialog(
         )
     }
 }
-
-
-@Composable
-fun RegisteredItem(i: Int, date: String , time: String,onRemove:()->Unit) {
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .clip(CircleShape)
-            .background(Gray2)
-            .padding(top = 4.mdp, bottom = 4.mdp, start = 2.mdp, end = 15.mdp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Box(modifier = Modifier
-            .size(40.mdp)
-            .clip(CircleShape)
-            .background(Black),
-            contentAlignment = Alignment.Center
-        ){
-            MyText(
-                i.toString(),
-                color = Color.White,
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Normal,
-                textAlign = TextAlign.Center,
-            )
-        }
-
-        MyText(
-            text = date,
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.Medium,
-            maxLines = 2
-        )
-        MyText(
-            text = time,
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.Medium,
-            maxLines = 2
-        )
-        Spacer(modifier = Modifier.size(20.mdp))
-        Box(
-            Modifier
-                .clip(RoundedCornerShape(4.mdp))
-                .background(Color.Gray)
-                .clickable {
-                    onRemove()
-                }
-                .padding(5.mdp)
-        ) {
-
-            Icon(
-                Icons.Default.Clear,
-                contentDescription = "",
-                tint = MaterialTheme.colorScheme.outlineVariant,
-                modifier = Modifier.size(12.mdp)
-            )
-        }
-    }
-}
-
 
 @Composable
 fun PutawayDetailItem(

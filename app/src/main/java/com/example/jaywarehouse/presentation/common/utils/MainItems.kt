@@ -9,6 +9,8 @@ import com.example.jaywarehouse.presentation.destinations.ManualPutawayScreenDes
 import com.example.jaywarehouse.presentation.destinations.PalletScreenDestination
 import com.example.jaywarehouse.presentation.destinations.PickingScreenDestination
 import com.example.jaywarehouse.presentation.destinations.PutawayScreenDestination
+import com.example.jaywarehouse.presentation.destinations.ShippingScreenDestination
+import com.example.jaywarehouse.presentation.destinations.TransferScreenDestination
 import com.example.jaywarehouse.ui.theme.Blue
 import com.example.jaywarehouse.ui.theme.Primary
 import com.example.jaywarehouse.ui.theme.SkyBlue
@@ -81,7 +83,8 @@ enum class MainItems(
         "Shipping\nTruck",
         R.drawable.fast_delivery,
         "Shipping",
-        Blue
+        Blue,
+        ShippingScreenDestination
     ),
     Inventory(
         "Inventory",
@@ -93,7 +96,8 @@ enum class MainItems(
         "Transfer",
         R.drawable.parcel_stock,
         "Stock",
-        Yellow
+        Yellow,
+        TransferScreenDestination
     ),
     StockTaking(
         "Stock\nTaking",

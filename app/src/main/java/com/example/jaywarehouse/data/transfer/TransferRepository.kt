@@ -1,58 +1,65 @@
 package com.example.jaywarehouse.data.transfer
 
 import com.example.jaywarehouse.data.common.utils.BaseResult
+import com.example.jaywarehouse.data.common.utils.ResultMessageModel
 import com.example.jaywarehouse.data.common.utils.getResult
-import com.example.jaywarehouse.data.transfer.models.LocationTransferModel
 import com.example.jaywarehouse.data.transfer.models.TransferModel
 import com.google.gson.JsonObject
 import kotlinx.coroutines.flow.Flow
 
 class TransferRepository(private val api: TransferApi) {
-    suspend fun getTransfers(
+    fun getTransfers(
         keyword: String,
         page: Int,
-        rows: Int,
         sort: String,
         order: String
-    ) : Flow<BaseResult<LocationTransferModel>> {
+    ) : Flow<BaseResult<TransferModel>> {
         val jsonObject = JsonObject()
         jsonObject.addProperty("Keyword",keyword)
         return getResult(
             request = {
-                api.getLocationInventory(jsonObject, page, rows, sort, order)
+                api.getTransferList(jsonObject, page, 10, sort, order)
             }
         )
     }
 
-    suspend fun pickTransfer(
-        locationCode: String,
-        barcode: String,
-        boxNumber: String
-    ) : Flow<BaseResult<TransferModel>> {
+    fun transferLocation(
+        quiddityTypeToId: Int,
+        warehouseLocationToId: Int,
+        warehouseLocationCodeTo: String,
+        locationInventoryId: Int,
+        expireDateTo: String,
+        warehouseId: Int
+    ) : Flow<BaseResult<ResultMessageModel>> {
         val jsonObject = JsonObject()
-        jsonObject.addProperty("LocationCode",locationCode.trim().trimIndent())
-        if (barcode.isNotEmpty())jsonObject.addProperty("Barcode",barcode.trim().trimIndent())
-        if (boxNumber.isNotEmpty())jsonObject.addProperty("BoxNumber",boxNumber.trim().trimIndent())
+
+        jsonObject.addProperty("QuiddityTypeToID",quiddityTypeToId)
+        jsonObject.addProperty("WarehouseLocationToID",warehouseLocationToId)
+        jsonObject.addProperty("WarehouseLocationCodeTo",warehouseLocationCodeTo)
+        jsonObject.addProperty("LocationInventoryID",locationInventoryId)
+        jsonObject.addProperty("ExpireDateTo",expireDateTo)
+        jsonObject.addProperty("WarehouseID",warehouseId)
         return getResult(
             request = {
-                api.pickTransfer(jsonObject)
+                api.transferLocation(jsonObject)
             }
         )
     }
 
-    suspend fun putTransfer(
-        locationCode: String,
-        barcode: String,
-        boxNumber: String
-    ) : Flow<BaseResult<TransferModel>> {
-        val jsonObject = JsonObject()
-        jsonObject.addProperty("LocationCode",locationCode.trim().trimIndent())
-        if (barcode.isNotEmpty())jsonObject.addProperty("Barcode",barcode.trim().trimIndent())
-        if (boxNumber.isNotEmpty())jsonObject.addProperty("BoxNumber",boxNumber.trim().trimIndent())
-        return getResult(
-            request = {
-                api.putTransfer(jsonObject)
-            }
-        )
-    }
+    fun getProductStatuses() = getResult(
+        request = {
+            api.getProductStatus()
+        }
+    )
+
+    fun getWarehouseLocations(
+        keyword: String
+    ) = getResult(
+        request = {
+            val jsonObject = JsonObject()
+            jsonObject.addProperty("Keyword",keyword)
+            jsonObject.addProperty("WarehouseLocationID",18)
+            api.getWarehouseLocations(jsonObject)
+        }
+    )
 }

@@ -261,9 +261,9 @@ fun CountingInceptionDetailItem(
 ) {
     DetailItem(
         i,
-        model.batchNumber,
+        model.batchNumber?:"",
         model.quantity.toString(),
-        model.expireDate,
+        model.expireDate?:"",
         onRemove = onRemove,
         selected = selected
     )

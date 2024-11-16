@@ -85,13 +85,6 @@ fun SearchInput(
                 }
             },
             modifier = Modifier
-                .focusRequester(focusRequester)
-                .onFocusChanged {
-                    isFocused = it.isFocused
-                    if (it.isFocused && hideKeyboard) {
-                        keyboardController?.hide()
-                    }
-                }
                 .onKeyEvent {
                     if (it.key == Key.Enter && it.type == KeyEventType.KeyUp) {
                         onSearch(value)
@@ -100,6 +93,14 @@ fun SearchInput(
                         false
                     }
                 }
+                .focusRequester(focusRequester)
+                .onFocusChanged {
+                    if (it.isFocused && hideKeyboard) {
+                        keyboardController?.hide()
+                    }
+                    isFocused = it.isFocused
+                }
+
             ,
             maxLines = 1,
             decorationBox = {

@@ -1,6 +1,5 @@
 package com.example.jaywarehouse.presentation.pallet
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -36,8 +35,8 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.jaywarehouse.data.common.utils.mdp
 import com.example.jaywarehouse.R
+import com.example.jaywarehouse.data.common.utils.mdp
 import com.example.jaywarehouse.data.pallet.model.PalletConfirmRow
 import com.example.jaywarehouse.presentation.common.composables.DetailCard
 import com.example.jaywarehouse.presentation.common.composables.MyScaffold
@@ -189,7 +188,6 @@ fun PalletContent(
 }
 
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun PalletItem(
     model: PalletConfirmRow,
@@ -222,43 +220,43 @@ fun PalletItem(
                 .clip(RoundedCornerShape(6.mdp))
                 .background(Color.White)
         ) {
-        Column(
-            Modifier
-                .fillMaxWidth()
-                .background(Color.White)
-                .padding(15.mdp)
-        ) {
-            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .background(Color.White)
+                    .padding(15.mdp)
+            ) {
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
 
-                if(model.total!=null)Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(4.mdp))
-                        .background(Primary.copy(0.2f))
-                        .padding(vertical = 4.mdp, horizontal = 10.mdp)
-                ) {
+                    if(model.total!=null)Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(4.mdp))
+                            .background(Primary.copy(0.2f))
+                            .padding(vertical = 4.mdp, horizontal = 10.mdp)
+                    ) {
+                        MyText(
+                            text = "",
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Primary
+                        )
+                    } else  {
+                        Spacer(Modifier.size(10.mdp))
+                    }
                     MyText(
-                        text = "",
-                        style = MaterialTheme.typography.labelSmall,
+                        text = "#${model.palletBarcode?:""}",
+                        style = MaterialTheme.typography.bodyLarge,
                         fontWeight = FontWeight.SemiBold,
-                        color = Primary
                     )
-                } else  {
-                    Spacer(Modifier.size(10.mdp))
-                }
-                MyText(
-                    text = "#${model.palletBarcode?:""}",
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.SemiBold,
-                )
 
+                }
+                Spacer(modifier = Modifier.size(10.mdp))
+                DetailCard(
+                    "Customer",
+                    icon = R.drawable.barcode,
+                    detail = model.customerName?:""
+                )
             }
-            Spacer(modifier = Modifier.size(10.mdp))
-            DetailCard(
-                "Customer",
-                icon = R.drawable.barcode,
-                detail = model.customerName?:""
-            )
-        }
         }
     }
 }

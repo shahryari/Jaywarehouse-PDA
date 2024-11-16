@@ -2,6 +2,7 @@ package com.example.jaywarehouse.presentation.common.composables
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -53,18 +54,18 @@ fun <T>AutoDropDownTextField(
     Column(modifier) {
         val filteredSuggestions = suggestions.filter { it.toString().lowercase().startsWith(value.text.lowercase()) }
 
-        DialogInput(
+        InputTextField(
             value = value,
             onValueChange = {
                 onValueChange(it)
                     isExpanded = it.text.isNotEmpty()
             },
             focusRequester = focusRequester,
-            keyboardType = KeyboardType.Text,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
             modifier = Modifier.onGloballyPositioned {
                 textFieldSize = it.size
             },
-            icon = icon
+            leadingIcon = icon
         )
        DropdownMenu(
             expanded = isExpanded && suggestions.isNotEmpty() && showSuggestion && !suggestions.any { it.toString() == value.text },

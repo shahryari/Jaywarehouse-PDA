@@ -8,7 +8,6 @@ import com.example.jaywarehouse.presentation.destinations.PackingDetailScreenDes
 import com.example.jaywarehouse.presentation.destinations.PackingScreenDestination
 import com.example.jaywarehouse.presentation.destinations.PutawayDetailScreenDestination
 import com.example.jaywarehouse.presentation.destinations.PutawayScreenDestination
-import com.example.jaywarehouse.presentation.destinations.ShippingDetailScreenDestination
 import com.example.jaywarehouse.presentation.destinations.ShippingScreenDestination
 import com.example.jaywarehouse.presentation.destinations.TypedDestination
 import com.ramcosta.composedestinations.spec.DirectionDestinationSpec
@@ -55,7 +54,6 @@ enum class DashboardItem(
         ShippingScreenDestination,
         listOf(
             ShippingScreenDestination,
-            ShippingDetailScreenDestination
         )
     )
 }

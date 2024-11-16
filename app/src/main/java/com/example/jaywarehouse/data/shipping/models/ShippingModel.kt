@@ -10,23 +10,20 @@ data class ShippingModel(
     val total: Int
 )
 
+
 data class ShippingRow(
     @SerializedName("CarNumber")
-    val carNumber: String?,
-    @SerializedName("Date")
-    val date: String,
-    @SerializedName("DriverName")
-    val driverName: String?,
+    val carNumber: String,
+    @SerializedName("CurrentStatusCode")
+    val currentStatusCode: String,
+    @SerializedName("DriverFullName")
+    val driverFullName: String,
     @SerializedName("DriverTin")
-    val driverTin: String?,
-    @SerializedName("SumQuantity")
-    val itemCount: Int?,
-    @SerializedName("PackCount")
-    val scanCount: Int?,
+    val driverTin: String,
     @SerializedName("ShippingID")
     val shippingID: Int,
     @SerializedName("ShippingNumber")
     val shippingNumber: String,
-    @SerializedName("Time")
-    val time: String
+    @SerializedName("TrailerNumber")
+    val trailerNumber: String
 ) : Serializable

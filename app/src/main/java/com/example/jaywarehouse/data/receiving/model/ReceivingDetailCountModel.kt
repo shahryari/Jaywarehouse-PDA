@@ -12,9 +12,9 @@ data class ReceivingDetailCountModel(
     @SerializedName("ReceivingWorkerTaskID")
     val receivingWorkerTaskId: Int?,
     @SerializedName("BatchNumber")
-    val batchNumber: String,
+    val batchNumber: String?,
     @SerializedName("ExpireDateString")
-    val expireDate: String
+    val expireDate: String?
 )
 
 data class ReceivingDetailGetItemsModel(

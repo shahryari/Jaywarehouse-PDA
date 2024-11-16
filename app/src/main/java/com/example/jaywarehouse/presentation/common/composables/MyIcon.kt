@@ -30,10 +30,10 @@ fun MyIcon(
     onClick: ()->Unit = {}
 ) {
     Box(modifier = modifier
-        .clip(RoundedCornerShape(4.mdp))
+        .clip(RoundedCornerShape(8.mdp))
         .background(Color.White)
         .then(
-            if (showBorder) Modifier.border(1.mdp, Border, RoundedCornerShape(4.mdp))
+            if (showBorder) Modifier.border(1.mdp, Border, RoundedCornerShape(8.mdp))
             else Modifier
         )
         .clickable(clickable) {

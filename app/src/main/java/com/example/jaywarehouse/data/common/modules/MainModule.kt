@@ -29,10 +29,8 @@ import com.example.jaywarehouse.presentation.picking.viewModels.PickingViewModel
 import com.example.jaywarehouse.presentation.profile.ProfileViewModel
 import com.example.jaywarehouse.presentation.putaway.viewmodels.PutawayDetailViewModel
 import com.example.jaywarehouse.presentation.putaway.viewmodels.PutawayViewModel
-import com.example.jaywarehouse.presentation.shipping.viewmodels.ShippingDetailViewModel
 import com.example.jaywarehouse.presentation.shipping.viewmodels.ShippingViewModel
-import com.example.jaywarehouse.presentation.transfer.viewmodels.TransferPickViewModel
-import com.example.jaywarehouse.presentation.transfer.viewmodels.TransferPutViewModel
+import com.example.jaywarehouse.presentation.transfer.viewmodels.TransferViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
@@ -103,20 +101,9 @@ val mainModule = module {
     viewModel {
         ShippingViewModel(get(),get())
     }
-    viewModel {
-        ShippingDetailViewModel(get(),get(),it.get())
-    }
 
     viewModel {
         ProfileViewModel(get(),get())
-    }
-
-    viewModel {
-        TransferPickViewModel(get(),get())
-    }
-
-    viewModel {
-        TransferPutViewModel(get(),get())
     }
 
     viewModel {
@@ -131,12 +118,15 @@ val mainModule = module {
         PalletConfirmViewModel(get(),get())
     }
 
-    viewModel { class LoadingModule {
-}
+    viewModel {
         LoadingViewModel(get(),get())
     }
 
     viewModel {
         LoadingDetailViewModel(get(),get(),it.get())
+    }
+
+    viewModel {
+        TransferViewModel(get(),get())
     }
 }
