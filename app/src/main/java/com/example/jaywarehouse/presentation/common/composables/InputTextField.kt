@@ -43,6 +43,7 @@ import com.example.jaywarehouse.R
 import com.example.jaywarehouse.data.common.utils.mdp
 import com.example.jaywarehouse.ui.theme.Border
 import com.example.jaywarehouse.ui.theme.Gray1
+import com.example.jaywarehouse.ui.theme.Primary
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -59,7 +60,7 @@ fun InputTextField(
     onTrailingClick: ()-> Unit = {},
     enabled: Boolean = true,
     readOnly: Boolean = false,
-    hideKeyboard: Boolean = true,
+    hideKeyboard: Boolean = false,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     focusRequester: FocusRequester = FocusRequester.Default,
     loading: Boolean = false
@@ -124,7 +125,7 @@ fun InputTextField(
                         .clip(RoundedCornerShape(6.mdp))
                         .background(if (enabled) Color.White else Gray1)
                         .border(
-                            1.mdp, Border,
+                            1.mdp, if (isFocused) Primary else Border,
                             RoundedCornerShape(6.mdp)
                         )
                         .then(

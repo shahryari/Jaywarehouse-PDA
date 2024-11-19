@@ -41,7 +41,7 @@ class LoadingDetailViewModel(
                 }
             }
         }
-        getDetails(row.customerCode,sort = state.sort)
+        getDetails(sort = state.sort)
     }
 
     override fun setInitState(): LoadingDetailContract.State {
@@ -77,7 +77,7 @@ class LoadingDetailViewModel(
                     setState {
                         copy(page = state.page+1, loadingState = Loading.LOADING)
                     }
-                    getDetails(row.customerCode,keyword = state.keyword.text,page = state.page,sort = state.sort)
+                    getDetails(keyword = state.keyword.text,page = state.page,sort = state.sort)
                 }
             }
 
@@ -85,7 +85,7 @@ class LoadingDetailViewModel(
                 setState {
                     copy(page = 1, details = emptyList(), loadingState = Loading.REFRESHING)
                 }
-                getDetails(row.customerCode,keyword = state.keyword.text,page = state.page,sort = state.sort)
+                getDetails(keyword = state.keyword.text,page = state.page,sort = state.sort)
             }
             is LoadingDetailContract.Event.OnConfirmLoading -> {
                 completeChecking(event.item)
@@ -99,7 +99,7 @@ class LoadingDetailViewModel(
                 setState {
                     copy(loadingState = Loading.SEARCHING, details = emptyList(), page = 1)
                 }
-                getDetails(row.customerCode,keyword = state.keyword.text,page = state.page,sort = state.sort)
+                getDetails(keyword = state.keyword.text,page = state.page,sort = state.sort)
             }
             is LoadingDetailContract.Event.OnShowSortList -> {
                 setState {
@@ -112,7 +112,7 @@ class LoadingDetailViewModel(
                 setState {
                     copy(sort = event.sortItem, page = 1, details = emptyList(), loadingState = Loading.LOADING)
                 }
-                getDetails(row.customerCode,keyword = state.keyword.text,page = state.page,sort = event.sortItem)
+                getDetails(keyword = state.keyword.text,page = state.page,sort = event.sortItem)
             }
         }
     }
@@ -152,7 +152,7 @@ class LoadingDetailViewModel(
                                     loadingState = Loading.LOADING
                                 )
                             }
-                            getDetails(row.customerCode,keyword = state.keyword.text,page = state.page,sort = state.sort)
+                            getDetails(keyword = state.keyword.text,page = state.page,sort = state.sort)
                         }
                         is BaseResult.Error -> {
                             setState {
@@ -168,10 +168,10 @@ class LoadingDetailViewModel(
     }
 
 
-    private fun getDetails(customerCode: String, keyword: String = "", page: Int = 1, sort: SortItem) {
+    private fun getDetails(keyword: String = "", page: Int = 1, sort: SortItem) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.getLoadingList(
-                customerCode = customerCode,
+                customerCode = row.customerCode?:"",
                 keyword = keyword,
                 sort = sort.sort,
                 page = page,

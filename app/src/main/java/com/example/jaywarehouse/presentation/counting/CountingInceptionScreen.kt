@@ -132,6 +132,7 @@ fun CountingInceptionContent(
                                 modifier = Modifier.weight(1f),
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                                 leadingIcon = R.drawable.box_search,
+                                hideKeyboard = state.hideKeyboard,
                                 label = "Quantity",
                             )
                             Spacer(Modifier.size(5.mdp))
@@ -143,6 +144,7 @@ fun CountingInceptionContent(
                                 modifier = Modifier.weight(1f),
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                                 leadingIcon = R.drawable.barcode,
+                                hideKeyboard = state.hideKeyboard,
                                 label = "Quantity In Packet",
                             )
                         }
@@ -154,6 +156,7 @@ fun CountingInceptionContent(
                             },
                             modifier = Modifier.fillMaxWidth(),
                             leadingIcon = R.drawable.keyboard,
+                            hideKeyboard = state.hideKeyboard,
                             label = "Batch Number",
                         )
                         Spacer(Modifier.size(10.mdp))

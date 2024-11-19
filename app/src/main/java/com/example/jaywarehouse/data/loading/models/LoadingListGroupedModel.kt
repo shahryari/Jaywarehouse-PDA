@@ -12,7 +12,7 @@ data class LoadingListGroupedModel(
 
 data class LoadingListGroupedRow(
     @SerializedName("CustomerCode")
-    val customerCode: String,
+    val customerCode: String?,
     @SerializedName("CustomerName")
-    val customerName: String
+    val customerName: String?
 ) : Serializable
