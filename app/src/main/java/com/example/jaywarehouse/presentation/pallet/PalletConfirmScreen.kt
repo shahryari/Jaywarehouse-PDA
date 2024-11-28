@@ -39,6 +39,7 @@ import com.example.jaywarehouse.R
 import com.example.jaywarehouse.data.common.utils.mdp
 import com.example.jaywarehouse.data.pallet.model.PalletConfirmRow
 import com.example.jaywarehouse.presentation.common.composables.DetailCard
+import com.example.jaywarehouse.presentation.common.composables.MyLazyColumn
 import com.example.jaywarehouse.presentation.common.composables.MyScaffold
 import com.example.jaywarehouse.presentation.common.composables.MyText
 import com.example.jaywarehouse.presentation.common.composables.SearchInput
@@ -139,20 +140,19 @@ fun PalletContent(
                     focusRequester = searchFocusRequester
                 )
                 Spacer(modifier = Modifier.size(15.mdp))
-                LazyColumn(Modifier
-                    .fillMaxSize()
-                ) {
-                    items(state.palletList){
+                MyLazyColumn(
+                    Modifier
+                    .fillMaxSize(),
+                    items = state.palletList,
+                    itemContent = {_,it->
                         PalletItem(it) {
                             onEvent(PalletConfirmContract.Event.OnSelectPallet(it))
                         }
-                        Spacer(modifier = Modifier.size(10.mdp))
-                    }
-                    item {
+                    },
+                    onReachEnd = {
                         onEvent(PalletConfirmContract.Event.OnReachedEnd)
                     }
-                    item { Spacer(modifier = Modifier.size(70.mdp)) }
-                }
+                )
                 Spacer(modifier = Modifier.size(70.mdp))
             }
 

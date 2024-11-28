@@ -23,6 +23,7 @@ import com.example.jaywarehouse.data.common.utils.mdp
 import com.example.jaywarehouse.data.manual_putaway.repository.ManualPutawayRow
 import com.example.jaywarehouse.presentation.common.composables.BaseListItem
 import com.example.jaywarehouse.presentation.common.composables.BaseListItemModel
+import com.example.jaywarehouse.presentation.common.composables.MyLazyColumn
 import com.example.jaywarehouse.presentation.common.composables.MyScaffold
 import com.example.jaywarehouse.presentation.common.composables.SearchInput
 import com.example.jaywarehouse.presentation.common.composables.SortBottomSheet
@@ -118,20 +119,20 @@ fun ManualPutawayContent(
                 )
 
                 Spacer(modifier = Modifier.size(20.mdp))
-                LazyColumn(Modifier.fillMaxSize()) {
-                    items(state.putaways){
+                MyLazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    items = state.putaways,
+                    itemContent = {_,it->
                         ManualPutawayItem(it){
                             onEvent(ManualPutawayContract.Event.OnPutawayClick(it))
                         }
-                        Spacer(modifier = Modifier.size(7.mdp))
-                    }
-                    item {
+                    },
+                    onReachEnd = {
                         onEvent(ManualPutawayContract.Event.OnReachEnd)
-                    }
-                    item {
-                        Spacer(modifier = Modifier.size(70.mdp))
-                    }
-                }
+                    },
+                    spacerSize = 7.mdp
+                )
+
             }
             PullRefreshIndicator(refreshing = state.loadingState == Loading.REFRESHING, state = refreshState, modifier = Modifier.align(
                 Alignment.TopCenter) )

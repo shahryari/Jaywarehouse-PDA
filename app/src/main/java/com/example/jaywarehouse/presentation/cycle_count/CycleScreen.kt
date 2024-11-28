@@ -18,6 +18,7 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -28,13 +29,17 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.jaywarehouse.data.common.utils.mdp
 import com.example.jaywarehouse.R
 import com.example.jaywarehouse.data.cycle_count.models.CycleRow
 import com.example.jaywarehouse.data.loading.models.LoadingListGroupedRow
+import com.example.jaywarehouse.presentation.common.composables.BaseListItemModel
 import com.example.jaywarehouse.presentation.common.composables.DetailCard
+import com.example.jaywarehouse.presentation.common.composables.MainListItem
+import com.example.jaywarehouse.presentation.common.composables.MyLazyColumn
 import com.example.jaywarehouse.presentation.common.composables.MyScaffold
 import com.example.jaywarehouse.presentation.common.composables.MyText
 import com.example.jaywarehouse.presentation.common.composables.SearchInput
@@ -50,6 +55,7 @@ import com.example.jaywarehouse.presentation.destinations.CycleDetailScreenDesti
 import com.example.jaywarehouse.presentation.destinations.LoadingDetailScreenDestination
 import com.example.jaywarehouse.presentation.loading.contracts.LoadingContract
 import com.example.jaywarehouse.presentation.loading.viewmodels.LoadingViewModel
+import com.example.jaywarehouse.ui.theme.Primary
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import org.koin.androidx.compose.koinViewModel
@@ -139,21 +145,18 @@ fun CheckingContent(
                     focusRequester = searchFocusRequester
                 )
                 Spacer(modifier = Modifier.size(15.mdp))
-                LazyColumn(Modifier
-                    .fillMaxSize()
-                ) {
-                    items(state.cycleList){
+                MyLazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    items = state.cycleList,
+                    itemContent = {_,it->
                         CycleItem(it) {
                             onEvent(CycleCountContract.Event.OnNavToCycleCountDetail(it))
                         }
-                        Spacer(modifier = Modifier.size(10.mdp))
-                    }
-                    item {
+                    },
+                    onReachEnd = {
                         onEvent(CycleCountContract.Event.OnReachedEnd)
                     }
-                    item { Spacer(modifier = Modifier.size(70.mdp)) }
-                }
-                Spacer(modifier = Modifier.size(70.mdp))
+                )
             }
 
             PullRefreshIndicator(refreshing = state.loadingState == Loading.REFRESHING, state = refreshState, modifier = Modifier.align(Alignment.TopCenter) )
@@ -180,55 +183,18 @@ fun CycleItem(
     model: CycleRow,
     onClick: () -> Unit
 ) {
-    Column(
-        Modifier
-            .shadow(1.mdp, RoundedCornerShape(6.mdp))
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(6.mdp))
-            .background(Color.White)
-            .clickable {
-                onClick()
-            }
-    ) {
-        Column(
-            Modifier
-                .fillMaxWidth()
-                .background(Color.White)
-                .padding(15.mdp)
-        ) {
-            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
-
-//                if(model.b2BCustomer!=null)Box(
-//                    modifier = Modifier
-//                        .clip(RoundedCornerShape(4.mdp))
-//                        .background(Primary.copy(0.2f))
-//                        .padding(vertical = 4.mdp, horizontal = 10.mdp)
-//                ) {
-//                    MyText(
-//                        text = model.b2BCustomer,
-//                        style = MaterialTheme.typography.labelSmall,
-//                        fontFamily = poppins,
-//                        fontWeight = FontWeight.SemiBold,
-//                        color = Primary
-//                    )
-//                } else  {
-//                    Spacer(Modifier.size(10.mdp))
-//                }
-//                MyText(
-//                    text = "#${model?:""}",
-//                    style = MaterialTheme.typography.bodyLarge,
-//                    fontWeight = FontWeight.SemiBold,
-//                )
-
-            }
-            Spacer(modifier = Modifier.size(10.mdp))
-            DetailCard(
-                "Customer",
-                icon = R.drawable.vuesax_linear_user_tag,
-                detail = model.customerName?:""
-            )
-        }
-    }
+    MainListItem(
+        onClick = onClick,
+        typeTitle = "",
+        modelNumber = "",
+        item1 = BaseListItemModel("Cycle Name",model.customerName, R.drawable.vuesax_linear_box),
+        totalTitle = "Tasks",
+        totalIcon = R.drawable.vuesax_linear_box,
+        total = "",
+        countTitle = "Count",
+        countIcon = R.drawable.vuesax_outline_box_tick,
+        count = ""
+    )
 }
 
 @Preview

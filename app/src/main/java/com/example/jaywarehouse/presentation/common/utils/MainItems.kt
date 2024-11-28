@@ -10,6 +10,7 @@ import com.example.jaywarehouse.presentation.destinations.ManualPutawayScreenDes
 import com.example.jaywarehouse.presentation.destinations.PalletScreenDestination
 import com.example.jaywarehouse.presentation.destinations.PickingScreenDestination
 import com.example.jaywarehouse.presentation.destinations.PutawayScreenDestination
+import com.example.jaywarehouse.presentation.destinations.RSScreenDestination
 import com.example.jaywarehouse.presentation.destinations.ShippingScreenDestination
 import com.example.jaywarehouse.presentation.destinations.TransferScreenDestination
 import com.example.jaywarehouse.ui.theme.Blue
@@ -111,6 +112,7 @@ enum class MainItems(
         "RS",
         R.drawable.rs,
         "Integration",
-        SkyBlue
+        SkyBlue,
+        RSScreenDestination
     )
 }

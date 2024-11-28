@@ -34,6 +34,7 @@ import com.example.jaywarehouse.data.common.utils.mdp
 import com.example.jaywarehouse.R
 import com.example.jaywarehouse.data.loading.models.LoadingListGroupedRow
 import com.example.jaywarehouse.presentation.common.composables.DetailCard
+import com.example.jaywarehouse.presentation.common.composables.MyLazyColumn
 import com.example.jaywarehouse.presentation.common.composables.MyScaffold
 import com.example.jaywarehouse.presentation.common.composables.MyText
 import com.example.jaywarehouse.presentation.common.composables.SearchInput
@@ -134,20 +135,18 @@ fun LoadingContent(
                     focusRequester = searchFocusRequester
                 )
                 Spacer(modifier = Modifier.size(15.mdp))
-                LazyColumn(Modifier
-                    .fillMaxSize()
-                ) {
-                    items(state.loadingList){
+                MyLazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    items = state.loadingList,
+                    itemContent = {_,it->
                         LoadingItem(it) {
                             onEvent(LoadingContract.Event.OnNavToLoadingDetail(it))
                         }
-                        Spacer(modifier = Modifier.size(10.mdp))
-                    }
-                    item {
+                    },
+                    onReachEnd = {
                         onEvent(LoadingContract.Event.OnReachedEnd)
                     }
-                    item { Spacer(modifier = Modifier.size(70.mdp)) }
-                }
+                )
                 Spacer(modifier = Modifier.size(70.mdp))
             }
 

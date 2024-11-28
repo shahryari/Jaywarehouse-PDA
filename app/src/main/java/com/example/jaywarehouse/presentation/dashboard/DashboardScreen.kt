@@ -1,6 +1,11 @@
 package com.example.jaywarehouse.presentation.dashboard
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
@@ -38,6 +43,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -68,6 +75,7 @@ import com.example.jaywarehouse.ui.theme.Primary
 import com.example.jaywarehouse.ui.theme.Red
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
@@ -391,9 +399,27 @@ private fun DashboardContent(
                 Spacer(Modifier.size(10.mdp))
                 Column(Modifier.verticalScroll(rememberScrollState())) {
                     Spacer(Modifier.size(10.mdp))
-                    state.dashboards.forEach { entry ->
-                        DashboardListItem(entry,state.dashboard) {
-                            if(it.destination!=null)onEvent(DashboardContract.Event.OnNavigate(it.destination))
+                    var d = 0L
+                    var isVisisble by remember {
+                        mutableStateOf(true)
+                    }
+                    state.dashboards.forEach {entry ->
+//                        LaunchedEffect(Unit) {
+//                            delay(d)
+//                            isVisisble = true
+//                            d += when(entry.key){
+//                                "Count"-> 400L
+//                                "Shipping" -> 500L
+//                                "Stock" -> 300L
+//                                else -> 100
+//                            }
+//                        }
+                        AnimatedVisibility(isVisisble) {
+                            Column {
+                                DashboardListItem(entry,state.dashboard) {
+                                    if(it.destination!=null)onEvent(DashboardContract.Event.OnNavigate(it.destination))
+                                }
+                            }
                         }
                         Spacer(modifier = Modifier.size(15.mdp))
                     }
@@ -517,9 +543,17 @@ fun DashboardListItem(
         for (i in 0..3){
             val it = item.value.getOrNull(i)
             if (it != null){
+                var isVisible by remember {
+                    mutableStateOf(false)
+                }
+                LaunchedEffect(Unit) {
+                    delay(i*100L)
+                    isVisible = true
+                }
                 DashboardSubItem(
                     item = it,
                     count = dashboardModel?.getCount(it) ,
+                    isVisible = isVisible,
                     onClick = {
                         onItemClick(it)
                     }
@@ -533,9 +567,16 @@ fun DashboardListItem(
         for (i in 4..7){
             val it = item.value.getOrNull(i)
             if (it != null){
+                var isVisible by remember {
+                    mutableStateOf(false)
+                }
+                LaunchedEffect(Unit) {
+                    isVisible = true
+                }
                 DashboardSubItem(
                     item = it,
                     count = dashboardModel?.getCount(it),
+                    isVisible = isVisible,
                     onClick = {
                         onItemClick(it)
                     }
@@ -551,9 +592,14 @@ fun DashboardListItem(
 fun DashboardSubItem(
     item: MainItems,
     count: Int? = null,
+    isVisible: Boolean = true,
     onClick: () -> Unit
 ) {
-    Column(
+
+    AnimatedVisibility(
+        isVisible,
+        enter = scaleIn() + fadeIn(),
+        exit = scaleOut() + fadeOut()
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Box {

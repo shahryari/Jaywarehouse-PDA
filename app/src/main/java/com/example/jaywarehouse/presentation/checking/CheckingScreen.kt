@@ -40,6 +40,7 @@ import com.example.jaywarehouse.data.checking.models.CheckingListGroupedRow
 import com.example.jaywarehouse.presentation.checking.contracts.CheckingContract
 import com.example.jaywarehouse.presentation.checking.viewModels.CheckingViewModel
 import com.example.jaywarehouse.presentation.common.composables.DetailCard
+import com.example.jaywarehouse.presentation.common.composables.MyLazyColumn
 import com.example.jaywarehouse.presentation.common.composables.MyScaffold
 import com.example.jaywarehouse.presentation.common.composables.MyText
 import com.example.jaywarehouse.presentation.common.composables.SearchInput
@@ -139,21 +140,20 @@ fun CheckingContent(
                     focusRequester = searchFocusRequester
                 )
                 Spacer(modifier = Modifier.size(15.mdp))
-                LazyColumn(Modifier
-                    .fillMaxSize()
-                ) {
-                    items(state.checkingList){
+                MyLazyColumn(
+                    modifier= Modifier
+                    .fillMaxSize(),
+                    items = state.checkingList,
+                    itemContent = {_,it->
                         CheckingItem(it) {
                             onEvent(CheckingContract.Event.OnNavToCheckingDetail(it))
                         }
-                        Spacer(modifier = Modifier.size(10.mdp))
-                    }
-                    item {
+                    },
+                    onReachEnd = {
                         onEvent(CheckingContract.Event.OnReachedEnd)
+
                     }
-                    item { Spacer(modifier = Modifier.size(70.mdp)) }
-                }
-                Spacer(modifier = Modifier.size(70.mdp))
+                )
             }
 
             PullRefreshIndicator(refreshing = state.loadingState == Loading.REFRESHING, state = refreshState, modifier = Modifier.align(Alignment.TopCenter) )

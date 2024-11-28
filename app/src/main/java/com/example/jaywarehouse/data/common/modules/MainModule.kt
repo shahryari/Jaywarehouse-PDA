@@ -10,6 +10,7 @@ import com.example.jaywarehouse.data.pallet.palletModule
 import com.example.jaywarehouse.data.picking.pickingModule
 import com.example.jaywarehouse.data.putaway.putawayModule
 import com.example.jaywarehouse.data.receiving.receivingModule
+import com.example.jaywarehouse.data.rs.rSModule
 import com.example.jaywarehouse.data.shipping.shippingModule
 import com.example.jaywarehouse.data.transfer.transferModule
 import com.example.jaywarehouse.presentation.auth.LoginViewModel
@@ -28,9 +29,9 @@ import com.example.jaywarehouse.presentation.manual_putaway.viewmodels.ManualPut
 import com.example.jaywarehouse.presentation.pallet.PalletConfirmViewModel
 import com.example.jaywarehouse.presentation.picking.viewModels.PickingDetailViewModel
 import com.example.jaywarehouse.presentation.picking.viewModels.PickingViewModel
-import com.example.jaywarehouse.presentation.profile.ProfileViewModel
 import com.example.jaywarehouse.presentation.putaway.viewmodels.PutawayDetailViewModel
 import com.example.jaywarehouse.presentation.putaway.viewmodels.PutawayViewModel
+import com.example.jaywarehouse.presentation.rs.RSIntegrationViewModel
 import com.example.jaywarehouse.presentation.shipping.viewmodels.ShippingViewModel
 import com.example.jaywarehouse.presentation.transfer.viewmodels.TransferViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -50,7 +51,8 @@ val mainModule = module {
         checkingModule,
         palletModule,
         loadingModule,
-        cycleModule
+        cycleModule,
+        rSModule
     )
 
     viewModel {
@@ -102,10 +104,6 @@ val mainModule = module {
     }
 
     viewModel {
-        ProfileViewModel(get(),get())
-    }
-
-    viewModel {
         CheckingViewModel(get(),get())
     }
 
@@ -135,5 +133,9 @@ val mainModule = module {
 
     viewModel {
         CycleDetailViewModel(get(),get(),it.get())
+    }
+
+    viewModel {
+        RSIntegrationViewModel(get(),get())
     }
 }

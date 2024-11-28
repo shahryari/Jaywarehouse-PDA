@@ -42,6 +42,7 @@ import com.example.jaywarehouse.R
 import com.example.jaywarehouse.data.common.utils.mdp
 import com.example.jaywarehouse.data.receiving.model.ReceivingRow
 import com.example.jaywarehouse.presentation.common.composables.DetailCard
+import com.example.jaywarehouse.presentation.common.composables.MyLazyColumn
 import com.example.jaywarehouse.presentation.common.composables.MyScaffold
 import com.example.jaywarehouse.presentation.common.composables.MyText
 import com.example.jaywarehouse.presentation.common.composables.SearchInput
@@ -146,21 +147,18 @@ private fun CountingContent(
                     focusRequester = searchFocusRequester
                 )
                 Spacer(modifier = Modifier.size(15.mdp))
-                LazyColumn(Modifier
-                    .fillMaxSize()
-                ) {
-                    items(state.countingList){
-                        CountListItem(it){
+                MyLazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    items = state.countingList,
+                    itemContent = {_,it->
+                        CountListItem(it) {
                             onEvent(CountingContract.Event.OnNavToReceivingDetail(it))
                         }
-                        Spacer(modifier = Modifier.size(10.mdp))
-                    }
-                    item {
+                    },
+                    onReachEnd = {
                         onEvent(CountingContract.Event.OnListEndReached)
                     }
-                    item { Spacer(modifier = Modifier.size(70.mdp)) }
-                }
-                Spacer(modifier = Modifier.size(70.mdp))
+                )
             }
 
             PullRefreshIndicator(refreshing = state.loadingState == Loading.REFRESHING, state = refreshState, modifier = Modifier.align(Alignment.TopCenter) )
@@ -300,8 +298,11 @@ private fun CountingPreview() {
         state = CountingContract.State(
             countingList = listOf(
                 ReceivingRow(receivingDate = "today", supplierFullName = "test", countedQuantity = 50, receivingDetailSumQuantity = 20, receivingDetailCount = 13, referenceNumber = "353523525", receivingID = 0, receivingTypeTitle = "general", receivingTypeID = 3, total = 0, count = 0),
+                ReceivingRow(receivingDate = "today", supplierFullName = "test", countedQuantity = 50, receivingDetailSumQuantity = 20, receivingDetailCount = 13, referenceNumber = "353523525", receivingID = 0, receivingTypeTitle = "general", receivingTypeID = 3, total = 0, count = 0),
+                ReceivingRow(receivingDate = "today", supplierFullName = "test", countedQuantity = 50, receivingDetailSumQuantity = 20, receivingDetailCount = 13, referenceNumber = "353523525", receivingID = 0, receivingTypeTitle = "general", receivingTypeID = 3, total = 0, count = 0),
+                ReceivingRow(receivingDate = "today", supplierFullName = "test", countedQuantity = 50, receivingDetailSumQuantity = 20, receivingDetailCount = 13, referenceNumber = "353523525", receivingID = 0, receivingTypeTitle = "general", receivingTypeID = 3, total = 0, count = 0),
+                ReceivingRow(receivingDate = "today", supplierFullName = "test", countedQuantity = 50, receivingDetailSumQuantity = 20, receivingDetailCount = 13, referenceNumber = "353523525", receivingID = 0, receivingTypeTitle = "general", receivingTypeID = 3, total = 0, count = 0)
             ),
-            showSortList = true
         )
     )
 }

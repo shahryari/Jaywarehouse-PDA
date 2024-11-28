@@ -41,6 +41,7 @@ import com.example.jaywarehouse.data.common.utils.mdp
 import com.example.jaywarehouse.R
 import com.example.jaywarehouse.data.picking.models.PickingListGroupedRow
 import com.example.jaywarehouse.presentation.common.composables.DetailCard
+import com.example.jaywarehouse.presentation.common.composables.MyLazyColumn
 import com.example.jaywarehouse.presentation.common.composables.MyScaffold
 import com.example.jaywarehouse.presentation.common.composables.MyText
 import com.example.jaywarehouse.presentation.common.composables.SearchInput
@@ -142,21 +143,18 @@ fun PickingContent(
                     focusRequester = searchFocusRequester
                 )
                 Spacer(modifier = Modifier.size(15.mdp))
-                LazyColumn(Modifier
-                    .fillMaxSize()
-                ) {
-                    items(state.pickings){
+                MyLazyColumn(
+                    modifier=  Modifier.fillMaxSize(),
+                    items = state.pickings,
+                    itemContent = {_,it->
                         PickingItem(it) {
                             onEvent(PickingContract.Event.OnNavToPickingDetail(it))
                         }
-                        Spacer(modifier = Modifier.size(10.mdp))
-                    }
-                    item {
+                    },
+                    onReachEnd = {
                         onEvent(PickingContract.Event.OnReachedEnd)
                     }
-                    item { Spacer(modifier = Modifier.size(70.mdp)) }
-                }
-                Spacer(modifier = Modifier.size(70.mdp))
+                )
             }
 
             PullRefreshIndicator(refreshing = state.loadingState == Loading.REFRESHING, state = refreshState, modifier = Modifier.align(Alignment.TopCenter) )

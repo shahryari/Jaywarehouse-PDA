@@ -519,6 +519,30 @@ class Prefs(private val context: Context) {
     }
 
 
+    //rs integration
+    fun setRSSort(sort: String) {
+        with(preferences.edit()){
+            putString("rsSort",sort)
+            apply()
+        }
+    }
+
+    fun getRSSort() : String {
+        return preferences.getString("rsSort", DEFAULT_SORT) ?: DEFAULT_SORT
+    }
+
+    fun setRSOrder(order: String) {
+        with(preferences.edit()){
+            putString("rsOrder",order)
+            apply()
+        }
+    }
+
+    fun getRSOrder() : String {
+        return preferences.getString("rsOrder", Order.Desc.value) ?: Order.Desc.value
+    }
+
+
 
 
     //lock keyboard

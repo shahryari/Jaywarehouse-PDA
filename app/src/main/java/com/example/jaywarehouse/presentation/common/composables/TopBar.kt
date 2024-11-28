@@ -1,5 +1,8 @@
 package com.example.jaywarehouse.presentation.common.composables
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -38,67 +41,72 @@ fun TopBar(
     endIcon: Int? = null,
     onEndClick: ()-> Unit = {}
 ) {
-    Row(modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween
+    AnimatedVisibility(
+        true,
+        enter = slideInVertically(initialOffsetY = {it}),
+        exit = slideOutVertically(targetOffsetY = {it})
     ) {
-        Box(
-            modifier =Modifier
-                .shadow(1.mdp,RoundedCornerShape(6.mdp))
-                .clip(RoundedCornerShape(6.mdp))
-                .background(Color.White)
-                .clickable {
-                    onBack()
-                }
-                .padding(12.mdp)
-        ) {
-            Icon(
-                Icons.AutoMirrored.Default.KeyboardArrowLeft,
-                contentDescription = "",
-                modifier = Modifier.size(24.mdp),
-                tint = Black
-            )
-        }
-        Spacer(Modifier.size(5.mdp))
-        Column(
-            modifier = Modifier.weight(1f),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            MyText(
-                text = title,
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.W400,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-            if (subTitle.isNotEmpty())Spacer(Modifier.size(3.mdp))
-            if (subTitle.isNotEmpty())MyText(
-                text = subTitle,
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.W500,
-                color = Border
-            )
-        }
-        Spacer(Modifier.size(5.mdp))
-        if (endIcon!=null){
+        Row(modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
             Box(
                 modifier =Modifier
                     .shadow(1.mdp,RoundedCornerShape(6.mdp))
                     .clip(RoundedCornerShape(6.mdp))
-                    .background(Primary)
+                    .background(Color.White)
                     .clickable {
-                        onEndClick()
+                        onBack()
                     }
                     .padding(12.mdp)
             ) {
                 Icon(
-                    painterResource(endIcon),
+                    Icons.AutoMirrored.Default.KeyboardArrowLeft,
                     contentDescription = "",
                     modifier = Modifier.size(24.mdp),
-                    tint = Color.White
+                    tint = Black
                 )
             }
-        } else {
+            Spacer(Modifier.size(5.mdp))
+            Column(
+                modifier = Modifier.weight(1f),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                MyText(
+                    text = title,
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.W400,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                if (subTitle.isNotEmpty())Spacer(Modifier.size(3.mdp))
+                if (subTitle.isNotEmpty())MyText(
+                    text = subTitle,
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.W500,
+                    color = Border
+                )
+            }
+            Spacer(Modifier.size(5.mdp))
+            if (endIcon!=null){
+                Box(
+                    modifier =Modifier
+                        .shadow(1.mdp,RoundedCornerShape(6.mdp))
+                        .clip(RoundedCornerShape(6.mdp))
+                        .background(Primary)
+                        .clickable {
+                            onEndClick()
+                        }
+                        .padding(12.mdp)
+                ) {
+                    Icon(
+                        painterResource(endIcon),
+                        contentDescription = "",
+                        modifier = Modifier.size(24.mdp),
+                        tint = Color.White
+                    )
+                }
+            } else {
 
-            Spacer(Modifier.size(48.mdp))
+                Spacer(Modifier.size(48.mdp))
+            }
         }
     }
 }

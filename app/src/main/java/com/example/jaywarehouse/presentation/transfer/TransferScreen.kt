@@ -45,10 +45,13 @@ import com.example.jaywarehouse.R
 import com.example.jaywarehouse.data.putaway.model.PutawayListGroupedRow
 import com.example.jaywarehouse.data.transfer.models.TransferRow
 import com.example.jaywarehouse.presentation.common.composables.AutoDropDownTextField
+import com.example.jaywarehouse.presentation.common.composables.BaseListItemModel
 import com.example.jaywarehouse.presentation.common.composables.DatePickerDialog
 import com.example.jaywarehouse.presentation.common.composables.DetailCard
 import com.example.jaywarehouse.presentation.common.composables.InputTextField
+import com.example.jaywarehouse.presentation.common.composables.MainListItem
 import com.example.jaywarehouse.presentation.common.composables.MyButton
+import com.example.jaywarehouse.presentation.common.composables.MyLazyColumn
 import com.example.jaywarehouse.presentation.common.composables.MyScaffold
 import com.example.jaywarehouse.presentation.common.composables.MyText
 import com.example.jaywarehouse.presentation.common.composables.SearchInput
@@ -157,21 +160,18 @@ fun PutawayContent(
                     focusRequester = searchFocusRequester
                 )
                 Spacer(modifier = Modifier.size(15.mdp))
-                LazyColumn(Modifier
-                    .fillMaxSize()
-                ) {
-                    items(state.transferList){
+                MyLazyColumn(
+                    Modifier.fillMaxSize(),
+                    items = state.transferList,
+                    itemContent = {_,it->
                         TransferItem(it) {
                             onEvent(TransferContract.Event.OnSelectTransfer(it))
                         }
-                        Spacer(modifier = Modifier.size(10.mdp))
-                    }
-                    item {
+                    },
+                    onReachEnd = {
                         onEvent(TransferContract.Event.OnReachedEnd)
                     }
-                    item { Spacer(modifier = Modifier.size(70.mdp)) }
-                }
-                Spacer(modifier = Modifier.size(70.mdp))
+                )
             }
 
             PullRefreshIndicator(refreshing = state.loadingState == Loading.REFRESHING, state = refreshState, modifier = Modifier.align(Alignment.TopCenter) )
@@ -190,6 +190,7 @@ fun PutawayContent(
             }
         )
     }
+    TransferBottomSheet(state,onEvent)
 }
 
 
@@ -198,116 +199,17 @@ fun TransferItem(
     model: TransferRow,
     onClick:()->Unit
 ) {
-    Column(
-        Modifier
-            .shadow(1.mdp, RoundedCornerShape(6.mdp))
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(6.mdp))
-            .background(Color.White)
-            .clickable {
-                onClick()
-            }
-    ) {
-        Column(
-            Modifier
-                .fillMaxWidth()
-                .background(Color.White)
-                .padding(15.mdp)
-        ) {
-            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
-
-                Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(4.mdp))
-                        .background(Primary.copy(0.2f))
-                        .padding(vertical = 4.mdp, horizontal = 10.mdp)
-                ) {
-                    MyText(
-                        text = model.expireDate,
-                        style = MaterialTheme.typography.labelSmall,
-                        fontWeight = FontWeight.W500,
-                        color = Primary
-                    )
-                }
-                Row {
-                    Icon(
-                        painter = painterResource(R.drawable.barcode),
-                        contentDescription = "",
-                        modifier = Modifier.size(16.mdp),
-                        tint = Black
-                    )
-                    Spacer(Modifier.size(3.mdp))
-                    MyText(
-                        text = "#${model.productBarcodeNumber?:""}",
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.SemiBold,
-                    )
-                }
-
-            }
-            Spacer(modifier = Modifier.size(10.mdp))
-            DetailCard(
-                "Product Name",
-                icon = R.drawable.barcode,
-                detail = model.productName
-            )
-            Spacer(modifier = Modifier.size(10.mdp))
-            DetailCard(
-                "Location",
-                icon = R.drawable.location,
-                detail = model.warehouseLocationCode
-            )
-            Spacer(modifier = Modifier.size(15.mdp))
-
-        }
-        Row(
-            Modifier
-                .fillMaxWidth()
-        ) {
-            Row(
-                Modifier
-                    .weight(1f)
-                    .background(Primary)
-                    .padding(vertical = 7.mdp, horizontal = 10.mdp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.vuesax_outline_box_tick),
-                    contentDescription = "",
-                    modifier = Modifier.size(28.mdp),
-                    tint = Color.White
-                )
-                Spacer(modifier = Modifier.size(7.mdp))
-                MyText(
-                    text = "Real: "+model.realInventory,
-                    color = Color.White,
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Medium
-                )
-            }
-            Row(
-                Modifier
-                    .weight(1f)
-                    .background(Primary.copy(0.2f))
-                    .padding(vertical = 7.mdp, horizontal = 10.mdp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.scanner),
-                    contentDescription = "",
-                    modifier = Modifier.size(28.mdp),
-                    tint = Primary
-                )
-                Spacer(modifier = Modifier.size(7.mdp))
-                MyText(
-                    text = "Available: " + model.availableInventory,
-                    color = Primary,
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Medium
-                )
-            }
-        }
-    }
+    MainListItem(
+        onClick = onClick,
+        typeTitle = model.expireDate,
+        modelNumber = model.productBarcodeNumber,
+        item1 = BaseListItemModel("Product Name",model.productName, R.drawable.barcode),
+        item2 = BaseListItemModel("Location",model.warehouseLocationCode, R.drawable.location),
+        totalTitle = "Real",
+        total = model.realInventory.toString(),
+        countTitle = "Available",
+        count = model.availableInventory.toString()
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

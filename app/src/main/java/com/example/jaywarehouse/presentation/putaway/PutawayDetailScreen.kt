@@ -40,6 +40,7 @@ import com.example.jaywarehouse.presentation.common.composables.BaseListItemMode
 import com.example.jaywarehouse.presentation.common.composables.DetailCard
 import com.example.jaywarehouse.presentation.common.composables.InputTextField
 import com.example.jaywarehouse.presentation.common.composables.MyButton
+import com.example.jaywarehouse.presentation.common.composables.MyLazyColumn
 import com.example.jaywarehouse.presentation.common.composables.MyScaffold
 import com.example.jaywarehouse.presentation.common.composables.MyText
 import com.example.jaywarehouse.presentation.common.composables.SearchInput
@@ -160,20 +161,19 @@ fun PutawayDetailContent(
                 )
 
                 Spacer(modifier = Modifier.size(20.mdp))
-                LazyColumn(Modifier.fillMaxSize()) {
-                    items(state.putaways){
+                MyLazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    items = state.putaways,
+                    itemContent = {_,it->
                         PutawayDetailItem(it){
                             onEvent(PutawayDetailContract.Event.OnSelectPut(it))
                         }
-                        Spacer(modifier = Modifier.size(7.mdp))
-                    }
-                    item {
+                    },
+                    onReachEnd = {
                         onEvent(PutawayDetailContract.Event.OnReachEnd)
-                    }
-                    item {
-                        Spacer(modifier = Modifier.size(70.mdp))
-                    }
-                }
+                    },
+                    spacerSize = 7.mdp
+                )
             }
             PullRefreshIndicator(refreshing = state.loadingState == Loading.REFRESHING, state = refreshState, modifier = Modifier.align(
                 Alignment.TopCenter) )

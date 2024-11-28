@@ -37,6 +37,7 @@ import com.example.jaywarehouse.presentation.common.composables.DatePickerDialog
 import com.example.jaywarehouse.presentation.common.composables.DetailItem
 import com.example.jaywarehouse.presentation.common.composables.InputTextField
 import com.example.jaywarehouse.presentation.common.composables.MyIcon
+import com.example.jaywarehouse.presentation.common.composables.MyLazyColumn
 import com.example.jaywarehouse.presentation.common.composables.MyScaffold
 import com.example.jaywarehouse.presentation.common.composables.MyText
 import com.example.jaywarehouse.presentation.common.composables.TopBar
@@ -116,8 +117,16 @@ fun CountingInceptionContent(
                 }
             )
             Spacer(Modifier.size(20.mdp))
-            LazyColumn {
-                stickyHeader{
+            val list = state.details.filterNot { it.entityState == "Deleted" }
+
+            MyLazyColumn(
+                items = list.reversed(),
+                itemContent = {i,it->
+                    CountingInceptionDetailItem(list.size-i,it,it == state.selectedItem){
+                        onEvent(CountingInceptionContract.Event.OnSelectedItem(it))
+                    }
+                },
+                header = {
                     Column {
                         if (state.countingDetailRow!=null){
                             CountingDetailItem(state.countingDetailRow){}
@@ -206,15 +215,11 @@ fun CountingInceptionContent(
                         }
                         Spacer(Modifier.size(20.mdp))
                     }
-                }
-                val list = state.details.filterNot { it.entityState == "Deleted" }
-                itemsIndexed(list.reversed()){i,it->
-                    CountingInceptionDetailItem(list.size-i,it,it == state.selectedItem){
-                        onEvent(CountingInceptionContract.Event.OnSelectedItem(it))
-                    }
-                    Spacer(Modifier.size(5.mdp))
-                }
-            }
+
+                },
+                onReachEnd = {},
+                spacerSize = 5.mdp
+            )
         }
     }
     if (state.showDatePicker) {

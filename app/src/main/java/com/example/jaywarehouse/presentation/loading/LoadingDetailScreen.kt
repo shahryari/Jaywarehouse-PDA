@@ -34,6 +34,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.jaywarehouse.data.common.utils.mdp
 import com.example.jaywarehouse.data.loading.models.LoadingListGroupedRow
 import com.example.jaywarehouse.data.pallet.model.PalletConfirmRow
+import com.example.jaywarehouse.presentation.common.composables.MyLazyColumn
 import com.example.jaywarehouse.presentation.common.composables.MyScaffold
 import com.example.jaywarehouse.presentation.common.composables.MyText
 import com.example.jaywarehouse.presentation.common.composables.SearchInput
@@ -143,20 +144,20 @@ fun LoadingDetailContent(
                 )
 
                 Spacer(modifier = Modifier.size(20.mdp))
-                LazyColumn(Modifier.fillMaxSize()) {
-                    items(state.details){
+                MyLazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    items = state.details,
+                    itemContent = {_,it->
                         LoadingDetailItem(it){
                             onEvent(LoadingDetailContract.Event.OnSelectDetail(it))
                         }
-                        Spacer(modifier = Modifier.size(7.mdp))
-                    }
-                    item {
+                    },
+                    onReachEnd = {
                         onEvent(LoadingDetailContract.Event.OnReachEnd)
-                    }
-                    item {
-                        Spacer(modifier = Modifier.size(70.mdp))
-                    }
-                }
+
+                    },
+                    spacerSize = 7.mdp
+                )
             }
             PullRefreshIndicator(refreshing = state.loadingState == Loading.REFRESHING, state = refreshState, modifier = Modifier.align(
                 Alignment.TopCenter) )

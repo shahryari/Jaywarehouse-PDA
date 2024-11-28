@@ -38,7 +38,9 @@ import com.example.jaywarehouse.presentation.common.composables.BaseListItemMode
 import com.example.jaywarehouse.presentation.common.composables.DatePickerDialog
 import com.example.jaywarehouse.presentation.common.composables.InputTextField
 import com.example.jaywarehouse.presentation.common.composables.MyButton
+import com.example.jaywarehouse.presentation.common.composables.MyLazyColumn
 import com.example.jaywarehouse.presentation.common.composables.MyScaffold
+import com.example.jaywarehouse.presentation.common.composables.MyText
 import com.example.jaywarehouse.presentation.common.composables.SearchInput
 import com.example.jaywarehouse.presentation.common.composables.SortBottomSheet
 import com.example.jaywarehouse.presentation.common.composables.TopBar
@@ -147,20 +149,19 @@ fun CycleDetailContent(
                 )
 
                 Spacer(modifier = Modifier.size(20.mdp))
-                LazyColumn(Modifier.fillMaxSize()) {
-                    items(state.details){
+                MyLazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    items = state.details,
+                    itemContent = {_,it->
                         LoadingDetailItem(it){
                             onEvent(CycleDetailContract.Event.OnSelectDetail(it))
                         }
-                        Spacer(modifier = Modifier.size(7.mdp))
-                    }
-                    item {
+                    },
+                    onReachEnd = {
                         onEvent(CycleDetailContract.Event.OnReachEnd)
-                    }
-                    item {
-                        Spacer(modifier = Modifier.size(70.mdp))
-                    }
-                }
+                    },
+                    spacerSize = 7.mdp
+                )
             }
             PullRefreshIndicator(refreshing = state.loadingState == Loading.REFRESHING, state = refreshState, modifier = Modifier.align(
                 Alignment.TopCenter) )
@@ -339,17 +340,6 @@ fun AddBottomSheet(
             ) {
                 Row(Modifier.fillMaxWidth()) {
                     InputTextField(
-                        state.locationCode,
-                        onValueChange = {
-                            onEvent(CycleDetailContract.Event.OnChangeLocationCode(it))
-                        },
-                        modifier = Modifier.weight(1f),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        leadingIcon = R.drawable.location,
-                        label = "Location",
-                    )
-                    Spacer(Modifier.size(5.mdp))
-                    InputTextField(
                         state.quantityInPacket,
                         onValueChange = {
                             onEvent(CycleDetailContract.Event.OnChangeBarcode(it))
@@ -371,17 +361,6 @@ fun AddBottomSheet(
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         leadingIcon = R.drawable.box_search,
                         label = "Quantity",
-                    )
-                    Spacer(Modifier.size(5.mdp))
-                    InputTextField(
-                        state.quantityInPacket,
-                        onValueChange = {
-                            onEvent(CycleDetailContract.Event.OnChangeQuantityInPacket(it))
-                        },
-                        modifier = Modifier.weight(1f),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        leadingIcon = R.drawable.barcode,
-                        label = "Quantity In Packet",
                     )
                 }
                 Spacer(Modifier.size(10.mdp))

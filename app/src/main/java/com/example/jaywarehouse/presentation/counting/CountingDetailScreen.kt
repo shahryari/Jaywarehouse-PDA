@@ -36,6 +36,7 @@ import com.example.jaywarehouse.data.receiving.model.ReceivingRow
 import com.example.jaywarehouse.presentation.common.composables.BaseListItem
 import com.example.jaywarehouse.presentation.common.composables.BaseListItemModel
 import com.example.jaywarehouse.presentation.common.composables.BasicDialog
+import com.example.jaywarehouse.presentation.common.composables.MyLazyColumn
 import com.example.jaywarehouse.presentation.common.composables.MyScaffold
 import com.example.jaywarehouse.presentation.common.composables.MyText
 import com.example.jaywarehouse.presentation.common.composables.SearchInput
@@ -147,20 +148,19 @@ fun CountingDetailContent(
                 )
 
                 Spacer(modifier = Modifier.size(20.mdp))
-                LazyColumn(Modifier.fillMaxSize()) {
-                    items(state.countingDetailRow){
+                MyLazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    items = state.countingDetailRow,
+                    itemContent = {_,it->
                         CountingDetailItem(it) {
                             onEvent(CountingDetailContract.Event.OnDetailClick(it))
                         }
-                        Spacer(modifier = Modifier.size(7.mdp))
+                    },
+                    spacerSize = 7.mdp,
+                    onReachEnd = {
+
                     }
-                    item {
-                        onEvent(CountingDetailContract.Event.OnReachedEnd)
-                    }
-                    item {
-                        Spacer(modifier = Modifier.size(70.mdp))
-                    }
-                }
+                )
             }
             PullRefreshIndicator(refreshing = state.loadingState == Loading.REFRESHING, state = refreshState, modifier = Modifier.align(Alignment.TopCenter) )
             Column(Modifier.align(Alignment.BottomCenter)) {

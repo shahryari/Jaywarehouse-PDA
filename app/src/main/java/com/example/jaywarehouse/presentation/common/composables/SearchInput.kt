@@ -1,6 +1,11 @@
 package com.example.jaywarehouse.presentation.common.composables
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -42,6 +47,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import com.example.jaywarehouse.data.common.utils.mdp
 import com.example.jaywarehouse.R
 import com.example.jaywarehouse.ui.theme.Border
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -73,94 +79,101 @@ fun SearchInput(
 //    if (isFocused && hideKeyboard) SideEffect {
 //        hideKeyboard(activity)
 //    }
-    Box {
-        BasicTextField(value,
-            onValueChange = {
-                if(!isLoading){
-                    if (it.text.endsWith('\n') || it.text.endsWith('\r')) {
-                        onSearch(it)
-                    } else {
-                        onValueChange(it)
-                    }
-                }
-            },
-            modifier = Modifier
-                .onKeyEvent {
-                    if (it.key == Key.Enter && it.type == KeyEventType.KeyUp) {
-                        onSearch(value)
-                        true
-                    } else {
-                        false
-                    }
-                }
-                .focusRequester(focusRequester)
-                .onFocusChanged {
-                    if (it.isFocused && hideKeyboard) {
-                        keyboardController?.hide()
-                    }
-                    isFocused = it.isFocused
-                }
 
-            ,
-            maxLines = 1,
-            decorationBox = {
-                Row(
-                    modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(6.mdp))
-                        .background(Color.White)
-                        .border(1.mdp, Border, RoundedCornerShape(6.mdp))
-                        .padding(vertical = 9.mdp, horizontal = 10.mdp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
+    AnimatedVisibility(
+        true,
+        enter = slideInVertically(initialOffsetY = {it }) + fadeIn(),
+        exit = slideOutVertically(targetOffsetY = {it}) + fadeOut()
+    ) {
+        Box {
+            BasicTextField(value,
+                onValueChange = {
+                    if(!isLoading){
+                        if (it.text.endsWith('\n') || it.text.endsWith('\r')) {
+                            onSearch(it)
+                        } else {
+                            onValueChange(it)
+                        }
+                    }
+                },
+                modifier = Modifier
+                    .onKeyEvent {
+                        if (it.key == Key.Enter && it.type == KeyEventType.KeyUp) {
+                            onSearch(value)
+                            true
+                        } else {
+                            false
+                        }
+                    }
+                    .focusRequester(focusRequester)
+                    .onFocusChanged {
+                        if (it.isFocused && hideKeyboard) {
+                            keyboardController?.hide()
+                        }
+                        isFocused = it.isFocused
+                    }
+
+                ,
+                maxLines = 1,
+                decorationBox = {
                     Row(
-                        modifier = Modifier.weight(1f),
-                        verticalAlignment = Alignment.CenterVertically
+                        modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(6.mdp))
+                            .background(Color.White)
+                            .border(1.mdp, Border, RoundedCornerShape(6.mdp))
+                            .padding(vertical = 9.mdp, horizontal = 10.mdp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterStart){
-                            if (value.text.isEmpty()) {
-                                MyText(
-                                    text = "Search Keyword ...",
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    fontWeight = FontWeight.Normal,
-                                    color = Color.LightGray
-                                )
+                        Row(
+                            modifier = Modifier.weight(1f),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterStart){
+                                if (value.text.isEmpty()) {
+                                    MyText(
+                                        text = "Search Keyword ...",
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        fontWeight = FontWeight.Normal,
+                                        color = Color.LightGray
+                                    )
+                                }
+                                it()
+                                if (isFocused && hideKeyboard)Box(modifier = Modifier
+                                    .matchParentSize()
+                                    .fillMaxWidth()
+                                    .clip(
+                                        RoundedCornerShape(10.mdp)
+                                    )
+                                    .clickable { })
                             }
-                            it()
-                            if (isFocused && hideKeyboard)Box(modifier = Modifier
-                                .matchParentSize()
-                                .fillMaxWidth()
-                                .clip(
-                                    RoundedCornerShape(10.mdp)
-                                )
-                                .clickable { })
-                        }
 
-                    }
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        if (value.text.isNotEmpty()) MyIcon(icon = R.drawable.vuesax_bulk_broom) {
-                            onValueChange(TextFieldValue())
-                            onSearch(TextFieldValue())
                         }
-                        Spacer(modifier = Modifier.size(5.mdp))
-                        AnimatedContent(targetState = isLoading, label = "") {
-                            if (it){
-                                RefreshIcon(isRefreshing = true)
-                            }else {
-                                MyIcon(icon = R.drawable.vuesax_linear_search_normal) {
-                                    onSearch(value)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            if (value.text.isNotEmpty()) MyIcon(icon = R.drawable.vuesax_bulk_broom) {
+                                onValueChange(TextFieldValue())
+                                onSearch(TextFieldValue())
+                            }
+                            Spacer(modifier = Modifier.size(5.mdp))
+                            AnimatedContent(targetState = isLoading, label = "") {
+                                if (it){
+                                    RefreshIcon(isRefreshing = true)
+                                }else {
+                                    MyIcon(icon = R.drawable.vuesax_linear_search_normal) {
+                                        onSearch(value)
+                                    }
                                 }
                             }
-                        }
-                        if (showSortIcon)Spacer(modifier = Modifier.size(5.mdp))
-                        if (showSortIcon)MyIcon(icon = R.drawable.vuesax_linear_sort) {
-                            onSortClick()
+                            if (showSortIcon)Spacer(modifier = Modifier.size(5.mdp))
+                            if (showSortIcon)MyIcon(icon = R.drawable.vuesax_linear_sort) {
+                                onSortClick()
+                            }
                         }
                     }
                 }
-            }
-        )
+            )
 
+        }
     }
 }

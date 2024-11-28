@@ -23,6 +23,8 @@ val Gray4 = Color(0xFFEAEAEA)
 val Gray5 = Color(0xFF949494)
 
 val Primary = Color(0xFF6DAB6C)
+val PrimaryDark = Color(0xFF416751)
+val PrimaryContainer = Color(0xFFE2EEE2)
 val Border = Color(0xFFA9A9A9)
 val Background = Color(0xFFF4F4F4)
 

@@ -35,6 +35,7 @@ import com.example.jaywarehouse.data.manual_putaway.repository.ManualPutawayRow
 import com.example.jaywarehouse.presentation.common.composables.DetailItem
 import com.example.jaywarehouse.presentation.common.composables.InputTextField
 import com.example.jaywarehouse.presentation.common.composables.MyIcon
+import com.example.jaywarehouse.presentation.common.composables.MyLazyColumn
 import com.example.jaywarehouse.presentation.common.composables.MyScaffold
 import com.example.jaywarehouse.presentation.common.composables.MyText
 import com.example.jaywarehouse.presentation.common.composables.SearchInput
@@ -127,8 +128,16 @@ private fun ManualPutawayDetailContent(
                 isLoading = state.loadingState == Loading.SEARCHING
             )
             Spacer(Modifier.size(10.mdp))
-            LazyColumn {
-                stickyHeader{
+            MyLazyColumn(
+                items = state.details.reversed(),
+                itemContent = {i,it->
+                    ManualPutawayDetailItem(state.details.size-i,it,selected = it == state.selectedDetail){
+                        onEvent(ManualPutawayDetailContract.Event.OnSelectDetail(it))
+                    }
+                },
+                onReachEnd = {},
+                spacerSize = 5.mdp,
+                header = {
                     Column {
                         if (state.putaway!=null){
                             ManualPutawayItem(state.putaway){}
@@ -200,13 +209,7 @@ private fun ManualPutawayDetailContent(
                         Spacer(Modifier.size(20.mdp))
                     }
                 }
-                itemsIndexed(state.details.reversed()){i,it->
-                    ManualPutawayDetailItem(state.details.size-i,it,selected = it == state.selectedDetail){
-                        onEvent(ManualPutawayDetailContract.Event.OnSelectDetail(it))
-                    }
-                    Spacer(Modifier.size(5.mdp))
-                }
-            }
+            )
         }
     }
     if (state.showSortList){

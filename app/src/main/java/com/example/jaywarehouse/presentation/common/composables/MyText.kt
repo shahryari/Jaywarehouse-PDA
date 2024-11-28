@@ -25,7 +25,7 @@ fun MyText(
     color: Color = Black,
     fontSize: TextUnit = TextUnit.Unspecified,
     fontStyle: FontStyle? = null,
-    fontWeight: FontWeight? = FontWeight.Light,
+    fontWeight: FontWeight? = FontWeight.W500,
     fontFamily: FontFamily = roboto,
     letterSpacing: TextUnit = TextUnit.Unspecified,
     textDecoration: TextDecoration? = null,
