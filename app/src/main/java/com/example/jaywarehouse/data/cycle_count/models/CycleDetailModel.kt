@@ -13,7 +13,7 @@ data class CycleDetailRow(
     @SerializedName("ProductCode") val productCode: String?,
     @SerializedName("ProductBarcodeNumber") val productBarcodeNumber: String?,
     @SerializedName("ProductBarcodeID") val productBarcodeId: String?,
-    @SerializedName("StockTakingWorkerTaskID") val stockTakingWorkerTaskId: Int,
+    @SerializedName("StockTakingWorkerTaskID") val stockTakingWorkerTaskId: String,
     @SerializedName("WarehouseLocationCode") val warehouseLocationCode: String?,
     @SerializedName("WarehouseLocationID") val warehouseLocationId: Int,
     @SerializedName("Total") val total: Int,

@@ -44,7 +44,7 @@ class CycleRepository(
     }
 
     fun updateQuantity(
-        stockTakingWorkerTaskID: Int,
+        stockTakingWorkerTaskID: String,
         quantity: Int,
         quantityInPacket: Int,
         expireDate: String,
