@@ -9,6 +9,6 @@ data class CycleModel (
 )
 
 data class CycleRow(
-    @SerializedName("StockTakingID") val stockTakingID: Int,
+    @SerializedName("StockTakingID") val stockTakingID: String,
     @SerializedName("CustomerName") val customerName: String
 ) : Serializable

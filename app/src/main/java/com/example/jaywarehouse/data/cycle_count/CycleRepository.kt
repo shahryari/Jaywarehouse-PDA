@@ -28,7 +28,7 @@ class CycleRepository(
 
     fun getStockTakingWorkerTaskList(
         keyword: String,
-        stockTakingId: Int,
+        stockTakingId: String,
         page: Int,
         sort: String,
         order: String
