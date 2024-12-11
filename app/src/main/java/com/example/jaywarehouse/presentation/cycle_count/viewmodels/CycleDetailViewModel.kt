@@ -10,6 +10,7 @@ import com.example.jaywarehouse.data.cycle_count.models.CycleRow
 import com.example.jaywarehouse.data.loading.LoadingRepository
 import com.example.jaywarehouse.data.loading.models.LoadingListGroupedRow
 import com.example.jaywarehouse.data.pallet.model.PalletConfirmRow
+import com.example.jaywarehouse.data.transfer.TransferRepository
 import com.example.jaywarehouse.presentation.common.utils.BaseViewModel
 import com.example.jaywarehouse.presentation.common.utils.Loading
 import com.example.jaywarehouse.presentation.common.utils.Order
@@ -22,6 +23,7 @@ import kotlinx.coroutines.launch
 
 class CycleDetailViewModel(
     private val repository: CycleRepository,
+    private val transferRepo: TransferRepository,
     private val prefs: Prefs,
     private val row: CycleRow,
 ) : BaseViewModel<CycleDetailContract.Event,CycleDetailContract.State,CycleDetailContract.Effect>(){
@@ -127,12 +129,17 @@ class CycleDetailViewModel(
             }
 
             is CycleDetailContract.Event.OnShowAddDialog -> {
+                if (event.show){
+                    getStatusList()
+                }
                 setState {
                     copy(
                         showAddDialog = event.show,
                         locationCode = TextFieldValue(),
                         barcode = TextFieldValue(),
                         quantity = TextFieldValue(),
+                        status = TextFieldValue(),
+                        selectedStatus = null,
                         quantityInPacket = TextFieldValue(),
                         batchNumber = TextFieldValue(),
                         expireDate = TextFieldValue()
@@ -176,14 +183,20 @@ class CycleDetailViewModel(
                     copy(showDatePicker = event.show)
                 }
             }
+
+            is CycleDetailContract.Event.OnSelectStatus -> {
+                setState {
+                    copy(selectedStatus = event.status)
+                }
+            }
         }
     }
 
 
     private fun getDetails() {
         viewModelScope.launch(Dispatchers.IO) {
-            repository.getStockTakingWorkerTaskList(
-                stockTakingId = row.stockTakingID,
+            repository.getCycleCountLocationDetail(
+                cycleCountWorkerTaskID = row.cycleCountWorkerTaskID,
                 keyword = state.keyword.text,
                 sort = state.sort.sort,
                 page = state.page,
@@ -223,46 +236,72 @@ class CycleDetailViewModel(
     }
 
 
-    private fun add(){}
-
-    private fun updateQuantity(item: CycleDetailRow){
-        val quantity = state.quantity.text.toIntOrNull()?:0
-        val quantityInPacket = state.quantityInPacket.text.toIntOrNull() ?: 0
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.updateQuantity(
-                quantity = quantity,
-                quantityInPacket = quantityInPacket,
-                expireDate = state.expireDate.text,
-                stockTakingWorkerTaskID = item.stockTakingWorkerTaskId
-            ).catch {
-                setSuspendedState {
-                    copy(
-                        error = it.message?:""
-                    )
-                }
-            }.collect {
-                when(it){
-                    is BaseResult.Error -> {
-                        setSuspendedState {
-                            copy(
-                                error = it.message
-                            )
-                        }
+    private fun add(){
+        if (state.selectedStatus!=null) {
+            setState { 
+                copy(isAdding = true)
+            }
+            viewModelScope.launch(Dispatchers.IO) {
+                repository.insertTaskDetail(
+                    state.barcode.text,
+                    state.batchNumber.text,
+                    state.expireDate.text,
+                    state.selectedStatus!!.quiddityTypeId.toString(),
+                    state.quantity.text.toInt()
+                ).catch {
+                    setSuspendedState {
+                        copy(error = it.message?:"", isAdding = false)
                     }
-                    is BaseResult.Success -> {
-                        setSuspendedState {
-                            copy(
-                                selectedCycle = null,
-                                loadingState = Loading.LOADING,
-                                page = 1,
-                                details = emptyList()
-                            )
-                        }
-                        getDetails()
+                }.collect {
+                    setSuspendedState { 
+                        copy(isAdding = false)
                     }
-                    BaseResult.UnAuthorized -> TODO()
+                    when(it){
+                        is BaseResult.Error -> {
+                            setSuspendedState {
+                                copy(error = it.message)
+                            }
+                        }
+                        is BaseResult.Success -> {
+                            setSuspendedState {
+                                copy(showAddDialog = false)
+                            }
+                        }
+                        BaseResult.UnAuthorized -> {}
+                    }
                 }
             }
         }
+    }
+
+    private fun getStatusList() {
+
+        viewModelScope.launch(Dispatchers.IO) {
+            transferRepo.getProductStatuses()
+                .catch {
+                    setSuspendedState {
+                        copy(error = it.message?:"")
+                    }
+                }
+                .collect {
+                    when(it){
+                        is BaseResult.Error -> {
+                            setSuspendedState {
+                                copy(error = it.message)
+                            }
+                        }
+                        is BaseResult.Success -> {
+                            setSuspendedState {
+                                copy(statusList = it.data?.rows?: emptyList())
+                            }
+                        }
+                        BaseResult.UnAuthorized -> {}
+                    }
+                }
+        }
+    }
+
+    private fun updateQuantity(item: CycleDetailRow){
+
     }
 }

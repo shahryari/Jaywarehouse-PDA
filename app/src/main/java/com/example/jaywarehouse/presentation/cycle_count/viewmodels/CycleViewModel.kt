@@ -112,7 +112,7 @@ class CycleViewModel(
 
     private fun getCycleList() {
         viewModelScope.launch {
-            repository.getStockTakingList(
+            repository.getCycleCountLocations(
                 keyword = state.keyword.text,state.page,state.sort.sort,state.sort.order.value
             )
                 .catch {

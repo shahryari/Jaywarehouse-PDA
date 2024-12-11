@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
@@ -17,6 +18,8 @@ import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -26,13 +29,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.sp
 import com.example.jaywarehouse.R
 import com.example.jaywarehouse.data.common.utils.mdp
 import com.example.jaywarehouse.data.cycle_count.models.CycleDetailRow
 import com.example.jaywarehouse.data.cycle_count.models.CycleRow
+import com.example.jaywarehouse.presentation.common.composables.AutoDropDownTextField
 import com.example.jaywarehouse.presentation.common.composables.BaseListItem
 import com.example.jaywarehouse.presentation.common.composables.BaseListItemModel
 import com.example.jaywarehouse.presentation.common.composables.DatePickerDialog
@@ -49,8 +55,10 @@ import com.example.jaywarehouse.presentation.common.utils.SIDE_EFFECT_KEY
 import com.example.jaywarehouse.presentation.common.utils.ScreenTransition
 import com.example.jaywarehouse.presentation.cycle_count.contracts.CycleDetailContract
 import com.example.jaywarehouse.presentation.cycle_count.viewmodels.CycleDetailViewModel
+import com.example.jaywarehouse.presentation.shipping.contracts.ShippingContract
 import com.example.jaywarehouse.ui.theme.Gray3
 import com.example.jaywarehouse.ui.theme.Gray5
+import com.example.jaywarehouse.ui.theme.Primary
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.launch
@@ -149,11 +157,12 @@ fun CycleDetailContent(
                 )
 
                 Spacer(modifier = Modifier.size(20.mdp))
+                if (state.cycleRow!=null)CycleItem(state.cycleRow)
                 MyLazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     items = state.details,
                     itemContent = {_,it->
-                        LoadingDetailItem(it){
+                        CycleDetailItem(it){
                             onEvent(CycleDetailContract.Event.OnSelectDetail(it))
                         }
                     },
@@ -165,6 +174,29 @@ fun CycleDetailContent(
             }
             PullRefreshIndicator(refreshing = state.loadingState == Loading.REFRESHING, state = refreshState, modifier = Modifier.align(
                 Alignment.TopCenter) )
+            Box(
+                Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(12.mdp)
+            ){
+                FloatingActionButton(
+                    onClick = {
+                        onEvent(CycleDetailContract.Event.OnShowAddDialog(true))
+                    },
+                    containerColor = Primary,
+                    contentColor = Color.White,
+                    shape = CircleShape
+                ) {
+                    Box(Modifier.padding(13.mdp)){
+                        Icon(
+                            painter = painterResource(R.drawable.add_square),
+                            contentDescription = "",
+                            modifier = Modifier.size(36.mdp),
+                            tint = Color.White
+                        )
+                    }
+                }
+            }
         }
     }
     if (state.showSortList){
@@ -193,24 +225,27 @@ fun CycleDetailContent(
         }
     }
     AddBottomSheet(state,onEvent)
-    CountBottomSheet(state,onEvent)
+//    CountBottomSheet(state,onEvent)
 }
 
 
 @Composable
-fun LoadingDetailItem(
+fun CycleDetailItem(
     model: CycleDetailRow,
     onClick: ()->Unit
 ) {
 
     BaseListItem(
         onClick = onClick,
-        item1 = BaseListItemModel("Product Name",model.productName?:"", R.drawable.vuesax_linear_box),
-        item2 = BaseListItemModel("Barcode",model.productBarcodeNumber?:"",R.drawable.barcode),
-        item3 = BaseListItemModel("Location",model.warehouseLocationCode?:"",R.drawable.location),
-        showFooter = false,
-        quantity = model.total,
-        scan = model.count
+        item1 = BaseListItemModel("Name",model.productTitle,R.drawable.vuesax_outline_3d_cube_scan),
+        item2 = BaseListItemModel("Status",model.quiddityTypeTitle,R.drawable.box_search),
+        item3 = BaseListItemModel("Barcode",model.productBarcodeNumber,R.drawable.note),
+        item4 = if (model.batchNumber!=null)BaseListItemModel("Batch Number", model.batchNumber,R.drawable.keyboard2) else null,
+        item5 = model.expireDate?.let { BaseListItemModel("Expiration Date",it,R.drawable.calendar_add) },
+        quantityTitle = "",
+        quantity = model.locationCode,
+        scanTitle = "Quantity",
+        scan = model.bookedQuantity.toString()
     )
 
 }
@@ -339,6 +374,28 @@ fun AddBottomSheet(
 
             ) {
                 Row(Modifier.fillMaxWidth()) {
+
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Row {
+                            MyText(
+                                text = "Count [",
+                                fontSize = 16.sp,
+                                color = Color(0xFF767676)
+                            )
+                            MyText(
+                                text = state.cycleRow?.locationCode?:"",
+                                fontSize = 16.sp,
+                                color = Primary
+                            )
+                            MyText(
+                                text = "]",
+                                fontSize = 16.sp,
+                                color = Color(0xFF767676)
+                            )
+                        }
+                    }
+                    Spacer(Modifier.size(20.mdp))
+
                     InputTextField(
                         state.quantityInPacket,
                         onValueChange = {
@@ -349,9 +406,7 @@ fun AddBottomSheet(
                         leadingIcon = R.drawable.barcode,
                         label = "Barcode",
                     )
-                }
-                Spacer(Modifier.size(10.mdp))
-                Row(Modifier.fillMaxWidth()) {
+                    Spacer(Modifier.size(8.mdp))
                     InputTextField(
                         state.quantity,
                         onValueChange = {
@@ -363,6 +418,20 @@ fun AddBottomSheet(
                         label = "Quantity",
                     )
                 }
+                Spacer(Modifier.size(10.mdp))
+                AutoDropDownTextField(
+                    state.status,
+                    onValueChange = {
+                        onEvent(CycleDetailContract.Event.OnChangeBatchNumber(it))
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    icon = R.drawable.keyboard,
+                    suggestions = state.statusList,
+                    onSuggestionClick = {
+                        onEvent(CycleDetailContract.Event.OnSelectStatus(it))
+                    },
+                    label = "Batch Number",
+                )
                 Spacer(Modifier.size(10.mdp))
                 InputTextField(
                     state.batchNumber,

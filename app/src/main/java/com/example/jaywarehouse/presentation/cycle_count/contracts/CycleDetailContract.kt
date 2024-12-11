@@ -4,6 +4,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import com.example.jaywarehouse.data.cycle_count.models.CycleDetailModel
 import com.example.jaywarehouse.data.cycle_count.models.CycleDetailRow
 import com.example.jaywarehouse.data.cycle_count.models.CycleRow
+import com.example.jaywarehouse.data.transfer.models.ProductStatusRow
 import com.example.jaywarehouse.presentation.common.utils.Loading
 import com.example.jaywarehouse.presentation.common.utils.Order
 import com.example.jaywarehouse.presentation.common.utils.SortItem
@@ -38,12 +39,16 @@ class CycleDetailContract {
         val showDeleteDialog: Boolean = false,
         //
         val locationCode: TextFieldValue = TextFieldValue(),
+        val status: TextFieldValue = TextFieldValue(),
+        val statusList: List<ProductStatusRow> = emptyList(),
+        val selectedStatus: ProductStatusRow? = null,
         val barcode: TextFieldValue = TextFieldValue(),
         val quantity: TextFieldValue = TextFieldValue(),
         val quantityInPacket: TextFieldValue = TextFieldValue(),
         val batchNumber: TextFieldValue = TextFieldValue(),
         val expireDate: TextFieldValue = TextFieldValue(),
         val showDatePicker: Boolean = false,
+        val isAdding: Boolean = false,
     ) : UiState
 
     sealed class Event : UiEvent {
@@ -67,6 +72,7 @@ class CycleDetailContract {
         data class OnChangeQuantity(val quantity: TextFieldValue) : Event()
         data class OnChangeQuantityInPacket(val quantityInPacket: TextFieldValue) : Event()
         data class OnChangeBarcode(val barcode: TextFieldValue) : Event()
+        data class OnSelectStatus(val status: ProductStatusRow) : Event()
     }
 
     sealed class Effect: UiSideEffect {

@@ -11,53 +11,61 @@ import kotlinx.coroutines.flow.Flow
 class CycleRepository(
     private val api: CycleApi
 ){
-    fun getStockTakingList(
+    fun getCycleCountLocations(
         keyword: String,
         page: Int,
         sort: String,
         order: String
-    ) : Flow<BaseResult<CycleModel>> {
-        val jsonObject = JsonObject()
-        jsonObject.addProperty("Keyword",keyword)
-        return getResult(
-            request = {
-                api.getStockTakingList(jsonObject,page,10,sort,order)
-            }
-        )
-    }
+    ) = getResult(
+        request = {
+            val jsonObject = JsonObject()
+            jsonObject.addProperty("Keyword",keyword)
+            api.getCycleCountLocations(
+                jsonObject,
+                page,
+                10,
+                sort,
+                order
+            )
+        }
+    )
 
-    fun getStockTakingWorkerTaskList(
+    fun getCycleCountLocationDetail(
         keyword: String,
-        stockTakingId: String,
+        cycleCountWorkerTaskID: String,
         page: Int,
         sort: String,
         order: String
-    ) : Flow<BaseResult<CycleDetailModel>> {
-        val jsonObject = JsonObject()
-        jsonObject.addProperty("Keyword",keyword)
-        jsonObject.addProperty("StockTakingID",stockTakingId)
-        return getResult(
-            request = {
-                api.getStockTakingWorkerTaskList(jsonObject,page,10,sort,order)
-            }
-        )
-    }
+    ) = getResult(
+        request = {
+            val jsonObject = JsonObject()
+            jsonObject.addProperty("Keyword",keyword)
+            jsonObject.addProperty("CycleCountWorkerTaskID",cycleCountWorkerTaskID)
+            api.getCycleCountLocationDetail(
+                jsonObject,
+                page,
+                10,
+                sort,
+                order
+            )
+        }
+    )
 
-    fun updateQuantity(
-        stockTakingWorkerTaskID: String,
-        quantity: Int,
-        quantityInPacket: Int,
+    fun insertTaskDetail(
+        productBarcodeNumber: String,
+        batchNumber: String,
         expireDate: String,
-    ) : Flow<BaseResult<ResultMessageModel>> {
-        val jsonObject = JsonObject()
-        jsonObject.addProperty("StockTakingWorkerTaskID",stockTakingWorkerTaskID)
-        jsonObject.addProperty("CountQuantity",quantity)
-        jsonObject.addProperty("UOMQuantity",quantityInPacket)
-        jsonObject.addProperty("ExpireDate",expireDate)
-        return getResult(
-            request = {
-                api.updateQuantity(jsonObject)
-            }
-        )
-    }
+        quiddityTypeID: String,
+        quantity: Int
+    ) = getResult(
+        request = {
+            val jsonObject = JsonObject()
+            jsonObject.addProperty("ProductBarcodeNumber",productBarcodeNumber)
+            jsonObject.addProperty("ExpireDate",expireDate)
+            jsonObject.addProperty("BatchNumber",batchNumber)
+            jsonObject.addProperty("QuiddityTypeID",quiddityTypeID)
+            jsonObject.addProperty("Quantity",quantity)
+            api.insertTaskDetail(jsonObject)
+        }
+    )
 }

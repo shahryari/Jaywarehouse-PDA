@@ -181,20 +181,39 @@ fun CheckingContent(
 @Composable
 fun CycleItem(
     model: CycleRow,
-    onClick: () -> Unit
+    onClick: (() -> Unit)? = null
 ) {
-    MainListItem(
-        onClick = onClick,
-        typeTitle = "",
-        modelNumber = "",
-        item1 = BaseListItemModel("Cycle Name",model.customerName, R.drawable.vuesax_linear_box),
-        totalTitle = "Tasks",
-        totalIcon = R.drawable.vuesax_linear_box,
-        total = "",
-        countTitle = "Count",
-        countIcon = R.drawable.vuesax_outline_box_tick,
-        count = ""
-    )
+    Row(
+        Modifier
+            .shadow(1.mdp)
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(6.mdp))
+            .background(Color.White)
+            .then(if(onClick!=null) Modifier.clickable { onClick() } else Modifier)
+            .padding(6.mdp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        DetailCard(
+            "Location",
+            detail = model.locationCode,
+            icon = R.drawable.location
+        )
+
+        if(model.levelInfo!=null)Box(
+            modifier = Modifier
+                .clip(RoundedCornerShape(4.mdp))
+                .background(Primary.copy(0.2f))
+                .padding(vertical = 4.mdp, horizontal = 10.mdp)
+        ) {
+            MyText(
+                text = model.levelInfo,
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.SemiBold,
+                color = Primary
+            )
+        }
+    }
 }
 
 @Preview

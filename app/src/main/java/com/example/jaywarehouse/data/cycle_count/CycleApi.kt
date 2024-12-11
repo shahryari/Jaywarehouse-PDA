@@ -16,8 +16,9 @@ import retrofit2.http.POST
 
 interface CycleApi {
 
-    @POST("StockTakingList")
-    suspend fun getStockTakingList(
+
+    @POST("CycleCountLocation")
+    suspend fun getCycleCountLocations(
         @Body jsonObject: JsonObject,
         @Header(PAGE) page: Int,
         @Header(ROWS) rows: Int,
@@ -25,8 +26,8 @@ interface CycleApi {
         @Header(ORDER) order: String
     ) : Response<CycleModel>
 
-    @POST("StockTakingWorkerTaskList")
-    suspend fun getStockTakingWorkerTaskList(
+    @POST("CycleCountLocationDetail")
+    suspend fun getCycleCountLocationDetail(
         @Body jsonObject: JsonObject,
         @Header(PAGE) page: Int,
         @Header(ROWS) rows: Int,
@@ -34,8 +35,9 @@ interface CycleApi {
         @Header(ORDER) order: String
     ) : Response<CycleDetailModel>
 
-    @POST("UpdateQuantity")
-    suspend fun updateQuantity(
+
+    @POST("InsertTaskDetail")
+    suspend fun insertTaskDetail(
         @Body jsonObject: JsonObject
     ) : Response<ResultMessageModel>
 }

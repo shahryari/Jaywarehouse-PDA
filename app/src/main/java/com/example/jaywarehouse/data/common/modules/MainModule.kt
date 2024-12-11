@@ -132,7 +132,7 @@ val mainModule = module {
     }
 
     viewModel {
-        CycleDetailViewModel(get(),get(),it.get())
+        CycleDetailViewModel(get(),get(),get(),it.get())
     }
 
     viewModel {
