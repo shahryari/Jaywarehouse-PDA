@@ -1,7 +1,9 @@
 package com.example.jaywarehouse.presentation.common.composables
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -24,6 +26,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.window.PopupProperties
 import com.example.jaywarehouse.R
+import com.example.jaywarehouse.data.common.utils.mdp
 
 @Composable
 fun <T>AutoDropDownTextField(
@@ -73,10 +76,12 @@ fun <T>AutoDropDownTextField(
             leadingIcon = icon
         )
        DropdownMenu(
-            expanded = isExpanded && suggestions.isNotEmpty() && showSuggestion && (!suggestions.any { it.toString() == value.text } || clickable),
-            properties = PopupProperties(focusable = false),
-            containerColor = Color.White,
-            onDismissRequest = { isExpanded = false }
+           expanded = isExpanded && suggestions.isNotEmpty() && showSuggestion && (!suggestions.any { it.toString() == value.text } || clickable),
+           properties = PopupProperties(focusable = false),
+           containerColor = Color.White,
+           modifier = Modifier.heightIn(max = 200.mdp),
+           onDismissRequest = { isExpanded = false },
+           scrollState = rememberScrollState()
         ) {
             filteredSuggestions.forEach { suggestion ->
                 DropdownMenuItem(

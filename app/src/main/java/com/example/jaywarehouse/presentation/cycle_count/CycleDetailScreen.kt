@@ -42,6 +42,7 @@ import com.example.jaywarehouse.presentation.common.composables.AutoDropDownText
 import com.example.jaywarehouse.presentation.common.composables.BaseListItem
 import com.example.jaywarehouse.presentation.common.composables.BaseListItemModel
 import com.example.jaywarehouse.presentation.common.composables.DatePickerDialog
+import com.example.jaywarehouse.presentation.common.composables.DetailCard
 import com.example.jaywarehouse.presentation.common.composables.InputTextField
 import com.example.jaywarehouse.presentation.common.composables.MyButton
 import com.example.jaywarehouse.presentation.common.composables.MyLazyColumn
@@ -281,7 +282,7 @@ fun CountBottomSheet(
                             color = Color(0xFF767676)
                         )
                         MyText(
-                            text = state.selectedCycle.productTitle,
+                            text = state.selectedCycle.productTitle.trim(),
                             fontSize = 16.sp,
                             color = Primary
                         )
@@ -293,7 +294,49 @@ fun CountBottomSheet(
                     }
                 }
                 Spacer(Modifier.size(20.mdp))
-
+                DetailCard(
+                    "Name",
+                    state.selectedCycle.productTitle,
+                    icon = R.drawable.vuesax_outline_3d_cube_scan
+                )
+                Spacer(Modifier.size(10.mdp))
+                Row(Modifier.fillMaxWidth()) {
+                    DetailCard(
+                        "Status",
+                        state.selectedCycle.quiddityTypeTitle?:"",
+                        icon = R.drawable.box_search,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Spacer(Modifier.size(5.mdp))
+                    DetailCard(
+                        "Barcode",
+                        state.selectedCycle.productBarcodeNumber,
+                        icon = R.drawable.note,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+                Row(Modifier.fillMaxWidth()) {
+                    if (state.selectedCycle.batchNumber!=null)DetailCard(
+                        "Batch Number",
+                        state.selectedCycle.batchNumber?:"",
+                        icon = R.drawable.box_search,
+                        modifier = Modifier.weight(1f)
+                    )
+                    if (state.selectedCycle.batchNumber!=null && state.selectedCycle.expireDate!=null)Spacer(Modifier.size(5.mdp))
+                    if (state.selectedCycle.expireDate!=null)DetailCard(
+                        "Expiration Date",
+                        state.selectedCycle.expireDate?:"",
+                        icon = R.drawable.note,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+                if (state.selectedCycle.batchNumber!= null || state.selectedCycle.expireDate!=null)Spacer(Modifier.size(10.mdp))
+                DetailCard(
+                    "Quantity",
+                    state.selectedCycle.countQuantity?.toString()?:"0",
+                    icon = R.drawable.vuesax_linear_box
+                )
+                Spacer(Modifier.size(15.mdp))
                 InputTextField(
                     state.quantity,
                     onValueChange = {
