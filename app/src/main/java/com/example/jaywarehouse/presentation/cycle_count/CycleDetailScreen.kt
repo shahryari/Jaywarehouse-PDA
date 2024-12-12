@@ -274,25 +274,12 @@ fun CountBottomSheet(
                     .padding(bottom = 24.mdp)
 
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Row {
-                        MyText(
-                            text = "Update [",
-                            fontSize = 16.sp,
-                            color = Color(0xFF767676)
-                        )
-                        MyText(
-                            text = state.selectedCycle.productTitle.trim(),
-                            fontSize = 16.sp,
-                            color = Primary
-                        )
-                        MyText(
-                            text = "]",
-                            fontSize = 16.sp,
-                            color = Color(0xFF767676)
-                        )
-                    }
-                }
+
+                MyText(
+                    text = "Update",
+                    fontSize = 16.sp,
+                    color = Color(0xFF767676)
+                )
                 Spacer(Modifier.size(20.mdp))
                 DetailCard(
                     "Name",
@@ -315,6 +302,7 @@ fun CountBottomSheet(
                         modifier = Modifier.weight(1f)
                     )
                 }
+                Spacer(Modifier.size(10.mdp))
                 Row(Modifier.fillMaxWidth()) {
                     if (state.selectedCycle.batchNumber!=null)DetailCard(
                         "Batch Number",

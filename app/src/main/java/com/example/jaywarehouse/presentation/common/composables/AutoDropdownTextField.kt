@@ -1,6 +1,8 @@
 package com.example.jaywarehouse.presentation.common.composables
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
@@ -75,30 +77,32 @@ fun <T>AutoDropDownTextField(
             },
             leadingIcon = icon
         )
-       DropdownMenu(
-           expanded = isExpanded && suggestions.isNotEmpty() && showSuggestion && (!suggestions.any { it.toString() == value.text } || clickable),
-           properties = PopupProperties(focusable = false),
-           containerColor = Color.White,
-           modifier = Modifier.heightIn(max = 200.mdp),
-           onDismissRequest = { isExpanded = false },
-           scrollState = rememberScrollState()
-        ) {
-            filteredSuggestions.forEach { suggestion ->
-                DropdownMenuItem(
-                    onClick = {
-                        onValueChange(TextFieldValue(suggestion.toString()))
-                        isExpanded = false
-                        onSuggestionClick(suggestion)
-                    },
-                    modifier = Modifier.width(
-                        with(density) {
-                            textFieldSize.width.toDp()
+        Box {
+            DropdownMenu(
+                expanded = isExpanded && suggestions.isNotEmpty() && showSuggestion && (!suggestions.any { it.toString() == value.text } || clickable),
+                properties = PopupProperties(focusable = false),
+                containerColor = Color.White,
+                modifier = Modifier.heightIn(max = 200.mdp),
+                onDismissRequest = { isExpanded = false },
+                scrollState = rememberScrollState()
+            ) {
+                filteredSuggestions.forEach { suggestion ->
+                    DropdownMenuItem(
+                        onClick = {
+                            onValueChange(TextFieldValue(suggestion.toString()))
+                            isExpanded = false
+                            onSuggestionClick(suggestion)
+                        },
+                        modifier = Modifier.width(
+                            with(density) {
+                                textFieldSize.width.toDp()
+                            }
+                        ),
+                        text = {
+                            MyText(text = suggestion.toString())
                         }
-                    ),
-                    text = {
-                        MyText(text = suggestion.toString())
-                    }
-                )
+                    )
+                }
             }
         }
         LaunchedEffect(key1 = filteredSuggestions) {
