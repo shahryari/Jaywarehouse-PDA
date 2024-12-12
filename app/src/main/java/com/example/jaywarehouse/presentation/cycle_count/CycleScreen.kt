@@ -185,7 +185,7 @@ fun CycleItem(
 ) {
     Row(
         Modifier
-            .shadow(1.mdp)
+            .shadow(1.mdp, RoundedCornerShape(6.mdp))
             .fillMaxWidth()
             .clip(RoundedCornerShape(6.mdp))
             .background(Color.White)

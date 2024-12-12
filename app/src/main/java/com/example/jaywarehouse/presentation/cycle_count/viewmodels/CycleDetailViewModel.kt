@@ -153,9 +153,9 @@ class CycleDetailViewModel(
                     copy(barcode = event.barcode)
                 }
             }
-            is CycleDetailContract.Event.OnChangeBatchNumber -> {
+            is CycleDetailContract.Event.OnChangeStatus -> {
                 setState {
-                    copy(batchNumber = event.batchNumber)
+                    copy(status = event.status)
                 }
             }
             is CycleDetailContract.Event.OnChangeExpireDate -> {

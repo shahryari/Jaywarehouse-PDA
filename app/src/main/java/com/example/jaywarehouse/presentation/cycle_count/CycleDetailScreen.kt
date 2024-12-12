@@ -298,7 +298,7 @@ fun CountBottomSheet(
                 InputTextField(
                     state.batchNumber,
                     onValueChange = {
-                        onEvent(CycleDetailContract.Event.OnChangeBatchNumber(it))
+                        onEvent(CycleDetailContract.Event.OnChangeStatus(it))
                     },
                     modifier = Modifier.fillMaxWidth(),
                     leadingIcon = R.drawable.keyboard,
@@ -371,30 +371,32 @@ fun AddBottomSheet(
         ) {
             Column(
                 modifier = Modifier
+                    .padding(horizontal = 24.mdp)
+                    .padding(bottom = 24.mdp)
 
             ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Row {
+                        MyText(
+                            text = "Count [",
+                            fontSize = 16.sp,
+                            color = Color(0xFF767676)
+                        )
+                        MyText(
+                            text = state.cycleRow?.locationCode?:"",
+                            fontSize = 16.sp,
+                            color = Primary
+                        )
+                        MyText(
+                            text = "]",
+                            fontSize = 16.sp,
+                            color = Color(0xFF767676)
+                        )
+                    }
+                }
+                Spacer(Modifier.size(20.mdp))
                 Row(Modifier.fillMaxWidth()) {
 
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Row {
-                            MyText(
-                                text = "Count [",
-                                fontSize = 16.sp,
-                                color = Color(0xFF767676)
-                            )
-                            MyText(
-                                text = state.cycleRow?.locationCode?:"",
-                                fontSize = 16.sp,
-                                color = Primary
-                            )
-                            MyText(
-                                text = "]",
-                                fontSize = 16.sp,
-                                color = Color(0xFF767676)
-                            )
-                        }
-                    }
-                    Spacer(Modifier.size(20.mdp))
 
                     InputTextField(
                         state.quantityInPacket,
@@ -422,25 +424,15 @@ fun AddBottomSheet(
                 AutoDropDownTextField(
                     state.status,
                     onValueChange = {
-                        onEvent(CycleDetailContract.Event.OnChangeBatchNumber(it))
+                        onEvent(CycleDetailContract.Event.OnChangeStatus(it))
                     },
                     modifier = Modifier.fillMaxWidth(),
-                    icon = R.drawable.keyboard,
+                    icon = R.drawable.keyboard2,
                     suggestions = state.statusList,
                     onSuggestionClick = {
                         onEvent(CycleDetailContract.Event.OnSelectStatus(it))
                     },
-                    label = "Batch Number",
-                )
-                Spacer(Modifier.size(10.mdp))
-                InputTextField(
-                    state.batchNumber,
-                    onValueChange = {
-                        onEvent(CycleDetailContract.Event.OnChangeBatchNumber(it))
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    leadingIcon = R.drawable.keyboard,
-                    label = "Batch Number",
+                    label = "Status",
                 )
                 Spacer(Modifier.size(10.mdp))
                 InputTextField(

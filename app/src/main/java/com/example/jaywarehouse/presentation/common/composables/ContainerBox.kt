@@ -45,9 +45,9 @@ fun ContainerBox(
                 contentDescription = "",
                 Modifier
                     .fillMaxWidth()
-                    .scale(2.5f)
-                    .offset(x = maxWidth/5f, y = 10.mdp),
-                colorFilter = ColorFilter.tint(Color.White.copy(0.7f))
+//                    .scale(2.5f)
+//                    .offset(x = maxWidth/5f, y = 10.mdp),
+//                colorFilter = ColorFilter.tint(Color.White.copy(0.7f))
             )
         }
         content()

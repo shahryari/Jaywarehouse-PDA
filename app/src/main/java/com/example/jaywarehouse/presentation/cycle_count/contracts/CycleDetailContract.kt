@@ -67,7 +67,7 @@ class CycleDetailContract {
         data class OnShowAddDialog(val show: Boolean) : Event()
         data class OnShowDatePicker(val show: Boolean) : Event()
         data class OnChangeLocationCode(val locationCode: TextFieldValue) : Event()
-        data class OnChangeBatchNumber(val batchNumber: TextFieldValue) : Event()
+        data class OnChangeStatus(val status: TextFieldValue) : Event()
         data class OnChangeExpireDate(val expireDate: TextFieldValue) : Event()
         data class OnChangeQuantity(val quantity: TextFieldValue) : Event()
         data class OnChangeQuantityInPacket(val quantityInPacket: TextFieldValue) : Event()
