@@ -124,6 +124,7 @@ fun CheckingContent(
             ) {
                 TopBar(
                     title = "Cycle Count",
+                    subTitle = "Choose a Location",
                     onBack = {
                         onEvent(CycleCountContract.Event.OnBackPressed)
                     }

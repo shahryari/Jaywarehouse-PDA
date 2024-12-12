@@ -281,7 +281,7 @@ fun CountBottomSheet(
                             color = Color(0xFF767676)
                         )
                         MyText(
-                            text = state.selectedCycle.productBarcodeNumber,
+                            text = state.selectedCycle.productTitle,
                             fontSize = 16.sp,
                             color = Primary
                         )
@@ -299,7 +299,6 @@ fun CountBottomSheet(
                     onValueChange = {
                         onEvent(CycleDetailContract.Event.OnChangeQuantity(it))
                     },
-                    modifier = Modifier.weight(1f),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     leadingIcon = R.drawable.box_search,
                     label = "Quantity",
