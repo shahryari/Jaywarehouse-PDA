@@ -46,4 +46,9 @@ interface CycleApi {
     suspend fun updateQuantity(
         @Body jsonObject: JsonObject
     ) : Response<ResultMessageModel>
+
+    @POST("LocationTaskEnd")
+    suspend fun locationTaskEnd(
+        @Body jsonObject: JsonObject
+    ) : Response<ResultMessageModel>
 }

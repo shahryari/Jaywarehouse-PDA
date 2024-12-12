@@ -36,7 +36,7 @@ class CycleDetailContract {
         val sort: SortItem = sortList.first(),
         val onSaving: Boolean = false,
         val showAddDialog: Boolean = false,
-        val showDeleteDialog: Boolean = false,
+        val showSubmit: Boolean = false,
         //
         val locationCode: TextFieldValue = TextFieldValue(),
         val status: TextFieldValue = TextFieldValue(),
@@ -72,6 +72,8 @@ class CycleDetailContract {
         data class OnChangeQuantityInPacket(val quantityInPacket: TextFieldValue) : Event()
         data class OnChangeBarcode(val barcode: TextFieldValue) : Event()
         data class OnSelectStatus(val status: ProductStatusRow) : Event()
+        data object OnEndTaskClick : Event()
+        data class OnShowSubmit(val show: Boolean) : Event()
     }
 
     sealed class Effect: UiSideEffect {

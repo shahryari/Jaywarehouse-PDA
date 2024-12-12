@@ -80,4 +80,12 @@ class CycleRepository(
             api.updateQuantity(jsonObject)
         }
     )
+
+    fun finishCycleCount(cycleCountWorkerTaskID: String) = getResult(
+        request = {
+            val jsonObject = JsonObject()
+            jsonObject.addProperty("CycleCountWorkerTaskID",cycleCountWorkerTaskID)
+            api.locationTaskEnd(jsonObject)
+        }
+    )
 }

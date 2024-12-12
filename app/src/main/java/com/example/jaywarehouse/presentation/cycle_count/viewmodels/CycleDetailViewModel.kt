@@ -192,6 +192,16 @@ class CycleDetailViewModel(
                     copy(selectedStatus = event.status)
                 }
             }
+
+            CycleDetailContract.Event.OnEndTaskClick -> {
+                finishCycleCount()
+            }
+
+            is CycleDetailContract.Event.OnShowSubmit -> {
+                setState {
+                    copy(showSubmit = event.show)
+                }
+            }
         }
     }
 
@@ -342,6 +352,32 @@ class CycleDetailViewModel(
                                 )
                             }
                             getDetails()
+                        }
+                        BaseResult.UnAuthorized -> {}
+                    }
+                }
+        }
+    }
+
+    private fun finishCycleCount(){
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.finishCycleCount(row.cycleCountWorkerTaskID)
+                .catch {
+                    setSuspendedState {
+                        copy(error = it.message?:"")
+                    }
+                }
+                .collect {
+                    when(it){
+                        is BaseResult.Error -> {
+                            setSuspendedState {
+                                copy(error = it.message)
+                            }
+                        }
+                        is BaseResult.Success -> {
+                            setEffect {
+                                CycleDetailContract.Effect.NavBack
+                            }
                         }
                         BaseResult.UnAuthorized -> {}
                     }

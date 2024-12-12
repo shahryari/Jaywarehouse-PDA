@@ -53,6 +53,7 @@ import com.example.jaywarehouse.presentation.common.composables.TopBar
 import com.example.jaywarehouse.presentation.common.utils.Loading
 import com.example.jaywarehouse.presentation.common.utils.SIDE_EFFECT_KEY
 import com.example.jaywarehouse.presentation.common.utils.ScreenTransition
+import com.example.jaywarehouse.presentation.counting.ConfirmDialog
 import com.example.jaywarehouse.presentation.cycle_count.contracts.CycleDetailContract
 import com.example.jaywarehouse.presentation.cycle_count.viewmodels.CycleDetailViewModel
 import com.example.jaywarehouse.presentation.shipping.contracts.ShippingContract
@@ -133,6 +134,10 @@ fun CycleDetailContent(
                     subTitle = "Counting",
                     onBack = {
                         onEvent(CycleDetailContract.Event.OnNavBack)
+                    },
+                    endIcon = R.drawable.tick,
+                    onEndClick = {
+                        onEvent(CycleDetailContract.Event.OnShowSubmit(true))
                     }
                 )
                 Spacer(modifier = Modifier.size(20.mdp))
@@ -204,6 +209,20 @@ fun CycleDetailContent(
             onEvent(CycleDetailContract.Event.OnShowDatePicker(false))
 
         }
+    }
+
+    if(state.showSubmit) {
+        ConfirmDialog(
+            onDismiss = {
+                onEvent(CycleDetailContract.Event.OnShowSubmit(false))
+            },
+            message = "Submit",
+            description = "Are you sure you want to end this cycle count?",
+            onConfirm = {
+                onEvent(CycleDetailContract.Event.OnEndTaskClick)
+            },
+            tint = Primary
+        )
     }
     AddBottomSheet(state,onEvent)
     CountBottomSheet(state,onEvent)
