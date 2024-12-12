@@ -102,15 +102,11 @@ fun CycleDetailContent(
     state: CycleDetailContract.State = CycleDetailContract.State(),
     onEvent: (CycleDetailContract.Event)->Unit = {}
 ) {
-    val focusRequester = FocusRequester()
 
     val refreshState = rememberPullRefreshState(
         refreshing = state.loadingState == Loading.REFRESHING,
         onRefresh = { onEvent(CycleDetailContract.Event.OnRefresh) }
     )
-    LaunchedEffect(key1 = Unit) {
-        focusRequester.requestFocus()
-    }
     MyScaffold(
         loadingState = state.loadingState,
         error = state.error,
@@ -134,30 +130,15 @@ fun CycleDetailContent(
             ) {
                 TopBar(
                     title = "Cycle Count",
-                    subTitle = "Cycle Count",
+                    subTitle = "Counting",
                     onBack = {
                         onEvent(CycleDetailContract.Event.OnNavBack)
                     }
                 )
                 Spacer(modifier = Modifier.size(20.mdp))
-                SearchInput(
-                    value = state.keyword,
-                    onValueChange = {
-                        onEvent(CycleDetailContract.Event.OnChangeKeyword(it))
-                    },
-                    onSearch = {
-                        onEvent(CycleDetailContract.Event.OnSearch)
-                    },
-                    isLoading = state.loadingState == Loading.SEARCHING,
-                    onSortClick = {
-                        onEvent(CycleDetailContract.Event.OnShowSortList(true))
-                    },
-                    hideKeyboard = state.lockKeyboard,
-                    focusRequester = focusRequester
-                )
 
-                Spacer(modifier = Modifier.size(20.mdp))
                 if (state.cycleRow!=null)CycleItem(state.cycleRow)
+                Spacer(modifier = Modifier.size(15.mdp))
                 MyLazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     items = state.details,
@@ -225,7 +206,7 @@ fun CycleDetailContent(
         }
     }
     AddBottomSheet(state,onEvent)
-//    CountBottomSheet(state,onEvent)
+    CountBottomSheet(state,onEvent)
 }
 
 
@@ -245,7 +226,7 @@ fun CycleDetailItem(
         quantityTitle = "",
         quantity = model.locationCode,
         scanTitle = "Quantity",
-        scan = model.bookedQuantity.toString()
+        scan = model.countQuantity?.toString()?:"0"
     )
 
 }
@@ -269,58 +250,40 @@ fun CountBottomSheet(
         ) {
             Column(
                 modifier = Modifier
+                    .padding(horizontal = 24.mdp)
+                    .padding(bottom = 24.mdp)
 
             ) {
-                Row(Modifier.fillMaxWidth()) {
-                    InputTextField(
-                        state.quantity,
-                        onValueChange = {
-                            onEvent(CycleDetailContract.Event.OnChangeQuantity(it))
-                        },
-                        modifier = Modifier.weight(1f),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        leadingIcon = R.drawable.box_search,
-                        label = "Quantity",
-                    )
-                    Spacer(Modifier.size(5.mdp))
-                    InputTextField(
-                        state.quantityInPacket,
-                        onValueChange = {
-                            onEvent(CycleDetailContract.Event.OnChangeQuantityInPacket(it))
-                        },
-                        modifier = Modifier.weight(1f),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        leadingIcon = R.drawable.barcode,
-                        label = "Quantity In Packet",
-                    )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Row {
+                        MyText(
+                            text = "Update [",
+                            fontSize = 16.sp,
+                            color = Color(0xFF767676)
+                        )
+                        MyText(
+                            text = state.selectedCycle.productBarcodeNumber,
+                            fontSize = 16.sp,
+                            color = Primary
+                        )
+                        MyText(
+                            text = "]",
+                            fontSize = 16.sp,
+                            color = Color(0xFF767676)
+                        )
+                    }
                 }
-                Spacer(Modifier.size(10.mdp))
+                Spacer(Modifier.size(20.mdp))
+
                 InputTextField(
-                    state.batchNumber,
+                    state.quantity,
                     onValueChange = {
-                        onEvent(CycleDetailContract.Event.OnChangeStatus(it))
+                        onEvent(CycleDetailContract.Event.OnChangeQuantity(it))
                     },
-                    modifier = Modifier.fillMaxWidth(),
-                    leadingIcon = R.drawable.keyboard,
-                    label = "Batch Number",
-                )
-                Spacer(Modifier.size(10.mdp))
-                InputTextField(
-                    state.expireDate,
-                    onValueChange = {
-                        onEvent(CycleDetailContract.Event.OnChangeExpireDate(it))
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    leadingIcon = R.drawable.calendar_add,
-                    keyboardOptions = KeyboardOptions(),
-                    onLeadingClick = {
-                        onEvent(CycleDetailContract.Event.OnShowDatePicker(true))
-                    },
-                    readOnly = true,
-                    onClick = {
-                        onEvent(CycleDetailContract.Event.OnShowDatePicker(true))
-                    },
-                    label = "Expire Date",
+                    modifier = Modifier.weight(1f),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    leadingIcon = R.drawable.box_search,
+                    label = "Quantity",
                 )
                 Spacer(Modifier.size(15.mdp))
                 Row(Modifier.fillMaxWidth()) {
@@ -399,7 +362,7 @@ fun AddBottomSheet(
 
 
                     InputTextField(
-                        state.quantityInPacket,
+                        state.barcode,
                         onValueChange = {
                             onEvent(CycleDetailContract.Event.OnChangeBarcode(it))
                         },
@@ -428,6 +391,7 @@ fun AddBottomSheet(
                     },
                     modifier = Modifier.fillMaxWidth(),
                     icon = R.drawable.keyboard2,
+                    clickable = true,
                     suggestions = state.statusList,
                     onSuggestionClick = {
                         onEvent(CycleDetailContract.Event.OnSelectStatus(it))

@@ -27,7 +27,7 @@ fun MyIcon(
     icon: Int,
     showBorder: Boolean = true,
     clickable: Boolean = true,
-    onClick: ()->Unit = {}
+    onClick: (()->Unit)? = null
 ) {
     Box(modifier = modifier
         .clip(RoundedCornerShape(8.mdp))
@@ -36,9 +36,15 @@ fun MyIcon(
             if (showBorder) Modifier.border(1.mdp, Border, RoundedCornerShape(8.mdp))
             else Modifier
         )
-        .clickable(clickable) {
-            onClick()
-        }
+        .then(
+            if(onClick!=null)
+                Modifier
+                    .clickable(clickable) {
+                        onClick()
+                    }
+            else Modifier
+        )
+
         .padding(5.mdp), contentAlignment = Alignment.Center
     ) {
         Icon(
@@ -60,7 +66,7 @@ fun MyIcon(
     background: Color = Color.White,
     tint: Color = Color.Black,
     clickable: Boolean = true,
-    onClick: ()->Unit = {}
+    onClick: (()->Unit)? = null
 ) {
     Box(modifier = modifier
         .clip(RoundedCornerShape(4.mdp))
@@ -70,8 +76,8 @@ fun MyIcon(
             else Modifier
         )
         .then(
-            if(clickable) Modifier
-                .clickable {
+            if(onClick != null) Modifier
+                .clickable(clickable) {
                     onClick()
                 }
             else Modifier

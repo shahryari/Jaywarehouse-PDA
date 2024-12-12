@@ -68,12 +68,13 @@ class CycleDetailViewModel(
                 }
             }
             is CycleDetailContract.Event.OnSelectDetail -> {
+                getStatusList()
                 setState {
                     copy(
                         selectedCycle = event.detail,
                         quantity = TextFieldValue(),
-                        quantityInPacket = TextFieldValue(),
-                        batchNumber = TextFieldValue(),
+                        status = TextFieldValue(),
+                        selectedStatus = null,
                         expireDate = TextFieldValue()
                     )
                 }
@@ -147,7 +148,9 @@ class CycleDetailViewModel(
                 }
             }
 
-            CycleDetailContract.Event.OnAdd -> {}
+            CycleDetailContract.Event.OnAdd -> {
+                add()
+            }
             is CycleDetailContract.Event.OnChangeBarcode -> {
                 setState {
                     copy(barcode = event.barcode)
@@ -239,22 +242,22 @@ class CycleDetailViewModel(
     private fun add(){
         if (state.selectedStatus!=null) {
             setState { 
-                copy(isAdding = true)
+                copy(onSaving = true)
             }
             viewModelScope.launch(Dispatchers.IO) {
                 repository.insertTaskDetail(
                     state.barcode.text,
-                    state.batchNumber.text,
+                    row.cycleCountWorkerTaskID,
                     state.expireDate.text,
                     state.selectedStatus!!.quiddityTypeId.toString(),
-                    state.quantity.text.toInt()
+                    state.quantity.text
                 ).catch {
                     setSuspendedState {
-                        copy(error = it.message?:"", isAdding = false)
+                        copy(error = it.message?:"", onSaving = false)
                     }
                 }.collect {
                     setSuspendedState { 
-                        copy(isAdding = false)
+                        copy(onSaving = false)
                     }
                     when(it){
                         is BaseResult.Error -> {
@@ -264,8 +267,14 @@ class CycleDetailViewModel(
                         }
                         is BaseResult.Success -> {
                             setSuspendedState {
-                                copy(showAddDialog = false)
+                                copy(
+                                    showAddDialog = false,
+                                    page = 1,
+                                    details = emptyList(),
+                                    loadingState = Loading.LOADING
+                                )
                             }
+                            getDetails()
                         }
                         BaseResult.UnAuthorized -> {}
                     }
@@ -302,6 +311,41 @@ class CycleDetailViewModel(
     }
 
     private fun updateQuantity(item: CycleDetailRow){
-
+        setState {
+            copy(onSaving = true)
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.updateQuantity(item.cycleCountWorkerTaskDetailID,state.quantity.text)
+                .catch {
+                    setSuspendedState {
+                        copy(error = it.message?:"", onSaving = false)
+                    }
+                }
+                .collect {
+                    setSuspendedState {
+                        copy(onSaving = false)
+                    }
+                    when(it){
+                        is BaseResult.Error -> {
+                            setSuspendedState {
+                                copy(error = it.message)
+                            }
+                        }
+                        is BaseResult.Success -> {
+                            setSuspendedState {
+                                copy(
+                                    selectedCycle = null,
+                                    details = emptyList(),
+                                    loadingState = Loading.LOADING,
+                                    page = 1,
+                                    toast = it.data?.messages?.firstOrNull()?:"Updated Successfully"
+                                )
+                            }
+                            getDetails()
+                        }
+                        BaseResult.UnAuthorized -> {}
+                    }
+                }
+        }
     }
 }

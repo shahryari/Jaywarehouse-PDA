@@ -40,4 +40,10 @@ interface CycleApi {
     suspend fun insertTaskDetail(
         @Body jsonObject: JsonObject
     ) : Response<ResultMessageModel>
+
+
+    @POST("UpdateQuantity")
+    suspend fun updateQuantity(
+        @Body jsonObject: JsonObject
+    ) : Response<ResultMessageModel>
 }

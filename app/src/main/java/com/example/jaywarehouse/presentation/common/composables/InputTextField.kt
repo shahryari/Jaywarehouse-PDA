@@ -56,8 +56,8 @@ fun InputTextField(
     label: String = "",
     leadingIcon: Int? = null,
     trailingIcon: Int? = null,
-    onLeadingClick: ()-> Unit = {},
-    onTrailingClick: ()-> Unit = {},
+    onLeadingClick: (()-> Unit)? = null,
+    onTrailingClick: (()-> Unit)? = null,
     enabled: Boolean = true,
     readOnly: Boolean = false,
     hideKeyboard: Boolean = false,
@@ -141,9 +141,7 @@ fun InputTextField(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Row(modifier = Modifier.weight(1f),verticalAlignment = Alignment.CenterVertically) {
-                        if (leadingIcon!=null) MyIcon(icon = leadingIcon, showBorder = false) {
-                            onLeadingClick()
-                        }
+                        if (leadingIcon!=null) MyIcon(icon = leadingIcon, showBorder = false, onClick = onLeadingClick)
                         if (leadingIcon!=null)Spacer(modifier = Modifier.size(7.mdp))
                         Box(contentAlignment = Alignment.CenterStart) {
                             if (value.text.isEmpty()) {
@@ -178,10 +176,7 @@ fun InputTextField(
                                 RefreshIcon(isRefreshing = true)
                             }
                             else {
-                                if(trailingIcon!=null
-                                    )MyIcon(icon = trailingIcon) {
-                                    onTrailingClick()
-                                }
+                                if(trailingIcon!=null)MyIcon(icon = trailingIcon, onClick = onTrailingClick)
                             }
 
                         }

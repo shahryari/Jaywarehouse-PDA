@@ -53,19 +53,31 @@ class CycleRepository(
 
     fun insertTaskDetail(
         productBarcodeNumber: String,
-        batchNumber: String,
+        cycleCountWorkerTaskID: String,
         expireDate: String,
         quiddityTypeID: String,
-        quantity: Int
+        quantity: String
     ) = getResult(
         request = {
             val jsonObject = JsonObject()
             jsonObject.addProperty("ProductBarcodeNumber",productBarcodeNumber)
             jsonObject.addProperty("ExpireDate",expireDate)
-            jsonObject.addProperty("BatchNumber",batchNumber)
+            jsonObject.addProperty("CycleCountWorkerTaskID",cycleCountWorkerTaskID)
             jsonObject.addProperty("QuiddityTypeID",quiddityTypeID)
             jsonObject.addProperty("Quantity",quantity)
             api.insertTaskDetail(jsonObject)
+        }
+    )
+
+    fun updateQuantity(
+        cycleCountWorkerTaskDetailID: String,
+        quantity: String
+    ) = getResult(
+        request = {
+            val jsonObject = JsonObject()
+            jsonObject.addProperty("CycleCountWorkerTaskDetailID",cycleCountWorkerTaskDetailID)
+            jsonObject.addProperty("Quantity",quantity)
+            api.updateQuantity(jsonObject)
         }
     )
 }

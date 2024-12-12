@@ -44,5 +44,7 @@ data class CycleDetailRow(
     @SerializedName("QuiddityTypeID")
     val quiddityTypeID: Int,
     @SerializedName("QuiddityTypeTitle")
-    val quiddityTypeTitle: String
+    val quiddityTypeTitle: String,
+    @SerializedName("CycleCountWorkerTaskDetailID")
+    val cycleCountWorkerTaskDetailID: String
 )

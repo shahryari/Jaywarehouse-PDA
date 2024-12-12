@@ -48,7 +48,6 @@ class CycleDetailContract {
         val batchNumber: TextFieldValue = TextFieldValue(),
         val expireDate: TextFieldValue = TextFieldValue(),
         val showDatePicker: Boolean = false,
-        val isAdding: Boolean = false,
     ) : UiState
 
     sealed class Event : UiEvent {
