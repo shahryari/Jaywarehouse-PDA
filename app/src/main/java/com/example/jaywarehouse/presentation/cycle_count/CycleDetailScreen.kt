@@ -245,7 +245,7 @@ fun CycleDetailItem(
         item5 = model.expireDate?.let { BaseListItemModel("Expiration Date",it,R.drawable.calendar_add) },
         quantityTitle = "",
         quantity = model.locationCode,
-        scanTitle = "Quantity",
+        scanTitle = "Count",
         scan = model.countQuantity?.toString()?:""
     )
 
