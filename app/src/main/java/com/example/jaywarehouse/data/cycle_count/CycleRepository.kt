@@ -76,7 +76,7 @@ class CycleRepository(
         request = {
             val jsonObject = JsonObject()
             jsonObject.addProperty("CycleCountWorkerTaskDetailID",cycleCountWorkerTaskDetailID)
-            jsonObject.addProperty("CountQuantity",quantity)
+            jsonObject.addProperty("Quantity",quantity)
             api.updateQuantity(jsonObject)
         }
     )
