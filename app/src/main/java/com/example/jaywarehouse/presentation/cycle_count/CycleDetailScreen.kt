@@ -246,7 +246,7 @@ fun CycleDetailItem(
         quantityTitle = "",
         quantity = model.locationCode,
         scanTitle = "Quantity",
-        scan = model.countQuantity?.toString()?:"0"
+        scan = model.countQuantity?.toString()?:""
     )
 
 }
