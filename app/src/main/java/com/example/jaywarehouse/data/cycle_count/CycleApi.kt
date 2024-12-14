@@ -42,7 +42,7 @@ interface CycleApi {
     ) : Response<ResultMessageModel>
 
 
-    @POST("UpdateQuantity")
+    @POST("DetailUpdateQuantity")
     suspend fun updateQuantity(
         @Body jsonObject: JsonObject
     ) : Response<ResultMessageModel>

@@ -320,7 +320,7 @@ fun CountBottomSheet(
                 }
                 if (state.selectedCycle.batchNumber!= null || state.selectedCycle.expireDate!=null)Spacer(Modifier.size(10.mdp))
                 DetailCard(
-                    "Quantity",
+                    "Count",
                     state.selectedCycle.countQuantity?.toString()?:"0",
                     icon = R.drawable.vuesax_linear_box
                 )
