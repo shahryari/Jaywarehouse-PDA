@@ -26,6 +26,19 @@ class Prefs(private val context: Context) {
         return preferences.getString("token","")?:""
     }
 
+    //extra cycle count
+
+    fun setAddExtraCycleCount(add: Boolean) {
+        with(preferences.edit()){
+            putBoolean("extraCycleCount",add)
+            apply()
+        }
+    }
+
+    fun getAddExtraCycleCount() : Boolean {
+        return preferences.getBoolean("extraCycleCount",false)
+    }
+
     //full name
     fun setFullName(fullName: String) {
         with(preferences.edit()){

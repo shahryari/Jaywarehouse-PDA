@@ -39,6 +39,7 @@ class CycleDetailViewModel(
         setState {
             copy(
                 cycleRow = row,
+                showAddButton = prefs.getAddExtraCycleCount()
             )
         }
         viewModelScope.launch(Dispatchers.IO) {

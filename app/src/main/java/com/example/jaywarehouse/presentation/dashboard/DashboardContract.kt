@@ -22,7 +22,8 @@ class DashboardContract {
         val forwardToDashboard: Boolean = false,
         val openDetail: Boolean = false,
         val showChangPasswordDialog: Boolean = false,
-        val selectedTab: DashboardTab = DashboardTab.Picking
+        val selectedTab: DashboardTab = DashboardTab.Picking,
+        val addExtraCycle: Boolean = false,
     ) : UiState
 
     sealed class Event : UiEvent {
@@ -35,6 +36,7 @@ class DashboardContract {
         data class OnForwardToDashboard(val forward: Boolean) : Event()
         data class OnOpenDetail(val open: Boolean) : Event()
         data class OnShowChangePasswordDialog(val show: Boolean) : Event()
+        data class OnAddExtraCycleChange(val add: Boolean): Event()
     }
 
     sealed class Effect : UiSideEffect {

@@ -6,6 +6,7 @@ import com.example.jaywarehouse.data.auth.AuthRepository
 import com.example.jaywarehouse.data.common.utils.BaseResult
 import com.example.jaywarehouse.data.common.utils.Prefs
 import com.example.jaywarehouse.presentation.common.utils.BaseViewModel
+import com.example.jaywarehouse.presentation.dashboard.DashboardContract.Effect.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
@@ -23,7 +24,8 @@ class DashboardViewModel(
             copy(
                 name = prefs.getFullName(),
                 forwardToDashboard = prefs.getIsNavToParent(),
-                openDetail = prefs.getIsNavToDetail()
+                openDetail = prefs.getIsNavToDetail(),
+                addExtraCycle = prefs.getAddExtraCycleCount()
             )
         }
         viewModelScope.launch(Dispatchers.IO) {
@@ -41,7 +43,7 @@ class DashboardViewModel(
     override fun onEvent(event: DashboardContract.Event) {
         when(event){
             is DashboardContract.Event.OnNavigate -> setEffect {
-                DashboardContract.Effect.Navigate(event.destination)
+                Navigate(event.destination)
             }
 
             is DashboardContract.Event.OnSelectTab -> {
@@ -93,6 +95,13 @@ class DashboardViewModel(
             is DashboardContract.Event.OnShowChangePasswordDialog -> {
                 setState {
                     copy(showChangPasswordDialog = event.show)
+                }
+            }
+
+            is DashboardContract.Event.OnAddExtraCycleChange -> {
+                prefs.setAddExtraCycleCount(event.add)
+                setState {
+                    copy(addExtraCycle = event.add)
                 }
             }
         }

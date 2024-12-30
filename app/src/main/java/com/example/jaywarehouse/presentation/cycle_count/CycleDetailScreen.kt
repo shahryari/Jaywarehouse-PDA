@@ -161,7 +161,7 @@ fun CycleDetailContent(
             }
             PullRefreshIndicator(refreshing = state.loadingState == Loading.REFRESHING, state = refreshState, modifier = Modifier.align(
                 Alignment.TopCenter) )
-            Box(
+            if(state.showAddButton)Box(
                 Modifier
                     .align(Alignment.BottomEnd)
                     .padding(12.mdp)

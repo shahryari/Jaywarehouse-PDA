@@ -280,6 +280,16 @@ private fun DashboardContent(
                                                     onEvent(DashboardContract.Event.OnOpenDetail(it))
                                                 }
                                             )
+                                            HorizontalDivider(color = Gray4)
+                                            SettingDrawer(
+                                                title = "Enable Add Extra In Cycle Count",
+                                                icon = R.drawable.add_square,
+                                                showSwitch = true,
+                                                switchState = state.addExtraCycle,
+                                                onSwitchChange = {
+                                                    onEvent(DashboardContract.Event.OnAddExtraCycleChange(it))
+                                                }
+                                            )
                                         }
                                     }
                                 }
@@ -450,9 +460,10 @@ fun SettingDrawer(
             )
             .padding(12.mdp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            modifier = Modifier.weight(1f),
+            verticalAlignment = Alignment.CenterVertically) {
             Icon(
                 painterResource(icon),
                 contentDescription = "",
@@ -467,6 +478,7 @@ fun SettingDrawer(
                 color = Black
             )
         }
+        Spacer(Modifier.size(5.mdp))
         if (showSwitch) MySwitch(switchState) {
             onSwitchChange(it)
         } else {
