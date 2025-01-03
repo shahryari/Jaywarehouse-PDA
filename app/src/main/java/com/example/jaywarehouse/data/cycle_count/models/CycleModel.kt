@@ -26,5 +26,11 @@ data class CycleRow(
     @SerializedName("LevelInfo")
     val levelInfo: String?,
     @SerializedName("LocationCode")
-    val locationCode: String
+    val locationCode: String,
+    @SerializedName("IsEmpty")
+    val isEmpty: Boolean,
+    @SerializedName("DetailCount")
+    val detailCount: Int,
+    @SerializedName("TaskCount")
+    val taskCount: Int
 ) : Serializable

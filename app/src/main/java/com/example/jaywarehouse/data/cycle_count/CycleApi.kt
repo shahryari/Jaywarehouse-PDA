@@ -23,7 +23,6 @@ interface CycleApi {
         @Header(PAGE) page: Int,
         @Header(ROWS) rows: Int,
         @Header(SORT) sort: String,
-        @Header(ORDER) order: String
     ) : Response<CycleModel>
 
     @POST("CycleCountLocationDetail")

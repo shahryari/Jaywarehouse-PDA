@@ -5,6 +5,8 @@ import com.example.jaywarehouse.data.common.utils.ResultMessageModel
 import com.example.jaywarehouse.data.common.utils.getResult
 import com.example.jaywarehouse.data.cycle_count.models.CycleDetailModel
 import com.example.jaywarehouse.data.cycle_count.models.CycleModel
+import com.example.jaywarehouse.presentation.common.utils.SortItemDto
+import com.google.gson.Gson
 import com.google.gson.JsonObject
 import kotlinx.coroutines.flow.Flow
 
@@ -18,14 +20,18 @@ class CycleRepository(
         order: String
     ) = getResult(
         request = {
+            val sortList = listOf(
+                SortItemDto(1,"IsEmpty","asc"),
+                SortItemDto(2,"DetailCount","desc"),
+                SortItemDto(3,sort,order)
+            )
             val jsonObject = JsonObject()
             jsonObject.addProperty("Keyword",keyword)
             api.getCycleCountLocations(
                 jsonObject,
                 page,
                 10,
-                sort,
-                order
+                Gson().toJson(sortList.toTypedArray())
             )
         }
     )

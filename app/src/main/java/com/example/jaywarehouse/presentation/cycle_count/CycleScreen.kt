@@ -1,5 +1,6 @@
 package com.example.jaywarehouse.presentation.cycle_count
 
+import android.graphics.drawable.Icon
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -55,6 +56,7 @@ import com.example.jaywarehouse.presentation.destinations.CycleDetailScreenDesti
 import com.example.jaywarehouse.presentation.destinations.LoadingDetailScreenDestination
 import com.example.jaywarehouse.presentation.loading.contracts.LoadingContract
 import com.example.jaywarehouse.presentation.loading.viewmodels.LoadingViewModel
+import com.example.jaywarehouse.ui.theme.Black
 import com.example.jaywarehouse.ui.theme.Primary
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -124,6 +126,7 @@ fun CheckingContent(
             ) {
                 TopBar(
                     title = "Cycle Count",
+                    titleTag = state.cycleCount.toString(),
                     subTitle = "Choose a Location",
                     onBack = {
                         onEvent(CycleCountContract.Event.OnBackPressed)
@@ -198,21 +201,39 @@ fun CycleItem(
         DetailCard(
             "Location",
             detail = model.locationCode,
-            icon = R.drawable.location
+            icon = null,
+            modifier= Modifier.weight(1f)
         )
-
-        if(model.levelInfo!=null)Box(
-            modifier = Modifier
-                .clip(RoundedCornerShape(4.mdp))
-                .background(Primary.copy(0.2f))
-                .padding(vertical = 4.mdp, horizontal = 10.mdp)
-        ) {
-            MyText(
-                text = model.levelInfo,
-                style = MaterialTheme.typography.labelSmall,
-                fontWeight = FontWeight.SemiBold,
-                color = Primary
-            )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            if (model.isEmpty)
+                Icon(
+                    painterResource(R.drawable.direct_normal),
+                    contentDescription = "",
+                    Modifier.size(24.mdp),
+                    tint = Black
+                )
+            else
+                Icon(
+                    painterResource(R.drawable.direct),
+                    contentDescription = "",
+                    Modifier.size(24.mdp),
+                    tint = Primary
+                )
+            Spacer(Modifier.size(8.mdp))
+            if (model.detailCount>0)
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(4.mdp))
+                        .background(Primary.copy(0.2f))
+                        .padding(vertical = 4.mdp, horizontal = 10.mdp)
+                ) {
+                    MyText(
+                        text = "Counting",
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Primary
+                    )
+                }
         }
     }
 }

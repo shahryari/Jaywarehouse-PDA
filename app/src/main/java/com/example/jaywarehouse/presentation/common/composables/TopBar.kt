@@ -35,6 +35,7 @@ import com.example.jaywarehouse.ui.theme.Primary
 @Composable
 fun TopBar(
     title: String,
+    titleTag: String = "",
     onBack: ()-> Unit,
     modifier: Modifier = Modifier,
     subTitle: String = "",
@@ -69,13 +70,35 @@ fun TopBar(
                 modifier = Modifier.weight(1f),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                MyText(
-                    text = title,
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.W400,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    MyText(
+                        text = title,
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.W400,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    if (titleTag.isNotEmpty())Row(verticalAlignment = Alignment.CenterVertically) {
+                        MyText(
+                            text = "[",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.W400,
+                        )
+                        MyText(
+                            text = titleTag,
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.W400,
+                            maxLines = 1,
+                            color = Color(0xFF9D9D9D),
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        MyText(
+                            text = "]",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.W400
+                        )
+                    }
+                }
                 if (subTitle.isNotEmpty())Spacer(Modifier.size(3.mdp))
                 if (subTitle.isNotEmpty())MyText(
                     text = subTitle,

@@ -22,25 +22,29 @@ fun MyButton(
     onClick: () -> Unit,
     title: String,
     isLoading: Boolean = false,
+    enabled: Boolean = true,
     colors: ButtonColors = ButtonDefaults.buttonColors(
         containerColor = Primary,
-        contentColor = Color.White
+        contentColor = Color.White,
+        disabledContentColor = Color.Gray
     ),
     shape: Shape = RoundedCornerShape(6.mdp)
 ) {
+    val color = if(enabled && !isLoading) colors.contentColor else colors.disabledContentColor
     Button(
         onClick = onClick,
         shape = shape,
         colors = colors,
+        enabled = enabled && !isLoading,
         contentPadding = PaddingValues(vertical = 14.mdp),
         modifier = modifier
     ) {
-        if (isLoading) CircularProgressIndicator(modifier = Modifier.size(24.mdp), color = colors.contentColor)
+        if (isLoading) CircularProgressIndicator(modifier = Modifier.size(24.mdp), color = color)
         else MyText(
             text = title,
             fontWeight = FontWeight.W500,
             style = MaterialTheme.typography.titleMedium,
-            color = colors.contentColor
+            color = color
         )
     }
 }

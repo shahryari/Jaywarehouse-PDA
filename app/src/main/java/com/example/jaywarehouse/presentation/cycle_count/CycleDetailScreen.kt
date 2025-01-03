@@ -30,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
@@ -58,6 +59,8 @@ import com.example.jaywarehouse.presentation.counting.ConfirmDialog
 import com.example.jaywarehouse.presentation.cycle_count.contracts.CycleDetailContract
 import com.example.jaywarehouse.presentation.cycle_count.viewmodels.CycleDetailViewModel
 import com.example.jaywarehouse.presentation.shipping.contracts.ShippingContract
+import com.example.jaywarehouse.ui.theme.Black
+import com.example.jaywarehouse.ui.theme.Border
 import com.example.jaywarehouse.ui.theme.Gray3
 import com.example.jaywarehouse.ui.theme.Gray5
 import com.example.jaywarehouse.ui.theme.Primary
@@ -161,6 +164,26 @@ fun CycleDetailContent(
             }
             PullRefreshIndicator(refreshing = state.loadingState == Loading.REFRESHING, state = refreshState, modifier = Modifier.align(
                 Alignment.TopCenter) )
+            if (state.details.isEmpty() && state.loadingState == Loading.NONE){
+                Column(
+                    Modifier.align(Alignment.Center),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Icon(
+                        painterResource(R.drawable.direct_normal),
+                        contentDescription = "",
+                        modifier = Modifier.size(139.mdp),
+                        tint = Black.copy(0.3f)
+                    )
+                    Spacer(Modifier.size(5.mdp))
+                    MyText(
+                        "No Data...",
+                        fontWeight = FontWeight.W400,
+                        color = Border,
+                        fontSize = 14.sp
+                    )
+                }
+            }
             if(state.showAddButton)Box(
                 Modifier
                     .align(Alignment.BottomEnd)
@@ -356,6 +379,7 @@ fun CountBottomSheet(
                             onEvent(CycleDetailContract.Event.OnSave(state.selectedCycle))
                         },
                         title = "Save",
+                        enabled = state.quantity.text.isNotEmpty(),
                         isLoading = state.onSaving,
                         modifier = Modifier.weight(1f)
                     )
@@ -487,6 +511,7 @@ fun AddBottomSheet(
                             onEvent(CycleDetailContract.Event.OnAdd)
                         },
                         title = "Save",
+                        enabled = state.quantity.text.isNotEmpty() && state.barcode.text.isNotEmpty(),
                         isLoading = state.onSaving,
                         modifier = Modifier.weight(1f)
                     )

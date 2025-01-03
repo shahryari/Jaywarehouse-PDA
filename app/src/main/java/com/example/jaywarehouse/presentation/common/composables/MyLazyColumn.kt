@@ -3,6 +3,7 @@ package com.example.jaywarehouse.presentation.common.composables
 import androidx.collection.mutableIntSetOf
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -47,20 +48,22 @@ fun <T>MyLazyColumn(
             }
 
             LaunchedEffect(Unit) {
-                delay(i*100L)
+//                delay(i*50L)
                 isVisible = true
             }
-            AnimatedVisibility(
-                visible = isVisible,
-                enter = slideInHorizontally(initialOffsetX = { it }),
-                exit = slideOutHorizontally(targetOffsetX = { it }),
-                modifier = Modifier.fillMaxSize()
-            ) {
-                Column {
-                    itemContent(i,it)
-                    Spacer(modifier = Modifier.size(spacerSize))
-                }
+            Column(Modifier.animateItem(
+                fadeInSpec = tween(delayMillis = i*50)
+            )) {
+                itemContent(i,it)
+                Spacer(modifier = Modifier.size(spacerSize))
             }
+//            AnimatedVisibility(
+//                visible = isVisible,
+//                enter = slideInHorizontally(initialOffsetX = { it }),
+//                exit = slideOutHorizontally(targetOffsetX = { it }),
+//                modifier = Modifier.fillMaxSize()
+//            ) {
+//            }
         }
         item {
             onReachEnd()

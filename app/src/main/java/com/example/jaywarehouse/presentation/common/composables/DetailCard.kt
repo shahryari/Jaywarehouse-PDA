@@ -31,18 +31,18 @@ fun DetailCard(
     modifier: Modifier = Modifier,
     textStyle : TextStyle = MaterialTheme.typography.titleMedium,
     enableDetail: Boolean = false,
-    icon: Int,
+    icon: Int?,
 ) {
     var showAllDetail by remember { mutableStateOf(false) }
     Column(
         modifier
     ) {
-        MyText(
+        if (title.isNotEmpty())MyText(
             title,
             fontWeight = FontWeight.Medium,
             style = MaterialTheme.typography.titleSmall
         )
-        Spacer(modifier = Modifier.size(7.mdp))
+        if (title.isNotEmpty())Spacer(modifier = Modifier.size(7.mdp))
         Row(
             Modifier
                 .fillMaxWidth()
@@ -59,13 +59,13 @@ fun DetailCard(
 //                .padding(end = 10.mdp, top = 3.mdp, bottom = 3.mdp, start = 3.mdp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
+            if (icon != null)Icon(
                 painterResource(id = icon),
                 contentDescription = null,
                 tint = Black,
                 modifier = Modifier.size(24.mdp)
             )
-            Spacer(modifier = Modifier.size(7.mdp))
+            if (icon!=null)Spacer(modifier = Modifier.size(7.mdp))
             MyText(
                 text = detail,
                 style = textStyle,

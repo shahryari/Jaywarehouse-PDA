@@ -17,7 +17,7 @@ class CycleDetailContract {
         val cycleRow: CycleRow? = null,
         val detailModel: CycleDetailModel? = null,
         val details: List<CycleDetailRow> = emptyList(),
-        val loadingState: Loading = Loading.NONE,
+        val loadingState: Loading = Loading.INIT,
         val selectedCycle: CycleDetailRow? = null,
         val showSortList: Boolean = false,
         val error: String = "",

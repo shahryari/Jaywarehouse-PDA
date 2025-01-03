@@ -14,14 +14,15 @@ class CycleCountContract {
     data class State(
         val cycleModel: CycleModel? = null,
         val cycleList: List<CycleRow> = emptyList(),
+        val cycleCount: Int = 0,
         val keyword: TextFieldValue = TextFieldValue(),
         val loadingState: Loading = Loading.NONE,
         val error: String = "",
         val sortList: List<SortItem> = listOf(
             SortItem("Created On closed to now", "CreatedOn",Order.Desc),
             SortItem("Created On farthest from now", "CreatedOn",Order.Asc),
-            SortItem("Location A-Z","LocationCode",Order.Asc),
-            SortItem("Location Z-A","LocationCode",Order.Desc)
+            SortItem("Location A-Z","WarehouseLocationCode",Order.Asc),
+            SortItem("Location Z-A","WarehouseLocationCode",Order.Desc)
         ),
         val sort: SortItem = sortList.first(),
         val page: Int = 1,

@@ -132,7 +132,11 @@ class CycleViewModel(
                         }
                         is BaseResult.Success -> {
                             setSuspendedState {
-                                copy(cycleList = cycleList + (it.data?.rows?: emptyList()), loadingState = Loading.NONE)
+                                copy(
+                                    cycleList = cycleList + (it.data?.rows?: emptyList()),
+                                    loadingState = Loading.NONE,
+                                    cycleCount = it.data?.total?:0
+                                )
                             }
                         }
                         BaseResult.UnAuthorized -> {
