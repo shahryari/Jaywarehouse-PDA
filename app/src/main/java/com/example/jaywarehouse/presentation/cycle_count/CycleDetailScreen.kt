@@ -24,6 +24,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -56,6 +57,7 @@ import com.example.jaywarehouse.presentation.common.utils.Loading
 import com.example.jaywarehouse.presentation.common.utils.SIDE_EFFECT_KEY
 import com.example.jaywarehouse.presentation.common.utils.ScreenTransition
 import com.example.jaywarehouse.presentation.counting.ConfirmDialog
+import com.example.jaywarehouse.presentation.cycle_count.contracts.CycleCountContract
 import com.example.jaywarehouse.presentation.cycle_count.contracts.CycleDetailContract
 import com.example.jaywarehouse.presentation.cycle_count.viewmodels.CycleDetailViewModel
 import com.example.jaywarehouse.presentation.shipping.contracts.ShippingContract
@@ -107,6 +109,13 @@ fun CycleDetailContent(
     state: CycleDetailContract.State = CycleDetailContract.State(),
     onEvent: (CycleDetailContract.Event)->Unit = {}
 ) {
+    val searchFocusRequester = remember {
+        FocusRequester()
+    }
+
+    LaunchedEffect(Unit) {
+        searchFocusRequester.requestFocus()
+    }
 
     val refreshState = rememberPullRefreshState(
         refreshing = state.loadingState == Loading.REFRESHING,
@@ -143,6 +152,22 @@ fun CycleDetailContent(
                     onEndClick = {
                         onEvent(CycleDetailContract.Event.OnShowSubmit(true))
                     }
+                )
+                Spacer(modifier = Modifier.size(10.mdp))
+                SearchInput(
+                    value = state.keyword,
+                    onValueChange = {
+                        onEvent(CycleDetailContract.Event.OnChangeKeyword(it))
+                    },
+                    onSearch = {
+                        onEvent(CycleDetailContract.Event.OnSearch)
+                    },
+                    isLoading = state.loadingState == Loading.SEARCHING,
+                    onSortClick = {
+                        onEvent(CycleDetailContract.Event.OnShowSortList(true))
+                    },
+                    hideKeyboard = state.lockKeyboard,
+                    focusRequester = searchFocusRequester
                 )
                 Spacer(modifier = Modifier.size(20.mdp))
 
@@ -262,9 +287,9 @@ fun CycleDetailItem(
     BaseListItem(
         onClick = onClick,
         item1 = BaseListItemModel("Name",model.productTitle,R.drawable.vuesax_outline_3d_cube_scan),
-        item2 = BaseListItemModel("Status",model.quiddityTypeTitle,R.drawable.box_search),
-        item3 = BaseListItemModel("Barcode",model.productBarcodeNumber,R.drawable.note),
-        item4 = if (model.batchNumber!=null)BaseListItemModel("Batch Number", model.batchNumber,R.drawable.keyboard2) else null,
+        item2 = BaseListItemModel("Product Code",model.productCode,R.drawable.note),
+        item3 = BaseListItemModel("Barcode",model.productBarcodeNumber,R.drawable.barcode),
+        item4 = BaseListItemModel("Status", model.quiddityTypeTitle,R.drawable.box_search),
         item5 = model.expireDate?.let { BaseListItemModel("Expiration Date",it,R.drawable.calendar_add) },
         quantityTitle = "",
         quantity = model.locationCode,
@@ -312,24 +337,24 @@ fun CountBottomSheet(
                 Spacer(Modifier.size(10.mdp))
                 Row(Modifier.fillMaxWidth()) {
                     DetailCard(
-                        "Status",
-                        state.selectedCycle.quiddityTypeTitle?:"",
-                        icon = R.drawable.box_search,
+                        "Product Code",
+                        state.selectedCycle.productCode,
+                        icon = R.drawable.note,
                         modifier = Modifier.weight(1f)
                     )
                     Spacer(Modifier.size(5.mdp))
                     DetailCard(
                         "Barcode",
                         state.selectedCycle.productBarcodeNumber,
-                        icon = R.drawable.note,
+                        icon = R.drawable.barcode,
                         modifier = Modifier.weight(1f)
                     )
                 }
                 Spacer(Modifier.size(10.mdp))
                 Row(Modifier.fillMaxWidth()) {
-                    if (state.selectedCycle.batchNumber!=null)DetailCard(
-                        "Batch Number",
-                        state.selectedCycle.batchNumber?:"",
+                    DetailCard(
+                        "Status",
+                        state.selectedCycle.quiddityTypeTitle,
                         icon = R.drawable.box_search,
                         modifier = Modifier.weight(1f)
                     )

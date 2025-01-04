@@ -26,11 +26,11 @@ fun MyButton(
     colors: ButtonColors = ButtonDefaults.buttonColors(
         containerColor = Primary,
         contentColor = Color.White,
-        disabledContentColor = Color.Gray
+        disabledContainerColor = Primary.copy(0.5f)
     ),
     shape: Shape = RoundedCornerShape(6.mdp)
 ) {
-    val color = if(enabled && !isLoading) colors.contentColor else colors.disabledContentColor
+    val color = if(enabled && !isLoading) colors.contentColor else colors.contentColor
     Button(
         onClick = onClick,
         shape = shape,

@@ -230,14 +230,21 @@ class CycleDetailViewModel(
                     }
                     when(it){
                         is BaseResult.Success -> {
-                            setState {
+                            val detailList = state.details + (it.data?.rows ?: emptyList())
+                            setSuspendedState {
                                 copy(
-                                    details = details + (it.data?.rows ?: emptyList()),
+                                    details = detailList,
                                 )
                             }
+                            if (detailList.size == 1){
+                                setSuspendedState {
+                                    copy(selectedCycle = detailList.firstOrNull())
+                                }
+                            }
+
                         }
                         is BaseResult.Error -> {
-                            setState {
+                            setSuspendedState {
                                 copy(
                                     error = it.message,
                                 )
