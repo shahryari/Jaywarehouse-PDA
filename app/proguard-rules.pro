@@ -19,4 +19,5 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
--printusage /home/mohyeddin/AndroidStudioProjects/JayWarehouse2/app/release/usage.txt
+#-printusage /home/mohyeddin/AndroidStudioProjects/JayWarehouse2/app/release/usage.txt
+-keep class com.example.jaywarehouse.** {*;}
