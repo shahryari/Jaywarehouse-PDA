@@ -36,6 +36,7 @@ class CycleDetailContract {
         val showAddDialog: Boolean = false,
         val showSubmit: Boolean = false,
         val showAddButton: Boolean = false,
+        val isSearching: Boolean = false,
         //
         val locationCode: TextFieldValue = TextFieldValue(),
         val status: TextFieldValue = TextFieldValue(),

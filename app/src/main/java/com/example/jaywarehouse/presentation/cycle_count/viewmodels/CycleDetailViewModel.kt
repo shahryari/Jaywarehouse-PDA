@@ -74,9 +74,7 @@ class CycleDetailViewModel(
                     copy(
                         selectedCycle = event.detail,
                         quantity = TextFieldValue(),
-                        status = TextFieldValue(),
-                        selectedStatus = null,
-                        expireDate = TextFieldValue()
+                        isSearching = false
                     )
                 }
             }
@@ -112,7 +110,7 @@ class CycleDetailViewModel(
             }
             CycleDetailContract.Event.OnSearch -> {
                 setState {
-                    copy(loadingState = Loading.SEARCHING, details = emptyList(), page = 1)
+                    copy(loadingState = Loading.SEARCHING, details = emptyList(), page = 1, isSearching = true)
                 }
                 getDetails()
             }
@@ -215,12 +213,12 @@ class CycleDetailViewModel(
                 sort = state.sort.sort,
                 page = state.page,
                 order = state.sort.order.value
-            )
-                .catch {
+            ).catch {
                     setState {
                         copy(
                             error = it.message ?: "",
-                            loadingState = Loading.NONE
+                            loadingState = Loading.NONE,
+                            isSearching = false
                         )
                     }
                 }
@@ -236,9 +234,9 @@ class CycleDetailViewModel(
                                     details = detailList,
                                 )
                             }
-                            if (detailList.size == 1){
+                            if (detailList.size == 1 && state.isSearching){
                                 setSuspendedState {
-                                    copy(selectedCycle = detailList.firstOrNull())
+                                    copy(selectedCycle = detailList.firstOrNull(), isSearching = false)
                                 }
                             }
 
@@ -247,6 +245,7 @@ class CycleDetailViewModel(
                             setSuspendedState {
                                 copy(
                                     error = it.message,
+                                    isSearching = false
                                 )
                             }
                         }

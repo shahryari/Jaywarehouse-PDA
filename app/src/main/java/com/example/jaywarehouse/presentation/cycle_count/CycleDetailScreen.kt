@@ -324,7 +324,7 @@ fun CountBottomSheet(
             ) {
 
                 MyText(
-                    text = "Update",
+                    text = "Count Location",
                     fontSize = 16.sp,
                     color = Color(0xFF767676)
                 )
@@ -361,17 +361,11 @@ fun CountBottomSheet(
                     if (state.selectedCycle.batchNumber!=null && state.selectedCycle.expireDate!=null)Spacer(Modifier.size(5.mdp))
                     if (state.selectedCycle.expireDate!=null)DetailCard(
                         "Expiration Date",
-                        state.selectedCycle.expireDate?:"",
+                        state.selectedCycle.expireDate,
                         icon = R.drawable.note,
                         modifier = Modifier.weight(1f)
                     )
                 }
-                if (state.selectedCycle.batchNumber!= null || state.selectedCycle.expireDate!=null)Spacer(Modifier.size(10.mdp))
-                DetailCard(
-                    "Count",
-                    state.selectedCycle.countQuantity?.toString()?:"0",
-                    icon = R.drawable.vuesax_linear_box
-                )
                 Spacer(Modifier.size(15.mdp))
                 InputTextField(
                     state.quantity,
