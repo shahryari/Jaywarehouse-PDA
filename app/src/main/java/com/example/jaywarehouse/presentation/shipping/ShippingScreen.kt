@@ -153,13 +153,10 @@ fun ShippingContent(
                 )
                 Spacer(modifier = Modifier.size(10.mdp))
                 SearchInput(
-                    value = state.keyword,
-                    onValueChange = {
-                        onEvent(ShippingContract.Event.OnKeywordChange(it))
-                    },
                     onSearch = {
-                        onEvent(ShippingContract.Event.OnSearch)
+                        onEvent(ShippingContract.Event.OnSearch(it.text))
                     },
+                    value = state.keyword,
                     isLoading = state.loadingState == Loading.SEARCHING,
                     onSortClick = {
                         onEvent(ShippingContract.Event.OnShowFilterList(true))

@@ -74,11 +74,11 @@ class CountingViewModel(
 
     override fun onEvent(event: CountingContract.Event) {
         when(event){
-            is CountingContract.Event.OnKeywordChange -> {
-                setState {
-                    copy(keyword = event.keyword)
-                }
-            }
+//            is CountingContract.Event.OnKeywordChange -> {
+//                setState {
+//                    copy(keyword = event.keyword)
+//                }
+//            }
             is CountingContract.Event.OnNavToReceivingDetail -> setEffect {
                 NavToReceivingDetail(event.receivingRow)
             }
@@ -95,7 +95,7 @@ class CountingViewModel(
                 setState {
                     copy(sort = event.sort, page = 1, countingList = emptyList(), loadingState = Loading.LOADING)
                 }
-                getCountingList(state.keyword.text,state.page,event.sort)
+                getCountingList(state.keyword,state.page,event.sort)
             }
             is CountingContract.Event.OnShowSortList -> {
                 setState { copy(showSortList = event.show) }
@@ -114,7 +114,7 @@ class CountingViewModel(
                     setState {
                         copy(page = page+1, loadingState = Loading.LOADING)
                     }
-                    getCountingList(state.keyword.text,state.page,state.sort)
+                    getCountingList(state.keyword,state.page,state.sort)
                 }
             }
 
@@ -122,21 +122,21 @@ class CountingViewModel(
                 setState {
                     copy(loadingState = Loading.REFRESHING, page = 1, countingList = emptyList())
                 }
-                getCountingList(state.keyword.text,state.page,state.sort)
+                getCountingList(state.keyword,state.page,state.sort)
             }
 
-            CountingContract.Event.OnSearch -> {
+            is CountingContract.Event.OnSearch -> {
                 setState {
-                    copy(loadingState = Loading.SEARCHING, page = 1, countingList = emptyList())
+                    copy(loadingState = Loading.SEARCHING, page = 1, countingList = emptyList(), keyword = event.keyword)
                 }
-                getCountingList(state.keyword.text,state.page,state.sort)
+                getCountingList(state.keyword,state.page,state.sort)
             }
 
             CountingContract.Event.FetchData -> {
                 setState {
-                    copy(loadingState = Loading.LOADING, page = 1, countingList = emptyList(), keyword = TextFieldValue())
+                    copy(loadingState = Loading.LOADING, page = 1, countingList = emptyList(), keyword = "")
                 }
-                getCountingList(state.keyword.text,state.page,state.sort)
+                getCountingList(state.keyword,state.page,state.sort)
             }
 
             CountingContract.Event.OnBackPressed -> {

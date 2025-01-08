@@ -47,4 +47,16 @@ data class CycleDetailRow(
     val quiddityTypeTitle: String,
     @SerializedName("CycleCountWorkerTaskDetailID")
     val cycleCountWorkerTaskDetailID: String
-)
+) {
+    override fun equals(other: Any?): Boolean {
+        return other is CycleDetailRow
+                && cycleCountWorkerTaskDetailID == other.cycleCountWorkerTaskDetailID
+                && cycleCountWorkerTaskID == other.cycleCountWorkerTaskID
+                && productBarcodeNumber == other.productBarcodeNumber
+                && productID == other.productID
+                && cycleCountLocationID == other.cycleCountLocationID
+                && cycleCountID == other.cycleCountID
+                && productCode == other.productCode
+                && productBarcodeID == other.productBarcodeID
+    }
+}

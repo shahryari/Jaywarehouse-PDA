@@ -71,11 +71,6 @@ class RSIntegrationViewModel(
                     copy(driverTin = event.driverTin)
                 }
             }
-            is RSIntegrationContract.Event.OnKeywordChange -> {
-                setState {
-                    copy(keyword = event.keyword)
-                }
-            }
             RSIntegrationContract.Event.OnNavBack -> {
                 setEffect {
                     RSIntegrationContract.Effect.NavBack
@@ -98,9 +93,9 @@ class RSIntegrationViewModel(
             RSIntegrationContract.Event.OnScanDriverTin -> {
                 getDriverInfo()
             }
-            RSIntegrationContract.Event.OnSearch -> {
+            is RSIntegrationContract.Event.OnSearch -> {
                 setState {
-                    copy(page =1, loadingState = Loading.SEARCHING, rsList = emptyList())
+                    copy(page =1, loadingState = Loading.SEARCHING, rsList = emptyList(), keyword = event.keyword)
                 }
                 getPODInvoice()
             }
@@ -142,7 +137,7 @@ class RSIntegrationViewModel(
 
     private fun getPODInvoice(){
         viewModelScope.launch(Dispatchers.IO) {
-            repository.getPODInvoice(state.keyword.text,state.page,state.sort.sort,state.sort.order.value)
+            repository.getPODInvoice(state.keyword,state.page,state.sort.sort,state.sort.order.value)
                 .catch {
                     setSuspendedState {
                         copy(error = it.message?:"", loadingState = Loading.NONE)

@@ -120,13 +120,10 @@ fun LoadingContent(
                 )
                 Spacer(modifier = Modifier.size(10.mdp))
                 SearchInput(
-                    value = state.keyword,
-                    onValueChange = {
-                        onEvent(LoadingContract.Event.OnChangeKeyword(it))
-                    },
                     onSearch = {
-                        onEvent(LoadingContract.Event.OnSearch)
+                        onEvent(LoadingContract.Event.OnSearch(it.text))
                     },
+                    value = state.keyword,
                     isLoading = state.loadingState == Loading.SEARCHING,
                     onSortClick = {
                         onEvent(LoadingContract.Event.OnShowSortList(true))

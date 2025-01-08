@@ -41,11 +41,11 @@ class CheckingViewModel(
 
     override fun onEvent(event: CheckingContract.Event) {
         when(event){
-            is CheckingContract.Event.OnChangeKeyword ->{
-                setState {
-                    copy(keyword = event.keyword)
-                }
-            }
+//            is CheckingContract.Event.OnChangeKeyword ->{
+//                setState {
+//                    copy(keyword = event.keyword)
+//                }
+//            }
             is CheckingContract.Event.OnNavToCheckingDetail -> setEffect {
                 CheckingContract.Effect.NavToCheckingDetail(event.item)
             }
@@ -61,7 +61,7 @@ class CheckingViewModel(
                 setState {
                     copy(sort = event.sort, checkingList = emptyList(), page = 1, loadingState = Loading.LOADING)
                 }
-                getCheckingList(state.keyword.text,state.page,event.sort)
+                getCheckingList(state.keyword,state.page,event.sort)
             }
             is CheckingContract.Event.OnShowSortList -> {
                 setState {
@@ -72,10 +72,10 @@ class CheckingViewModel(
             CheckingContract.Event.ReloadScreen -> {
 
                 setState {
-                    copy(page = 1, checkingList = emptyList(), loadingState = Loading.LOADING, keyword = TextFieldValue())
+                    copy(page = 1, checkingList = emptyList(), loadingState = Loading.LOADING, keyword = "")
                 }
 
-                getCheckingList(state.keyword.text,state.page,state.sort)
+                getCheckingList(state.keyword,state.page,state.sort)
             }
 
             CheckingContract.Event.OnReachedEnd -> {
@@ -83,22 +83,22 @@ class CheckingViewModel(
                     setState {
                         copy(page = state.page+1, loadingState = Loading.LOADING)
                     }
-                    getCheckingList(state.keyword.text,state.page,state.sort)
+                    getCheckingList(state.keyword,state.page,state.sort)
                 }
             }
 
-            CheckingContract.Event.OnSearch -> {
+            is CheckingContract.Event.OnSearch -> {
                 setState {
-                    copy(page = 1, checkingList = emptyList(), loadingState = Loading.SEARCHING)
+                    copy(keyword = event.keyword,page = 1, checkingList = emptyList(), loadingState = Loading.SEARCHING)
                 }
-                getCheckingList(state.keyword.text,state.page,state.sort)
+                getCheckingList(state.keyword,state.page,state.sort)
             }
 
             CheckingContract.Event.OnRefresh -> {
                 setState {
                     copy(page = 1, checkingList = emptyList(), loadingState = Loading.REFRESHING)
                 }
-                getCheckingList(state.keyword.text,state.page,state.sort)
+                getCheckingList(state.keyword,state.page,state.sort)
             }
 
             CheckingContract.Event.OnBackPressed -> {

@@ -64,11 +64,11 @@ class ManualPutawayDetailViewModel(
                     copy(error = "")
                 }
             }
-            is ManualPutawayDetailContract.Event.OnKeywordChange -> {
-                setState {
-                    copy(keyword = event.keyword)
-                }
-            }
+//            is ManualPutawayDetailContract.Event.OnKeywordChange -> {
+//                setState {
+//                    copy(keyword = event.keyword)
+//                }
+//            }
             is ManualPutawayDetailContract.Event.OnLocationCodeChange -> {
                 setState {
                     copy(locationCode = event.locationCode)
@@ -129,9 +129,9 @@ class ManualPutawayDetailViewModel(
                 }
             }
 
-            ManualPutawayDetailContract.Event.OnSearch -> {
+            is ManualPutawayDetailContract.Event.OnSearch -> {
                 setState {
-                    copy(page = 1, details = emptyList(), loadingState = Loading.SEARCHING)
+                    copy(page = 1, details = emptyList(), loadingState = Loading.SEARCHING, keyword = event.keyword)
                 }
                 getManualPutawayDetails()
             }
@@ -229,7 +229,7 @@ class ManualPutawayDetailViewModel(
     private fun getManualPutawayDetails(){
         viewModelScope.launch(Dispatchers.IO) {
             repository.getManualPutawayDetail(
-                state.keyword.text,
+                state.keyword,
                 put.receiptDetailID.toString(),
                 state.page,
                 state.selectedSort.sort,

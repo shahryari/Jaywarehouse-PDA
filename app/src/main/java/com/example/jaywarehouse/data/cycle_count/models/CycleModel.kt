@@ -33,4 +33,12 @@ data class CycleRow(
     val detailCount: Int,
     @SerializedName("TaskCount")
     val taskCount: Int
-) : Serializable
+) : Serializable {
+    override fun equals(other: Any?): Boolean {
+        return other is CycleRow
+                && this.cycleCountID == other.cycleCountID
+                && this.cycleCountLocationID == other.cycleCountLocationID
+                && this.cycleCountWorkerTaskID == other.cycleCountWorkerTaskID
+                && this.locationCode == other.locationCode
+    }
+}

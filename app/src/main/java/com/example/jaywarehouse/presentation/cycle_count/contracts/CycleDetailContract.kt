@@ -24,7 +24,7 @@ class CycleDetailContract {
         val page: Int = 1,
         val toast: String = "",
         val lockKeyboard: Boolean = false,
-        val keyword: TextFieldValue = TextFieldValue(),
+        val keyword: String = "",
         val sortList: List<SortItem> = listOf(
             SortItem("Product Code Ascending", "ProductCode", Order.Asc),
             SortItem("Product Code Descending", "ProductCode",Order.Desc),
@@ -51,17 +51,17 @@ class CycleDetailContract {
     ) : UiState
 
     sealed class Event : UiEvent {
-        data class OnChangeKeyword(val keyword: TextFieldValue) : Event()
         data class OnSelectDetail(val detail: CycleDetailRow?) : Event()
         data object OnNavBack : Event()
         data object CloseError: Event()
         data object HideToast: Event()
+        data object FetchData: Event()
         data object OnReachEnd: Event()
         data object OnRefresh: Event()
         data class OnSave(val item: CycleDetailRow): Event()
         data object OnAdd: Event()
         data class OnShowSortList(val show: Boolean) : Event()
-        data object OnSearch: Event()
+        data class OnSearch(val keyword: String): Event()
         data class OnSortChange(val sortItem: SortItem): Event()
         data class OnShowAddDialog(val show: Boolean) : Event()
         data class OnShowDatePicker(val show: Boolean) : Event()

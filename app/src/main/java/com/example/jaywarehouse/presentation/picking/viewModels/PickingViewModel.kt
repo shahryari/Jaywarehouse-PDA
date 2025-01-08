@@ -41,11 +41,11 @@ class PickingViewModel(
 
     override fun onEvent(event: PickingContract.Event) {
         when(event){
-            is PickingContract.Event.OnChangeKeyword ->{
-                setState {
-                    copy(keyword = event.keyword)
-                }
-            }
+//            is PickingContract.Event.OnChangeKeyword ->{
+//                setState {
+//                    copy(keyword = event.keyword)
+//                }
+//            }
             is PickingContract.Event.OnNavToPickingDetail -> setEffect {
                 PickingContract.Effect.NavToPickingDetail(event.pick)
             }
@@ -61,7 +61,7 @@ class PickingViewModel(
                 setState {
                     copy(sort = event.sort, pickings = emptyList(), page = 1, loadingState = Loading.LOADING)
                 }
-                getPickings(state.keyword.text,state.page,event.sort)
+                getPickings(state.keyword,state.page,event.sort)
             }
             is PickingContract.Event.OnShowSortList -> {
                 setState {
@@ -72,10 +72,10 @@ class PickingViewModel(
             PickingContract.Event.ReloadScreen -> {
 
                 setState {
-                    copy(page = 1, pickings = emptyList(), loadingState = Loading.LOADING, keyword = TextFieldValue())
+                    copy(page = 1, pickings = emptyList(), loadingState = Loading.LOADING, keyword = "")
                 }
 
-                getPickings(state.keyword.text,state.page,state.sort)
+                getPickings(state.keyword,state.page,state.sort)
             }
 
             PickingContract.Event.OnReachedEnd -> {
@@ -83,22 +83,22 @@ class PickingViewModel(
                     setState {
                         copy(page = state.page+1, loadingState = Loading.LOADING)
                     }
-                    getPickings(state.keyword.text,state.page,state.sort)
+                    getPickings(state.keyword,state.page,state.sort)
                 }
             }
 
-            PickingContract.Event.OnSearch -> {
+            is PickingContract.Event.OnSearch -> {
                 setState {
-                    copy(page = 1, pickings = emptyList(), loadingState = Loading.SEARCHING)
+                    copy(page = 1, pickings = emptyList(), loadingState = Loading.SEARCHING, keyword = event.keyword)
                 }
-                getPickings(state.keyword.text,state.page,state.sort)
+                getPickings(state.keyword,state.page,state.sort)
             }
 
             PickingContract.Event.OnRefresh -> {
                 setState {
                     copy(page = 1, pickings = emptyList(), loadingState = Loading.REFRESHING)
                 }
-                getPickings(state.keyword.text,state.page,state.sort)
+                getPickings(state.keyword,state.page,state.sort)
             }
 
             PickingContract.Event.OnBackPressed -> {

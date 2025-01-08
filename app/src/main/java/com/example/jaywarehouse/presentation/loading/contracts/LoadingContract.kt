@@ -16,7 +16,7 @@ class LoadingContract {
     data class State(
         val loadingModel: LoadingListGroupedModel? = null,
         val loadingList: List<LoadingListGroupedRow> = emptyList(),
-        val keyword: TextFieldValue = TextFieldValue(),
+        val keyword: String = "",
         val loadingState: Loading = Loading.NONE,
         val error: String = "",
         val sortList: List<SortItem> = listOf(
@@ -34,14 +34,13 @@ class LoadingContract {
     ) : UiState
 
     sealed class Event : UiEvent {
-        data class OnChangeKeyword(val keyword: TextFieldValue) : Event()
         data class OnNavToLoadingDetail(val item: LoadingListGroupedRow) : Event()
         data object ClearError: Event()
         data class OnChangeSort(val sort: SortItem) : Event()
         data class OnShowSortList(val showSortList: Boolean) : Event()
         data object ReloadScreen: Event()
         data object OnReachedEnd: Event()
-        data object OnSearch: Event()
+        data class OnSearch(val keyword: String): Event()
         data object OnRefresh: Event()
         data object OnBackPressed: Event()
 

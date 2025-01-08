@@ -24,3 +24,11 @@ fun Context.restartActivity(){
     intent!!.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
     this.startActivity(intent)
 }
+
+fun <T> List<T>.addAll(list: List<T>?) : List<T>{
+    val tempList = this.toMutableList()
+    if (list!=null) for (item in list){
+        if (!tempList.contains(item)) tempList.add(item)
+    }
+    return tempList
+}

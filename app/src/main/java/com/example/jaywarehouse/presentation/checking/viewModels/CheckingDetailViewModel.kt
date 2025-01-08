@@ -85,7 +85,7 @@ class CheckingDetailViewModel(
                     setState {
                         copy(page = state.page+1, loadingState = Loading.LOADING)
                     }
-                    getCheckings(row.customerID,keyword = state.keyword.text,page = state.page,sort = state.sort)
+                    getCheckings(row.customerID,keyword = state.keyword,page = state.page,sort = state.sort)
                 }
             }
 
@@ -93,7 +93,7 @@ class CheckingDetailViewModel(
                 setState {
                     copy(page = 1, checkingList = emptyList(), loadingState = Loading.REFRESHING)
                 }
-                getCheckings(row.customerID,keyword = state.keyword.text,page = state.page,sort = state.sort)
+                getCheckings(row.customerID,keyword = state.keyword,page = state.page,sort = state.sort)
             }
             is CheckingDetailContract.Event.OnChangeLocation -> {
                 setState {
@@ -103,16 +103,16 @@ class CheckingDetailViewModel(
             is CheckingDetailContract.Event.OnCompleteChecking -> {
                 completeChecking(event.checking,state.count.text.trim().toInt(), state.barcode.text.trim())
             }
-            is CheckingDetailContract.Event.OnChangeKeyword -> {
+//            is CheckingDetailContract.Event.OnChangeKeyword -> {
+//                setState {
+//                    copy(keyword = event.keyword)
+//                }
+//            }
+            is CheckingDetailContract.Event.OnSearch -> {
                 setState {
-                    copy(keyword = event.keyword)
+                    copy(loadingState = Loading.SEARCHING, checkingList = emptyList(), page = 1, keyword = event.keyword)
                 }
-            }
-            CheckingDetailContract.Event.OnSearch -> {
-                setState {
-                    copy(loadingState = Loading.SEARCHING, checkingList = emptyList(), page = 1)
-                }
-                getCheckings(row.customerID,keyword = state.keyword.text,page = state.page,sort = state.sort)
+                getCheckings(row.customerID,keyword = state.keyword,page = state.page,sort = state.sort)
             }
             is CheckingDetailContract.Event.OnShowSortList -> {
                 setState {
@@ -125,7 +125,7 @@ class CheckingDetailViewModel(
                 setState {
                     copy(sort = event.sortItem, page = 1, checkingList = emptyList(), loadingState = Loading.LOADING)
                 }
-                getCheckings(row.customerID,keyword = state.keyword.text,page = state.page,sort = event.sortItem)
+                getCheckings(row.customerID,keyword = state.keyword,page = state.page,sort = event.sortItem)
             }
         }
     }
@@ -173,7 +173,7 @@ class CheckingDetailViewModel(
                                     loadingState = Loading.LOADING
                                 )
                             }
-                            getCheckings(row.customerID,keyword = state.keyword.text,page = state.page,sort = state.sort)
+                            getCheckings(row.customerID,keyword = state.keyword,page = state.page,sort = state.sort)
                         }
                         is BaseResult.Error -> {
                             setState {

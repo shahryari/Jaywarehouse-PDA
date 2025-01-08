@@ -85,7 +85,7 @@ class PutawayDetailViewModel(
                     setState {
                         copy(page = state.page+1, loadingState = Loading.LOADING)
                     }
-                    getPutaways(putRow.receiptID,keyword = state.keyword.text,page = state.page,sort = state.sort)
+                    getPutaways(putRow.receiptID,keyword = state.keyword,page = state.page,sort = state.sort)
                 }
             }
 
@@ -93,7 +93,7 @@ class PutawayDetailViewModel(
                 setState {
                     copy(page = 1, putaways = emptyList(), loadingState = Loading.REFRESHING)
                 }
-                getPutaways(putRow.receiptID,keyword = state.keyword.text,page = state.page,sort = state.sort)
+                getPutaways(putRow.receiptID,keyword = state.keyword,page = state.page,sort = state.sort)
             }
             is PutawayDetailContract.Event.OnChangeLocation -> {
                 setState {
@@ -103,16 +103,11 @@ class PutawayDetailViewModel(
             is PutawayDetailContract.Event.OnSavePutaway -> {
                 finishPutaway(event.putaway,state.location.text.trim(), state.barcode.text.trim())
             }
-            is PutawayDetailContract.Event.OnChangeKeyword -> {
+            is PutawayDetailContract.Event.OnSearch -> {
                 setState {
-                    copy(keyword = event.keyword)
+                    copy(loadingState = Loading.SEARCHING, putaways = emptyList(), page = 1, keyword = event.keyword)
                 }
-            }
-            PutawayDetailContract.Event.OnSearch -> {
-                setState {
-                    copy(loadingState = Loading.SEARCHING, putaways = emptyList(), page = 1)
-                }
-                getPutaways(putRow.receiptID,keyword = state.keyword.text,page = state.page,sort = state.sort)
+                getPutaways(putRow.receiptID,keyword = state.keyword,page = state.page,sort = state.sort)
             }
             is PutawayDetailContract.Event.OnShowSortList -> {
                 setState {
@@ -125,7 +120,7 @@ class PutawayDetailViewModel(
                 setState {
                     copy(sort = event.sortItem, page = 1, putaways = emptyList(), loadingState = Loading.LOADING)
                 }
-                getPutaways(putRow.receiptID,keyword = state.keyword.text,page = state.page,sort = event.sortItem)
+                getPutaways(putRow.receiptID,keyword = state.keyword,page = state.page,sort = event.sortItem)
             }
         }
     }
@@ -185,7 +180,7 @@ class PutawayDetailViewModel(
                                     loadingState = Loading.LOADING
                                 )
                             }
-                            getPutaways(putRow.receiptID,keyword = state.keyword.text,page = state.page,sort = state.sort)
+                            getPutaways(putRow.receiptID,keyword = state.keyword,page = state.page,sort = state.sort)
                         }
                         is BaseResult.Error -> {
                             setState {

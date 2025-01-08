@@ -21,7 +21,7 @@ class CountingDetailContract {
         val isScanLoading: Boolean = false,
         val selectedDetail: String? = null,
         val showClearIcon: Boolean = false,
-        val keyword: TextFieldValue = TextFieldValue(),
+        val keyword: String = "",
         val toast: String = "",
         val sortList: List<SortItem> = listOf(
             SortItem("Created On closed to now", "CreatedOn",Order.Desc),
@@ -45,13 +45,12 @@ class CountingDetailContract {
         data object OnNavBack : Event()
         data object OnClearBarcode: Event()
         data object HideToast: Event()
-        data class OnChangeKeyword(val keyword: TextFieldValue) : Event()
         data class OnSelectDetail(val barcode: String?) : Event()
         data class OnSelectSort(val sort: SortItem) : Event()
         data class OnSelectOrder(val order: String) : Event()
         data class OnShowSortList(val show: Boolean) : Event()
         data object OnReachedEnd: Event()
-        data object OnSearch: Event()
+        data class OnSearch(val keyword: String): Event()
         data object OnRefresh: Event()
         data class OnDetailClick(val detail: ReceivingDetailRow) : Event()
     }

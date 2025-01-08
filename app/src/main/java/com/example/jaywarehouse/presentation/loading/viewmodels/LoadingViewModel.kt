@@ -41,11 +41,11 @@ class LoadingViewModel(
 
     override fun onEvent(event: LoadingContract.Event) {
         when(event){
-            is LoadingContract.Event.OnChangeKeyword ->{
-                setState {
-                    copy(keyword = event.keyword)
-                }
-            }
+//            is LoadingContract.Event.OnChangeKeyword ->{
+//                setState {
+//                    copy(keyword = event.keyword)
+//                }
+//            }
             is LoadingContract.Event.OnNavToLoadingDetail -> setEffect {
                 LoadingContract.Effect.NavToLoadingDetail(event.item)
             }
@@ -61,7 +61,7 @@ class LoadingViewModel(
                 setState {
                     copy(sort = event.sort, loadingList = emptyList(), page = 1, loadingState = Loading.LOADING)
                 }
-                getLoadingList(state.keyword.text,state.page,event.sort)
+                getLoadingList(state.keyword,state.page,event.sort)
             }
             is LoadingContract.Event.OnShowSortList -> {
                 setState {
@@ -72,10 +72,10 @@ class LoadingViewModel(
             LoadingContract.Event.ReloadScreen -> {
 
                 setState {
-                    copy(page = 1, loadingList = emptyList(), loadingState = Loading.LOADING, keyword = TextFieldValue())
+                    copy(page = 1, loadingList = emptyList(), loadingState = Loading.LOADING, keyword = "")
                 }
 
-                getLoadingList(state.keyword.text,state.page,state.sort)
+                getLoadingList(state.keyword,state.page,state.sort)
             }
 
             LoadingContract.Event.OnReachedEnd -> {
@@ -83,22 +83,22 @@ class LoadingViewModel(
                     setState {
                         copy(page = state.page+1, loadingState = Loading.LOADING)
                     }
-                    getLoadingList(state.keyword.text,state.page,state.sort)
+                    getLoadingList(state.keyword,state.page,state.sort)
                 }
             }
 
-            LoadingContract.Event.OnSearch -> {
+            is LoadingContract.Event.OnSearch -> {
                 setState {
-                    copy(page = 1, loadingList = emptyList(), loadingState = Loading.SEARCHING)
+                    copy(page = 1, loadingList = emptyList(), loadingState = Loading.SEARCHING, keyword = event.keyword)
                 }
-                getLoadingList(state.keyword.text,state.page,state.sort)
+                getLoadingList(state.keyword,state.page,state.sort)
             }
 
             LoadingContract.Event.OnRefresh -> {
                 setState {
                     copy(page = 1, loadingList = emptyList(), loadingState = Loading.REFRESHING)
                 }
-                getLoadingList(state.keyword.text,state.page,state.sort)
+                getLoadingList(state.keyword,state.page,state.sort)
             }
 
             LoadingContract.Event.OnBackPressed -> {

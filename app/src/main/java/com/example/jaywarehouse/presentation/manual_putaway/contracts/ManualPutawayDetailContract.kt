@@ -17,7 +17,7 @@ class ManualPutawayDetailContract {
         val putaway: ManualPutawayRow? = null,
         val loadingState: Loading = Loading.NONE,
         val lockKeyboard: Boolean = false,
-        val keyword: TextFieldValue = TextFieldValue(),
+        val keyword: String = "",
         val quantity: TextFieldValue = TextFieldValue(),
         val quantityInPacket: TextFieldValue = TextFieldValue(),
         val locationCode: TextFieldValue = TextFieldValue(),
@@ -42,7 +42,6 @@ class ManualPutawayDetailContract {
     ) : UiState
 
     sealed class Event : UiEvent {
-        data class OnKeywordChange(val keyword: TextFieldValue) : Event()
         data class OnQuantityChange(val quantity: TextFieldValue) : Event()
         data class OnQuantityInPacketChange(val quantity: TextFieldValue) : Event()
         data class OnLocationCodeChange(val locationCode: TextFieldValue) : Event()
@@ -53,7 +52,7 @@ class ManualPutawayDetailContract {
         data object HideToast: Event()
         data object OnSubmit: Event()
         data object OnRefresh: Event()
-        data object OnSearch: Event()
+        data class OnSearch(val keyword: String): Event()
         data object OnReachEnd: Event()
         data object OnNavBack: Event()
         data object OnAddClick: Event()

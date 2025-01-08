@@ -14,7 +14,7 @@ class RSIntegrationContract {
 
 
     data class State(
-        val keyword: TextFieldValue = TextFieldValue(),
+        val keyword: String =  "",
         val rsList: List<PODInvoiceRow> = emptyList(),
         val error: String = "",
         val loadingState: Loading = Loading.NONE,
@@ -42,8 +42,7 @@ class RSIntegrationContract {
     ) : UiState
 
     sealed class Event : UiEvent {
-        data class OnKeywordChange(val keyword: TextFieldValue) : Event()
-        data object OnSearch : Event()
+        data class OnSearch(val keyword: String) : Event()
         data object OnNavBack : Event()
         data object OnRefresh : Event()
         data object FetchData : Event()

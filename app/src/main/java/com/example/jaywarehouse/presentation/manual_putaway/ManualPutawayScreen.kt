@@ -103,13 +103,10 @@ fun ManualPutawayContent(
                 )
                 Spacer(modifier = Modifier.size(20.mdp))
                 SearchInput(
-                    value = state.keyword,
-                    onValueChange = {
-                        onEvent(ManualPutawayContract.Event.OnKeywordChange(it))
-                    },
                     onSearch = {
-                        onEvent(ManualPutawayContract.Event.OnSearch)
+                        onEvent(ManualPutawayContract.Event.OnSearch(it.text))
                     },
+                    value = state.keyword,
                     isLoading = state.loadingState == Loading.SEARCHING,
                     onSortClick = {
                         onEvent(ManualPutawayContract.Event.OnShowSortList(true))

@@ -15,7 +15,7 @@ class CycleCountContract {
         val cycleModel: CycleModel? = null,
         val cycleList: List<CycleRow> = emptyList(),
         val cycleCount: Int = 0,
-        val keyword: TextFieldValue = TextFieldValue(),
+        val keyword: String = "",
         val loadingState: Loading = Loading.NONE,
         val error: String = "",
         val sortList: List<SortItem> = listOf(
@@ -31,14 +31,13 @@ class CycleCountContract {
     ) : UiState
 
     sealed class Event : UiEvent {
-        data class OnChangeKeyword(val keyword: TextFieldValue) : Event()
         data class OnNavToCycleCountDetail(val item: CycleRow) : Event()
         data object ClearError: Event()
         data class OnChangeSort(val sort: SortItem) : Event()
         data class OnShowSortList(val showSortList: Boolean) : Event()
         data object ReloadScreen: Event()
         data object OnReachedEnd: Event()
-        data object OnSearch: Event()
+        data class OnSearch(val keyword: String): Event()
         data object OnRefresh: Event()
         data object OnBackPressed: Event()
 

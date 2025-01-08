@@ -56,12 +56,6 @@ class ShippingViewModel(
                 }
             }
 
-            is ShippingContract.Event.OnKeywordChange -> {
-                setState {
-                    copy(keyword = event.keyword)
-                }
-            }
-
 
 
             is ShippingContract.Event.OnShowAddDialog -> {
@@ -100,10 +94,10 @@ class ShippingViewModel(
                         page = 1,
                         shippingList = emptyList(),
                         loadingState = Loading.LOADING,
-                        keyword = TextFieldValue()
+                        keyword = ""
                     )
                 }
-                getShipping(state.keyword.text, sort = event.sort)
+                getShipping(state.keyword, sort = event.sort)
             }
 
             ShippingContract.Event.OnReachEnd -> {
@@ -115,25 +109,25 @@ class ShippingViewModel(
                 }
             }
 
-            ShippingContract.Event.OnSearch -> {
+            is ShippingContract.Event.OnSearch -> {
                 setState {
-                    copy(page = 1, shippingList = emptyList(), loadingState = Loading.SEARCHING)
+                    copy(page = 1, shippingList = emptyList(), loadingState = Loading.SEARCHING, keyword = event.keyword)
                 }
-                getShipping(state.keyword.text, sort = state.sort)
+                getShipping(state.keyword, sort = state.sort)
             }
 
             ShippingContract.Event.OnRefresh -> {
                 setState {
                     copy(page = 1, shippingList = emptyList(), loadingState = Loading.REFRESHING)
                 }
-                getShipping(state.keyword.text, state.page, sort = state.sort)
+                getShipping(state.keyword, state.page, sort = state.sort)
             }
 
             ShippingContract.Event.FetchData -> {
                 setState {
                     copy(page = 1, shippingList = emptyList(), loadingState = Loading.LOADING)
                 }
-                getShipping(state.keyword.text, state.page, sort = state.sort)
+                getShipping(state.keyword, state.page, sort = state.sort)
             }
 
             is ShippingContract.Event.OnDriverNameChange -> {
@@ -472,7 +466,7 @@ class ShippingViewModel(
                         setSuspendedState {
                             copy(showAddDialog = false, shippingList = emptyList(), page = 1, loadingState = Loading.LOADING)
                         }
-                        getShipping(state.keyword.text,state.page,state.sort)
+                        getShipping(state.keyword,state.page,state.sort)
                     }
                     BaseResult.UnAuthorized -> {}
                 }
@@ -508,7 +502,7 @@ class ShippingViewModel(
                                 loadingState = Loading.LOADING
                             )
                         }
-                        getShipping(state.keyword.text,state.page,state.sort)
+                        getShipping(state.keyword,state.page,state.sort)
                     }
                     BaseResult.UnAuthorized -> {
 
@@ -546,7 +540,7 @@ class ShippingViewModel(
                                     loadingState = Loading.LOADING
                                 )
                             }
-                            getShipping(state.keyword.text,state.page,state.sort)
+                            getShipping(state.keyword,state.page,state.sort)
                         }
                         BaseResult.UnAuthorized -> {}
                     }
@@ -583,7 +577,7 @@ class ShippingViewModel(
                                    loadingState = Loading.LOADING
                                )
                            }
-                           getShipping(state.keyword.text,state.page,state.sort)
+                           getShipping(state.keyword,state.page,state.sort)
                        }
                        BaseResult.UnAuthorized -> {}
                    }
@@ -622,7 +616,7 @@ class ShippingViewModel(
                                     loadingState = Loading.LOADING
                                 )
                             }
-                            getShipping(state.keyword.text,state.page,state.sort)
+                            getShipping(state.keyword,state.page,state.sort)
                         }
                         BaseResult.UnAuthorized -> {}
                     }

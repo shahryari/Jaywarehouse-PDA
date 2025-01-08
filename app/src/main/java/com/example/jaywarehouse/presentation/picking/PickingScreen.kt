@@ -128,13 +128,10 @@ fun PickingContent(
                 )
                 Spacer(modifier = Modifier.size(10.mdp))
                 SearchInput(
-                    value = state.keyword,
-                    onValueChange = {
-                        onEvent(PickingContract.Event.OnChangeKeyword(it))
-                    },
                     onSearch = {
-                        onEvent(PickingContract.Event.OnSearch)
+                        onEvent(PickingContract.Event.OnSearch(it.text))
                     },
+                    value = state.keyword,
                     isLoading = state.loadingState == Loading.SEARCHING,
                     onSortClick = {
                         onEvent(PickingContract.Event.OnShowSortList(true))

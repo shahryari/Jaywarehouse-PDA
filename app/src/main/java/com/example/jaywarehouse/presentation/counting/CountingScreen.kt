@@ -132,13 +132,10 @@ private fun CountingContent(
                 )
                 Spacer(modifier = Modifier.size(10.mdp))
                 SearchInput(
-                    value = state.keyword,
-                    onValueChange = {
-                        onEvent(CountingContract.Event.OnKeywordChange(it))
-                    },
                     onSearch = {
-                        onEvent(CountingContract.Event.OnSearch)
+                        onEvent(CountingContract.Event.OnSearch(it.text))
                     },
+                    value = state.keyword,
                     isLoading = state.loadingState == Loading.SEARCHING,
                     onSortClick = {
                         onEvent(CountingContract.Event.OnShowSortList(true))

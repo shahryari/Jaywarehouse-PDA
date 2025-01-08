@@ -18,7 +18,7 @@ class PalletConfirmContract {
     data class State(
         val palletModel: PalletConfirmModel? = null,
         val palletList: List<PalletConfirmRow> = emptyList(),
-        val keyword: TextFieldValue = TextFieldValue(),
+        val keyword: String = "",
         val loadingState: Loading = Loading.NONE,
         val error: String = "",
         val sortList: List<SortItem> = listOf(
@@ -38,14 +38,13 @@ class PalletConfirmContract {
     ) : UiState
 
     sealed class Event : UiEvent {
-        data class OnChangeKeyword(val keyword: TextFieldValue) : Event()
         data class OnSelectPallet(val pallet: PalletConfirmRow?) : Event()
         data object ClearError: Event()
         data class OnChangeSort(val sort: SortItem) : Event()
         data class OnShowSortList(val showSortList: Boolean) : Event()
         data object ReloadScreen: Event()
         data object OnReachedEnd: Event()
-        data object OnSearch: Event()
+        data class OnSearch(val keyword: String): Event()
         data object OnRefresh: Event()
         data object OnBackPressed: Event()
         data class ConfirmPallet(val pallet: PalletConfirmRow) : Event()

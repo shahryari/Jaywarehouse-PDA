@@ -145,13 +145,10 @@ fun PutawayContent(
                 )
                 Spacer(modifier = Modifier.size(10.mdp))
                 SearchInput(
-                    value = state.keyword,
-                    onValueChange = {
-                        onEvent(TransferContract.Event.OnChangeKeyword(it))
-                    },
                     onSearch = {
-                        onEvent(TransferContract.Event.OnSearch)
+                        onEvent(TransferContract.Event.OnSearch(it.text))
                     },
+                    value = state.keyword,
                     isLoading = state.loadingState == Loading.SEARCHING,
                     onSortClick = {
                         onEvent(TransferContract.Event.OnShowSortList(true))

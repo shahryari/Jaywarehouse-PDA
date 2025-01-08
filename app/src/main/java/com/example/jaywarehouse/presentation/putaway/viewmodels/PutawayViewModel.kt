@@ -41,11 +41,6 @@ class PutawayViewModel(
 
     override fun onEvent(event: PutawayContract.Event) {
         when(event){
-            is PutawayContract.Event.OnChangeKeyword ->{
-                setState {
-                    copy(keyword = event.keyword)
-                }
-            }
             is PutawayContract.Event.OnNavToPutawayDetail -> setEffect {
                 PutawayContract.Effect.NavToPutawayDetail(event.readyToPutRow,false)
             }
@@ -61,7 +56,7 @@ class PutawayViewModel(
                 setState {
                     copy(sort = event.sort, puts = emptyList(), page = 1, loadingState = Loading.LOADING)
                 }
-                getPutawayList(state.keyword.text,state.page,event.sort)
+                getPutawayList(state.keyword,state.page,event.sort)
             }
             is PutawayContract.Event.OnShowSortList -> {
                 setState {
@@ -72,10 +67,10 @@ class PutawayViewModel(
             PutawayContract.Event.ReloadScreen -> {
 
                 setState {
-                    copy(page = 1, puts = emptyList(), loadingState = Loading.LOADING, keyword = TextFieldValue())
+                    copy(page = 1, puts = emptyList(), loadingState = Loading.LOADING, keyword = "")
                 }
 
-                getPutawayList(state.keyword.text,state.page,state.sort)
+                getPutawayList(state.keyword,state.page,state.sort)
             }
 
             PutawayContract.Event.OnReachedEnd -> {
@@ -83,22 +78,22 @@ class PutawayViewModel(
                     setState {
                         copy(page = state.page+1, loadingState = Loading.LOADING)
                     }
-                    getPutawayList(state.keyword.text,state.page,state.sort)
+                    getPutawayList(state.keyword,state.page,state.sort)
                 }
             }
 
-            PutawayContract.Event.OnSearch -> {
+            is PutawayContract.Event.OnSearch -> {
                 setState {
-                    copy(page = 1, puts = emptyList(), loadingState = Loading.SEARCHING)
+                    copy(page = 1, puts = emptyList(), loadingState = Loading.SEARCHING, keyword = event.keyword)
                 }
-                getPutawayList(state.keyword.text,state.page,state.sort)
+                getPutawayList(state.keyword,state.page,state.sort)
             }
 
             PutawayContract.Event.OnRefresh -> {
                 setState {
                     copy(page = 1, puts = emptyList(), loadingState = Loading.REFRESHING)
                 }
-                getPutawayList(state.keyword.text,state.page,state.sort)
+                getPutawayList(state.keyword,state.page,state.sort)
             }
 
             PutawayContract.Event.OnBackPressed -> {

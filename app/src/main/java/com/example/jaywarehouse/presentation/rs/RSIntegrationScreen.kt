@@ -132,13 +132,10 @@ fun RSContent(
                 )
                 Spacer(modifier = Modifier.size(10.mdp))
                 SearchInput(
-                    value = state.keyword,
-                    onValueChange = {
-                        onEvent(RSIntegrationContract.Event.OnKeywordChange(it))
-                    },
                     onSearch = {
-                        onEvent(RSIntegrationContract.Event.OnSearch)
+                        onEvent(RSIntegrationContract.Event.OnSearch(it.text))
                     },
+                    value = state.keyword,
                     isLoading = state.loadingState == Loading.SEARCHING,
                     onSortClick = {
                         onEvent(RSIntegrationContract.Event.OnShowSortList(true))

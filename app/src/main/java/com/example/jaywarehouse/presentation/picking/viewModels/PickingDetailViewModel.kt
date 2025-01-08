@@ -85,7 +85,7 @@ class PickingDetailViewModel(
                     setState {
                         copy(page = state.page+1, loadingState = Loading.LOADING)
                     }
-                    getPickings(row.customerID,keyword = state.keyword.text,page = state.page,sort = state.sort)
+                    getPickings(row.customerID,keyword = state.keyword,page = state.page,sort = state.sort)
                 }
             }
 
@@ -93,7 +93,7 @@ class PickingDetailViewModel(
                 setState {
                     copy(page = 1, pickingList = emptyList(), loadingState = Loading.REFRESHING)
                 }
-                getPickings(row.customerID,keyword = state.keyword.text,page = state.page,sort = state.sort)
+                getPickings(row.customerID,keyword = state.keyword,page = state.page,sort = state.sort)
             }
             is PickingDetailContract.Event.OnChangeLocation -> {
                 setState {
@@ -103,16 +103,16 @@ class PickingDetailViewModel(
             is PickingDetailContract.Event.OnCompletePick -> {
                 completePicking(event.pick,state.location.text.trim(), state.barcode.text.trim())
             }
-            is PickingDetailContract.Event.OnChangeKeyword -> {
+//            is PickingDetailContract.Event.OnChangeKeyword -> {
+//                setState {
+//                    copy(keyword = event.keyword)
+//                }
+//            }
+            is PickingDetailContract.Event.OnSearch -> {
                 setState {
-                    copy(keyword = event.keyword)
+                    copy(loadingState = Loading.SEARCHING, pickingList = emptyList(), page = 1, keyword = event.keyword)
                 }
-            }
-            PickingDetailContract.Event.OnSearch -> {
-                setState {
-                    copy(loadingState = Loading.SEARCHING, pickingList = emptyList(), page = 1)
-                }
-                getPickings(row.customerID,keyword = state.keyword.text,page = state.page,sort = state.sort)
+                getPickings(row.customerID,keyword = state.keyword,page = state.page,sort = state.sort)
             }
             is PickingDetailContract.Event.OnShowSortList -> {
                 setState {
@@ -125,7 +125,7 @@ class PickingDetailViewModel(
                 setState {
                     copy(sort = event.sortItem, page = 1, pickingList = emptyList(), loadingState = Loading.LOADING)
                 }
-                getPickings(row.customerID,keyword = state.keyword.text,page = state.page,sort = event.sortItem)
+                getPickings(row.customerID,keyword = state.keyword,page = state.page,sort = event.sortItem)
             }
         }
     }
@@ -185,7 +185,7 @@ class PickingDetailViewModel(
                                     loadingState = Loading.LOADING
                                 )
                             }
-                            getPickings(row.customerID,keyword = state.keyword.text,page = state.page,sort = state.sort)
+                            getPickings(row.customerID,keyword = state.keyword,page = state.page,sort = state.sort)
                         }
                         is BaseResult.Error -> {
                             setState {

@@ -17,7 +17,7 @@ class TransferContract {
     data class State(
         val transferModel: TransferModel? = null,
         val transferList: List<TransferRow> = emptyList(),
-        val keyword: TextFieldValue = TextFieldValue(),
+        val keyword: String = "",
         val loadingState: Loading = Loading.NONE,
         val error: String = "",
         val toast: String = "",
@@ -48,14 +48,13 @@ class TransferContract {
     ) : UiState
 
     sealed class Event : UiEvent {
-        data class OnChangeKeyword(val keyword: TextFieldValue) : Event()
         data object ClearError: Event()
         data object HideToast: Event()
         data class OnChangeSort(val sort: SortItem) : Event()
         data class OnShowSortList(val showSortList: Boolean) : Event()
         data object ReloadScreen: Event()
         data object OnReachedEnd: Event()
-        data object OnSearch: Event()
+        data class OnSearch(val keyword: String): Event()
         data object OnRefresh: Event()
         data object OnBackPressed: Event()
         data class OnSelectTransfer(val transferRow: TransferRow?) : Event()

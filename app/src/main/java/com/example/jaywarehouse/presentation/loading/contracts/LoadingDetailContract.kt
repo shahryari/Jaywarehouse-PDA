@@ -23,7 +23,7 @@ class LoadingDetailContract {
         val page: Int = 1,
         val toast: String = "",
         val lockKeyboard: Boolean = false,
-        val keyword: TextFieldValue = TextFieldValue(),
+        val keyword: String = "",
         val sortList: List<SortItem> = listOf(
             SortItem("Created On closed to now", "CreatedOn", Order.Desc),
             SortItem("Created On farthest from now", "CreatedOn",Order.Asc),
@@ -37,7 +37,6 @@ class LoadingDetailContract {
     ) : UiState
 
     sealed class Event : UiEvent {
-        data class OnChangeKeyword(val keyword: TextFieldValue) : Event()
         data class OnSelectDetail(val detail: PalletConfirmRow?) : Event()
         data object OnNavBack : Event()
         data object CloseError: Event()
@@ -46,7 +45,7 @@ class LoadingDetailContract {
         data object OnRefresh: Event()
         data class OnConfirmLoading(val item: PalletConfirmRow): Event()
         data class OnShowSortList(val show: Boolean) : Event()
-        data object OnSearch: Event()
+        data class OnSearch(val keyword: String): Event()
         data class OnSortChange(val sortItem: SortItem): Event()
     }
 

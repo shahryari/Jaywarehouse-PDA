@@ -41,12 +41,6 @@ class TransferViewModel(
 
     override fun onEvent(event: TransferContract.Event) {
         when(event){
-            is TransferContract.Event.OnChangeKeyword ->{
-                setState {
-                    copy(keyword = event.keyword)
-                }
-            }
-
             TransferContract.Event.ClearError -> {
                 setState {
                     copy(error = "")
@@ -69,7 +63,7 @@ class TransferViewModel(
             TransferContract.Event.ReloadScreen -> {
 
                 setState {
-                    copy(page = 1, transferList = emptyList(), loadingState = Loading.LOADING, keyword = TextFieldValue())
+                    copy(page = 1, transferList = emptyList(), loadingState = Loading.LOADING, keyword = "")
                 }
 
                 getTransferList()
@@ -84,9 +78,9 @@ class TransferViewModel(
                 }
             }
 
-            TransferContract.Event.OnSearch -> {
+            is TransferContract.Event.OnSearch -> {
                 setState {
-                    copy(page = 1, transferList = emptyList(), loadingState = Loading.SEARCHING)
+                    copy(page = 1, transferList = emptyList(), loadingState = Loading.SEARCHING, keyword = event.keyword)
                 }
                 getTransferList()
             }
@@ -220,7 +214,7 @@ class TransferViewModel(
     ) {
         viewModelScope.launch {
             repository.getTransfers(
-                keyword = state.keyword.text,state.page,state.sort.sort,state.sort.order.value
+                keyword = state.keyword,state.page,state.sort.sort,state.sort.order.value
             )
                 .catch {
                     setSuspendedState {

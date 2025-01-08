@@ -134,13 +134,10 @@ fun CheckingContent(
                 )
                 Spacer(modifier = Modifier.size(10.mdp))
                 SearchInput(
-                    value = state.keyword,
-                    onValueChange = {
-                        onEvent(CycleCountContract.Event.OnChangeKeyword(it))
-                    },
                     onSearch = {
-                        onEvent(CycleCountContract.Event.OnSearch)
+                        onEvent(CycleCountContract.Event.OnSearch(it.text))
                     },
+                    value = state.keyword,
                     isLoading = state.loadingState == Loading.SEARCHING,
                     onSortClick = {
                         onEvent(CycleCountContract.Event.OnShowSortList(true))

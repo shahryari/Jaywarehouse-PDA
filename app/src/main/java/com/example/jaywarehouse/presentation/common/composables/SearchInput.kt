@@ -48,14 +48,14 @@ import com.example.jaywarehouse.data.common.utils.mdp
 import com.example.jaywarehouse.R
 import com.example.jaywarehouse.ui.theme.Border
 import kotlinx.coroutines.delay
+import java.lang.StringBuilder
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun SearchInput(
-    value: TextFieldValue,
-    onValueChange: (TextFieldValue) -> Unit,
     modifier: Modifier = Modifier,
     onSearch: (TextFieldValue) -> Unit = {},
+    value: String = "",
     isLoading: Boolean = false,
     showSortIcon: Boolean = true,
     onSortClick: () -> Unit = {},
@@ -65,6 +65,16 @@ fun SearchInput(
     val keyboardController = LocalSoftwareKeyboardController.current
     var isFocused by remember { mutableStateOf(false) }
     val isKeyboardOpen = WindowInsets.isImeVisible
+
+    var keyword by remember {
+        mutableStateOf(TextFieldValue(value))
+    }
+
+    LaunchedEffect(value) {
+        if (value.isEmpty()){
+            keyword = TextFieldValue()
+        }
+    }
 
     LaunchedEffect(key1 = isFocused,isKeyboardOpen) {
         if ((isFocused || isKeyboardOpen) && hideKeyboard){
@@ -86,20 +96,20 @@ fun SearchInput(
         exit = slideOutVertically(targetOffsetY = {it}) + fadeOut()
     ) {
         Box {
-            BasicTextField(value,
+            BasicTextField(
+                keyword,
                 onValueChange = {
                     if(!isLoading){
+                        keyword = it
                         if (it.text.endsWith('\n') || it.text.endsWith('\r')) {
                             onSearch(it)
-                        } else {
-                            onValueChange(it)
                         }
                     }
                 },
                 modifier = Modifier
                     .onKeyEvent {
                         if (it.key == Key.Enter && it.type == KeyEventType.KeyUp) {
-                            onSearch(value)
+                            onSearch(keyword)
                             true
                         } else {
                             false
@@ -131,7 +141,7 @@ fun SearchInput(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterStart){
-                                if (value.text.isEmpty()) {
+                                if (keyword.text.isEmpty()) {
                                     MyText(
                                         text = "Search Keyword ...",
                                         style = MaterialTheme.typography.bodyLarge,
@@ -151,9 +161,10 @@ fun SearchInput(
 
                         }
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            if (value.text.isNotEmpty()) MyIcon(icon = R.drawable.vuesax_bulk_broom) {
-                                onValueChange(TextFieldValue())
+                            if (keyword.text.isNotEmpty()) MyIcon(icon = R.drawable.vuesax_bulk_broom) {
+//                                onValueChange(TextFieldValue())
                                 onSearch(TextFieldValue())
+                                keyword = TextFieldValue()
                             }
                             Spacer(modifier = Modifier.size(5.mdp))
                             AnimatedContent(targetState = isLoading, label = "") {
@@ -161,7 +172,7 @@ fun SearchInput(
                                     RefreshIcon(isRefreshing = true)
                                 }else {
                                     MyIcon(icon = R.drawable.vuesax_linear_search_normal) {
-                                        onSearch(value)
+                                        onSearch(keyword)
                                     }
                                 }
                             }

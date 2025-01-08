@@ -4,6 +4,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.viewModelScope
 import com.example.jaywarehouse.data.common.utils.BaseResult
 import com.example.jaywarehouse.data.common.utils.Prefs
+import com.example.jaywarehouse.data.common.utils.addAll
 import com.example.jaywarehouse.data.cycle_count.CycleRepository
 import com.example.jaywarehouse.presentation.common.utils.BaseViewModel
 import com.example.jaywarehouse.presentation.common.utils.Loading
@@ -40,11 +41,11 @@ class CycleViewModel(
 
     override fun onEvent(event: CycleCountContract.Event) {
         when(event){
-            is CycleCountContract.Event.OnChangeKeyword ->{
-                setState {
-                    copy(keyword = event.keyword)
-                }
-            }
+//            is CycleCountContract.Event.OnChangeKeyword ->{
+//                setState {
+//                    copy(keyword = event.keyword)
+//                }
+//            }
             is CycleCountContract.Event.OnNavToCycleCountDetail -> setEffect {
                 CycleCountContract.Effect.NavToCycleCountDetail(event.item)
             }
@@ -71,7 +72,7 @@ class CycleViewModel(
             CycleCountContract.Event.ReloadScreen -> {
 
                 setState {
-                    copy(page = 1, cycleList = emptyList(), loadingState = Loading.LOADING, keyword = TextFieldValue())
+                    copy(page = 1, cycleList = emptyList(), loadingState = Loading.LOADING, keyword = "")
                 }
 
                 getCycleList()
@@ -86,9 +87,9 @@ class CycleViewModel(
                 }
             }
 
-            CycleCountContract.Event.OnSearch -> {
+            is CycleCountContract.Event.OnSearch -> {
                 setState {
-                    copy(page = 1, cycleList = emptyList(), loadingState = Loading.SEARCHING)
+                    copy(page = 1, cycleList = emptyList(), loadingState = Loading.SEARCHING, keyword = event.keyword)
                 }
                 getCycleList()
             }
@@ -113,7 +114,7 @@ class CycleViewModel(
     private fun getCycleList() {
         viewModelScope.launch {
             repository.getCycleCountLocations(
-                keyword = state.keyword.text,state.page,state.sort.sort,state.sort.order.value
+                keyword = state.keyword,state.page,state.sort.sort,state.sort.order.value
             )
                 .catch {
                     setSuspendedState {
@@ -131,9 +132,10 @@ class CycleViewModel(
                             }
                         }
                         is BaseResult.Success -> {
+                            val list = state.cycleList.addAll(it.data?.rows)
                             setSuspendedState {
                                 copy(
-                                    cycleList = cycleList + (it.data?.rows?: emptyList()),
+                                    cycleList = list,
                                     loadingState = Loading.NONE,
                                     cycleCount = it.data?.total?:0
                                 )

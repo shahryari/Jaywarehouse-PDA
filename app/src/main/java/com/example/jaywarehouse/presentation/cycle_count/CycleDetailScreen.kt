@@ -115,6 +115,7 @@ fun CycleDetailContent(
 
     LaunchedEffect(Unit) {
         searchFocusRequester.requestFocus()
+        onEvent(CycleDetailContract.Event.FetchData)
     }
 
     val refreshState = rememberPullRefreshState(
@@ -155,13 +156,10 @@ fun CycleDetailContent(
                 )
                 Spacer(modifier = Modifier.size(10.mdp))
                 SearchInput(
-                    value = state.keyword,
-                    onValueChange = {
-                        onEvent(CycleDetailContract.Event.OnChangeKeyword(it))
-                    },
                     onSearch = {
-                        onEvent(CycleDetailContract.Event.OnSearch)
+                        onEvent(CycleDetailContract.Event.OnSearch(it.text))
                     },
+                    value = state.keyword,
                     isLoading = state.loadingState == Loading.SEARCHING,
                     onSortClick = {
                         onEvent(CycleDetailContract.Event.OnShowSortList(true))

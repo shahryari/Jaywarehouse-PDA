@@ -41,11 +41,11 @@ class PalletConfirmViewModel(
 
     override fun onEvent(event: PalletConfirmContract.Event) {
         when(event){
-            is PalletConfirmContract.Event.OnChangeKeyword ->{
-                setState {
-                    copy(keyword = event.keyword)
-                }
-            }
+//            is PalletConfirmContract.Event.OnChangeKeyword ->{
+//                setState {
+//                    copy(keyword = event.keyword)
+//                }
+//            }
 
             PalletConfirmContract.Event.ClearError -> {
                 setState {
@@ -58,7 +58,7 @@ class PalletConfirmViewModel(
                 setState {
                     copy(sort = event.sort, palletList = emptyList(), page = 1, loadingState = Loading.LOADING)
                 }
-                getPalletList(state.keyword.text,state.page,event.sort)
+                getPalletList(state.keyword,state.page,event.sort)
             }
             is PalletConfirmContract.Event.OnShowSortList -> {
                 setState {
@@ -69,10 +69,10 @@ class PalletConfirmViewModel(
             PalletConfirmContract.Event.ReloadScreen -> {
 
                 setState {
-                    copy(page = 1, palletList = emptyList(), loadingState = Loading.LOADING, keyword = TextFieldValue())
+                    copy(page = 1, palletList = emptyList(), loadingState = Loading.LOADING, keyword = "")
                 }
 
-                getPalletList(state.keyword.text,state.page,state.sort)
+                getPalletList(state.keyword,state.page,state.sort)
             }
 
             PalletConfirmContract.Event.OnReachedEnd -> {
@@ -80,22 +80,22 @@ class PalletConfirmViewModel(
                     setState {
                         copy(page = state.page+1, loadingState = Loading.LOADING)
                     }
-                    getPalletList(state.keyword.text,state.page,state.sort)
+                    getPalletList(state.keyword,state.page,state.sort)
                 }
             }
 
-            PalletConfirmContract.Event.OnSearch -> {
+            is PalletConfirmContract.Event.OnSearch -> {
                 setState {
-                    copy(page = 1, palletList = emptyList(), loadingState = Loading.SEARCHING)
+                    copy(page = 1, palletList = emptyList(), loadingState = Loading.SEARCHING, keyword = event.keyword)
                 }
-                getPalletList(state.keyword.text,state.page,state.sort)
+                getPalletList(state.keyword,state.page,state.sort)
             }
 
             PalletConfirmContract.Event.OnRefresh -> {
                 setState {
                     copy(page = 1, palletList = emptyList(), loadingState = Loading.REFRESHING)
                 }
-                getPalletList(state.keyword.text,state.page,state.sort)
+                getPalletList(state.keyword,state.page,state.sort)
             }
 
             PalletConfirmContract.Event.OnBackPressed -> {
@@ -145,7 +145,7 @@ class PalletConfirmViewModel(
                                 toast = it.data?.messages?.firstOrNull()?:"Confirmed Successfully"
                             )
                         }
-                        getPalletList(state.keyword.text,state.page,state.sort)
+                        getPalletList(state.keyword,state.page,state.sort)
                     }
                     BaseResult.UnAuthorized -> {}
                 }

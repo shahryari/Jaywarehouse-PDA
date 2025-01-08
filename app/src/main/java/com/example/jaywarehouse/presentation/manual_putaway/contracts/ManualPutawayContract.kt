@@ -11,7 +11,7 @@ import com.example.jaywarehouse.presentation.common.utils.UiState
 
 class ManualPutawayContract {
     data class State(
-        val keyword: TextFieldValue = TextFieldValue(),
+        val keyword: String = "",
         val loadingState: Loading = Loading.NONE,
         val error: String = "",
         val putaways: List<ManualPutawayRow> = emptyList(),
@@ -31,8 +31,7 @@ class ManualPutawayContract {
 
     sealed class Event : UiEvent{
         data object OnNavBack: Event()
-        data class OnKeywordChange(val keyword: TextFieldValue) : Event()
-        data object OnSearch : Event()
+        data class OnSearch(val keyword: String) : Event()
         data object OnReloadScreen : Event()
         data object OnReachEnd : Event()
         data class OnSortChange(val sort: SortItem) : Event()

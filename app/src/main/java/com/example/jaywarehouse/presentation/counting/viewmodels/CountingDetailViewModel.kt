@@ -68,11 +68,11 @@ class CountingDetailViewModel(
                 }
             }
 
-            is CountingDetailContract.Event.OnChangeKeyword -> {
-                setState {
-                    copy(keyword = event.keyword)
-                }
-            }
+//            is CountingDetailContract.Event.OnChangeKeyword -> {
+//                setState {
+//                    copy(keyword = event.keyword)
+//                }
+//            }
 
             is CountingDetailContract.Event.OnSelectDetail -> {
                 setState {
@@ -99,7 +99,7 @@ class CountingDetailViewModel(
                 setState {
                     copy(sort = event.sort, countingDetailRow = emptyList(), page = 1, loadingState = Loading.LOADING)
                 }
-                getReceivingDetailList(receivingRow.receivingID,state.keyword.text,state.page,event.sort)
+                getReceivingDetailList(receivingRow.receivingID,state.keyword,state.page,event.sort)
             }
             is CountingDetailContract.Event.OnShowSortList -> {
                 setState {
@@ -113,22 +113,22 @@ class CountingDetailViewModel(
                     setState {
                         copy(page = page+1, loadingState = Loading.LOADING)
                     }
-                    getReceivingDetailList(receivingRow.receivingID,state.keyword.text,state.page,state.sort)
+                    getReceivingDetailList(receivingRow.receivingID,state.keyword,state.page,state.sort)
                 }
             }
 
-            CountingDetailContract.Event.OnSearch -> {
+            is CountingDetailContract.Event.OnSearch -> {
                 setState {
-                    copy(page = 1, countingDetailRow = emptyList(), loadingState = Loading.SEARCHING)
+                    copy(page = 1, countingDetailRow = emptyList(), loadingState = Loading.SEARCHING, keyword = event.keyword)
                 }
-                getReceivingDetailList(receivingRow.receivingID,state.keyword.text,state.page,state.sort)
+                getReceivingDetailList(receivingRow.receivingID,state.keyword,state.page,state.sort)
             }
 
             CountingDetailContract.Event.OnRefresh -> {
                 setState {
                     copy(page = 1, loadingState = Loading.REFRESHING, countingDetailRow = emptyList())
                 }
-                getReceivingDetailList(receivingRow.receivingID,state.keyword.text,state.page,state.sort)
+                getReceivingDetailList(receivingRow.receivingID,state.keyword,state.page,state.sort)
             }
 
             is CountingDetailContract.Event.OnDetailClick -> {

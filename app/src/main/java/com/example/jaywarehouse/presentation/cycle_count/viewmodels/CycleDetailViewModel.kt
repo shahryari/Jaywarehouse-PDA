@@ -4,6 +4,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.viewModelScope
 import com.example.jaywarehouse.data.common.utils.BaseResult
 import com.example.jaywarehouse.data.common.utils.Prefs
+import com.example.jaywarehouse.data.common.utils.addAll
 import com.example.jaywarehouse.data.cycle_count.CycleRepository
 import com.example.jaywarehouse.data.cycle_count.models.CycleDetailRow
 import com.example.jaywarehouse.data.cycle_count.models.CycleRow
@@ -49,7 +50,6 @@ class CycleDetailViewModel(
                 }
             }
         }
-        getDetails()
     }
 
     override fun setInitState(): CycleDetailContract.State {
@@ -103,14 +103,15 @@ class CycleDetailViewModel(
             is CycleDetailContract.Event.OnSave -> {
                 updateQuantity(event.item)
             }
-            is CycleDetailContract.Event.OnChangeKeyword -> {
+//            is CycleDetailContract.Event.OnChangeKeyword -> {
+//                setState {
+//                    copy(keyword = event.keyword)
+//                }
+//            }
+            is CycleDetailContract.Event.OnSearch -> {
                 setState {
-                    copy(keyword = event.keyword)
-                }
-            }
-            CycleDetailContract.Event.OnSearch -> {
-                setState {
-                    copy(loadingState = Loading.SEARCHING, details = emptyList(), page = 1, isSearching = true)
+                    copy(
+                        loadingState = Loading.SEARCHING, details = emptyList(), keyword = event.keyword, page = 1, isSearching = true)
                 }
                 getDetails()
             }
@@ -201,6 +202,13 @@ class CycleDetailViewModel(
                     copy(showSubmit = event.show)
                 }
             }
+
+            CycleDetailContract.Event.FetchData -> {
+                setState {
+                    copy(page = 1, details = emptyList(), loadingState = Loading.LOADING)
+                }
+                getDetails()
+            }
         }
     }
 
@@ -209,7 +217,7 @@ class CycleDetailViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             repository.getCycleCountLocationDetail(
                 cycleCountWorkerTaskID = row.cycleCountWorkerTaskID,
-                keyword = state.keyword.text,
+                keyword = state.keyword,
                 sort = state.sort.sort,
                 page = state.page,
                 order = state.sort.order.value
@@ -228,7 +236,7 @@ class CycleDetailViewModel(
                     }
                     when(it){
                         is BaseResult.Success -> {
-                            val detailList = state.details + (it.data?.rows ?: emptyList())
+                            val detailList : List<CycleDetailRow> = state.details.addAll(it.data?.rows)
                             setSuspendedState {
                                 copy(
                                     details = detailList,

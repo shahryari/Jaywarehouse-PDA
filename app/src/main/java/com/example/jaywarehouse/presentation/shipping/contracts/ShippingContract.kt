@@ -34,7 +34,7 @@ class ShippingContract {
         val quantityPallets: List<PalletInShippingRow> = emptyList(),
         val shippingForPallet: ShippingRow? = null,
         //
-        val keyword: TextFieldValue = TextFieldValue(),
+        val keyword: String = "",
         val page: Int = 1,
         val loadingState: Loading = Loading.NONE,
         val error: String = "",
@@ -63,7 +63,6 @@ class ShippingContract {
     ) : UiState
 
     sealed class Event : UiEvent {
-        data class OnKeywordChange(val keyword: TextFieldValue) : Event()
         data class OnSortChange(val sort: SortItem) : Event()
         data class OnShowFilterList(val showFilterList: Boolean) : Event()
         data object OnClearError : Event()
@@ -71,7 +70,7 @@ class ShippingContract {
         data object HideToast : Event()
         data class OnShowPopup(val show: Boolean) : Event()
         data object OnReachEnd : Event()
-        data object OnSearch: Event()
+        data class OnSearch(val keyword: String): Event()
         data object OnRefresh: Event()
         data object FetchData: Event()
         data object OnNavBack : Event()

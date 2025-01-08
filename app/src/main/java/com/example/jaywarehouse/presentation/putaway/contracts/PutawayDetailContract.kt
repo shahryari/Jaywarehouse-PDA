@@ -31,7 +31,7 @@ class PutawayDetailContract {
         val page: Int = 1,
         val toast: String = "",
         val lockKeyboard: Boolean = false,
-        val keyword: TextFieldValue = TextFieldValue(),
+        val keyword: String = "",
         val sortList: List<SortItem> = listOf(
             SortItem("Created On closed to now", "CreatedOn", Order.Desc),
             SortItem("Created On farthest from now", "CreatedOn",Order.Asc),
@@ -47,7 +47,6 @@ class PutawayDetailContract {
     sealed class Event : UiEvent {
         data class OnChangeBarcode(val barcode: TextFieldValue) : Event()
         data class OnChangeLocation(val location: TextFieldValue) : Event()
-        data class OnChangeKeyword(val keyword: TextFieldValue) : Event()
 //        data class OnChangeBoxNumber(val boxNumber: TextFieldValue) : Event()
 //        data object CheckLocation : Event()
 //        data object CheckBoxNumber : Event()
@@ -63,7 +62,7 @@ class PutawayDetailContract {
 //        data class OnShowHeaderDetail(val show: Boolean): Event()
         data class OnSavePutaway(val putaway: PutawayListRow): Event()
         data class OnShowSortList(val show: Boolean) : Event()
-        data object OnSearch: Event()
+        data class OnSearch(val keyword: String): Event()
         data class OnSortChange(val sortItem: SortItem): Event()
     }
 

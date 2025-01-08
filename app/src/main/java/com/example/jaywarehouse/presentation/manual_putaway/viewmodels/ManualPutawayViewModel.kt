@@ -46,11 +46,11 @@ class ManualPutawayViewModel(
                     copy(error = "")
                 }
             }
-            is ManualPutawayContract.Event.OnKeywordChange -> {
-                setState {
-                    copy(keyword = event.keyword)
-                }
-            }
+//            is ManualPutawayContract.Event.OnKeywordChange -> {
+//                setState {
+//                    copy(keyword = event.keyword)
+//                }
+//            }
             ManualPutawayContract.Event.OnNavBack -> {
                 setEffect {
                     ManualPutawayContract.Effect.NavBack
@@ -66,20 +66,20 @@ class ManualPutawayViewModel(
                     setState {
                         copy(page = page+1, loadingState = Loading.LOADING)
                     }
-                    getPutaways(state.keyword.text,state.page,state.selectedSort)
+                    getPutaways(state.keyword,state.page,state.selectedSort)
                 }
             }
             ManualPutawayContract.Event.OnReloadScreen -> {
                 setState {
                     copy(page = 1, loadingState = Loading.REFRESHING, putaways = emptyList())
                 }
-                getPutaways(state.keyword.text,state.page,state.selectedSort)
+                getPutaways(state.keyword,state.page,state.selectedSort)
             }
-            ManualPutawayContract.Event.OnSearch -> {
+            is ManualPutawayContract.Event.OnSearch -> {
                 setState {
-                    copy(page = 1, loadingState = Loading.SEARCHING, putaways = emptyList())
+                    copy(page = 1, loadingState = Loading.SEARCHING, putaways = emptyList(), keyword = event.keyword)
                 }
-                getPutaways(state.keyword.text,state.page,state.selectedSort)
+                getPutaways(state.keyword,state.page,state.selectedSort)
             }
             is ManualPutawayContract.Event.OnShowSortList -> {
                 setState {
@@ -92,7 +92,7 @@ class ManualPutawayViewModel(
                 setState {
                     copy(selectedSort = event.sort, loadingState = Loading.LOADING, page = 1, putaways = emptyList())
                 }
-                getPutaways(state.keyword.text,state.page,state.selectedSort)
+                getPutaways(state.keyword,state.page,state.selectedSort)
 
             }
         }

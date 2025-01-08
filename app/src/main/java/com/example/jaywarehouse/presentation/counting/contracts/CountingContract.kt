@@ -14,7 +14,7 @@ class CountingContract {
     data class State(
         val receivingModel: ReceivingModel? = null,
         val countingList: List<ReceivingRow> = emptyList(),
-        val keyword: TextFieldValue = TextFieldValue(),
+        val keyword: String = "",
         val loadingState: Loading = Loading.NONE,
         val showSortList: Boolean = false,
         val sortList: List<SortItem> = listOf(
@@ -33,7 +33,6 @@ class CountingContract {
     ) : UiState
 
     sealed class Event : UiEvent {
-        data class OnKeywordChange(val keyword: TextFieldValue) : Event()
         data class OnNavToReceivingDetail(val receivingRow: ReceivingRow) : Event()
         data object ClearError : Event()
         data class OnSelectSort(val sort: SortItem) : Event()
@@ -41,7 +40,7 @@ class CountingContract {
         data class OnShowSortList(val show: Boolean) : Event()
         data object OnListEndReached : Event()
         data object OnRefresh: Event()
-        data object OnSearch: Event()
+        data class OnSearch(val keyword: String): Event()
         data object FetchData: Event()
         data object OnBackPressed: Event()
     }

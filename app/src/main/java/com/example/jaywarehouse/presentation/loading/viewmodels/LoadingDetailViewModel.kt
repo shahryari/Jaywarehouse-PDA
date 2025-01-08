@@ -77,7 +77,7 @@ class LoadingDetailViewModel(
                     setState {
                         copy(page = state.page+1, loadingState = Loading.LOADING)
                     }
-                    getDetails(keyword = state.keyword.text,page = state.page,sort = state.sort)
+                    getDetails(keyword = state.keyword,page = state.page,sort = state.sort)
                 }
             }
 
@@ -85,21 +85,21 @@ class LoadingDetailViewModel(
                 setState {
                     copy(page = 1, details = emptyList(), loadingState = Loading.REFRESHING)
                 }
-                getDetails(keyword = state.keyword.text,page = state.page,sort = state.sort)
+                getDetails(keyword = state.keyword,page = state.page,sort = state.sort)
             }
             is LoadingDetailContract.Event.OnConfirmLoading -> {
                 completeChecking(event.item)
             }
-            is LoadingDetailContract.Event.OnChangeKeyword -> {
+//            is LoadingDetailContract.Event.OnChangeKeyword -> {
+//                setState {
+//                    copy(keyword = event.keyword)
+//                }
+//            }
+            is LoadingDetailContract.Event.OnSearch -> {
                 setState {
-                    copy(keyword = event.keyword)
+                    copy(loadingState = Loading.SEARCHING, details = emptyList(), page = 1, keyword = event.keyword)
                 }
-            }
-            LoadingDetailContract.Event.OnSearch -> {
-                setState {
-                    copy(loadingState = Loading.SEARCHING, details = emptyList(), page = 1)
-                }
-                getDetails(keyword = state.keyword.text,page = state.page,sort = state.sort)
+                getDetails(keyword = state.keyword,page = state.page,sort = state.sort)
             }
             is LoadingDetailContract.Event.OnShowSortList -> {
                 setState {
@@ -112,7 +112,7 @@ class LoadingDetailViewModel(
                 setState {
                     copy(sort = event.sortItem, page = 1, details = emptyList(), loadingState = Loading.LOADING)
                 }
-                getDetails(keyword = state.keyword.text,page = state.page,sort = event.sortItem)
+                getDetails(keyword = state.keyword,page = state.page,sort = event.sortItem)
             }
         }
     }
@@ -152,7 +152,7 @@ class LoadingDetailViewModel(
                                     loadingState = Loading.LOADING
                                 )
                             }
-                            getDetails(keyword = state.keyword.text,page = state.page,sort = state.sort)
+                            getDetails(keyword = state.keyword,page = state.page,sort = state.sort)
                         }
                         is BaseResult.Error -> {
                             setState {

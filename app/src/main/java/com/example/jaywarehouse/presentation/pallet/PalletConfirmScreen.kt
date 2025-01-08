@@ -125,13 +125,10 @@ fun PalletContent(
                 )
                 Spacer(modifier = Modifier.size(10.mdp))
                 SearchInput(
-                    value = state.keyword,
-                    onValueChange = {
-                        onEvent(PalletConfirmContract.Event.OnChangeKeyword(it))
-                    },
                     onSearch = {
-                        onEvent(PalletConfirmContract.Event.OnSearch)
+                        onEvent(PalletConfirmContract.Event.OnSearch(it.text))
                     },
+                    value = state.keyword,
                     isLoading = state.loadingState == Loading.SEARCHING,
                     onSortClick = {
                         onEvent(PalletConfirmContract.Event.OnShowSortList(true))
