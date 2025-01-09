@@ -46,7 +46,9 @@ data class CycleDetailRow(
     @SerializedName("QuiddityTypeTitle")
     val quiddityTypeTitle: String,
     @SerializedName("CycleCountWorkerTaskDetailID")
-    val cycleCountWorkerTaskDetailID: String
+    val cycleCountWorkerTaskDetailID: String,
+    @SerializedName("Counting")
+    val counting: Int,
 ) {
     override fun equals(other: Any?): Boolean {
         return other is CycleDetailRow

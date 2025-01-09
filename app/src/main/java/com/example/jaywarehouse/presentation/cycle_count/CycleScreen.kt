@@ -33,6 +33,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.sp
 import com.example.jaywarehouse.data.common.utils.mdp
 import com.example.jaywarehouse.R
 import com.example.jaywarehouse.data.cycle_count.models.CycleRow
@@ -57,6 +58,8 @@ import com.example.jaywarehouse.presentation.destinations.LoadingDetailScreenDes
 import com.example.jaywarehouse.presentation.loading.contracts.LoadingContract
 import com.example.jaywarehouse.presentation.loading.viewmodels.LoadingViewModel
 import com.example.jaywarehouse.ui.theme.Black
+import com.example.jaywarehouse.ui.theme.Gray3
+import com.example.jaywarehouse.ui.theme.Gray4
 import com.example.jaywarehouse.ui.theme.Primary
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -118,50 +121,88 @@ fun CheckingContent(
     ) {
 
         Box(modifier = Modifier.fillMaxSize()) {
-            Column(
-                Modifier
-                    .fillMaxSize()
-                    .pullRefresh(refreshState)
-                    .padding(15.mdp)
-            ) {
-                TopBar(
-                    title = "Cycle Count",
-                    titleTag = state.cycleCount.toString(),
-                    subTitle = "Choose a Location",
-                    onBack = {
-                        onEvent(CycleCountContract.Event.OnBackPressed)
-                    }
-                )
-                Spacer(modifier = Modifier.size(10.mdp))
-                SearchInput(
-                    onSearch = {
-                        onEvent(CycleCountContract.Event.OnSearch(it.text))
-                    },
-                    value = state.keyword,
-                    isLoading = state.loadingState == Loading.SEARCHING,
-                    onSortClick = {
-                        onEvent(CycleCountContract.Event.OnShowSortList(true))
-                    },
-                    hideKeyboard = state.lockKeyboard,
-                    focusRequester = searchFocusRequester
-                )
-                Spacer(modifier = Modifier.size(15.mdp))
-                MyLazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    items = state.cycleList,
-                    itemContent = {_,it->
-                        CycleItem(it) {
-                            onEvent(CycleCountContract.Event.OnNavToCycleCountDetail(it))
+            Column {
+
+                Column(
+                    Modifier
+                        .weight(1f)
+                        .pullRefresh(refreshState)
+                        .padding(15.mdp)
+                ) {
+                    TopBar(
+                        title = "Cycle Count",
+                        subTitle = "Choose a Location",
+                        onBack = {
+                            onEvent(CycleCountContract.Event.OnBackPressed)
                         }
-                    },
-                    onReachEnd = {
-                        onEvent(CycleCountContract.Event.OnReachedEnd)
-                    }
-                )
+                    )
+                    Spacer(modifier = Modifier.size(10.mdp))
+                    SearchInput(
+                        onSearch = {
+                            onEvent(CycleCountContract.Event.OnSearch(it.text))
+                        },
+                        value = state.keyword,
+                        isLoading = state.loadingState == Loading.SEARCHING,
+                        onSortClick = {
+                            onEvent(CycleCountContract.Event.OnShowSortList(true))
+                        },
+                        hideKeyboard = state.lockKeyboard,
+                        focusRequester = searchFocusRequester
+                    )
+                    Spacer(modifier = Modifier.size(15.mdp))
+                    MyLazyColumn(
+                        modifier = Modifier.weight(1f),
+                        items = state.cycleList,
+                        itemContent = {_,it->
+                            CycleItem(it) {
+                                onEvent(CycleCountContract.Event.OnNavToCycleCountDetail(it))
+                            }
+                        },
+                        onReachEnd = {
+                            onEvent(CycleCountContract.Event.OnReachedEnd)
+                        }
+                    )
+                }
+                Row(
+                    Modifier
+                        .shadow(1.mdp)
+                        .fillMaxWidth()
+                        .background(
+                            Gray3
+                        )
+                        .padding(12.mdp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    MyText(
+                        text = "${state.cycleList.size}",
+                        color = Primary,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+//                Icon(
+//                    painter = painterResource(id = scanIcon),
+//                    contentDescription = "",
+//                    modifier = Modifier.size(28.mdp),
+//                    tint = Color.White
+//                )
+//                Spacer(modifier = Modifier.size(7.mdp))
+                    MyText(
+                        text = " of ",
+                        color = Black,
+                        fontSize = 17.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                    MyText(
+                        text = "${state.cycleCount}",
+                        color = Black,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
 
             PullRefreshIndicator(refreshing = state.loadingState == Loading.REFRESHING, state = refreshState, modifier = Modifier.align(Alignment.TopCenter) )
-
         }
     }
     if (state.showSortList){
@@ -182,55 +223,68 @@ fun CheckingContent(
 @Composable
 fun CycleItem(
     model: CycleRow,
+    showCount: Boolean = true,
     onClick: (() -> Unit)? = null
 ) {
-    Row(
+    Column(
         Modifier
             .shadow(1.mdp, RoundedCornerShape(6.mdp))
             .fillMaxWidth()
             .clip(RoundedCornerShape(6.mdp))
             .background(Color.White)
             .then(if(onClick!=null) Modifier.clickable { onClick() } else Modifier)
-            .padding(6.mdp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        DetailCard(
-            "Location",
-            detail = model.locationCode,
-            icon = null,
-            modifier= Modifier.weight(1f)
-        )
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            if (model.isEmpty)
-                Icon(
-                    painterResource(R.drawable.direct_normal),
-                    contentDescription = "",
-                    Modifier.size(24.mdp),
-                    tint = Black
-                )
-            else
-                Icon(
-                    painterResource(R.drawable.direct),
-                    contentDescription = "",
-                    Modifier.size(24.mdp),
-                    tint = Primary
-                )
-            Spacer(Modifier.size(8.mdp))
-            if (model.detailCount>0)
-                Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(4.mdp))
-                        .background(Primary.copy(0.2f))
-                        .padding(vertical = 4.mdp, horizontal = 10.mdp)
-                ) {
-                    MyText(
-                        text = "Counting",
-                        style = MaterialTheme.typography.labelSmall,
-                        fontWeight = FontWeight.SemiBold,
-                        color = Primary
-                    )
+        Row(
+            Modifier
+                .padding(6.mdp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            DetailCard(
+                "Location",
+                detail = model.locationCode,
+                icon = null,
+                modifier= Modifier.weight(1f)
+            )
+            Column(horizontalAlignment = Alignment.End) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    if (model.isEmpty)
+                        Icon(
+                            painterResource(R.drawable.direct_normal),
+                            contentDescription = "",
+                            Modifier.size(24.mdp),
+                            tint = Black
+                        )
+                    else
+                        Icon(
+                            painterResource(R.drawable.direct),
+                            contentDescription = "",
+                            Modifier.size(24.mdp),
+                            tint = Primary
+                        )
+                    Spacer(Modifier.size(8.mdp))
+                    if (model.counting == 1)
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(4.mdp))
+                                .background(Primary.copy(0.2f))
+                                .padding(vertical = 4.mdp, horizontal = 10.mdp)
+                        ) {
+                            MyText(
+                                text = "Counting",
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.SemiBold,
+                                color = Primary
+                            )
+                        }
                 }
+                if (showCount)Spacer(Modifier.size(5.mdp))
+                if(showCount)MyText(
+                    "Items : ${model.detailCount}",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium
+                )
+            }
         }
     }
 }

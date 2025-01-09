@@ -1,5 +1,7 @@
 package com.example.jaywarehouse.presentation.cycle_count
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -28,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -137,53 +140,92 @@ fun CycleDetailContent(
         Box(
             Modifier
                 .fillMaxSize()) {
-            Column(
-                Modifier
-                    .pullRefresh(refreshState)
-                    .fillMaxSize()
-                    .padding(15.mdp)
-            ) {
-                TopBar(
-                    title = "Cycle Count",
-                    subTitle = "Counting",
-                    onBack = {
-                        onEvent(CycleDetailContract.Event.OnNavBack)
-                    },
-                    endIcon = R.drawable.tick,
-                    onEndClick = {
-                        onEvent(CycleDetailContract.Event.OnShowSubmit(true))
-                    }
-                )
-                Spacer(modifier = Modifier.size(10.mdp))
-                SearchInput(
-                    onSearch = {
-                        onEvent(CycleDetailContract.Event.OnSearch(it.text))
-                    },
-                    value = state.keyword,
-                    isLoading = state.loadingState == Loading.SEARCHING,
-                    onSortClick = {
-                        onEvent(CycleDetailContract.Event.OnShowSortList(true))
-                    },
-                    hideKeyboard = state.lockKeyboard,
-                    focusRequester = searchFocusRequester
-                )
-                Spacer(modifier = Modifier.size(20.mdp))
-
-                if (state.cycleRow!=null)CycleItem(state.cycleRow)
-                Spacer(modifier = Modifier.size(15.mdp))
-                MyLazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    items = state.details,
-                    itemContent = {_,it->
-                        CycleDetailItem(it){
-                            onEvent(CycleDetailContract.Event.OnSelectDetail(it))
+            Column {
+                Column(
+                    Modifier
+                        .weight(1f)
+                        .pullRefresh(refreshState)
+                        .padding(15.mdp)
+                ) {
+                    TopBar(
+                        title = "Cycle Count",
+                        subTitle = "Counting",
+                        onBack = {
+                            onEvent(CycleDetailContract.Event.OnNavBack)
+                        },
+                        endIcon = R.drawable.tick,
+                        onEndClick = {
+                            onEvent(CycleDetailContract.Event.OnShowSubmit(true))
                         }
-                    },
-                    onReachEnd = {
-                        onEvent(CycleDetailContract.Event.OnReachEnd)
-                    },
-                    spacerSize = 7.mdp
-                )
+                    )
+                    Spacer(modifier = Modifier.size(10.mdp))
+                    SearchInput(
+                        onSearch = {
+                            onEvent(CycleDetailContract.Event.OnSearch(it.text))
+                        },
+                        value = state.keyword,
+                        isLoading = state.loadingState == Loading.SEARCHING,
+                        onSortClick = {
+                            onEvent(CycleDetailContract.Event.OnShowSortList(true))
+                        },
+                        hideKeyboard = state.lockKeyboard,
+                        focusRequester = searchFocusRequester
+                    )
+                    Spacer(modifier = Modifier.size(20.mdp))
+
+                    if (state.cycleRow!=null)CycleItem(state.cycleRow, showCount = false)
+                    Spacer(modifier = Modifier.size(15.mdp))
+                    MyLazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        items = state.details,
+                        itemContent = {_,it->
+                            CycleDetailItem(it){
+                                onEvent(CycleDetailContract.Event.OnSelectDetail(it))
+                            }
+                        },
+                        onReachEnd = {
+                            onEvent(CycleDetailContract.Event.OnReachEnd)
+                        },
+                        spacerSize = 7.mdp
+                    )
+                }
+                Row(
+                    Modifier
+                        .shadow(1.mdp)
+                        .fillMaxWidth()
+                        .background(
+                            Gray3
+                        )
+                        .padding(12.mdp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    MyText(
+                        text = "${state.details.size}",
+                        color = Primary,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+//                Icon(
+//                    painter = painterResource(id = scanIcon),
+//                    contentDescription = "",
+//                    modifier = Modifier.size(28.mdp),
+//                    tint = Color.White
+//                )
+//                Spacer(modifier = Modifier.size(7.mdp))
+                    MyText(
+                        text = " of ",
+                        color = Black,
+                        fontSize = 17.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                    MyText(
+                        text = "${state.cycleDetailCount}",
+                        color = Black,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
             PullRefreshIndicator(refreshing = state.loadingState == Loading.REFRESHING, state = refreshState, modifier = Modifier.align(
                 Alignment.TopCenter) )
@@ -207,6 +249,7 @@ fun CycleDetailContent(
                     )
                 }
             }
+
             if(state.showAddButton)Box(
                 Modifier
                     .align(Alignment.BottomEnd)
@@ -290,6 +333,7 @@ fun CycleDetailItem(
         item4 = BaseListItemModel("Status", model.quiddityTypeTitle,R.drawable.box_search),
         item5 = model.expireDate?.let { BaseListItemModel("Expiration Date",it,R.drawable.calendar_add) },
         quantityTitle = "",
+        primary = model.counting == 1,
         quantity = model.locationCode,
         scanTitle = "Count",
         scan = model.countQuantity?.toString()?:""
@@ -306,7 +350,14 @@ fun CountBottomSheet(
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
+    val focusRequester = remember {
+        FocusRequester()
+    }
+
     if (state.selectedCycle!=null) {
+        LaunchedEffect(Unit) {
+            focusRequester.requestFocus()
+        }
         ModalBottomSheet(
             onDismissRequest = {
                 onEvent(CycleDetailContract.Event.OnSelectDetail(null))
@@ -372,6 +423,7 @@ fun CountBottomSheet(
                     },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     leadingIcon = R.drawable.box_search,
+                    focusRequester = focusRequester,
                     label = "Quantity",
                 )
                 Spacer(Modifier.size(15.mdp))

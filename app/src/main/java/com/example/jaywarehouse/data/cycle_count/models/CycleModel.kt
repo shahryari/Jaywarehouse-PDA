@@ -31,6 +31,8 @@ data class CycleRow(
     val isEmpty: Boolean,
     @SerializedName("DetailCount")
     val detailCount: Int,
+    @SerializedName("Counting")
+    val counting: Int,
     @SerializedName("TaskCount")
     val taskCount: Int
 ) : Serializable {

@@ -347,24 +347,24 @@ class Prefs(private val context: Context) {
     //cycle
     fun setCycleSort(sort: String) {
         with(preferences.edit()){
-            putString("shippingDetailSort",sort)
+            putString("cycleSort",sort)
             apply()
         }
     }
 
     fun getCycleSort() : String {
-        return preferences.getString("shippingDetailSort", DEFAULT_SORT)?: DEFAULT_SORT
+        return preferences.getString("cycleSort", "ProductCode")?: "ProductCode"
     }
 
     fun setCycleOrder(order: String) {
         with(preferences.edit()){
-            putString("shippingDetailOrder",order)
+            putString("cycleOrder",order)
             apply()
         }
     }
 
     fun getCycleOrder() : String {
-        return preferences.getString("shippingDetailOrder", Order.Desc.value)?: Order.Desc.value
+        return preferences.getString("cycleOrder", Order.Desc.value)?: Order.Desc.value
     }
     //transfer put
     fun setTransferSort(sort: String) {
@@ -392,24 +392,24 @@ class Prefs(private val context: Context) {
     //cycle detail
     fun setCycleDetailSort(sort: String) {
         with(preferences.edit()){
-            putString("transferPickSort",sort)
+            putString("cycleDetailSort",sort)
             apply()
         }
     }
 
     fun getCycleDetailSort() : String {
-        return preferences.getString("transferPickSort", DEFAULT_SORT)?: DEFAULT_SORT
+        return preferences.getString("cycleDetailSort", DEFAULT_SORT)?: DEFAULT_SORT
     }
 
     fun setCycleDetailOrder(order: String) {
         with(preferences.edit()){
-            putString("transferPickOrder",order)
+            putString("cycleDetailOrder",order)
             apply()
         }
     }
 
     fun getCycleDetailOrder() : String {
-        return preferences.getString("transferPickOrder", Order.Desc.value)?: Order.Desc.value
+        return preferences.getString("cycleDetailOrder", Order.Desc.value)?: Order.Desc.value
     }
 
 

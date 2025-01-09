@@ -30,7 +30,7 @@ import com.example.jaywarehouse.data.common.utils.mdp
 import com.example.jaywarehouse.ui.theme.Black
 import com.example.jaywarehouse.ui.theme.Gray3
 import com.example.jaywarehouse.ui.theme.Gray4
-import com.example.jaywarehouse.ui.theme.Orange
+import com.example.jaywarehouse.ui.theme.Primary
 import com.example.jaywarehouse.ui.theme.Red
 
 data class BaseListItemModel(
@@ -103,6 +103,7 @@ fun BaseListItem(
     showDeleteButton: Boolean = false,
     onRemove: ()->Unit = {},
     quantity: String,
+    primary: Boolean = false,
     quantityTitle: String = "Total",
     quantityIcon: Int = R.drawable.vuesax_outline_box_tick,
     scan: String,
@@ -131,6 +132,7 @@ fun BaseListItem(
             }
             .focusable(false)
             .background(Color.White)
+            .background(if (primary) Primary.copy(0.2f) else  Color.White)
     ) {
         AnimatedVisibility(visible = showItem1) {
             Row(
@@ -278,7 +280,9 @@ fun BaseListItem(
             Row(
                 Modifier
                     .weight(1f)
-                    .background(Gray3)
+                    .background(
+                        if (primary) Primary else Gray3
+                    )
                     .padding(12.mdp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
@@ -291,7 +295,7 @@ fun BaseListItem(
 //                Spacer(modifier = Modifier.size(7.mdp))
                 MyText(
                     text = "$quantityTitle${if (quantityTitle.isNotEmpty()) ": " else ""}$quantity",
-                    color = Black,
+                    color = if (primary) Color.White else Black,
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Medium
                 )
@@ -299,7 +303,9 @@ fun BaseListItem(
             Row(
                 Modifier
                     .weight(1f)
-                    .background(Gray4)
+                    .background(
+                        if (primary) Primary.copy(0.2f) else Gray4
+                    )
                     .padding(12.mdp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
@@ -312,7 +318,7 @@ fun BaseListItem(
 //                Spacer(modifier = Modifier.size(7.mdp))
                 MyText(
                     text = "$scanTitle${if (scanTitle.isNotEmpty()) ": " else ""}$scan",
-                    color = Black,
+                    color = if (primary) Primary else Black,
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Medium
                 )

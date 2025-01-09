@@ -240,6 +240,7 @@ class CycleDetailViewModel(
                             setSuspendedState {
                                 copy(
                                     details = detailList,
+                                    cycleDetailCount = it.data?.total?:0
                                 )
                             }
                             if (detailList.size == 1 && state.isSearching){
