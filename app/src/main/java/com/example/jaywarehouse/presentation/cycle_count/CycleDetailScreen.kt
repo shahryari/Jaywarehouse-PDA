@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.ExperimentalMaterialApi
@@ -26,6 +27,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -116,6 +118,14 @@ fun CycleDetailContent(
         FocusRequester()
     }
 
+    val listState = rememberLazyListState()
+
+    var lastItem = remember {
+        derivedStateOf {
+            listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+        }
+    }
+
     LaunchedEffect(Unit) {
         searchFocusRequester.requestFocus()
         onEvent(CycleDetailContract.Event.FetchData)
@@ -178,6 +188,7 @@ fun CycleDetailContent(
                     MyLazyColumn(
                         modifier = Modifier.fillMaxSize(),
                         items = state.details,
+                        state = listState,
                         itemContent = {_,it->
                             CycleDetailItem(it){
                                 onEvent(CycleDetailContract.Event.OnSelectDetail(it))
@@ -201,7 +212,7 @@ fun CycleDetailContent(
                     horizontalArrangement = Arrangement.Center
                 ) {
                     MyText(
-                        text = "${state.details.size}",
+                        text = "${lastItem.value.coerceAtMost(state.cycleDetailCount)}",
                         color = Primary,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold
@@ -215,6 +226,18 @@ fun CycleDetailContent(
 //                Spacer(modifier = Modifier.size(7.mdp))
                     MyText(
                         text = " of ",
+                        color = Black,
+                        fontSize = 17.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                    MyText(
+                        text = "${state.details.size}",
+                        color = Black,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    MyText(
+                        text = " from ",
                         color = Black,
                         fontSize = 17.sp,
                         fontWeight = FontWeight.Medium
@@ -306,8 +329,8 @@ fun CycleDetailContent(
             onDismiss = {
                 onEvent(CycleDetailContract.Event.OnShowSubmit(false))
             },
-            message = "Submit",
-            description = "Are you sure you want to end this cycle count?",
+            message = "Confirm",
+            description = "Are you sure to confirm finish counting of this location?",
             onConfirm = {
                 onEvent(CycleDetailContract.Event.OnEndTaskClick)
             },

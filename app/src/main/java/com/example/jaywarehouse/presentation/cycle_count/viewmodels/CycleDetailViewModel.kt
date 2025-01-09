@@ -391,6 +391,9 @@ class CycleDetailViewModel(
                             }
                         }
                         is BaseResult.Success -> {
+                            setState {
+                                copy(showSubmit = false)
+                            }
                             setEffect {
                                 CycleDetailContract.Effect.NavBack
                             }

@@ -12,8 +12,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -35,12 +37,13 @@ fun <T>MyLazyColumn(
     modifier: Modifier = Modifier,
     items: List<T>,
     itemContent: @Composable (Int,T) -> Unit,
+    state: LazyListState = rememberLazyListState(),
     header: @Composable ()->Unit = {},
     onReachEnd: ()->Unit,
     spacerSize: Dp = 10.mdp
 ) {
 
-    LazyColumn(modifier) {
+    LazyColumn(modifier,state = state) {
         stickyHeader { header() }
         itemsIndexed(items){i,it->
             var isVisible by remember {

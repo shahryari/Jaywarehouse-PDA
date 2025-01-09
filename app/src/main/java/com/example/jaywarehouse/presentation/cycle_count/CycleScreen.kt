@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
@@ -23,6 +24,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -100,6 +102,14 @@ fun CheckingContent(
         FocusRequester()
     }
 
+    val listState = rememberLazyListState()
+
+    var lastItem = remember {
+        derivedStateOf {
+            listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+        }
+    }
+
 
     val refreshState = rememberPullRefreshState(
         refreshing =  state.loadingState == Loading.REFRESHING,
@@ -153,6 +163,7 @@ fun CheckingContent(
                     MyLazyColumn(
                         modifier = Modifier.weight(1f),
                         items = state.cycleList,
+                        state = listState,
                         itemContent = {_,it->
                             CycleItem(it) {
                                 onEvent(CycleCountContract.Event.OnNavToCycleCountDetail(it))
@@ -175,20 +186,25 @@ fun CheckingContent(
                     horizontalArrangement = Arrangement.Center
                 ) {
                     MyText(
-                        text = "${state.cycleList.size}",
+                        text = "${lastItem.value.coerceAtMost(state.cycleCount)} ",
                         color = Primary,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold
                     )
-//                Icon(
-//                    painter = painterResource(id = scanIcon),
-//                    contentDescription = "",
-//                    modifier = Modifier.size(28.mdp),
-//                    tint = Color.White
-//                )
-//                Spacer(modifier = Modifier.size(7.mdp))
                     MyText(
                         text = " of ",
+                        color = Black,
+                        fontSize = 17.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                    MyText(
+                        text = "${state.cycleList.size}",
+                        color = Black,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    MyText(
+                        text = " from ",
                         color = Black,
                         fontSize = 17.sp,
                         fontWeight = FontWeight.Medium
@@ -244,10 +260,10 @@ fun CycleItem(
                 "Location",
                 detail = model.locationCode,
                 icon = null,
-                modifier= Modifier.weight(1f)
+                modifier= Modifier.weight(2.4f)
             )
-            Column(horizontalAlignment = Alignment.End) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f)) {
+                Row(Modifier.align(Alignment.Start),verticalAlignment = Alignment.CenterVertically) {
                     if (model.isEmpty)
                         Icon(
                             painterResource(R.drawable.direct_normal),
@@ -282,7 +298,8 @@ fun CycleItem(
                 if(showCount)MyText(
                     "Items : ${model.detailCount}",
                     fontSize = 14.sp,
-                    fontWeight = FontWeight.Medium
+                    fontWeight = FontWeight.Medium,
+                    modifier = Modifier.align(Alignment.Start)
                 )
             }
         }
