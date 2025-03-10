@@ -183,7 +183,7 @@ fun CountingDetailContent(
                         )
                         Spacer(modifier = Modifier.size(10.mdp))
                         MyText(
-                            "Total: "+state.countingRow?.receivingDetailSumQuantity.toString(),
+                            "Total: "+state.countingRow?.total.toString(),
                             color = Color.Black,
                             style = MaterialTheme.typography.bodyLarge,
                             fontWeight = FontWeight.W500,
@@ -205,7 +205,7 @@ fun CountingDetailContent(
                         )
                         Spacer(modifier = Modifier.size(10.mdp))
                         MyText(
-                            "Scan: "+state.countingRow?.countedQuantity.toString(),
+                            "Scan: "+(state.countingRow?.count?.toString()?:"0"),
                             style = MaterialTheme.typography.bodyLarge,
                             fontWeight = FontWeight.W500
                         )
@@ -291,12 +291,12 @@ fun CountingDetailItem(
 @Composable
 private fun CountingDetailPreview() {
     CountingDetailContent(
-        state = CountingDetailContract.State(
-            loadingState = Loading.NONE,
-            countingRow = ReceivingRow(receivingDate = "today", supplierFullName = "test", countedQuantity = 50, receivingDetailSumQuantity = 20, receivingDetailCount = 13, referenceNumber = "353523525", receivingID = 0, receivingTypeID = 3, receivingTypeTitle = "test",total =0 , count = 2),
-            countingDetailRow = listOf(
-            )
-        )
+//        state = CountingDetailContract.State(
+//            loadingState = Loading.NONE,
+//            countingRow = ReceivingRow(receivingDate = "today", supplierFullName = "test", countedQuantity = 50, receivingDetailSumQuantity = 20, receivingDetailCount = 13, referenceNumber = "353523525", receivingID = 0, receivingTypeID = 3, receivingTypeTitle = "test",total =0 , count = 2),
+//            countingDetailRow = listOf(
+//            )
+//        )
     )
     ConfirmDialog({}) { }
 }

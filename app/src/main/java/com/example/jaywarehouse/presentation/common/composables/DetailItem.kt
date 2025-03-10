@@ -40,7 +40,9 @@ import com.example.jaywarehouse.ui.theme.ErrorRed
 fun DetailItem(
     i: Int,
     first: String,
+    firstIcon: Int = R.drawable.barcode,
     second: String,
+    secondIcon: Int = R.drawable.box_search,
     third: String,
     selected: Boolean = false,
     onRemove: ()->Unit = {}
@@ -98,7 +100,7 @@ fun DetailItem(
     ) {
         Row(
             Modifier
-                .shadow(1.mdp)
+                .shadow(1.mdp,RoundedCornerShape(6.mdp))
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(6.mdp))
                 .background(Color.White)
@@ -115,7 +117,7 @@ fun DetailItem(
 
             Row {
                 Icon(
-                    painterResource(R.drawable.barcode),
+                    painterResource(firstIcon),
                     contentDescription = "",
                     modifier = Modifier.size(20.mdp),
                     tint = Color.Black
@@ -130,7 +132,7 @@ fun DetailItem(
             }
             Row {
                 Icon(
-                    painterResource(R.drawable.barcode),
+                    painterResource(secondIcon),
                     contentDescription = "",
                     modifier = Modifier.size(20.mdp),
                     tint = Color.Black
@@ -167,7 +169,7 @@ fun DetailItem(
 private fun DetailItemPreview() {
     var cancel by remember { mutableStateOf(false) }
     Column {
-        DetailItem(1,"test","test","test",selected = cancel)
+//        DetailItem(1,"test","test","test",selected = cancel)
         Button(onClick = {cancel = !cancel} ) { MyText("reset") }
     }
 }

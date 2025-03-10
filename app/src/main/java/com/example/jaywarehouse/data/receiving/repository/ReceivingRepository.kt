@@ -56,7 +56,7 @@ class ReceivingRepository(
         )
     }
 
-    suspend fun countReceivingDetail(
+    fun countReceivingDetail(
         receivingId: Int,
         quantity: Int,
         receivingTypeId: Int,

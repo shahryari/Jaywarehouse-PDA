@@ -318,7 +318,12 @@ class ShippingViewModel(
                         }
                         is BaseResult.Success -> {
                             setSuspendedState {
-                                copy(selectedDriver = it.data)
+                                copy(
+                                    selectedDriver = it.data,
+                                    driverName = TextFieldValue(it.data?.fullName?:""),
+                                    carNumber = TextFieldValue(it.data?.carNumber?:""),
+                                    trailerNumber = TextFieldValue(it.data?.trailerNumber?:""),
+                                )
                             }
                         }
                         BaseResult.UnAuthorized -> {}

@@ -227,7 +227,7 @@ fun CheckingItem(
                 Spacer(modifier = Modifier.size(10.mdp))
                 DetailCard(
                     "Customer",
-                    icon = R.drawable.barcode,
+                    icon = R.drawable.user_square,
                     detail = model.customerName?:""
                 )
             }

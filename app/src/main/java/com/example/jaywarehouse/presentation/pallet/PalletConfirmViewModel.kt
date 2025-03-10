@@ -142,7 +142,9 @@ class PalletConfirmViewModel(
                     is BaseResult.Success -> {
                         setSuspendedState {
                             copy(
-                                toast = it.data?.messages?.firstOrNull()?:"Confirmed Successfully"
+                                toast = it.data?.messages?.firstOrNull()?:"Confirmed Successfully",
+                                palletList = emptyList(),
+                                page = 1
                             )
                         }
                         getPalletList(state.keyword,state.page,state.sort)

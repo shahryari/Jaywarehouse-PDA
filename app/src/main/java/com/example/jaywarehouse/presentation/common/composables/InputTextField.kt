@@ -91,7 +91,7 @@ fun InputTextField(
         BasicTextField(value,
             onValueChange = {
                 if (!readOnly){
-                    if (it.text.endsWith('\n') || it.text.endsWith('\r')) {
+                    if (it.text.endsWith('\n')) {
                         onAny()
                     } else {
                         onValueChange(it)

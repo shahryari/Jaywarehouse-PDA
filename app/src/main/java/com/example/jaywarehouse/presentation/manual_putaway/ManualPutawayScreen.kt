@@ -164,7 +164,7 @@ fun ManualPutawayItem(
         item4 = BaseListItemModel("Batch Number",model.batchNumber?:"", R.drawable.vuesax_linear_box),
         item5 = BaseListItemModel("Expiration Date",model.expireDateString?:"", R.drawable.calendar_add),
         quantity = model.warehouseLocationCode?:"",
-        quantityTitle = "Location",
+        quantityTitle = "",
         scan = model.quantity.toString(),
         scanTitle = "Quantity"
     )

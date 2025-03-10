@@ -1,5 +1,8 @@
 package com.example.jaywarehouse.presentation.common.utils
 
+import android.icu.util.GregorianCalendar
+import android.os.Build
+import androidx.annotation.RequiresApi
 import java.time.LocalDate
 
 
@@ -37,7 +40,7 @@ data class DayOfMonth(
 
 fun calculateDayOfMonths(month: Int, year: Int): List<DayOfMonth> {
 
-    val isLeapYear = LocalDate.of(year, month, 1).isLeapYear
+    val isLeapYear = GregorianCalendar().isLeapYear(year)
 
     val month31day = (1..31).map {
         DayOfMonth(

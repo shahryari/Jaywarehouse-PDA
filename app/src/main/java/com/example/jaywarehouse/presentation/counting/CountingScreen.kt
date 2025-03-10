@@ -1,5 +1,6 @@
 package com.example.jaywarehouse.presentation.counting
 
+import android.os.Build
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -58,6 +59,11 @@ import com.example.jaywarehouse.ui.theme.Primary
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import org.koin.androidx.compose.koinViewModel
+import java.text.SimpleDateFormat
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.util.Date
+import java.util.Locale
 
 
 @Destination(style = ScreenTransition::class)
@@ -227,11 +233,49 @@ fun CountListItem(
 
                 }
                 Spacer(modifier = Modifier.size(10.mdp))
+                if (receivingRow.description != null){
+                    DetailCard(
+                        "Description",
+                        icon = R.drawable.hashtag,
+                        detail = receivingRow.description
+                    )
+                    Spacer(Modifier.size(10.mdp))
+                }
                 DetailCard(
                     "Supplier",
                     icon = R.drawable.barcode,
                     detail = receivingRow.supplierFullName?:""
                 )
+                Spacer(Modifier.size(10.mdp))
+                Row(Modifier.fillMaxWidth()) {
+                    DetailCard(
+                        "Warehouse Name",
+                        icon = R.drawable.building,
+                        detail = receivingRow.warehouseName?:"",
+                        modifier = Modifier.weight(1f)
+                    )
+                    Spacer(Modifier.size(5.mdp))
+                    DetailCard(
+                        "Receiving Date",
+                        icon = R.drawable.vuesax_linear_calendar_2,
+                        detail = try {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                LocalDateTime.parse(receivingRow.receivingDate, DateTimeFormatter.ISO_LOCAL_DATE_TIME).format(
+                                    DateTimeFormatter.ISO_LOCAL_DATE)
+                            } else {
+                                val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
+                                val date: Date = inputFormat.parse(receivingRow.receivingDate)!!
+
+                                val outputFormat = SimpleDateFormat("yyyy-MMM-dd", Locale.getDefault())
+                                outputFormat.format(date)
+
+                            }
+                        } catch (e: Exception){
+                            receivingRow.receivingDate
+                        },
+                        modifier = Modifier.weight(1f)
+                    )
+                }
                 Spacer(modifier = Modifier.size(15.mdp))
 
             }
@@ -276,7 +320,7 @@ fun CountListItem(
                 )
                 Spacer(modifier = Modifier.size(7.mdp))
                 MyText(
-                    text = "Scan: " + receivingRow.count.toString(),
+                    text = "Scan: " + (receivingRow.count?.toString()?:"0"),
                     color = Primary,
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Medium
@@ -294,12 +338,8 @@ private fun CountingPreview() {
     CountingContent(
         state = CountingContract.State(
             countingList = listOf(
-                ReceivingRow(receivingDate = "today", supplierFullName = "test", countedQuantity = 50, receivingDetailSumQuantity = 20, receivingDetailCount = 13, referenceNumber = "353523525", receivingID = 0, receivingTypeTitle = "general", receivingTypeID = 3, total = 0, count = 0),
-                ReceivingRow(receivingDate = "today", supplierFullName = "test", countedQuantity = 50, receivingDetailSumQuantity = 20, receivingDetailCount = 13, referenceNumber = "353523525", receivingID = 0, receivingTypeTitle = "general", receivingTypeID = 3, total = 0, count = 0),
-                ReceivingRow(receivingDate = "today", supplierFullName = "test", countedQuantity = 50, receivingDetailSumQuantity = 20, receivingDetailCount = 13, referenceNumber = "353523525", receivingID = 0, receivingTypeTitle = "general", receivingTypeID = 3, total = 0, count = 0),
-                ReceivingRow(receivingDate = "today", supplierFullName = "test", countedQuantity = 50, receivingDetailSumQuantity = 20, receivingDetailCount = 13, referenceNumber = "353523525", receivingID = 0, receivingTypeTitle = "general", receivingTypeID = 3, total = 0, count = 0),
-                ReceivingRow(receivingDate = "today", supplierFullName = "test", countedQuantity = 50, receivingDetailSumQuantity = 20, receivingDetailCount = 13, referenceNumber = "353523525", receivingID = 0, receivingTypeTitle = "general", receivingTypeID = 3, total = 0, count = 0)
-            ),
+                ReceivingRow(receivingDate = "today", supplierFullName = "test", referenceNumber = "353523525", receivingID = 0, receivingTypeTitle = "general", receivingTypeID = 3, total = 0, count = 0, description = "test", warehouseName = "test"),
+                ),
         )
     )
 }

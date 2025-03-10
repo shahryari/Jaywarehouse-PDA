@@ -113,18 +113,18 @@ private fun ManualPutawayDetailContent(
                 }
             )
             Spacer(Modifier.size(20.mdp))
-            SearchInput(
-                onSearch = {
-                    onEvent(ManualPutawayDetailContract.Event.OnSearch(it.text))
-                },
-                value = state.keyword,
-                onSortClick = {
-                    onEvent(ManualPutawayDetailContract.Event.OnShowSortList(true))
-                },
-                hideKeyboard = state.lockKeyboard,
-                isLoading = state.loadingState == Loading.SEARCHING
-            )
-            Spacer(Modifier.size(10.mdp))
+//            SearchInput(
+//                onSearch = {
+//                    onEvent(ManualPutawayDetailContract.Event.OnSearch(it.text))
+//                },
+//                value = state.keyword,
+//                onSortClick = {
+//                    onEvent(ManualPutawayDetailContract.Event.OnShowSortList(true))
+//                },
+//                hideKeyboard = state.lockKeyboard,
+//                isLoading = state.loadingState == Loading.SEARCHING
+//            )
+//            Spacer(Modifier.size(10.mdp))
             MyLazyColumn(
                 items = state.details.reversed(),
                 itemContent = {i,it->
@@ -152,18 +152,18 @@ private fun ManualPutawayDetailContent(
                                 hideKeyboard = state.lockKeyboard,
                                 label = "Quantity",
                             )
-                            Spacer(Modifier.size(5.mdp))
-                            InputTextField(
-                                state.quantityInPacket,
-                                onValueChange = {
-                                    onEvent(ManualPutawayDetailContract.Event.OnQuantityInPacketChange(it))
-                                },
-                                modifier = Modifier.weight(1f),
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                leadingIcon = R.drawable.barcode,
-                                hideKeyboard = state.lockKeyboard,
-                                label = "Quantity In Packet",
-                            )
+//                            Spacer(Modifier.size(5.mdp))
+//                            InputTextField(
+//                                state.quantityInPacket,
+//                                onValueChange = {
+//                                    onEvent(ManualPutawayDetailContract.Event.OnQuantityInPacketChange(it))
+//                                },
+//                                modifier = Modifier.weight(1f),
+//                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+//                                leadingIcon = R.drawable.barcode,
+//                                hideKeyboard = state.lockKeyboard,
+//                                label = "Quantity In Packet",
+//                            )
                         }
                         Spacer(Modifier.size(10.mdp))
                         InputTextField(
@@ -190,12 +190,12 @@ private fun ManualPutawayDetailContent(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.Center
                         ) {
-                            MyText(
-                                text = state.count.toString(),
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = Primary,
-                                fontWeight = FontWeight.W500,
-                            )
+//                            MyText(
+//                                text = state.count.toString(),
+//                                style = MaterialTheme.typography.bodyMedium,
+//                                color = Primary,
+//                                fontWeight = FontWeight.W500,
+//                            )
                             MyIcon(
                                 icon = Icons.Default.Add, showBorder = false,
                                 background = Color.Transparent,
@@ -255,11 +255,13 @@ fun ManualPutawayDetailItem(
 ) {
     DetailItem(
         i,
-        detail.quantity.toString(),
-        detail.warehouseLocationCode,
-        detail.createdOn,
-        selected,
-        onRemove
+        first = detail.quantity.toString(),
+        firstIcon = R.drawable.box_search,
+        second = detail.warehouseLocationCode,
+        secondIcon = R.drawable.location,
+        third = detail.createdOn,
+        selected = selected,
+        onRemove = onRemove
     )
 }
 

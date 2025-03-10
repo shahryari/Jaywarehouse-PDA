@@ -225,14 +225,14 @@ fun PalletItem(
             ) {
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
 
-                    if(model.total!=null)Box(
+                    if(model.customerCode!=null)Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(4.mdp))
                             .background(Primary.copy(0.2f))
                             .padding(vertical = 4.mdp, horizontal = 10.mdp)
                     ) {
                         MyText(
-                            text = "",
+                            text = model.customerCode,
                             style = MaterialTheme.typography.labelSmall,
                             fontWeight = FontWeight.SemiBold,
                             color = Primary
@@ -250,7 +250,7 @@ fun PalletItem(
                 Spacer(modifier = Modifier.size(10.mdp))
                 DetailCard(
                     "Customer",
-                    icon = R.drawable.barcode,
+                    icon = R.drawable.user_square,
                     detail = model.customerName?:""
                 )
             }
@@ -270,6 +270,8 @@ private fun PalletPreview() {
                 palletManifestID = 10,
                 palletBarcode = "test",
                 customerName = "",
+                customerCode = "",
+                b2BCustomer = "",
                 total = 3
             ),
             onSelect = {

@@ -23,7 +23,7 @@ data class PickingListRow(
     @SerializedName("ProductCode")
     val productCode: String,
     @SerializedName("ProductInventoryExpireDate")
-    val productInventoryExpireDate: String,
+    val productInventoryExpireDate: String?,
     @SerializedName("ProductInventoryHistoryID")
     val productInventoryHistoryID: Int?,
     @SerializedName("ProductLocationActivityID")
@@ -37,7 +37,7 @@ data class PickingListRow(
     @SerializedName("ShippingOrderDetailID")
     val shippingOrderDetailID: Int,
     @SerializedName("TypeofOrderAcquisition")
-    val typeofOrderAcquisition: String,
+    val typeofOrderAcquisition: String?,
     @SerializedName("WarehouseLocationCode")
     val warehouseLocationCode: String
 )

@@ -20,6 +20,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.ModalBottomSheetProperties
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
@@ -51,7 +52,7 @@ fun SortBottomSheet(
     selectedOrder: String = "",
     onSelectOrder: (String)->Unit ={}
 ) {
-    val sheetState = rememberModalBottomSheetState()
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
     ModalBottomSheet(
         onDismiss,
@@ -115,7 +116,7 @@ fun SortBottomSheet(
     selectedSort: SortItem,
     onSelectSort: (SortItem)-> Unit,
 ) {
-    val sheetState = rememberModalBottomSheetState()
+    val sheetState = rememberModalBottomSheetState(true)
     val scope = rememberCoroutineScope()
     ModalBottomSheet(
         onDismiss,

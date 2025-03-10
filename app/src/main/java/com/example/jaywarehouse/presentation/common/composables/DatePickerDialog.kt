@@ -1,5 +1,6 @@
 package com.example.jaywarehouse.presentation.common.composables
 
+import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -17,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.jaywarehouse.BuildConfig
 import com.example.jaywarehouse.data.common.utils.mdp
 import com.example.jaywarehouse.presentation.common.utils.DayOfMonth
 import com.example.jaywarehouse.presentation.common.utils.Month
@@ -24,8 +26,12 @@ import com.example.jaywarehouse.presentation.common.utils.Year
 import com.example.jaywarehouse.presentation.common.utils.calculateDayOfMonths
 import com.example.jaywarehouse.ui.theme.Primary
 import java.text.DateFormatSymbols
+import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
 
 @Composable
@@ -38,8 +44,17 @@ fun DatePickerDialog(
     yearsRange: IntRange = 1900..2100,
     onSave: (String) -> Unit
 ) {
-    val date = selectedDate?.let { LocalDate.parse(it, DateTimeFormatter.ofPattern("yyyy-MM-dd"))} ?: LocalDate.now()
-    val days = calculateDayOfMonths(date.monthValue, date.year)
+
+    val inputFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+    val date = selectedDate?.let { inputFormat.parse(it) } ?: Date()
+
+    val calendar = Calendar.getInstance()
+    calendar.time = date
+    val month = calendar.get(Calendar.MONTH) + 1 // Months are 0-based
+    val year = calendar.get(Calendar.YEAR)
+    val dayOfMonth = calendar.get(Calendar.DAY_OF_MONTH)
+
+    val days = calculateDayOfMonths(month, year)
     val months = (1..12).map {
         Month(
             text =
@@ -62,12 +77,12 @@ fun DatePickerDialog(
     }
     var selectedYear by remember {
         mutableStateOf(
-            years.find { it.value == date.year }
+            years.find { it.value == year }
         )
     }
     var selectedMonth by remember {
         mutableStateOf(
-            months.find { it.value == date.monthValue } ?: Month(
+            months.find { it.value == month } ?: Month(
                 text = DateFormatSymbols().shortMonths[1],
                 value = 1,
                 index = 0
@@ -77,7 +92,7 @@ fun DatePickerDialog(
     }
     var selectedDayOfMonth by remember {
         mutableStateOf(
-            days.find { it.value == date.dayOfMonth }
+            days.find { it.value == dayOfMonth }
         )
     }
 

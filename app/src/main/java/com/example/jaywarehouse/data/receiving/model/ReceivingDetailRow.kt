@@ -30,5 +30,9 @@ data class ReceivingDetailRow(
     @SerializedName("ReferenceNumber")
     val referenceNumber: String,
     @SerializedName("SupplierFullName")
-    val supplierFullName: String
+    val supplierFullName: String,
+    @SerializedName("BatchNumber")
+    val batchNumber: String?,
+    @SerializedName("ExpireDate")
+    val expireDate: String?
 ) : Serializable

@@ -22,12 +22,12 @@ class PalletConfirmContract {
         val loadingState: Loading = Loading.NONE,
         val error: String = "",
         val sortList: List<SortItem> = listOf(
-            SortItem("Created On closed to now", "CreatedOn",Order.Desc),
-            SortItem("Created On farthest from now", "CreatedOn",Order.Asc),
-            SortItem("Receiving Number Descending", "Receiving",Order.Desc),
-            SortItem("Receiving Number Ascending", "Receiving",Order.Asc),
-            SortItem("Most Progress", "Progress",Order.Desc),
-            SortItem("Least Progress", "Progress",Order.Asc)
+            SortItem("Pallet Barcode A-Z","PalletBarcode",Order.Asc),
+            SortItem("Pallet Barcode Z-A","PalletBarcode",Order.Desc),
+            SortItem("Customer Name A-Z","CustomerName",Order.Asc),
+            SortItem("Customer Name Z-A","CustomerName",Order.Desc),
+            SortItem("Customer Code A-Z","CustomerCode",Order.Asc),
+            SortItem("Customer Code Z-A","CustomerCode",Order.Desc)
         ),
         val sort: SortItem = sortList.first(),
         val page: Int = 1,

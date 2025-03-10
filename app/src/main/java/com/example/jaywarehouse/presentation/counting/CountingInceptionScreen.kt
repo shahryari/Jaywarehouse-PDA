@@ -123,7 +123,7 @@ fun CountingInceptionContent(
                 items = list.reversed(),
                 itemContent = {i,it->
                     CountingInceptionDetailItem(list.size-i,it,it == state.selectedItem){
-                        onEvent(CountingInceptionContract.Event.OnSelectedItem(it))
+                        onEvent(CountingInceptionContract.Event.OnSelectedItem(it,i))
                     }
                 },
                 header = {
@@ -269,9 +269,10 @@ fun CountingInceptionDetailItem(
 ) {
     DetailItem(
         i,
-        model.batchNumber?:"",
-        model.quantity.toString(),
-        model.expireDate?:"",
+        first = model.batchNumber?:"",
+        firstIcon = R.drawable.keyboard,
+        second = model.quantity.toString(),
+        third = model.expireDate?:"",
         onRemove = onRemove,
         selected = selected
     )

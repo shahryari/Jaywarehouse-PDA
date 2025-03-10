@@ -101,7 +101,7 @@ fun SearchInput(
                 onValueChange = {
                     if(!isLoading){
                         keyword = it
-                        if (it.text.endsWith('\n') || it.text.endsWith('\r')) {
+                        if (it.text.endsWith('\n')) {
                             onSearch(it)
                         }
                     }

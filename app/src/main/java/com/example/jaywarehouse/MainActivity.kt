@@ -3,6 +3,7 @@ package com.example.jaywarehouse
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.platform.LocalConfiguration
@@ -25,17 +26,7 @@ class MainActivity : ComponentActivity() {
 
             val prefs : Prefs = koinInject()
 
-            val width = LocalConfiguration.current.screenWidthDp
-            val factor = when{
-                width<300 -> 0.9f
-                width<400 -> 0.95f
-                width<450 -> 0.97f
-                width<500 -> 1f
-                width<600 -> 1.02f
-                width<700 -> 1.05f
-                width<800 -> 1.1f
-                else -> 1.15f
-            }
+            val factor = getScaleFactor()
             val route = if (prefs.getToken().isNotEmpty()) DashboardScreenDestination else LoginScreenDestination
             JayWarehouseTheme {
                 CompositionLocalProvider(localWindowFactor provides factor) {
@@ -44,4 +35,31 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+}
+
+@Composable
+fun getScaleFactor() : Float {
+    val configuration = LocalConfiguration.current
+
+    val screenWidthDp = configuration.screenWidthDp
+    val screenHeightDp = configuration.screenHeightDp
+    val densityDpi = configuration.densityDpi
+    val density = configuration.fontScale  // or density, depending on use case
+
+    // Reference values (Based on a standard phone, e.g., Pixel 4a)
+    val baseWidth = 411f
+    val baseHeight = 891f
+    val baseDpi = 420f  // Default mdpi baseline
+
+    // Calculate scaling components
+    val widthFactor = screenWidthDp / baseWidth
+    val heightFactor = screenHeightDp / baseHeight
+    val dpiFactor = densityDpi / baseDpi
+    val densityFactor = density  // Uses system font scale
+
+    // Combine all factors (weighted average)
+    val scaleFactor = ((widthFactor * 0.4f) + (heightFactor * 0.4f) + (dpiFactor * 0.2f)) / densityFactor
+
+    // Limit scaling to prevent excessive growth
+    return scaleFactor.coerceIn(0.9f, 1.1f)// Restricts scaling to a safe range
 }

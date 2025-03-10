@@ -86,8 +86,42 @@ class CountingInceptionViewModel(
                     }
                     return
                 }
+                val quantity = (state.quantity.text.toIntOrNull()?:0) * (state.quantityInPacket.text.toIntOrNull()?:0)
+                if (quantity<0){
+                    setState {
+                        copy(error = "Quantity must be equal to 0 or greater than 0")
+                    }
+                    return
+                }
+                if (detail.batchNumber!=null && state.batchNumber.text.isEmpty()){
+                    setState {
+                        copy(error = "Please fill batch number")
+                    }
+                    return
+                }
+                if (detail.expireDate!=null && state.expireDate.text.isEmpty()){
+                    setState {
+                        copy(error = "Please fill expire date")
+                    }
+                    return
+                }
+                if (state.batchNumber.text.trim().isNotEmpty()){
+                    if (state.details.find { it.batchNumber == state.batchNumber.text.trim() } != null){
+                        setState {
+                            copy(error = "Batch number already exists")
+                        }
+                        return
+                    }
+                } else {
+                    if (state.details.find { it.quantity == quantity && it.expireDate == state.expireDate.text.trim() } != null){
+                        setState {
+                            copy(error = "Item with same Quantity already exists")
+                        }
+                        return
+                    }
+                }
                 val countItem = ReceivingDetailCountModel(
-                    quantity = state.quantity.text.toInt() * state.quantityInPacket.text.toInt(),
+                    quantity = quantity,
                     batchNumber = state.batchNumber.text,
                     expireDate = state.expireDate.text,
                     entityState = "Added",
@@ -118,20 +152,25 @@ class CountingInceptionViewModel(
 
             is CountingInceptionContract.Event.OnDeleteCount -> {
                 setState {
-                    copy(details = details.mapNotNull {
-                        if (event.model.receivingWorkerTaskCountId == null && it.batchNumber == event.model.batchNumber && it.expireDate == event.model.expireDate && it.quantity == event.model.quantity) {
-                            null
+                    copy(details = details.mapIndexedNotNull { index, it ->
+                        if (state.selectedIndex == index){
+
+                            if (event.model.receivingWorkerTaskCountId == null) {
+                                null
+                            }
+                            else if (it.receivingWorkerTaskCountId == event.model.receivingWorkerTaskCountId) {
+                                it.copy(entityState = "Deleted")
+                            } else it
+                        } else {
+                            it
                         }
-                        else if (it.receivingWorkerTaskCountId == event.model.receivingWorkerTaskCountId) {
-                            it.copy(entityState = "Deleted")
-                        } else it
-                    }, selectedItem = null)
+                    }, selectedItem = null, selectedIndex = null)
                 }
             }
 
             is CountingInceptionContract.Event.OnSelectedItem -> {
                 setState {
-                    copy(selectedItem = event.item)
+                    copy(selectedItem = event.item, selectedIndex = event.index)
                 }
             }
 
@@ -177,6 +216,12 @@ class CountingInceptionViewModel(
     }
 
     private fun countItems() {
+        if (state.details.isEmpty()){
+            setState {
+                copy(error = "Please add at least one item")
+            }
+            return
+        }
         viewModelScope.launch {
             repository.countReceivingDetail(
                 receivingId,

@@ -18,15 +18,15 @@ class CountingContract {
         val loadingState: Loading = Loading.NONE,
         val showSortList: Boolean = false,
         val sortList: List<SortItem> = listOf(
-            SortItem("Created On closed to now", "CreatedOn",Order.Desc),
-            SortItem("Created On farthest from now", "CreatedOn",Order.Asc),
-            SortItem("Receiving Number Descending", "Receiving",Order.Desc),
-            SortItem("Receiving Number Ascending", "Receiving",Order.Asc),
-            SortItem("Most Progress", "Progress",Order.Desc),
-            SortItem("Least Progress", "Progress",Order.Asc)
+            SortItem("Receiving Date closed to now", "ReceivingDate",Order.Desc),
+            SortItem("Receiving Date farthest from now", "ReceivingDate",Order.Asc),
+            SortItem("Reference Number Descending", "ReferenceNumber",Order.Desc),
+            SortItem("Reference Number Ascending", "ReferenceNumber",Order.Asc),
+            SortItem("Supplier Name Descending", "Supplier",Order.Desc),
+            SortItem("Supplier Name Ascending", "Supplier",Order.Asc)
         ),
         val sort: SortItem = sortList.first(),
-        val order: String = "Desc",
+        val order: String = "desc",
         val page: Int = 1,
         val error: String = "",
         val lockKeyboard: Boolean = false,

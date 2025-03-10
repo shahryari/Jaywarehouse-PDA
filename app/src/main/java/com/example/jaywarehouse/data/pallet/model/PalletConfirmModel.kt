@@ -9,13 +9,19 @@ data class PalletConfirmModel(
     val total: Int
 )
 
+
 data class PalletConfirmRow(
+    @SerializedName("B2BCustomer")
+    val b2BCustomer: String?,
+    @SerializedName("CustomerCode")
+    val customerCode: String?,
+    @SerializedName("CustomerName")
+    val customerName: String?,
     @SerializedName("PalletBarcode")
     val palletBarcode: String,
     @SerializedName("PalletManifestID")
     val palletManifestID: Int,
-    @SerializedName("CustomerName")
-    val customerName: String?,
     @SerializedName("Total")
     val total: Int?
 )
+

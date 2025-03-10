@@ -27,12 +27,10 @@ class ManualPutawayDetailContract {
         val details: List<ManualPutawayDetailRow> = emptyList(),
         val page: Int = 1,
         val sortList: List<SortItem> = listOf(
-            SortItem("Created On closed to now", "CreatedOn", Order.Desc),
-            SortItem("Created On farthest from now", "CreatedOn", Order.Asc),
-            SortItem("Latest Product A-Z", "ProductCode", Order.Asc),
-            SortItem("Latest Product Z-A", "ProductCode", Order.Desc),
-            SortItem("Barcode Closed to now", "Barcode", Order.Desc),
-            SortItem("Barcode farthest from now", "Barcode", Order.Asc)
+            SortItem("Created On closed to now", "CreatedOn", Order.Asc),
+            SortItem("Created On farthest from now", "CreatedOn", Order.Desc),
+            SortItem("Location Code A-Z", "LocationCode", Order.Asc),
+            SortItem("Location Code Z-A", "LocationCode", Order.Desc)
         ),
         val selectedSort: SortItem = sortList.first(),
         val showSortList: Boolean = false,

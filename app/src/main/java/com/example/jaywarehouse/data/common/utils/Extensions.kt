@@ -32,3 +32,7 @@ fun <T> List<T>.addAll(list: List<T>?) : List<T>{
     }
     return tempList
 }
+
+fun String.endsWithEnter(): Boolean {
+    return this.endsWith('\n')
+}

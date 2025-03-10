@@ -55,7 +55,7 @@ class ManualPutawayDetailViewModel(
                 }
             }
             ManualPutawayDetailContract.Event.OnAddClick -> {
-                if (state.quantity.text.isNotEmpty() && state.quantityInPacket.text.isNotEmpty() && state.locationCode.text.isNotEmpty()) {
+                if (state.quantity.text.isNotEmpty() && state.locationCode.text.isNotEmpty()) {
                     scanManualPutaway()
                 }
             }
@@ -64,11 +64,6 @@ class ManualPutawayDetailViewModel(
                     copy(error = "")
                 }
             }
-//            is ManualPutawayDetailContract.Event.OnKeywordChange -> {
-//                setState {
-//                    copy(keyword = event.keyword)
-//                }
-//            }
             is ManualPutawayDetailContract.Event.OnLocationCodeChange -> {
                 setState {
                     copy(locationCode = event.locationCode)
@@ -151,7 +146,7 @@ class ManualPutawayDetailViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             repository.scanManualPutaway(
                 locationCode = state.locationCode.text,
-                quantity = state.quantity.text.toInt() * state.quantityInPacket.text.toInt(),
+                quantity = state.quantity.text.toInt(),
                 warehouseId = put.warehouseID.toString(),
                 receiptDetailId = put.receiptDetailID.toString(),
                 receiptId = put.receiptID.toString(),
@@ -253,7 +248,7 @@ class ManualPutawayDetailViewModel(
                         setSuspendedState {
                             copy(
                                 count = it.data?.total ?: 0,
-                                details = details + (it.data?.rows?: emptyList())
+                                details = details + (it.data?.rows?: emptyList()),
                             )
                         }
                     }
@@ -264,6 +259,12 @@ class ManualPutawayDetailViewModel(
     }
 
     private fun finishManualPutaway() {
+        if (state.details.sumOf { it.quantity } > put.quantity){
+            setState {
+                copy(error = "You have scanned more than the quantity")
+            }
+            return
+        }
         viewModelScope.launch(Dispatchers.IO) {
             repository.finishManualPutaway(put.receiptDetailID.toString())
                 .catch {

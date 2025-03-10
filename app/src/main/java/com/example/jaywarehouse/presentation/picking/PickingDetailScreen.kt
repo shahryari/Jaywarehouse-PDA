@@ -204,9 +204,9 @@ fun PickingDetailItem(
         item2 = BaseListItemModel("Product Code",model.productCode,R.drawable.barcode),
         item3 = BaseListItemModel("Barcode",model.barcodeNumber,R.drawable.note),
         item4 = BaseListItemModel("LPO", model.customerName,R.drawable.vuesax_linear_box),
-        item5 = BaseListItemModel("Type of order acquisition", model.typeofOrderAcquisition,R.drawable.calendar_add),
+        item5 = if(model.typeofOrderAcquisition!=null) BaseListItemModel("Type of order acquisition", model.typeofOrderAcquisition,R.drawable.calendar_add)else null,
         quantity = model.warehouseLocationCode,
-        quantityTitle = "Location",
+        quantityTitle = "",
         scan = model.quantity.toString(),
         scanTitle = "Quantity"
     )
@@ -284,7 +284,7 @@ fun PickingBottomSheet(
                         modifier = Modifier.weight(1f)
                     )
                     Spacer(Modifier.size(5.mdp))
-                    DetailCard(
+                    if (state.selectedPick.typeofOrderAcquisition!=null)DetailCard(
                         title = "Type of order acquisition",
                         icon = R.drawable.calendar_add,
                         detail = state.selectedPick.typeofOrderAcquisition,

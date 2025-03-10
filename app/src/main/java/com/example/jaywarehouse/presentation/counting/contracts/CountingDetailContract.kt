@@ -24,12 +24,12 @@ class CountingDetailContract {
         val keyword: String = "",
         val toast: String = "",
         val sortList: List<SortItem> = listOf(
-            SortItem("Created On closed to now", "CreatedOn",Order.Desc),
-            SortItem("Created On farthest from now", "CreatedOn",Order.Asc),
-            SortItem("Latest Product A-Z", "ProductCode",Order.Asc),
-            SortItem("Latest Product Z-A", "ProductCode",Order.Desc),
-            SortItem("Barcode Closed to now", "Barcode",Order.Desc),
-            SortItem("Barcode farthest from now", "Barcode",Order.Asc)
+            SortItem("Product Name A-Z", "ProductName",Order.Asc),
+            SortItem("Product Name Z-A", "ProductName",Order.Desc),
+            SortItem("Product Code Ascending", "ProductCode",Order.Asc),
+            SortItem("Product Code Descending", "ProductCode",Order.Desc),
+            SortItem("Barcode Ascending", "Barcode",Order.Asc),
+            SortItem("Barcode Descending", "Barcode",Order.Desc)
         ),
         val sort: SortItem = sortList.first(),
         val order: String = Order.Asc.value,

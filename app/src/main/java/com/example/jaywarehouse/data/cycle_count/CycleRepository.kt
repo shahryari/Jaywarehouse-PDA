@@ -21,8 +21,8 @@ class CycleRepository(
     ) = getResult(
         request = {
             val sortList = listOf(
-                SortItemDto(1,"IsEmpty","asc"),
-                SortItemDto(2,"Counting","desc"),
+//                SortItemDto(1,"IsEmpty","asc"),
+//                SortItemDto(2,"Counting","desc"),
                 SortItemDto(3,sort,order)
             )
             val jsonObject = JsonObject()

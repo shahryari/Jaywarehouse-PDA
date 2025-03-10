@@ -20,6 +20,7 @@ class CountingInceptionContract {
         val showDatePicker: Boolean = false,
         val hideKeyboard: Boolean = false,
         val selectedItem: ReceivingDetailCountModel? = null,
+        val selectedIndex: Int? = null,
         val count: Int = 0,
         val toast: String = "",
         val error: String = "",
@@ -40,7 +41,7 @@ class CountingInceptionContract {
         data object CloseError: Event()
         data object HideToast: Event()
         data class OnDeleteCount(val model: ReceivingDetailCountModel) : Event()
-        data class OnSelectedItem(val item: ReceivingDetailCountModel?) : Event()
+        data class OnSelectedItem(val item: ReceivingDetailCountModel?, val index: Int? = null) : Event()
     }
 
     sealed class Effect : UiSideEffect {

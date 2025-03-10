@@ -37,7 +37,7 @@ interface ManualPutawayApi {
         @Body jsonObject: JsonObject
     ): Response<ResultMessageModel>
 
-    @POST("PutawayManualFinish")
+    @POST("PutawayFinishManual")
     suspend fun putawayManualFinish(
         @Body jsonObject: JsonObject
     ): Response<ResultMessageModel>
