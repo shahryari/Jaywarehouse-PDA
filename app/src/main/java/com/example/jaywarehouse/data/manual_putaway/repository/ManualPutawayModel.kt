@@ -1,5 +1,6 @@
 package com.example.jaywarehouse.data.manual_putaway.repository
 
+import com.example.jaywarehouse.presentation.common.composables.Animatable
 import com.google.gson.annotations.SerializedName
 import java.io.Serializable
 
@@ -10,37 +11,34 @@ data class ManualPutawayModel(
     val total: Int
 )
 
+
 data class ManualPutawayRow(
     @SerializedName("BatchNumber")
     val batchNumber: String?,
-    @SerializedName("ExpireDateString")
-    val expireDateString: String?,
-    @SerializedName("OwnerFullName")
-    val ownerFullName: String,
+    @SerializedName("ExpireDate")
+    val expireDate: String?,
     @SerializedName("ProductBarcodeNumber")
     val productBarcodeNumber: String,
     @SerializedName("ProductCode")
     val productCode: String,
-    @SerializedName("ProductID")
-    val productID: Int,
     @SerializedName("ProductInventoryID")
     val productInventoryID: Int,
-    @SerializedName("ProductLocationActivityID")
-    val productLocationActivityID: String?,
     @SerializedName("ProductName")
     val productName: String,
-    @SerializedName("PutawayWorkerTaskTypeID")
-    val putawayWorkerTaskTypeID: Int,
+    @SerializedName("PutawayID")
+    val putawayID: Int,
     @SerializedName("Quantity")
-    val quantity: Int,
+    val quantity: Double,
     @SerializedName("ReceiptDetailID")
     val receiptDetailID: Int,
-    @SerializedName("ReceiptID")
-    val receiptID: Int,
-    @SerializedName("ReceivingDetailID")
-    val receivingDetailID: Int,
+    @SerializedName("Total")
+    val total: Double,
     @SerializedName("WarehouseID")
     val warehouseID: Int,
     @SerializedName("WarehouseLocationCode")
     val warehouseLocationCode: String?
-) : Serializable
+) : Serializable, Animatable {
+    override fun key(): String {
+        return putawayID.toString()
+    }
+}

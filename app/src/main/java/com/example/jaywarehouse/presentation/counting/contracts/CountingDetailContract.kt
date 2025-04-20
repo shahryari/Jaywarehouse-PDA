@@ -37,7 +37,9 @@ class CountingDetailContract {
         val showSortList: Boolean = false,
         val showConfirm: Boolean = false,
         val error: String = "",
-        val lockKeyboard: Boolean = false
+        val lockKeyboard: Boolean = false,
+        val total: Double = 0.0,
+        val scan: Double = 0.0
     ) : UiState
 
     sealed class Event : UiEvent {
@@ -53,6 +55,7 @@ class CountingDetailContract {
         data class OnSearch(val keyword: String): Event()
         data object OnRefresh: Event()
         data class OnDetailClick(val detail: ReceivingDetailRow) : Event()
+        data object FetchData : Event()
     }
 
     sealed class Effect: UiSideEffect {

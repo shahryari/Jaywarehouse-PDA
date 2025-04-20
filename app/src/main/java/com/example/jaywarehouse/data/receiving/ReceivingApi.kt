@@ -53,8 +53,18 @@ interface ReceivingApi {
     ) : Response<ReceivingDetailGetItemsModel>
 
 
-    @POST("ReceivingDetailCountConfirm")
-    suspend fun confirmReceivingDetailCount(
+    @POST("ReceivingWorkerTaskCountInsert")
+    suspend fun receivingWorkerTaskCountInsert(
         @Body jsonObject: JsonObject
-    ) : Response<ReceivingDetailScanModel>
+    ) : Response<ResultMessageModel>
+
+    @POST("ReceivingWorkerTaskCountDelete")
+    suspend fun receivingWorkerTaskCountDelete(
+        @Body jsonObject: JsonObject
+    ) : Response<ResultMessageModel>
+
+    @POST("ReceivingWorkerTaskDone")
+    suspend fun receivingWorkerTaskDone(
+        @Body jsonObject: JsonObject
+    ) : Response<ResultMessageModel>
 }

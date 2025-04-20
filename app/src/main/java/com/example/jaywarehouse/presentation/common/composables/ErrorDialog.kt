@@ -33,6 +33,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.jaywarehouse.data.common.utils.mdp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.example.jaywarehouse.ui.theme.Black
 import com.example.jaywarehouse.ui.theme.ErrorRed
 import com.example.jaywarehouse.ui.theme.Gray4
@@ -43,7 +44,10 @@ fun ErrorDialog(
     onDismiss: ()->Unit,
     message: String
 ) {
-   Dialog(onDismissRequest = onDismiss) {
+   Dialog(
+       onDismissRequest = onDismiss,
+       properties = DialogProperties(dismissOnBackPress = false,dismissOnClickOutside = false)
+   ) {
 
        Column(
            Modifier
@@ -53,7 +57,7 @@ fun ErrorDialog(
                .padding(vertical = 20.mdp, horizontal = 18.mdp),
        ) {
            MyText(
-               text = "Error has been occurred",
+               text = "Error",
                color = ErrorRed,
                style = MaterialTheme.typography.titleMedium,
                fontWeight = FontWeight.SemiBold

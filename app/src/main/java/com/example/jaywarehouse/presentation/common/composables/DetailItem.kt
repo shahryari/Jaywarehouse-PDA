@@ -43,7 +43,6 @@ fun DetailItem(
     firstIcon: Int = R.drawable.barcode,
     second: String,
     secondIcon: Int = R.drawable.box_search,
-    third: String,
     selected: Boolean = false,
     onRemove: ()->Unit = {}
 ) {
@@ -98,67 +97,180 @@ fun DetailItem(
             }
         }
     ) {
-        Row(
-            Modifier
-                .shadow(1.mdp,RoundedCornerShape(6.mdp))
+        Column(
+            modifier = Modifier
+                .shadow(1.mdp, RoundedCornerShape(6.mdp))
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(6.mdp))
                 .background(Color.White)
-                .padding(10.mdp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+                .padding(10.mdp)
         ) {
-            MyText(
-                text = i.toString(),
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.W500,
-                color = Color.Black
-            )
+            Row(
+                Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                MyText(
+                    text = i.toString(),
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.W500,
+                    color = Color.Black
+                )
+                Spacer(Modifier.size(15.mdp))
 
-            Row {
-                Icon(
-                    painterResource(firstIcon),
-                    contentDescription = "",
-                    modifier = Modifier.size(20.mdp),
-                    tint = Color.Black
-                )
-                Spacer(Modifier.size(10.mdp))
-                MyText(
-                    text = first,
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.W500,
-                    color = Color.Black
-                )
+                Row(modifier = Modifier.weight(0.5f),verticalAlignment = Alignment.CenterVertically) {
+                    if (first.isNotEmpty())Icon(
+                        painterResource(firstIcon),
+                        contentDescription = "",
+                        modifier = Modifier.size(20.mdp),
+                        tint = Color.Black
+                    )
+                    Spacer(Modifier.size(10.mdp))
+                    MyText(
+                        text = first,
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.W500,
+                        color = Color.Black
+                    )
+                }
+                Spacer(Modifier.size(5.mdp))
+                Row(modifier = Modifier.weight(1f),verticalAlignment = Alignment.CenterVertically) {
+                    if (second.isNotEmpty())Icon(
+                        painterResource(secondIcon),
+                        contentDescription = "",
+                        modifier = Modifier.size(20.mdp),
+                        tint = Color.Black
+                    )
+                    Spacer(Modifier.size(10.mdp))
+                    MyText(
+                        text = second,
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.W500,
+                        color = Color.Black
+                    )
+                }
             }
-            Row {
-                Icon(
-                    painterResource(secondIcon),
-                    contentDescription = "",
-                    modifier = Modifier.size(20.mdp),
-                    tint = Color.Black
-                )
-                Spacer(Modifier.size(10.mdp))
-                MyText(
-                    text = second,
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.W500,
-                    color = Color.Black
-                )
+        }
+    }
+}
+
+@Composable
+fun DetailItem(
+    i: Int,
+    first: String,
+    second: String,
+    third: String,
+    forth: String,
+    selected: Boolean = false,
+    onRemove: ()->Unit = {}
+) {
+
+    val dismissState = rememberSwipeToDismissBoxState(
+        confirmValueChange = {
+            when(it){
+                SwipeToDismissBoxValue.StartToEnd,
+                SwipeToDismissBoxValue.EndToStart -> {
+                    onRemove()
+                }
+                SwipeToDismissBoxValue.Settled -> {}
             }
-            Row {
-                Icon(
-                    painterResource(R.drawable.vuesax_linear_calendar_2),
-                    contentDescription = "",
-                    modifier = Modifier.size(20.mdp),
-                    tint = Color.Black
-                )
-                Spacer(Modifier.size(10.mdp))
+            true
+        },
+        positionalThreshold = {
+            it*0.25f
+        }
+    )
+    if (!selected && dismissState.currentValue != SwipeToDismissBoxValue.Settled)LaunchedEffect(Unit) {
+        dismissState.reset()
+    }
+    SwipeToDismissBox(
+        state = dismissState,
+        backgroundContent = {
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(6.mdp))
+                    .background(ErrorRed)
+                    .padding(10.mdp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                if(dismissState.dismissDirection == SwipeToDismissBoxValue.EndToStart) Spacer(Modifier.size(5.mdp))
+                AnimatedVisibility(dismissState.dismissDirection == SwipeToDismissBoxValue.StartToEnd) {
+                    Icon(
+                        Icons.Default.Delete,
+                        contentDescription = "",
+                        modifier = Modifier.size(20.mdp),
+                        tint = Color.White
+                    )
+                }
+                AnimatedVisibility(dismissState.dismissDirection == SwipeToDismissBoxValue.EndToStart) {
+                    Icon(
+                        Icons.Default.Delete,
+                        contentDescription = "",
+                        modifier = Modifier.size(20.mdp),
+                        tint = Color.White
+                    )
+                }
+            }
+        }
+    ) {
+        Column(
+            modifier = Modifier
+                .shadow(1.mdp, RoundedCornerShape(6.mdp))
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(6.mdp))
+                .background(Color.White)
+                .padding(10.mdp)
+        ) {
+            Row(
+                Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
                 MyText(
-                    text = third,
+                    text = i.toString(),
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.W500,
                     color = Color.Black
                 )
+                Spacer(Modifier.size(10.mdp))
+
+                Row(modifier = Modifier.weight(0.5f),verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
+                    MyText(
+                        text = first,
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.W500,
+                        color = Color.Black
+                    )
+                }
+                Spacer(Modifier.size(5.mdp))
+                Row(modifier = Modifier.weight(0.5f),verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
+                    MyText(
+                        text = second,
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.W500,
+                        color = Color.Black
+                    )
+                }
+                Spacer(Modifier.size(5.mdp))
+                Row(modifier = Modifier.weight(1f),verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
+                    MyText(
+                        text = third,
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.W500,
+                        color = Color.Black
+                    )
+                }
+                Spacer(Modifier.size(5.mdp))
+                Row(modifier = Modifier.weight(1.2f),verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
+                    MyText(
+                        text = forth,
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.W500,
+                        color = Color.Black
+                    )
+                }
             }
         }
     }

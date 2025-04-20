@@ -76,14 +76,6 @@ fun PutawayDetailScreen(
 ) {
     val state = viewModel.state
     val onEvent = viewModel::setEvent
-//    val localFocusManager = LocalFocusManager.current
-//    val locationFocusRequester = remember {
-//        FocusRequester()
-//    }
-//    val barcodeFocusRequester = remember {
-//        FocusRequester()
-//    }
-
     LaunchedEffect(key1 = SIDE_EFFECT_KEY) {
         viewModel.effect.collect {
             when(it){
@@ -109,10 +101,6 @@ fun PutawayDetailContent(
 ) {
     val focusRequester = FocusRequester()
 
-    val refreshState = rememberPullRefreshState(
-        refreshing = state.loadingState == Loading.REFRESHING,
-        onRefresh = { onEvent(PutawayDetailContract.Event.OnRefresh) }
-    )
     LaunchedEffect(key1 = Unit) {
         focusRequester.requestFocus()
     }
@@ -125,6 +113,9 @@ fun PutawayDetailContent(
         toast = state.toast,
         onHideToast = {
             onEvent(PutawayDetailContract.Event.HideToast)
+        },
+        onRefresh = {
+            onEvent(PutawayDetailContract.Event.OnRefresh)
         }
     ) {
 
@@ -133,7 +124,6 @@ fun PutawayDetailContent(
                 .fillMaxSize()) {
             Column(
                 Modifier
-                    .pullRefresh(refreshState)
                     .fillMaxSize()
                     .padding(15.mdp)
             ) {
@@ -172,8 +162,6 @@ fun PutawayDetailContent(
                     spacerSize = 7.mdp
                 )
             }
-            PullRefreshIndicator(refreshing = state.loadingState == Loading.REFRESHING, state = refreshState, modifier = Modifier.align(
-                Alignment.TopCenter) )
         }
     }
     if (state.showSortList){
@@ -201,8 +189,8 @@ fun PutawayDetailItem(
         item1 = BaseListItemModel("Name",model.productName, R.drawable.vuesax_outline_3d_cube_scan),
         item2 = BaseListItemModel("Product Code",model.productCode,R.drawable.barcode),
         item3 = BaseListItemModel("Barcode",model.productBarcodeNumber,R.drawable.note),
-        item4 = BaseListItemModel("Batch Number",model.batchNumber?:"",R.drawable.vuesax_linear_box),
-        item5 = BaseListItemModel("Expiration Date",model.expireDateString?:"",R.drawable.calendar_add),
+        item4 = BaseListItemModel("Batch No..",model.batchNumber?:"",R.drawable.vuesax_linear_box),
+        item5 = BaseListItemModel("Exp Date",model.expireDateString?:"",R.drawable.calendar_add),
         quantity = model.warehouseLocationCode,
         quantityTitle = "Location",
         scan = model.quantity.toString(),
@@ -276,14 +264,14 @@ fun PutawayBottomSheet(
                 Spacer(Modifier.size(10.mdp))
                 if(state.selectedPutaway.batchNumber!=null || state.selectedPutaway.expireDateString!=null)Row(Modifier.fillMaxWidth()) {
                     if(state.selectedPutaway.batchNumber!=null)DetailCard(
-                        title = "Batch Number",
+                        title = "Batch No.",
                         icon = R.drawable.vuesax_linear_box,
                         detail = state.selectedPutaway.batchNumber,
                         modifier = Modifier.weight(1f)
                     )
                     if(state.selectedPutaway.batchNumber!=null && state.selectedPutaway.expireDateString!=null)Spacer(Modifier.size(5.mdp))
                     if(state.selectedPutaway.expireDateString != null)DetailCard(
-                        title = "Expiration Date",
+                        title = "Exp Date",
                         icon = R.drawable.calendar_add,
                         detail = state.selectedPutaway.expireDateString,
                         modifier = Modifier.weight(1f)
@@ -319,7 +307,7 @@ fun PutawayBottomSheet(
                         barcodeFocusRequester.requestFocus()
                     },
                     leadingIcon = R.drawable.location,
-//                    hideKeyboard = state.lockKeyboard,
+                    hideKeyboard = state.lockKeyboard,
                     focusRequester = locationFocusRequester,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
                 )
@@ -333,7 +321,7 @@ fun PutawayBottomSheet(
                     },
                     onAny = {},
                     leadingIcon = R.drawable.barcode,
-//                    hideKeyboard = state.lockKeyboard,
+                    hideKeyboard = state.lockKeyboard,
                     focusRequester = barcodeFocusRequester,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
                 )
@@ -382,7 +370,7 @@ private fun PutawayDetailPreview() {
                 32002,
                 productName = "osdkod",
                 30220,
-                20,
+                20.0,
                 32002,
                 20202,
                 "A-01-01"

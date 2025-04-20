@@ -15,6 +15,7 @@ import com.example.jaywarehouse.presentation.common.utils.Loading
 import com.example.jaywarehouse.presentation.common.utils.Order
 import com.example.jaywarehouse.presentation.common.utils.SortItem
 import com.example.jaywarehouse.presentation.counting.contracts.CountingDetailContract
+import com.example.jaywarehouse.presentation.counting.contracts.CountingDetailContract.Effect.*
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.catch
@@ -23,6 +24,7 @@ import kotlinx.coroutines.launch
 class CountingDetailViewModel(
     private val repository: ReceivingRepository,
     private val prefs: Prefs,
+    private val isCrossDock: Boolean =false,
     private val receivingRow: ReceivingRow
 ) : BaseViewModel<CountingDetailContract.Event,CountingDetailContract.State,CountingDetailContract.Effect>() {
     init {
@@ -42,7 +44,6 @@ class CountingDetailViewModel(
                 }
             }
         }
-        getReceivingDetailList(receivingRow.receivingID,"",sort = state.sort)
     }
     override fun setInitState(): CountingDetailContract.State {
         return CountingDetailContract.State()
@@ -133,15 +134,22 @@ class CountingDetailViewModel(
 
             is CountingDetailContract.Event.OnDetailClick -> {
                 setEffect {
-                    CountingDetailContract.Effect.OnNavToInception(event.detail)
+                    OnNavToInception(event.detail)
                 }
+            }
+
+            CountingDetailContract.Event.FetchData -> {
+                setState {
+                    copy(page = 1, loadingState = Loading.LOADING, countingDetailRow = emptyList())
+                }
+                getReceivingDetailList(receivingRow.receivingID,state.keyword,state.page,state.sort)
             }
         }
     }
 
     private fun getReceivingDetailList(receivingID: Int,keyword: String,page: Int = 1,sort: SortItem) {
         viewModelScope.launch(Dispatchers.IO) {
-            repository.getReceivingDetails(receivingID,keyword,page,10,sort = sort.sort,order = sort.order.value)
+            repository.getReceivingDetails(receivingID,isCrossDock,keyword,page,10,sort = sort.sort,order = sort.order.value)
                 .catch {
                     setSuspendedState {
                         copy(error = it.message?:"", loadingState = Loading.NONE)
@@ -158,8 +166,19 @@ class CountingDetailViewModel(
                             }
                         }
                         is BaseResult.Success -> {
+
                             setSuspendedState {
-                                copy(countingDetailModel = it.data, countingDetailRow = it.data?.rows?: emptyList())
+                                copy(
+                                    countingDetailModel = it.data,
+                                    countingDetailRow = it.data?.rows?: emptyList(),
+                                    total = it.data?.rows?.sumOf { it.quantity } ?:0.0,
+                                    scan = it.data?.rows?.sumOf { it.countQuantity?:0.0 }?:0.0
+                                )
+                            }
+                            if (it.data?.rows.isNullOrEmpty()){
+                                setEffect {
+                                    CountingDetailContract.Effect.NavBack
+                                }
                             }
                         }
                         else ->{}

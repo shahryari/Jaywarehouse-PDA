@@ -11,8 +11,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
@@ -50,10 +48,9 @@ import com.example.jaywarehouse.presentation.counting.viewmodels.CountingDetailV
 import com.example.jaywarehouse.presentation.destinations.CountingInceptionScreenDestination
 import com.example.jaywarehouse.ui.theme.Black
 import com.example.jaywarehouse.ui.theme.Border
-import com.example.jaywarehouse.ui.theme.DarkGray
-import com.example.jaywarehouse.ui.theme.ErrorRed
 import com.example.jaywarehouse.ui.theme.Gray3
 import com.example.jaywarehouse.ui.theme.Gray4
+import com.example.jaywarehouse.ui.theme.Orange
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import org.koin.androidx.compose.koinViewModel
@@ -64,9 +61,10 @@ import org.koin.core.parameter.parametersOf
 fun CountingDetailScreen(
     navigator: DestinationsNavigator,
     receivingRow: ReceivingRow,
+    isCrossDock: Boolean = false,
     viewModel: CountingDetailViewModel = koinViewModel(
         parameters = {
-            parametersOf(receivingRow)
+            parametersOf(receivingRow,isCrossDock)
         }
     )
 ) {
@@ -78,7 +76,7 @@ fun CountingDetailScreen(
             when(it){
                 CountingDetailContract.Effect.NavBack -> navigator.popBackStack()
                 is CountingDetailContract.Effect.OnNavToInception -> {
-                    navigator.navigate(CountingInceptionScreenDestination(it.detail,receivingRow.receivingID))
+                    navigator.navigate(CountingInceptionScreenDestination(it.detail,receivingRow.receivingID,isCrossDock))
                 }
             }
         }
@@ -94,12 +92,9 @@ fun CountingDetailContent(
 ) {
     val focusRequester = FocusRequester()
 
-    val refreshState = rememberPullRefreshState(
-        refreshing = state.loadingState == Loading.REFRESHING,
-        onRefresh = { onEvent(CountingDetailContract.Event.OnRefresh) }
-    )
     LaunchedEffect(key1 = Unit) {
         focusRequester.requestFocus()
+        onEvent(CountingDetailContract.Event.FetchData)
     }
     MyScaffold(
         loadingState = state.loadingState,
@@ -109,6 +104,9 @@ fun CountingDetailContent(
 
         },
         error = state.error,
+        onRefresh = {
+            onEvent(CountingDetailContract.Event.OnRefresh)
+        },
         onCloseError = {
             onEvent(CountingDetailContract.Event.CloseError)
         }
@@ -119,7 +117,6 @@ fun CountingDetailContent(
                 .fillMaxSize()) {
             Column(
                 Modifier
-                    .pullRefresh(refreshState)
                     .fillMaxSize()
                     .padding(15.mdp)
             ) {
@@ -159,8 +156,7 @@ fun CountingDetailContent(
                     }
                 )
             }
-            PullRefreshIndicator(refreshing = state.loadingState == Loading.REFRESHING, state = refreshState, modifier = Modifier.align(Alignment.TopCenter) )
-            Column(Modifier.align(Alignment.BottomCenter)) {
+            if (state.countingDetailRow.isNotEmpty())Column(Modifier.align(Alignment.BottomCenter)) {
                 HorizontalDivider(thickness = 1.mdp,color = Border)
                 Row(
                     Modifier
@@ -183,7 +179,7 @@ fun CountingDetailContent(
                         )
                         Spacer(modifier = Modifier.size(10.mdp))
                         MyText(
-                            "Total: "+state.countingRow?.total.toString(),
+                            "Total: "+state.total.toString(),
                             color = Color.Black,
                             style = MaterialTheme.typography.bodyLarge,
                             fontWeight = FontWeight.W500,
@@ -205,7 +201,7 @@ fun CountingDetailContent(
                         )
                         Spacer(modifier = Modifier.size(10.mdp))
                         MyText(
-                            "Scan: "+(state.countingRow?.count?.toString()?:"0"),
+                            "Scan: "+state.scan.toString(),
                             style = MaterialTheme.typography.bodyLarge,
                             fontWeight = FontWeight.W500
                         )
@@ -234,9 +230,10 @@ fun CountingDetailContent(
 @Composable
 fun ConfirmDialog(
     onDismiss: ()->Unit,
+    title: String = "",
     message: String = "Are you sure to remove this item?",
-    description: String = "You are not able to retrieve this item.",
-    tint: Color = ErrorRed,
+    tint: Color = Orange,
+    isLoading: Boolean = false,
     onConfirm: ()->Unit
 ) {
     BasicDialog(
@@ -244,6 +241,7 @@ fun ConfirmDialog(
         positiveButton = "Yes",
         positiveButtonTint = tint,
         negativeButton = "Cancel",
+        isLoading = isLoading,
         onPositiveClick = {
             onConfirm()
         },
@@ -254,16 +252,17 @@ fun ConfirmDialog(
         if (message.isNotEmpty())MyText(
             text = message,
             style = MaterialTheme.typography.titleLarge,
-            color = tint,
+            color = Color.Black,
             fontWeight = FontWeight.W400
         )
-        if (description.isNotEmpty() && message.isNotEmpty())Spacer(modifier = Modifier.size(10.mdp))
-        if (description.isNotEmpty())MyText(
-            text = description,
-            style = MaterialTheme.typography.bodyMedium,
-            color = DarkGray,
-            fontWeight = FontWeight.W400
-        )
+//        if (description.isNotEmpty() && message.isNotEmpty())Spacer(modifier = Modifier.size(5.mdp))
+//        if (description.isNotEmpty())MyText(
+//            text = description,
+//            style = MaterialTheme.typography.bodyLarge,
+//            color = DarkGray,
+//            fontWeight = FontWeight.W400
+//        )
+        Spacer(Modifier.size(7.mdp))
     }   
 }
 
@@ -271,15 +270,17 @@ fun ConfirmDialog(
 @Composable
 fun CountingDetailItem(
     model: ReceivingDetailRow,
-    onClick: () -> Unit
+    showDetail: Boolean = true,
+    onClick: () -> Unit,
 ) {
     BaseListItem(
         onClick = onClick,
         item1 = BaseListItemModel("Name",model.productName,R.drawable.vuesax_outline_3d_cube_scan),
-        item2 = BaseListItemModel("Product Code",model.productCode,R.drawable.fluent_barcode_scanner_20_regular),
-        item3 = BaseListItemModel("Barcode",model.productBarcodeNumber,R.drawable.note),
-        item4 = BaseListItemModel("Product Type",model.quiddityTypeTitle,R.drawable.vuesax_linear_box),
-        scan = model.countQuantity?:0,
+        item2 = if (showDetail) BaseListItemModel("Product Code",model.productCode,R.drawable.fluent_barcode_scanner_20_regular) else null,
+        item3 = if (showDetail) BaseListItemModel("Barcode",model.productBarcodeNumber,R.drawable.note) else null,
+        item4 = if (showDetail) BaseListItemModel("Product Type",model.quiddityTypeTitle?:"",R.drawable.vuesax_linear_box) else null,
+        scan = model.countQuantity?:0.0,
+        scanTitle = "Count",
         quantity = model.quantity
     )
 }

@@ -1,5 +1,6 @@
 package com.example.jaywarehouse.data.putaway.model
 
+import com.example.jaywarehouse.presentation.common.composables.Animatable
 import com.google.gson.annotations.SerializedName
 import java.io.Serializable
 
@@ -13,7 +14,7 @@ data class PutawayListGroupedModel(
 
 data class PutawayListGroupedRow(
     @SerializedName("Count")
-    val count: Int,
+    val count: Double,
     @SerializedName("ReceiptID")
     val receiptID: Int,
     @SerializedName("ReceivingTypeID")
@@ -25,5 +26,10 @@ data class PutawayListGroupedRow(
     @SerializedName("SupplierFullName")
     val supplierFullName: String,
     @SerializedName("Total")
-    val total: Int
-) : Serializable
+    val total: Double
+) : Serializable, Animatable{
+    override fun key(): String {
+        return receiptID.toString()
+    }
+
+}

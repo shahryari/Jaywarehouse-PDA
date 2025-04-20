@@ -13,6 +13,10 @@ import com.example.jaywarehouse.presentation.manual_putaway.contracts.ManualPuta
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
+import org.koin.core.component.getScopeName
+import java.math.BigDecimal
+import java.math.RoundingMode
+import java.text.DecimalFormat
 
 class ManualPutawayDetailViewModel(
     private val repository: ManualPutawayRepository,
@@ -96,6 +100,7 @@ class ManualPutawayDetailViewModel(
                 setState {
                     copy(page = 1, loadingState = Loading.REFRESHING, details = emptyList())
                 }
+                getManualPutawayDetails()
             }
             is ManualPutawayDetailContract.Event.OnShowSortList -> {
                 setState {
@@ -116,7 +121,7 @@ class ManualPutawayDetailViewModel(
             }
 
             is ManualPutawayDetailContract.Event.OnRemove -> {
-                removeManualPutaway(event.detail.productLocationActivityId)
+                removeManualPutaway(event.detail.putawayDetailID.toString())
             }
             is ManualPutawayDetailContract.Event.OnSelectDetail -> {
                 setState {
@@ -140,82 +145,105 @@ class ManualPutawayDetailViewModel(
     }
 
     private fun scanManualPutaway() {
-        setState {
-            copy(isScanning = true)
+        val quantity = state.details.sumOf { it.quantity } + state.quantity.text.toDouble()
+        if (quantity.toBigDecimal().setScale(4, RoundingMode.UNNECESSARY).toDouble() > put.total){
+            setState {
+                copy(error = "Total scanned quantity is more then required quantity")
+            }
+            return
         }
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.scanManualPutaway(
-                locationCode = state.locationCode.text,
-                quantity = state.quantity.text.toInt(),
-                warehouseId = put.warehouseID.toString(),
-                receiptDetailId = put.receiptDetailID.toString(),
-                receiptId = put.receiptID.toString(),
-                productInventoryId = put.productInventoryID.toString(),
-                productId = put.productID.toString()
-            ).catch {
-                setState {
-                    copy(error = it.message?:"", isScanning = false)
-                }
-            }.collect {
-                setSuspendedState {
-                    copy(isScanning = false)
-                }
-                when(it){
-                    is BaseResult.Error -> {
-                        setSuspendedState {
-                            copy(error = it.message)
-                        }
+        if (!state.isScanning){
+            setState {
+                copy(isScanning = true)
+            }
+            viewModelScope.launch(Dispatchers.IO) {
+                repository.scanManualPutaway(
+                    locationCode = state.locationCode.text,
+                    quantity = state.quantity.text.toDouble(),
+                    warehouseId = put.warehouseID.toString(),
+                    putawayId = put.putawayID
+                ).catch {
+                    setState {
+                        copy(error = it.message?:"", isScanning = false)
                     }
-                    is BaseResult.Success -> {
-                        setSuspendedState {
-                            copy(
-                                quantity = TextFieldValue(),
-                                quantityInPacket = TextFieldValue(),
-                                locationCode = TextFieldValue(),
-                                loadingState = Loading.LOADING,
-                                details = emptyList(),
-                                page = 1,
-                                toast = it.data?.messages?.firstOrNull() ?: "Added Successfully"
-                            )
-                        }
-                        getManualPutawayDetails()
+                }.collect {
+                    setSuspendedState {
+                        copy(isScanning = false)
                     }
-                    BaseResult.UnAuthorized -> {}
+                    when(it){
+                        is BaseResult.Error -> {
+                            setSuspendedState {
+                                copy(error = it.message)
+                            }
+                        }
+                        is BaseResult.Success -> {
+                            if (it.data?.isSucceed == true) {
+                                setSuspendedState {
+                                    copy(
+                                        quantity = TextFieldValue(),
+                                        quantityInPacket = TextFieldValue(),
+                                        locationCode = TextFieldValue(),
+                                        loadingState = Loading.LOADING,
+                                        details = emptyList(),
+                                        page = 1,
+                                        toast = it.data?.messages?.firstOrNull() ?: "Added Successfully"
+                                    )
+                                }
+                                getManualPutawayDetails()
+                            } else {
+                                setSuspendedState {
+                                    copy(error = it.data?.messages?.firstOrNull()?:"Failed")
+                                }
+                            }
+                        }
+                        BaseResult.UnAuthorized -> {}
+                    }
                 }
             }
         }
     }
 
-    private fun removeManualPutaway(productLocationActivityId: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.removeManualPutaway(
-                productLocationActivityId
-            ).catch {
-                setSuspendedState {
-                    copy(error = it.message?:"", selectedDetail = null)
-                }
-            }.collect {
-                setSuspendedState {
-                    copy(selectedDetail = null)
-                }
-                when(it){
-                    is BaseResult.Error -> {
-                        setSuspendedState {
-                            copy(error = it.message)
-                        }
+    private fun removeManualPutaway(putawayDetailID: String) {
+        if (!state.isDeleting) {
+            setState {
+                copy(isDeleting = true)
+            }
+            viewModelScope.launch(Dispatchers.IO) {
+                repository.removeManualPutaway(
+                    putawayDetailID
+                ).catch {
+                    setSuspendedState {
+                        copy(error = it.message?:"", isDeleting = false, selectedDetail = null)
                     }
-                    is BaseResult.Success -> {
-                        setSuspendedState {
-                            copy(
-                                toast = it.data?.messages?.firstOrNull() ?: "Removed Successfully",
-                                loadingState = Loading.LOADING,
-                                page = 1,
-                                details = emptyList()
-                            )
-                        }
-                        getManualPutawayDetails()
+                }.collect {
+                    setSuspendedState {
+                        copy(isDeleting = false,selectedDetail = null)
                     }
-                    BaseResult.UnAuthorized -> {}
+                    when(it){
+                        is BaseResult.Error -> {
+                            setSuspendedState {
+                                copy(error = it.message)
+                            }
+                        }
+                        is BaseResult.Success -> {
+                            if (it.data?.isSucceed == true) {
+                                setSuspendedState {
+                                    copy(
+                                        toast = it.data?.messages?.firstOrNull() ?: "Removed Successfully",
+                                        loadingState = Loading.LOADING,
+                                        page = 1,
+                                        details = emptyList()
+                                    )
+                                }
+                                getManualPutawayDetails()
+                            } else {
+                                setSuspendedState {
+                                    copy(error = it.data?.messages?.firstOrNull()?:"Failed")
+                                }
+                            }
+                        }
+                        BaseResult.UnAuthorized -> {}
+                    }
                 }
             }
         }
@@ -225,10 +253,10 @@ class ManualPutawayDetailViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             repository.getManualPutawayDetail(
                 state.keyword,
-                put.receiptDetailID.toString(),
+                put.putawayID,
                 state.page,
-                state.selectedSort.sort,
-                state.selectedSort.order.value
+                "CreatedOn",
+                Order.Desc.value
             ).catch {
                 setSuspendedState {
                     copy(error = it.message?:"", loadingState = Loading.NONE)
@@ -249,6 +277,7 @@ class ManualPutawayDetailViewModel(
                             copy(
                                 count = it.data?.total ?: 0,
                                 details = details + (it.data?.rows?: emptyList()),
+                                putaway = it.data?.task
                             )
                         }
                     }
@@ -259,34 +288,58 @@ class ManualPutawayDetailViewModel(
     }
 
     private fun finishManualPutaway() {
-        if (state.details.sumOf { it.quantity } > put.quantity){
+        val quantity = state.details.sumOf { it.quantity }
+        if ( quantity.toBigDecimal().setScale(4, RoundingMode.UNNECESSARY).toDouble() > put.total){
             setState {
                 copy(error = "You have scanned more than the quantity")
             }
             return
         }
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.finishManualPutaway(put.receiptDetailID.toString())
-                .catch {
-                    setSuspendedState {
-                        copy(error = it.message?:"")
-                    }
-                }
-                .collect {
-                    when(it){
-                        is BaseResult.Error -> {
-                            setSuspendedState {
-                                copy(error = it.message)
-                            }
+        if (quantity.toBigDecimal().setScale(4, RoundingMode.UNNECESSARY).toDouble()< put.total) {
+            setState {
+                copy(error = "Your total scanned is less then required quantity.")
+            }
+            return
+        }
+        if (!state.isFinishing){
+            setState {
+                copy(isFinishing = true)
+            }
+            viewModelScope.launch(Dispatchers.IO) {
+                repository.finishManualPutaway(put.receiptDetailID.toString(),put.putawayID.toString())
+                    .catch {
+                        setSuspendedState {
+                            copy(error = it.message?:"", isFinishing = false)
                         }
-                        is BaseResult.Success -> {
-                            setEffect {
-                                ManualPutawayDetailContract.Effect.NavBack
-                            }
-                        }
-                        BaseResult.UnAuthorized -> {}
                     }
-                }
+                    .collect {
+                        setSuspendedState {
+                            copy(isFinishing = false)
+                        }
+                        when(it){
+                            is BaseResult.Error -> {
+                                setSuspendedState {
+                                    copy(error = it.message)
+                                }
+                            }
+                            is BaseResult.Success -> {
+                                if (it.data?.isSucceed == true) {
+                                    setSuspendedState {
+                                        copy(showConfirmFinish = false)
+                                    }
+                                    setEffect {
+                                        ManualPutawayDetailContract.Effect.NavBack
+                                    }
+                                } else {
+                                    setSuspendedState {
+                                        copy(error = it.data?.messages?.firstOrNull()?:"")
+                                    }
+                                }
+                            }
+                            BaseResult.UnAuthorized -> {}
+                        }
+                    }
+            }
         }
     }
 }

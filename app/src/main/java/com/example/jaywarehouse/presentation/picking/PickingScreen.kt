@@ -94,13 +94,6 @@ fun PickingContent(
     }
 
 
-    val refreshState = rememberPullRefreshState(
-        refreshing =  state.loadingState == Loading.REFRESHING,
-        onRefresh = {
-            onEvent(PickingContract.Event.OnRefresh)
-        }
-    )
-
     LaunchedEffect(key1 = Unit) {
         searchFocusRequester.requestFocus()
         onEvent(PickingContract.Event.ReloadScreen)
@@ -110,6 +103,9 @@ fun PickingContent(
         error = state.error,
         onCloseError = {
             onEvent(PickingContract.Event.ClearError)
+        },
+        onRefresh = {
+            onEvent(PickingContract.Event.OnRefresh)
         }
     ) {
 
@@ -117,7 +113,6 @@ fun PickingContent(
             Column(
                 Modifier
                     .fillMaxSize()
-                    .pullRefresh(refreshState)
                     .padding(15.mdp)
             ) {
                 TopBar(
@@ -153,9 +148,6 @@ fun PickingContent(
                     }
                 )
             }
-
-            PullRefreshIndicator(refreshing = state.loadingState == Loading.REFRESHING, state = refreshState, modifier = Modifier.align(Alignment.TopCenter) )
-
         }
     }
     if (state.showSortList){

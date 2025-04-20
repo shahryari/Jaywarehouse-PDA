@@ -13,25 +13,26 @@ import com.example.jaywarehouse.presentation.destinations.PutawayScreenDestinati
 import com.example.jaywarehouse.presentation.destinations.RSScreenDestination
 import com.example.jaywarehouse.presentation.destinations.ShippingScreenDestination
 import com.example.jaywarehouse.presentation.destinations.TransferScreenDestination
+import com.example.jaywarehouse.presentation.destinations.TypedDestination
 import com.example.jaywarehouse.ui.theme.Blue
 import com.example.jaywarehouse.ui.theme.Primary
 import com.example.jaywarehouse.ui.theme.SkyBlue
 import com.example.jaywarehouse.ui.theme.Yellow
-import com.ramcosta.composedestinations.spec.DirectionDestinationSpec
+import com.ramcosta.composedestinations.spec.Direction
 
 enum class MainItems(
     val title: String,
     val icon: Int,
     val category: String,
     val color: Color,
-    val destination: DirectionDestinationSpec? = null
+    val destination: Direction? = null
 ) {
     Receiving(
         "Receiving",
         R.drawable.delivery,
         "Count",
         Primary,
-        CountingScreenDestination
+        CountingScreenDestination(isCrossDock = false)
     ),
     Putaway(
         "Putaway",

@@ -10,8 +10,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
@@ -46,6 +44,7 @@ import com.example.jaywarehouse.presentation.common.utils.ScreenTransition
 import com.example.jaywarehouse.presentation.counting.ConfirmDialog
 import com.example.jaywarehouse.presentation.loading.contracts.LoadingDetailContract
 import com.example.jaywarehouse.presentation.loading.viewmodels.LoadingDetailViewModel
+import com.example.jaywarehouse.ui.theme.Orange
 import com.example.jaywarehouse.ui.theme.Primary
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -90,11 +89,6 @@ fun LoadingDetailContent(
     onEvent: (LoadingDetailContract.Event)->Unit = {}
 ) {
     val focusRequester = FocusRequester()
-
-    val refreshState = rememberPullRefreshState(
-        refreshing = state.loadingState == Loading.REFRESHING,
-        onRefresh = { onEvent(LoadingDetailContract.Event.OnRefresh) }
-    )
     LaunchedEffect(key1 = Unit) {
         focusRequester.requestFocus()
     }
@@ -107,6 +101,9 @@ fun LoadingDetailContent(
         toast = state.toast,
         onHideToast = {
             onEvent(LoadingDetailContract.Event.HideToast)
+        },
+        onRefresh = {
+            onEvent(LoadingDetailContract.Event.OnRefresh)
         }
     ) {
 
@@ -115,7 +112,6 @@ fun LoadingDetailContent(
                 .fillMaxSize()) {
             Column(
                 Modifier
-                    .pullRefresh(refreshState)
                     .fillMaxSize()
                     .padding(15.mdp)
             ) {
@@ -157,8 +153,6 @@ fun LoadingDetailContent(
                     spacerSize = 7.mdp
                 )
             }
-            PullRefreshIndicator(refreshing = state.loadingState == Loading.REFRESHING, state = refreshState, modifier = Modifier.align(
-                Alignment.TopCenter) )
         }
     }
     if (state.showSortList){
@@ -178,9 +172,10 @@ fun LoadingDetailContent(
             onDismiss = {
                 onEvent(LoadingDetailContract.Event.OnSelectDetail(null))
             },
-            message = "Confirm Loading",
-            description = "Are you sure to confirm this loading?",
-            tint = Primary
+            title = "Confirm Loading",
+            isLoading = state.onSaving,
+            message = "Are you sure to confirm this loading?",
+            tint = Orange
         ) {
             onEvent(LoadingDetailContract.Event.OnConfirmLoading(state.selectedLoading))
         }
@@ -215,7 +210,7 @@ fun LoadingDetailItem(
     ) {
         Row(
             Modifier.fillMaxWidth()
-                .shadow(1.mdp)
+                .shadow(1.mdp, RoundedCornerShape(6.mdp))
                 .clip(RoundedCornerShape(6.mdp))
                 .background(Color.White)
                 .padding(vertical = 6.mdp, horizontal = 8.mdp),

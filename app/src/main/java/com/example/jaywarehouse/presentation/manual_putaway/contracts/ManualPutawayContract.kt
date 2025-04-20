@@ -33,6 +33,7 @@ class ManualPutawayContract {
         data object OnNavBack: Event()
         data class OnSearch(val keyword: String) : Event()
         data object OnReloadScreen : Event()
+        data object FetchData: Event()
         data object OnReachEnd : Event()
         data class OnSortChange(val sort: SortItem) : Event()
         data class OnShowSortList(val show: Boolean) : Event()

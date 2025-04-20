@@ -1,5 +1,6 @@
 package com.example.jaywarehouse.data.rs.models
 
+import com.example.jaywarehouse.presentation.common.composables.Animatable
 import com.google.gson.annotations.SerializedName
 
 data class PODInvoiceModel(
@@ -41,4 +42,8 @@ data class PODInvoiceRow(
     val trailerNumber: String,
     @SerializedName("WaybillNumber")
     val waybillNumber: String?
-)
+) : Animatable {
+    override fun key(): String {
+        return "${shippingID}_$pODInvoiceID"
+    }
+}

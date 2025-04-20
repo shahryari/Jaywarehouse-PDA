@@ -30,19 +30,13 @@ class ManualPutawayRepository(
     fun scanManualPutaway(
         locationCode: String,
         warehouseId: String,
-        receiptDetailId: String,
-        receiptId: String,
-        productInventoryId: String,
-        productId: String,
-        quantity: Int
+        putawayId: Int,
+        quantity: Double
     ) : Flow<BaseResult<ResultMessageModel>> {
         val jsonObject = JsonObject()
         jsonObject.addProperty("WarehouseLocationCode",locationCode)
         jsonObject.addProperty("WarehouseID",warehouseId)
-        jsonObject.addProperty("ReceiptDetailID",receiptDetailId)
-        jsonObject.addProperty("ReceiptID",receiptId)
-        jsonObject.addProperty("ProductInventoryID",productInventoryId)
-        jsonObject.addProperty("ProductID",productId)
+        jsonObject.addProperty("PutawayID",putawayId)
         jsonObject.addProperty("Quantity",quantity)
         return getResult(
             request = {
@@ -52,10 +46,10 @@ class ManualPutawayRepository(
     }
 
     fun removeManualPutaway(
-        productLocationActivityId: String
+        putawayDetailID: String
     ) : Flow<BaseResult<ResultMessageModel>> {
         val jsonObject = JsonObject()
-        jsonObject.addProperty("ProductLocationActivityID",productLocationActivityId)
+        jsonObject.addProperty("PutawayDetailID",putawayDetailID)
         return getResult(
             request = {
                 api.putawayManualRemove(jsonObject)
@@ -65,9 +59,11 @@ class ManualPutawayRepository(
 
     fun finishManualPutaway(
         receiptDetailId: String,
+        putawayID: String
     ) : Flow<BaseResult<ResultMessageModel>> {
         val jsonObject = JsonObject()
         jsonObject.addProperty("ReceiptDetailID",receiptDetailId)
+        jsonObject.addProperty("PutawayID",putawayID)
         return getResult(
             request = {
                 api.putawayManualFinish(jsonObject)
@@ -77,14 +73,14 @@ class ManualPutawayRepository(
 
     fun getManualPutawayDetail(
         keyword: String,
-        receiptDetailId: String,
+        putawayID: Int,
         page: Int,
         sort: String,
         order: String
     ) : Flow<BaseResult<ManualPutawayDetailModel>> {
         val jsonObject = JsonObject()
         jsonObject.addProperty("Keyword",keyword)
-        jsonObject.addProperty("ReceiptDetailID",receiptDetailId)
+        jsonObject.addProperty("PutawayID",putawayID)
         return getResult(
             request = {
                 api.getManualPutawayDetail(jsonObject,page,10,sort,order)

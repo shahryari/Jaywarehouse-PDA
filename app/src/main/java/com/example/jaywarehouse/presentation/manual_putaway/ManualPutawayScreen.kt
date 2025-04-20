@@ -71,18 +71,18 @@ fun ManualPutawayContent(
 ) {
     val focusRequester = FocusRequester()
 
-    val refreshState = rememberPullRefreshState(
-        refreshing = state.loadingState == Loading.REFRESHING,
-        onRefresh = { onEvent(ManualPutawayContract.Event.OnReloadScreen) }
-    )
     LaunchedEffect(key1 = Unit) {
         focusRequester.requestFocus()
+        onEvent(ManualPutawayContract.Event.FetchData)
     }
     MyScaffold(
         loadingState = state.loadingState,
         error = state.error,
         onCloseError = {
             onEvent(ManualPutawayContract.Event.OnCloseError)
+        },
+        onRefresh = {
+            onEvent(ManualPutawayContract.Event.OnReloadScreen)
         }
     ) {
 
@@ -91,7 +91,6 @@ fun ManualPutawayContent(
                 .fillMaxSize()) {
             Column(
                 Modifier
-                    .pullRefresh(refreshState)
                     .fillMaxSize()
                     .padding(15.mdp)
             ) {
@@ -131,8 +130,6 @@ fun ManualPutawayContent(
                 )
 
             }
-            PullRefreshIndicator(refreshing = state.loadingState == Loading.REFRESHING, state = refreshState, modifier = Modifier.align(
-                Alignment.TopCenter) )
         }
     }
     if (state.showSortList){
@@ -160,11 +157,11 @@ fun ManualPutawayItem(
         onClick = onClick,
         item1 = BaseListItemModel("Name",model.productName, R.drawable.vuesax_outline_3d_cube_scan),
         item2 = BaseListItemModel("Product Code",model.productCode, R.drawable.barcode),
-        item3 = BaseListItemModel("Barcode",model.productBarcodeNumber, R.drawable.note),
-        item4 = BaseListItemModel("Batch Number",model.batchNumber?:"", R.drawable.vuesax_linear_box),
-        item5 = BaseListItemModel("Expiration Date",model.expireDateString?:"", R.drawable.calendar_add),
-        quantity = model.warehouseLocationCode?:"",
-        quantityTitle = "",
+        item3 = BaseListItemModel("Barcode",model.productBarcodeNumber?:"", R.drawable.note),
+        item4 = BaseListItemModel("Batch No.",model.batchNumber?:"", R.drawable.vuesax_linear_box),
+        item5 = BaseListItemModel("Exp Date",model.expireDate?:"", R.drawable.calendar_add),
+        quantity = model.total.toString(),
+        quantityTitle = "Total",
         scan = model.quantity.toString(),
         scanTitle = "Quantity"
     )

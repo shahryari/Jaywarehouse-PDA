@@ -168,37 +168,45 @@ class RSIntegrationViewModel(
     private fun updateDriver(
         selectedPod: PODInvoiceRow
     ) {
-        setState {
-            copy(isSubmitting = true)
-        }
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.updateDriver(
-                shippingId = selectedPod.shippingID.toString(),
-                driverFullName = state.driver.text,
-                driverTin = state.driverTin.text,
-                carNumber = state.carNumber.text,
-                trailerNumber = state.trailer.text
-            ).catch {
-                setSuspendedState {
-                    copy(error = it.message?:"", isSubmitting = false)
-                }
-            }.collect {
-                setSuspendedState {
-                    copy(isSubmitting = false)
-                }
-                when(it){
-                    is BaseResult.Error -> {
-                        setSuspendedState {
-                            copy(error = it.message)
-                        }
+        if (!state.isSubmitting) {
+            setState {
+                copy(isSubmitting = true)
+            }
+            viewModelScope.launch(Dispatchers.IO) {
+                repository.updateDriver(
+                    shippingId = selectedPod.shippingID.toString(),
+                    driverFullName = state.driver.text,
+                    driverTin = state.driverTin.text,
+                    carNumber = state.carNumber.text,
+                    trailerNumber = state.trailer.text
+                ).catch {
+                    setSuspendedState {
+                        copy(error = it.message?:"", isSubmitting = false)
                     }
-                    is BaseResult.Success -> {
-                        setSuspendedState {
-                            copy(selectedRs = null, page = 1, rsList = emptyList(), loadingState = Loading.LOADING)
-                        }
-                        getPODInvoice()
+                }.collect {
+                    setSuspendedState {
+                        copy(isSubmitting = false)
                     }
-                    BaseResult.UnAuthorized -> {}
+                    when(it){
+                        is BaseResult.Error -> {
+                            setSuspendedState {
+                                copy(error = it.message)
+                            }
+                        }
+                        is BaseResult.Success -> {
+                            if (it.data?.isSucceed == true){
+                                setSuspendedState {
+                                    copy(selectedRs = null, page = 1, rsList = emptyList(), loadingState = Loading.LOADING)
+                                }
+                                getPODInvoice()
+                            } else {
+                                setSuspendedState {
+                                    copy(error = it.data?.messages?.firstOrNull()?:"")
+                                }
+                            }
+                        }
+                        BaseResult.UnAuthorized -> {}
+                    }
                 }
             }
         }

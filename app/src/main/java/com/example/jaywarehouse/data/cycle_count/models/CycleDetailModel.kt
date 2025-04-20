@@ -1,5 +1,6 @@
 package com.example.jaywarehouse.data.cycle_count.models
 
+import com.example.jaywarehouse.presentation.common.composables.Animatable
 import com.google.gson.annotations.SerializedName
 
 data class CycleDetailModel(
@@ -49,7 +50,7 @@ data class CycleDetailRow(
     val cycleCountWorkerTaskDetailID: String,
     @SerializedName("Counting")
     val counting: Int,
-) {
+) : Animatable{
     override fun equals(other: Any?): Boolean {
         return other is CycleDetailRow
                 && cycleCountWorkerTaskDetailID == other.cycleCountWorkerTaskDetailID
@@ -60,5 +61,9 @@ data class CycleDetailRow(
                 && cycleCountID == other.cycleCountID
                 && productCode == other.productCode
                 && productBarcodeID == other.productBarcodeID
+    }
+
+    override fun key(): String {
+        return cycleCountWorkerTaskID
     }
 }

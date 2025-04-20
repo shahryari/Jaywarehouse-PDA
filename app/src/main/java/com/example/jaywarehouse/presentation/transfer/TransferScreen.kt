@@ -107,13 +107,6 @@ fun PutawayContent(
     }
 
 
-    val refreshState = rememberPullRefreshState(
-        refreshing =  state.loadingState == Loading.REFRESHING,
-        onRefresh = {
-            onEvent(TransferContract.Event.OnRefresh)
-        }
-    )
-
     LaunchedEffect(key1 = Unit) {
         searchFocusRequester.requestFocus()
         onEvent(TransferContract.Event.ReloadScreen)
@@ -127,6 +120,9 @@ fun PutawayContent(
         toast = state.toast,
         onHideToast = {
             onEvent(TransferContract.Event.HideToast)
+        },
+        onRefresh = {
+            onEvent(TransferContract.Event.ReloadScreen)
         }
     ) {
 
@@ -134,7 +130,6 @@ fun PutawayContent(
             Column(
                 Modifier
                     .fillMaxSize()
-                    .pullRefresh(refreshState)
                     .padding(15.mdp)
             ) {
                 TopBar(
@@ -170,9 +165,6 @@ fun PutawayContent(
                     }
                 )
             }
-
-            PullRefreshIndicator(refreshing = state.loadingState == Loading.REFRESHING, state = refreshState, modifier = Modifier.align(Alignment.TopCenter) )
-
         }
     }
     if (state.showSortList){
@@ -337,7 +329,7 @@ fun TransferBottomSheet(
                     onClick = {
                         onEvent(TransferContract.Event.OnShowDatePicker(true))
                     },
-                    label = "Expiration Date",
+                    label = "Exp Date",
                 )
                 Spacer(Modifier.size(15.mdp))
                 Row(Modifier.fillMaxWidth()) {

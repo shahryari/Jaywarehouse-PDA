@@ -146,52 +146,60 @@ class PutawayDetailViewModel(
             }
             return
         }
-        setState {
-            copy(onSaving = true)
-        }
-        viewModelScope.launch(Dispatchers.IO) {
-            if (state.selectedPutaway!=null)
-            repository.finishPutaway(
-                selectedPutaway.receiptDetailID.toString(),
-                selectedPutaway.productLocationActivityID.toString(),
-                selectedPutaway.receivingDetailID.toString())
-                .catch {
-                    setState {
-                        copy(
-                            error = it.message ?: "",
-                            onSaving = false
-                        )
-                    }
-                }
-                .collect {
-                    setSuspendedState {
-                        copy(onSaving = false)
-                    }
-                    when(it){
-                        is BaseResult.Success -> {
-                            setSuspendedState {
-                                copy(
-                                    location = TextFieldValue(),
-                                    barcode = TextFieldValue(),
-                                    putaways = emptyList(),
-                                    page = 1,
-                                    selectedPutaway = null,
-                                    toast = it.data?.messages?.first() ?: "",
-                                    loadingState = Loading.LOADING
-                                )
-                            }
-                            getPutaways(putRow.receiptID,keyword = state.keyword,page = state.page,sort = state.sort)
-                        }
-                        is BaseResult.Error -> {
+        if (!state.onSaving){
+            setState {
+                copy(onSaving = true)
+            }
+            viewModelScope.launch(Dispatchers.IO) {
+                if (state.selectedPutaway!=null)
+                    repository.finishPutaway(
+                        selectedPutaway.receiptDetailID.toString(),
+                        selectedPutaway.productLocationActivityID.toString(),
+                        selectedPutaway.receivingDetailID.toString())
+                        .catch {
                             setState {
                                 copy(
-                                    error = it.message,
+                                    error = it.message ?: "",
+                                    onSaving = false
                                 )
                             }
                         }
-                        else -> {}
-                    }
-                }
+                        .collect {
+                            setSuspendedState {
+                                copy(onSaving = false)
+                            }
+                            when(it){
+                                is BaseResult.Success -> {
+                                    if (it.data?.isSucceed == true) {
+                                        setSuspendedState {
+                                            copy(
+                                                location = TextFieldValue(),
+                                                barcode = TextFieldValue(),
+                                                putaways = emptyList(),
+                                                page = 1,
+                                                selectedPutaway = null,
+                                                toast = it.data?.messages?.first() ?: "",
+                                                loadingState = Loading.LOADING
+                                            )
+                                        }
+                                        getPutaways(putRow.receiptID,keyword = state.keyword,page = state.page,sort = state.sort)
+                                    } else {
+                                        setSuspendedState {
+                                            copy(error = it.data?.messages?.firstOrNull()?:"")
+                                        }
+                                    }
+                                }
+                                is BaseResult.Error -> {
+                                    setState {
+                                        copy(
+                                            error = it.message,
+                                        )
+                                    }
+                                }
+                                else -> {}
+                            }
+                        }
+            }
         }
     }
 

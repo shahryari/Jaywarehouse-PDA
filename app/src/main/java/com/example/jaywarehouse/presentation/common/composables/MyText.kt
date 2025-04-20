@@ -14,6 +14,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
+import com.example.jaywarehouse.data.common.utils.withEnglishDigits
 import com.example.jaywarehouse.localWindowFactor
 import com.example.jaywarehouse.ui.theme.Black
 import com.example.jaywarehouse.ui.theme.roboto
@@ -40,7 +41,7 @@ fun MyText(
 ) {
     val factor = localWindowFactor.current
     Text(
-        text,
+        text.withEnglishDigits(),
         modifier,
         color,
         if(fontSize != TextUnit.Unspecified)fontSize.times(factor) else fontSize,

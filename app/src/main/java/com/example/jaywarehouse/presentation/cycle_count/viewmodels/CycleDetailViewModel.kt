@@ -21,6 +21,7 @@ import com.example.jaywarehouse.presentation.loading.contracts.LoadingDetailCont
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
+import org.koin.core.component.getScopeName
 
 class CycleDetailViewModel(
     private val repository: CycleRepository,
@@ -292,15 +293,21 @@ class CycleDetailViewModel(
                             }
                         }
                         is BaseResult.Success -> {
-                            setSuspendedState {
-                                copy(
-                                    showAddDialog = false,
-                                    page = 1,
-                                    details = emptyList(),
-                                    loadingState = Loading.LOADING
-                                )
+                            if (it.data?.isSucceed == true) {
+                                setSuspendedState {
+                                    copy(
+                                        showAddDialog = false,
+                                        page = 1,
+                                        details = emptyList(),
+                                        loadingState = Loading.LOADING
+                                    )
+                                }
+                                getDetails()
+                            } else {
+                                setSuspendedState {
+                                    copy(error = it.data?.messages?.firstOrNull()?:"")
+                                }
                             }
-                            getDetails()
                         }
                         BaseResult.UnAuthorized -> {}
                     }
@@ -337,70 +344,93 @@ class CycleDetailViewModel(
     }
 
     private fun updateQuantity(item: CycleDetailRow){
-        setState {
-            copy(onSaving = true)
-        }
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.updateQuantity(item.cycleCountWorkerTaskDetailID,state.quantity.text)
-                .catch {
-                    setSuspendedState {
-                        copy(error = it.message?:"", onSaving = false)
-                    }
-                }
-                .collect {
-                    setSuspendedState {
-                        copy(onSaving = false)
-                    }
-                    when(it){
-                        is BaseResult.Error -> {
-                            setSuspendedState {
-                                copy(error = it.message)
-                            }
+        if (!state.onSaving){
+            setState {
+                copy(onSaving = true)
+            }
+            viewModelScope.launch(Dispatchers.IO) {
+                repository.updateQuantity(item.cycleCountWorkerTaskDetailID,state.quantity.text)
+                    .catch {
+                        setSuspendedState {
+                            copy(error = it.message?:"", onSaving = false)
                         }
-                        is BaseResult.Success -> {
-                            setSuspendedState {
-                                copy(
-                                    selectedCycle = null,
-                                    details = emptyList(),
-                                    loadingState = Loading.LOADING,
-                                    page = 1,
-                                    toast = it.data?.messages?.firstOrNull()?:"Updated Successfully"
-                                )
-                            }
-                            getDetails()
-                        }
-                        BaseResult.UnAuthorized -> {}
                     }
-                }
+                    .collect {
+                        setSuspendedState {
+                            copy(onSaving = false)
+                        }
+                        when(it){
+                            is BaseResult.Error -> {
+                                setSuspendedState {
+                                    copy(error = it.message)
+                                }
+                            }
+                            is BaseResult.Success -> {
+                                if (it.data?.isSucceed == true) {
+                                    setSuspendedState {
+                                        copy(
+                                            selectedCycle = null,
+                                            details = emptyList(),
+                                            loadingState = Loading.LOADING,
+                                            page = 1,
+                                            toast = it.data?.messages?.firstOrNull()?:"Updated Successfully"
+                                        )
+                                    }
+                                    getDetails()
+                                } else {
+                                    setSuspendedState {
+                                        copy(error = it.data?.messages?.firstOrNull()?:"Failed")
+                                    }
+                                }
+                            }
+                            BaseResult.UnAuthorized -> {}
+                        }
+                    }
+            }
+
         }
     }
 
     private fun finishCycleCount(){
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.finishCycleCount(row.cycleCountWorkerTaskID)
-                .catch {
-                    setSuspendedState {
-                        copy(error = it.message?:"")
-                    }
-                }
-                .collect {
-                    when(it){
-                        is BaseResult.Error -> {
-                            setSuspendedState {
-                                copy(error = it.message)
-                            }
+        if (!state.isCompleting){
+            setState {
+                copy(isCompleting = true)
+            }
+            viewModelScope.launch(Dispatchers.IO) {
+                repository.finishCycleCount(row.cycleCountWorkerTaskID)
+                    .catch {
+                        setSuspendedState {
+                            copy(error = it.message?:"", isCompleting = false)
                         }
-                        is BaseResult.Success -> {
-                            setState {
-                                copy(showSubmit = false)
-                            }
-                            setEffect {
-                                CycleDetailContract.Effect.NavBack
-                            }
-                        }
-                        BaseResult.UnAuthorized -> {}
                     }
-                }
+                    .collect {
+                        setSuspendedState {
+                            copy(isCompleting = false)
+                        }
+                        when(it){
+                            is BaseResult.Error -> {
+                                setSuspendedState {
+                                    copy(error = it.message)
+                                }
+                            }
+                            is BaseResult.Success -> {
+                                if (it.data?.isSucceed == true){
+                                    setSuspendedState {
+                                        copy(showSubmit = false)
+                                    }
+                                    setEffect {
+                                        CycleDetailContract.Effect.NavBack
+                                    }
+                                } else {
+                                    setSuspendedState {
+                                        copy(error = it.data?.messages?.firstOrNull()?:"Failed")
+                                    }
+                                }
+                            }
+                            BaseResult.UnAuthorized -> {}
+                        }
+                    }
+            }
         }
     }
 }

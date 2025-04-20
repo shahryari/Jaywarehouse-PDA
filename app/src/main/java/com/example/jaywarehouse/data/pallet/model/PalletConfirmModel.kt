@@ -1,5 +1,6 @@
 package com.example.jaywarehouse.data.pallet.model
 
+import com.example.jaywarehouse.presentation.common.composables.Animatable
 import com.google.gson.annotations.SerializedName
 
 data class PalletConfirmModel(
@@ -23,5 +24,10 @@ data class PalletConfirmRow(
     val palletManifestID: Int,
     @SerializedName("Total")
     val total: Int?
-)
+) : Animatable {
+    override fun key(): String {
+        return palletManifestID.toString()
+    }
+
+}
 

@@ -25,7 +25,7 @@ data class ResultMessageModel(
     @SerializedName("Messages")
     val messages: List<String>,
     @SerializedName("ReturnValue")
-    val returnValue: Int,
+    val returnValue: Any,
     @SerializedName("UpdatedAny")
     val updatedAny: Boolean
 )

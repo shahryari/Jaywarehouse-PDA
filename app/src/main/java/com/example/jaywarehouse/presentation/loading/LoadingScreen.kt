@@ -86,13 +86,6 @@ fun LoadingContent(
     }
 
 
-    val refreshState = rememberPullRefreshState(
-        refreshing =  state.loadingState == Loading.REFRESHING,
-        onRefresh = {
-            onEvent(LoadingContract.Event.OnRefresh)
-        }
-    )
-
     LaunchedEffect(key1 = Unit) {
         searchFocusRequester.requestFocus()
         onEvent(LoadingContract.Event.ReloadScreen)
@@ -102,6 +95,9 @@ fun LoadingContent(
         error = state.error,
         onCloseError = {
             onEvent(LoadingContract.Event.ClearError)
+        },
+        onRefresh = {
+            onEvent(LoadingContract.Event.OnRefresh)
         }
     ) {
 
@@ -109,7 +105,6 @@ fun LoadingContent(
             Column(
                 Modifier
                     .fillMaxSize()
-                    .pullRefresh(refreshState)
                     .padding(15.mdp)
             ) {
                 TopBar(
@@ -146,8 +141,6 @@ fun LoadingContent(
                 )
                 Spacer(modifier = Modifier.size(70.mdp))
             }
-
-            PullRefreshIndicator(refreshing = state.loadingState == Loading.REFRESHING, state = refreshState, modifier = Modifier.align(Alignment.TopCenter) )
 
         }
     }

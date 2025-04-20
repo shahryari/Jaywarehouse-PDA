@@ -21,9 +21,7 @@ class CountingContract {
             SortItem("Receiving Date closed to now", "ReceivingDate",Order.Desc),
             SortItem("Receiving Date farthest from now", "ReceivingDate",Order.Asc),
             SortItem("Reference Number Descending", "ReferenceNumber",Order.Desc),
-            SortItem("Reference Number Ascending", "ReferenceNumber",Order.Asc),
-            SortItem("Supplier Name Descending", "Supplier",Order.Desc),
-            SortItem("Supplier Name Ascending", "Supplier",Order.Asc)
+            SortItem("Reference Number Ascending", "ReferenceNumber",Order.Asc)
         ),
         val sort: SortItem = sortList.first(),
         val order: String = "desc",

@@ -35,6 +35,8 @@ class ManualPutawayDetailContract {
         val selectedSort: SortItem = sortList.first(),
         val showSortList: Boolean = false,
         val isScanning: Boolean = false,
+        val isFinishing: Boolean = false,
+        val isDeleting: Boolean = false,
         val selectedDetail: ManualPutawayDetailRow? = null,
         val showConfirmFinish: Boolean = false,
     ) : UiState

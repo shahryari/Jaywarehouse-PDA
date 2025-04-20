@@ -247,45 +247,53 @@ class TransferViewModel(
 
     private fun transfer(transfer: TransferRow) {
         if (state.selectedProductStatus!=null && state.selectedLocation!=null){
-            setState {
-                copy(isSaving = true)
-            }
-            viewModelScope.launch(Dispatchers.IO) {
-                repository.transferLocation(
-                    state.selectedProductStatus!!.quiddityTypeId,
-                    state.selectedLocation!!.locationId,
-                    state.selectedLocation!!.locationCode,
-                    transfer.locationInventoryID,
-                    state.expirationDate.text,
-                    transfer.warehouseID
-                ).catch {
-                    setSuspendedState {
-                        copy(error = it.message?:"", isSaving = false)
-                    }
-                }.collect {
-                    setSuspendedState {
-                        copy(
-                            isSaving = false
-                        )
-                    }
-                    when(it){
-                        is BaseResult.Error -> {
-                            setSuspendedState {
-                                copy(error = it.message)
-                            }
+            if (!state.isSaving){
+                setState {
+                    copy(isSaving = true)
+                }
+                viewModelScope.launch(Dispatchers.IO) {
+                    repository.transferLocation(
+                        state.selectedProductStatus!!.quiddityTypeId,
+                        state.selectedLocation!!.locationId,
+                        state.selectedLocation!!.locationCode,
+                        transfer.locationInventoryID,
+                        state.expirationDate.text,
+                        transfer.warehouseID
+                    ).catch {
+                        setSuspendedState {
+                            copy(error = it.message?:"", isSaving = false)
                         }
-                        is BaseResult.Success -> {
-                            setSuspendedState {
-                                copy(
-                                    selectedTransfer = null,
-                                    transferList = emptyList(),
-                                    page = 1,
-                                    loadingState = Loading.LOADING
-                                )
-                            }
-                            getTransferList()
+                    }.collect {
+                        setSuspendedState {
+                            copy(
+                                isSaving = false
+                            )
                         }
-                        BaseResult.UnAuthorized -> {}
+                        when(it){
+                            is BaseResult.Error -> {
+                                setSuspendedState {
+                                    copy(error = it.message)
+                                }
+                            }
+                            is BaseResult.Success -> {
+                                if (it.data?.isSucceed == true){
+                                    setSuspendedState {
+                                        copy(
+                                            selectedTransfer = null,
+                                            transferList = emptyList(),
+                                            page = 1,
+                                            loadingState = Loading.LOADING
+                                        )
+                                    }
+                                    getTransferList()
+                                } else {
+                                    setSuspendedState {
+                                        copy(error = it.data?.messages?.firstOrNull()?:"")
+                                    }
+                                }
+                            }
+                            BaseResult.UnAuthorized -> {}
+                        }
                     }
                 }
             }

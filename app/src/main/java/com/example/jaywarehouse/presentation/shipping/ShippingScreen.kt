@@ -76,6 +76,7 @@ import com.example.jaywarehouse.ui.theme.ErrorRed
 import com.example.jaywarehouse.ui.theme.Gray1
 import com.example.jaywarehouse.ui.theme.Gray3
 import com.example.jaywarehouse.ui.theme.Gray5
+import com.example.jaywarehouse.ui.theme.Orange
 import com.example.jaywarehouse.ui.theme.Primary
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -114,14 +115,6 @@ fun ShippingContent(
         FocusRequester()
     }
 
-
-    val refreshState = rememberPullRefreshState(
-        refreshing =  state.loadingState == Loading.REFRESHING,
-        onRefresh = {
-            onEvent(ShippingContract.Event.OnRefresh)
-        }
-    )
-
     LaunchedEffect(key1 = Unit) {
         searchFocusRequester.requestFocus()
         onEvent(ShippingContract.Event.FetchData)
@@ -135,6 +128,9 @@ fun ShippingContent(
         toast = state.toast,
         onHideToast = {
             onEvent(ShippingContract.Event.HideToast)
+        },
+        onRefresh = {
+            onEvent(ShippingContract.Event.OnRefresh)
         }
     ) {
 
@@ -142,7 +138,6 @@ fun ShippingContent(
             Column(
                 Modifier
                     .fillMaxSize()
-                    .pullRefresh(refreshState)
                     .padding(15.mdp)
             ) {
                 TopBar(
@@ -192,8 +187,6 @@ fun ShippingContent(
                     }
                 )
             }
-
-            PullRefreshIndicator(refreshing = state.loadingState == Loading.REFRESHING, state = refreshState, modifier = Modifier.align(Alignment.TopCenter) )
             Box(
                 Modifier
                     .align(Alignment.BottomEnd)
@@ -237,8 +230,9 @@ fun ShippingContent(
                 onEvent(ShippingContract.Event.OnShowConfirm(null))
             },
             message = "Are you sure to confirm shipping ${state.confirmShipping.shippingNumber}?",
-            tint = Primary,
-            description = "",
+            tint = Orange,
+            isLoading = state.isConfirming,
+            title = "Confirm",
         ) {
             onEvent(ShippingContract.Event.OnConfirm(state.confirmShipping))
         }
@@ -249,8 +243,9 @@ fun ShippingContent(
                 onEvent(ShippingContract.Event.OnShowInvoice(null))
             },
             message = "Are you sure to create invoice for shipping ${state.invoiceShipping.shippingNumber}?",
-            tint = Primary,
-            description = "",
+            tint = Orange,
+            isLoading = state.isCreatingInvoice,
+            title = "Confirm",
         ) {
             onEvent(ShippingContract.Event.OnCreateInvoice(state.invoiceShipping))
         }
@@ -261,8 +256,9 @@ fun ShippingContent(
                 onEvent(ShippingContract.Event.OnShowConfirm(null))
             },
             message = "Are you sure to create RS for shipping ${state.rsShipping.shippingNumber}",
-            tint = Primary,
-            description = "",
+            tint = Orange,
+            isLoading = state.isCreatingRs,
+            title = "Confirm",
         ) {
             onEvent(ShippingContract.Event.OnCreateRS(state.rsShipping))
         }
@@ -519,6 +515,7 @@ fun AddShippingBottomSheet(
                     leadingIcon = R.drawable.barcode,
 //                    hideKeyboard = state.lockKeyboard,
                     trailingIcon = R.drawable.fluent_barcode_scanner_20_regular,
+                    loading = state.isChecking,
                     onTrailingClick = {
                         onEvent(ShippingContract.Event.OnScanPalletQuantity)
                     },
@@ -554,7 +551,7 @@ fun AddShippingBottomSheet(
                             onEvent(ShippingContract.Event.OnAddShipping)
                         },
                         title = "Save",
-//                        isLoading = state.isl,
+                        isLoading = state.isShipping,
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -677,7 +674,7 @@ fun PalletQuantityBottomSheet(
                             onEvent(ShippingContract.Event.OnAddPallet)
                         },
                         title = "Save",
-//                        isLoading = state.isl,
+                        isLoading = state.isCreatingPallet,
                         modifier = Modifier.weight(1f)
                     )
                 }

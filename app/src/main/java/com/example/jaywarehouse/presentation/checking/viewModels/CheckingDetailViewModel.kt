@@ -101,7 +101,7 @@ class CheckingDetailViewModel(
                 }
             }
             is CheckingDetailContract.Event.OnCompleteChecking -> {
-                completeChecking(event.checking,state.count.text.trim().toInt(), state.barcode.text.trim())
+                completeChecking(event.checking,state.count.text.trim().toDouble(), state.barcode.text.trim())
             }
 //            is CheckingDetailContract.Event.OnChangeKeyword -> {
 //                setState {
@@ -133,58 +133,65 @@ class CheckingDetailViewModel(
 
     private fun completeChecking(
         checking: CheckingListRow,
-        count: Int,
+        count: Double,
         barcode: String
     ) {
 
-        setState {
-            copy(onSaving = true)
-        }
-        viewModelScope.launch(Dispatchers.IO) {
-            if (state.selectedChecking!=null)
-            repository.checking(
-                checking.isCrossDock,
-                count,
-                checking.customerID.toString(),
-                checking.checkingWorkerTaskID.toString(),
-                barcode)
-                .catch {
-                    setState {
-                        copy(
-                            error = it.message ?: "",
-                            onSaving = false
-                        )
-                    }
-                }
-                .collect {
-                    setSuspendedState {
-                        copy(onSaving = false)
-                    }
-                    when(it){
-                        is BaseResult.Success -> {
-                            setSuspendedState {
-                                copy(
-                                    count = TextFieldValue(),
-                                    barcode = TextFieldValue(),
-                                    checkingList = emptyList(),
-                                    page = 1,
-                                    selectedChecking = null,
-                                    toast = it.data?.messages?.first() ?: "",
-                                    loadingState = Loading.LOADING
-                                )
-                            }
-                            getCheckings(row.customerID,keyword = state.keyword,page = state.page,sort = state.sort)
+        if (state.selectedChecking!=null){
+            setState {
+                copy(onSaving = true)
+            }
+            viewModelScope.launch(Dispatchers.IO) {
+                repository.checking(
+                    checking.isCrossDock,
+                    count,
+                    checking.customerID.toString(),
+                    checking.checkingID.toString(),
+                    barcode)
+                    .catch {
+                        setState {
+                            copy(
+                                error = it.message ?: "",
+                                onSaving = false
+                            )
                         }
-                        is BaseResult.Error -> {
-                            setState {
-                                copy(
-                                    error = it.message,
-                                )
-                            }
-                        }
-                        else -> {}
                     }
-                }
+                    .collect {
+                        setSuspendedState {
+                            copy(onSaving = false)
+                        }
+                        when(it){
+                            is BaseResult.Success -> {
+                                if (it.data?.isSucceed == true) {
+                                    setSuspendedState {
+                                        copy(
+                                            count = TextFieldValue(),
+                                            barcode = TextFieldValue(),
+                                            checkingList = emptyList(),
+                                            page = 1,
+                                            selectedChecking = null,
+                                            toast = it.data.messages.firstOrNull() ?: "Completed successfully",
+                                            loadingState = Loading.LOADING
+                                        )
+                                    }
+                                    getCheckings(row.customerID,keyword = state.keyword,page = state.page,sort = state.sort)
+                                } else {
+                                    setSuspendedState {
+                                        copy(error = it.data?.messages?.firstOrNull()?:"Failed")
+                                    }
+                                }
+                            }
+                            is BaseResult.Error -> {
+                                setState {
+                                    copy(
+                                        error = it.message,
+                                    )
+                                }
+                            }
+                            else -> {}
+                        }
+                    }
+            }
         }
     }
 

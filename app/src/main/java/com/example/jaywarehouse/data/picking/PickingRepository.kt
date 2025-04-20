@@ -47,15 +47,15 @@ class PickingRepository(private val api: PickingApi) {
     fun completePicking(
         locationCode: String,
         barcode: String,
-        productLocationActivityId: String
+        pickingID: String
     ) : Flow<BaseResult<ResultMessageModel>> {
         val jsonObject = JsonObject()
         jsonObject.addProperty("LocationCode",locationCode)
         jsonObject.addProperty("ProductBarcodeNumber",barcode)
-        jsonObject.addProperty("ProductLocationActivityID",productLocationActivityId)
+        jsonObject.addProperty("PickingID",pickingID)
         return getResult(
             request = {
-                api.completePicking(JsonObject())
+                api.completePicking(jsonObject)
             }
         )
     }

@@ -122,34 +122,45 @@ class PalletConfirmViewModel(
     }
 
     fun confirmPallet(palletManifestId: Int) {
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.completePalletManifest(
-                palletManifestId.toString()
-            ).catch {
-                setSuspendedState {
-                    copy(error = it.message?:"", selectedPallet = null)
-                }
-            }.collect {
-                setSuspendedState {
-                    copy(selectedPallet = null)
-                }
-                when(it) {
-                    is BaseResult.Error -> {
-                        setSuspendedState {
-                            copy(error = it.message)
-                        }
+        if (!state.isConfirming){
+            setState {
+                copy(isConfirming = true)
+            }
+            viewModelScope.launch(Dispatchers.IO) {
+                repository.completePalletManifest(
+                    palletManifestId.toString()
+                ).catch {
+                    setSuspendedState {
+                        copy(error = it.message?:"", isConfirming = false, selectedPallet = null)
                     }
-                    is BaseResult.Success -> {
-                        setSuspendedState {
-                            copy(
-                                toast = it.data?.messages?.firstOrNull()?:"Confirmed Successfully",
-                                palletList = emptyList(),
-                                page = 1
-                            )
-                        }
-                        getPalletList(state.keyword,state.page,state.sort)
+                }.collect {
+                    setSuspendedState {
+                        copy(isConfirming = false,selectedPallet = null)
                     }
-                    BaseResult.UnAuthorized -> {}
+                    when(it) {
+                        is BaseResult.Error -> {
+                            setSuspendedState {
+                                copy(error = it.message)
+                            }
+                        }
+                        is BaseResult.Success -> {
+                            if (it.data?.isSucceed == true) {
+                                setSuspendedState {
+                                    copy(
+                                        toast = it.data?.messages?.firstOrNull()?:"Confirmed Successfully",
+                                        palletList = emptyList(),
+                                        page = 1
+                                    )
+                                }
+                            } else {
+                                setSuspendedState {
+                                    copy(error = it.data?.messages?.firstOrNull()?:"Failed")
+                                }
+                            }
+                            getPalletList(state.keyword,state.page,state.sort)
+                        }
+                        BaseResult.UnAuthorized -> {}
+                    }
                 }
             }
         }

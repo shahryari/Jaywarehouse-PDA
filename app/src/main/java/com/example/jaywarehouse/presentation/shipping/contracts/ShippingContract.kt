@@ -59,7 +59,13 @@ class ShippingContract {
         val customers: List<CustomerRow> = emptyList(),
         val palletTypes: List<PalletTypeRow> = emptyList(),
         val selectedCustomer: CustomerRow? = null,
-        val selectedPalletType: PalletTypeRow? = null
+        val selectedPalletType: PalletTypeRow? = null,
+        val isChecking: Boolean = false,
+        val isShipping: Boolean = false,
+        val isCreatingPallet: Boolean = false,
+        val isConfirming: Boolean = false,
+        val isCreatingInvoice: Boolean = false,
+        val isCreatingRs: Boolean = false
     ) : UiState
 
     sealed class Event : UiEvent {

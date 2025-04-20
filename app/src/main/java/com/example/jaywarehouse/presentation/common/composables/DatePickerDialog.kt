@@ -104,7 +104,7 @@ fun DatePickerDialog(
         negativeButton = "Cancel",
         onPositiveClick = {
 
-            onSave("${selectedYear!!.value}-${selectedMonth.value}-${selectedDayOfMonth!!.value}")
+            onSave("${selectedYear!!.value}-${String.format(Locale.US,"%02d",selectedMonth.value)}-${String.format(Locale.US,"%02d",selectedDayOfMonth!!.value)}")
         }
     ) {
         Row(

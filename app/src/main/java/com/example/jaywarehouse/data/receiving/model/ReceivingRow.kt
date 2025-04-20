@@ -1,15 +1,16 @@
 package com.example.jaywarehouse.data.receiving.model
 
+import com.example.jaywarehouse.presentation.common.composables.Animatable
 import com.google.gson.annotations.SerializedName
 import java.io.Serializable
 
 
 data class ReceivingRow(
     @SerializedName("Count")
-    val count: Int?,
+    val count: Double?,
     @SerializedName("Description")
     val description: String?,
-    @SerializedName("ReceivingDate")
+    @SerializedName("Date")
     val receivingDate: String,
     @SerializedName("ReceivingID")
     val receivingID: Int,
@@ -22,8 +23,13 @@ data class ReceivingRow(
     @SerializedName("SupplierFullName")
     val supplierFullName: String,
     @SerializedName("Total")
-    val total: Int,
+    val total: Double,
     @SerializedName("WarehouseName")
     val warehouseName: String
-) : Serializable
+) : Serializable, Animatable{
+    override fun key(): String {
+        return receivingID.toString()
+    }
+
+}
 

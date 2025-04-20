@@ -9,6 +9,8 @@ import com.example.jaywarehouse.data.packing.packingModule
 import com.example.jaywarehouse.data.pallet.palletModule
 import com.example.jaywarehouse.data.picking.pickingModule
 import com.example.jaywarehouse.data.putaway.putawayModule
+import com.example.jaywarehouse.data.receiving.model.ReceivingDetailRow
+import com.example.jaywarehouse.data.receiving.model.ReceivingRow
 import com.example.jaywarehouse.data.receiving.receivingModule
 import com.example.jaywarehouse.data.rs.rSModule
 import com.example.jaywarehouse.data.shipping.shippingModule
@@ -64,7 +66,7 @@ val mainModule = module {
     }
 
     viewModel {
-        CountingViewModel(get(),get())
+        CountingViewModel(get(),it.get(),get())
     }
 
     viewModel {
@@ -76,11 +78,11 @@ val mainModule = module {
     }
 
     viewModel {
-        CountingDetailViewModel(get(),get(),it.get())
+        CountingDetailViewModel(get(),get(),it.get<Boolean>(),it.get<ReceivingRow>())
     }
 
     viewModel {
-        CountingInceptionViewModel(get(),get(), it[0], it[1])
+        CountingInceptionViewModel(get(),get(), it.get<ReceivingDetailRow>(), it.get<Boolean>(),it.get<Int>(),)
     }
 
     viewModel {

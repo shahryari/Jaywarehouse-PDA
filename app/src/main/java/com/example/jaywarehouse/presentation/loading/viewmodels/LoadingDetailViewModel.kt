@@ -122,48 +122,56 @@ class LoadingDetailViewModel(
         loading: PalletConfirmRow,
     ) {
 
-        setState {
-            copy(onSaving = true)
-        }
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.confirmLoading(
-                loading.palletManifestID
-            )
-                .catch {
-                    setState {
-                        copy(
-                            error = it.message ?: "",
-                            onSaving = false
-                        )
-                    }
-                }
-                .collect {
-                    setSuspendedState {
-                        copy(onSaving = false)
-                    }
-                    when(it){
-                        is BaseResult.Success -> {
-                            setSuspendedState {
-                                copy(
-                                    details = emptyList(),
-                                    page = 1,
-                                    selectedLoading = null,
-                                    toast = it.data?.messages?.first() ?: "",
-                                    loadingState = Loading.LOADING
-                                )
-                            }
-                            getDetails(keyword = state.keyword,page = state.page,sort = state.sort)
+        if (!state.onSaving){
+            setState {
+                copy(onSaving = true)
+            }
+            viewModelScope.launch(Dispatchers.IO) {
+                repository.confirmLoading(
+                    loading.palletManifestID
+                )
+                    .catch {
+                        setState {
+                            copy(
+                                error = it.message ?: "",
+                                onSaving = false
+                            )
                         }
-                        is BaseResult.Error -> {
-                            setState {
-                                copy(
-                                    error = it.message,
-                                )
-                            }
-                        }
-                        else -> {}
                     }
-                }
+                    .collect {
+                        setSuspendedState {
+                            copy(onSaving = false)
+                        }
+                        when(it){
+                            is BaseResult.Success -> {
+                                if (it.data?.isSucceed == true){
+                                    setSuspendedState {
+                                        copy(
+                                            details = emptyList(),
+                                            page = 1,
+                                            selectedLoading = null,
+                                            toast = it.data.messages.firstOrNull() ?: "Completed successfully.",
+                                            loadingState = Loading.LOADING
+                                        )
+                                    }
+                                    getDetails(keyword = state.keyword,page = state.page,sort = state.sort)
+                                } else {
+                                    setSuspendedState {
+                                        copy(error = it.data?.messages?.firstOrNull()?:"Failed")
+                                    }
+                                }
+                            }
+                            is BaseResult.Error -> {
+                                setState {
+                                    copy(
+                                        error = it.message,
+                                    )
+                                }
+                            }
+                            else -> {}
+                        }
+                    }
+            }
         }
     }
 

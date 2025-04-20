@@ -33,6 +33,7 @@ class PalletConfirmContract {
         val page: Int = 1,
         val showSortList: Boolean = false,
         val lockKeyboard: Boolean = false,
+        val isConfirming: Boolean = false,
         val selectedPallet: PalletConfirmRow? = null,
         val toast: String = ""
     ) : UiState

@@ -98,13 +98,6 @@ fun RSContent(
     }
 
 
-    val refreshState = rememberPullRefreshState(
-        refreshing =  state.loadingState == Loading.REFRESHING,
-        onRefresh = {
-            onEvent(RSIntegrationContract.Event.OnRefresh)
-        }
-    )
-
     LaunchedEffect(key1 = Unit) {
         searchFocusRequester.requestFocus()
         onEvent(RSIntegrationContract.Event.FetchData)
@@ -114,6 +107,9 @@ fun RSContent(
         error = state.error,
         onCloseError = {
             onEvent(RSIntegrationContract.Event.CloseError)
+        },
+        onRefresh = {
+            onEvent(RSIntegrationContract.Event.OnRefresh)
         }
     ) {
 
@@ -121,7 +117,6 @@ fun RSContent(
             Column(
                 Modifier
                     .fillMaxSize()
-                    .pullRefresh(refreshState)
                     .padding(15.mdp)
             ) {
                 TopBar(
@@ -157,9 +152,6 @@ fun RSContent(
                     }
                 )
             }
-
-            PullRefreshIndicator(refreshing = state.loadingState == Loading.REFRESHING, state = refreshState, modifier = Modifier.align(
-                Alignment.TopCenter) )
 
         }
     }

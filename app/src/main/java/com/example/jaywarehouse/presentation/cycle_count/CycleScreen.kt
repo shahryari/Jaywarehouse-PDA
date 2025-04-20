@@ -111,13 +111,6 @@ fun CheckingContent(
     }
 
 
-    val refreshState = rememberPullRefreshState(
-        refreshing =  state.loadingState == Loading.REFRESHING,
-        onRefresh = {
-            onEvent(CycleCountContract.Event.OnRefresh)
-        }
-    )
-
     LaunchedEffect(key1 = Unit) {
         searchFocusRequester.requestFocus()
         onEvent(CycleCountContract.Event.ReloadScreen)
@@ -127,6 +120,9 @@ fun CheckingContent(
         error = state.error,
         onCloseError = {
             onEvent(CycleCountContract.Event.ClearError)
+        },
+        onRefresh = {
+            onEvent(CycleCountContract.Event.OnRefresh)
         }
     ) {
 
@@ -136,7 +132,6 @@ fun CheckingContent(
                 Column(
                     Modifier
                         .weight(1f)
-                        .pullRefresh(refreshState)
                         .padding(15.mdp)
                 ) {
                     TopBar(
@@ -217,8 +212,6 @@ fun CheckingContent(
                     )
                 }
             }
-
-            PullRefreshIndicator(refreshing = state.loadingState == Loading.REFRESHING, state = refreshState, modifier = Modifier.align(Alignment.TopCenter) )
         }
     }
     if (state.showSortList){

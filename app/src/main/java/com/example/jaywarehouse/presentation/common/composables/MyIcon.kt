@@ -31,7 +31,7 @@ fun MyIcon(
 ) {
     Box(modifier = modifier
         .clip(RoundedCornerShape(8.mdp))
-        .background(Color.White)
+        .background(if (showBorder)Color.White else Color.Transparent)
         .then(
             if (showBorder) Modifier.border(1.mdp, Border, RoundedCornerShape(8.mdp))
             else Modifier

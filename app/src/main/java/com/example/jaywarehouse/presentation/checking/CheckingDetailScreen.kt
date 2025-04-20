@@ -109,10 +109,6 @@ fun CheckingDetailContent(
 ) {
     val focusRequester = FocusRequester()
 
-    val refreshState = rememberPullRefreshState(
-        refreshing = state.loadingState == Loading.REFRESHING,
-        onRefresh = { onEvent(CheckingDetailContract.Event.OnRefresh) }
-    )
     LaunchedEffect(key1 = Unit) {
         focusRequester.requestFocus()
     }
@@ -125,6 +121,9 @@ fun CheckingDetailContent(
         toast = state.toast,
         onHideToast = {
             onEvent(CheckingDetailContract.Event.HideToast)
+        },
+        onRefresh = {
+            onEvent(CheckingDetailContract.Event.OnRefresh)
         }
     ) {
 
@@ -133,7 +132,6 @@ fun CheckingDetailContent(
                 .fillMaxSize()) {
             Column(
                 Modifier
-                    .pullRefresh(refreshState)
                     .fillMaxSize()
                     .padding(15.mdp)
             ) {
@@ -174,8 +172,6 @@ fun CheckingDetailContent(
                 )
 
             }
-            PullRefreshIndicator(refreshing = state.loadingState == Loading.REFRESHING, state = refreshState, modifier = Modifier.align(
-                Alignment.TopCenter) )
         }
     }
     if (state.showSortList){
@@ -204,7 +200,7 @@ fun CheckingDetailItem(
         item1 = BaseListItemModel("Name",model.productName, R.drawable.vuesax_outline_3d_cube_scan),
         item2 = BaseListItemModel("Product Code",model.productCode,R.drawable.barcode),
         item3 = BaseListItemModel("Barcode",model.barcodeNumber,R.drawable.note),
-        item4 = BaseListItemModel("Reference", model.referenceNumber,R.drawable.hashtag),
+        item4 = BaseListItemModel("Reference", model.referenceNumber?:"",R.drawable.hashtag),
         item5 = BaseListItemModel("Quantity", model.quantity.toString(),R.drawable.vuesax_linear_box),
         showFooter = false,
         quantity = "",
@@ -250,7 +246,7 @@ fun CheckingBottomSheet(
                     .padding(bottom = 24.mdp)
             ){
                 MyText(
-                    text = "Picking",
+                    text = "Checking",
                     fontWeight = FontWeight.W500,
                     style = MaterialTheme.typography.titleLarge
                 )
@@ -282,7 +278,7 @@ fun CheckingBottomSheet(
                     DetailCard(
                         title = "Reference",
                         icon = R.drawable.hashtag,
-                        detail = state.selectedChecking.referenceNumber,
+                        detail = state.selectedChecking.referenceNumber?:"",
                         modifier = Modifier.weight(1f)
                     )
                     Spacer(Modifier.size(5.mdp))
@@ -309,6 +305,7 @@ fun CheckingBottomSheet(
                     leadingIcon = R.drawable.location,
 //                    hideKeyboard = state.lockKeyboard,
                     focusRequester = locationFocusRequester,
+                    decimalInput = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                 )
                 Spacer(Modifier.size(10.mdp))
@@ -321,7 +318,7 @@ fun CheckingBottomSheet(
                     },
                     onAny = {},
                     leadingIcon = R.drawable.barcode,
-//                    hideKeyboard = state.lockKeyboard,
+                    hideKeyboard = state.lockKeyboard,
                     focusRequester = barcodeFocusRequester,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
                 )

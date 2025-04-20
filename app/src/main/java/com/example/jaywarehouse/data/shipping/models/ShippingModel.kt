@@ -1,4 +1,5 @@
 package com.example.jaywarehouse.data.shipping.models
+import com.example.jaywarehouse.presentation.common.composables.Animatable
 import com.google.gson.annotations.SerializedName
 import java.io.Serializable
 
@@ -26,4 +27,9 @@ data class ShippingRow(
     val shippingNumber: String,
     @SerializedName("TrailerNumber")
     val trailerNumber: String
-) : Serializable
+) : Serializable, Animatable {
+    override fun key(): String {
+        return shippingID.toString()
+    }
+
+}

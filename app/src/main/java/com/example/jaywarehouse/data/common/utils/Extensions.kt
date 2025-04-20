@@ -2,6 +2,7 @@ package com.example.jaywarehouse.data.common.utils
 
 import android.content.Context
 import android.content.Intent
+import android.icu.text.DecimalFormat
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.Dp
 import androidx.datastore.core.DataStoreFactory
@@ -35,4 +36,21 @@ fun <T> List<T>.addAll(list: List<T>?) : List<T>{
 
 fun String.endsWithEnter(): Boolean {
     return this.endsWith('\n')
+}
+
+fun Double.removeZeroDecimal() : String {
+    val df = DecimalFormat("#.##")
+    return df.format(this)
+}
+
+fun String.withEnglishDigits() : String {
+    var result = ""
+    for (char in this){
+        if (char.isDigit()){
+            result += char.digitToInt().toString()
+        }else {
+            result += char
+        }
+    }
+    return result
 }

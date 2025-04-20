@@ -1,5 +1,6 @@
 package com.example.jaywarehouse.data.loading.models
 
+import com.example.jaywarehouse.presentation.common.composables.Animatable
 import com.google.gson.annotations.SerializedName
 import java.io.Serializable
 
@@ -15,4 +16,9 @@ data class LoadingListGroupedRow(
     val customerCode: String?,
     @SerializedName("CustomerName")
     val customerName: String?
-) : Serializable
+) : Serializable, Animatable {
+    override fun key(): String {
+        return customerCode?:""
+    }
+
+}

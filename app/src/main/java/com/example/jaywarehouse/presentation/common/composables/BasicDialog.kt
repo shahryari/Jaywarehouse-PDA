@@ -32,6 +32,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.jaywarehouse.data.common.utils.mdp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.example.jaywarehouse.ui.theme.Black
 import com.example.jaywarehouse.ui.theme.Gray3
 import com.example.jaywarehouse.ui.theme.Gray4
@@ -53,6 +54,7 @@ fun BasicDialog(
 ) {
     Dialog(
         onDismissRequest = onDismiss,
+        DialogProperties(dismissOnBackPress = false,dismissOnClickOutside = false)
     ) {
         Column(
             Modifier

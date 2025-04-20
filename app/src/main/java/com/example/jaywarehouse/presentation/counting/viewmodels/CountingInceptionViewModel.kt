@@ -19,11 +19,12 @@ class CountingInceptionViewModel(
    private val repository: ReceivingRepository,
     prefs: Prefs,
     private val detail: ReceivingDetailRow,
+   private val isCrossDock: Boolean = false,
     private val receivingId: Int,
 ) : BaseViewModel<CountingInceptionContract.Event,CountingInceptionContract.State,CountingInceptionContract.Effect>(){
     init {
         setState {
-            copy(countingDetailRow = detail)
+            copy(countingDetailRow = detail,quantityInPacket = TextFieldValue(detail.pcb?.toInt()?.toString()?:""))
         }
         viewModelScope.launch(Dispatchers.IO) {
             prefs.getLockKeyboard().collect {
@@ -46,7 +47,7 @@ class CountingInceptionViewModel(
                 }
             }
             CountingInceptionContract.Event.OnSubmit -> {
-                countItems()
+                done()
             }
             is CountingInceptionContract.Event.OnChangeBatchNumber -> {
                 setState {
@@ -80,63 +81,7 @@ class CountingInceptionViewModel(
             }
 
             CountingInceptionContract.Event.OnAddClick -> {
-                if (state.quantity.text.isEmpty() || state.quantityInPacket.text.isEmpty()) {
-                    setState {
-                        copy(error = "Please fill all fields")
-                    }
-                    return
-                }
-                val quantity = (state.quantity.text.toIntOrNull()?:0) * (state.quantityInPacket.text.toIntOrNull()?:0)
-                if (quantity<0){
-                    setState {
-                        copy(error = "Quantity must be equal to 0 or greater than 0")
-                    }
-                    return
-                }
-                if (detail.batchNumber!=null && state.batchNumber.text.isEmpty()){
-                    setState {
-                        copy(error = "Please fill batch number")
-                    }
-                    return
-                }
-                if (detail.expireDate!=null && state.expireDate.text.isEmpty()){
-                    setState {
-                        copy(error = "Please fill expire date")
-                    }
-                    return
-                }
-                if (state.batchNumber.text.trim().isNotEmpty()){
-                    if (state.details.find { it.batchNumber == state.batchNumber.text.trim() } != null){
-                        setState {
-                            copy(error = "Batch number already exists")
-                        }
-                        return
-                    }
-                } else {
-                    if (state.details.find { it.quantity == quantity && it.expireDate == state.expireDate.text.trim() } != null){
-                        setState {
-                            copy(error = "Item with same Quantity already exists")
-                        }
-                        return
-                    }
-                }
-                val countItem = ReceivingDetailCountModel(
-                    quantity = quantity,
-                    batchNumber = state.batchNumber.text,
-                    expireDate = state.expireDate.text,
-                    entityState = "Added",
-                    receivingWorkerTaskCountId = null,
-                    receivingWorkerTaskId = detail.receivingWorkerTaskID
-                )
-                setState {
-                    copy(
-                        details = details + countItem,
-                        quantity = TextFieldValue(),
-                        quantityInPacket = TextFieldValue("1"),
-                        batchNumber = TextFieldValue(),
-                        expireDate = TextFieldValue()
-                    )
-                }
+                insert()
             }
 
             CountingInceptionContract.Event.CloseError -> {
@@ -151,26 +96,12 @@ class CountingInceptionViewModel(
             }
 
             is CountingInceptionContract.Event.OnDeleteCount -> {
-                setState {
-                    copy(details = details.mapIndexedNotNull { index, it ->
-                        if (state.selectedIndex == index){
-
-                            if (event.model.receivingWorkerTaskCountId == null) {
-                                null
-                            }
-                            else if (it.receivingWorkerTaskCountId == event.model.receivingWorkerTaskCountId) {
-                                it.copy(entityState = "Deleted")
-                            } else it
-                        } else {
-                            it
-                        }
-                    }, selectedItem = null, selectedIndex = null)
-                }
+                delete(event.model)
             }
 
             is CountingInceptionContract.Event.OnSelectedItem -> {
                 setState {
-                    copy(selectedItem = event.item, selectedIndex = event.index)
+                    copy(selectedItem = event.item)
                 }
             }
 
@@ -179,78 +110,356 @@ class CountingInceptionViewModel(
                     copy(showConfirm = event.show)
                 }
             }
+
+            CountingInceptionContract.Event.OnReachEnd -> {
+                if (10*state.page <= state.details.size){
+                    setState {
+                        copy(page = page+1)
+                    }
+                    getItems()
+                }
+            }
+
+            CountingInceptionContract.Event.OnAddWeight -> {
+                insertWeight()
+            }
+
+            is CountingInceptionContract.Event.OnChangeBoxQuantity -> {
+                setState {
+                    copy(boxQuantity = event.value)
+                }
+            }
+
+            CountingInceptionContract.Event.OnRefresh -> {
+                setState {
+                    copy(details = emptyList(), page = 1)
+                }
+                getItems(Loading.REFRESHING)
+            }
         }
     }
 
 
-    private fun getItems() {
-        setState {
-            copy(loadingState = Loading.LOADING)
-        }
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.getReceivingDetailCountModel(
-                detail.receivingWorkerTaskID
-            ).catch {
-                setSuspendedState {
-                    copy(error = it.message?:"", loadingState = Loading.NONE)
-                }
-            }.collect {
-                setSuspendedState {
-                    copy(loadingState = Loading.NONE)
-                }
-                when(it){
-                    is BaseResult.Error -> {
-                        setSuspendedState {
-                            copy(error = it.message)
-                        }
+    private fun getItems(loading: Loading = Loading.LOADING) {
+        if (state.loadingState == Loading.NONE){
+            setState {
+                copy(loadingState = loading)
+            }
+            viewModelScope.launch(Dispatchers.IO) {
+                repository.getReceivingDetailCountModel(
+                    detail.receivingWorkerTaskID,
+                    state.page,
+                    isCrossDock
+                ).catch {
+                    setSuspendedState {
+                        copy(error = it.message?:"", loadingState = Loading.NONE)
                     }
-                    is BaseResult.Success -> {
-                        setSuspendedState {
-                            copy(details = it.data?.rows?: emptyList())
-                        }
+                }.collect {
+                    setSuspendedState {
+                        copy(loadingState = Loading.NONE)
                     }
-                    else ->{}
+                    when(it){
+                        is BaseResult.Error -> {
+                            setSuspendedState {
+                                copy(error = it.message)
+                            }
+                        }
+                        is BaseResult.Success -> {
+                            val detailList = state.details + (it.data?.rows?: emptyList())
+                            setSuspendedState {
+                                copy(
+                                    details = detailList,
+                                    countingDetailRow = it.data?.receivingDetailRow,
+                                    quantityInPacket = TextFieldValue(it.data?.pcb?.pcb?.toString()?:it.data?.pcb?.defaultPcb?.toString()?:""),
+                                    pcbEnabled = it.data?.pcb?.pcb == null
+                                )
+                            }
+                        }
+                        else ->{}
+                    }
                 }
             }
         }
     }
 
-    private fun countItems() {
-        if (state.details.isEmpty()){
+    fun insertWeight() {
+        if (state.quantity.text.isEmpty() || state.quantityInPacket.text.isEmpty() || state.boxQuantity.text.isEmpty()) {
             setState {
-                copy(error = "Please add at least one item")
+                copy(error = "Please fill all fields")
             }
             return
         }
-        viewModelScope.launch {
-            repository.countReceivingDetail(
-                receivingId,
-                state.details.sumOf { it.quantity },
-                receivingTypeId = detail.receivingTypeID,
-                counts = state.details
-            ).catch {
-                setSuspendedState {
-                    copy(error = it.message?:"", showConfirm = false)
+        val quantity = state.quantity.text.toDoubleOrNull()?:0.0
+        if (quantity<=0){
+            setState {
+                copy(error = "Quantity must be greater than 0")
+            }
+            return
+        }
+        val pcb = state.quantityInPacket.text.toDoubleOrNull()?:0.0
+        if (detail.pcb!=null && pcb<1.0){
+            setState {
+                copy(error = "Pcb must be greater then 0")
+            }
+            return
+        }
+        val pack = state.boxQuantity.text.toDoubleOrNull()
+        if ((pack?:0.0)<1.0 && pcb>1.0){
+            setState {
+                copy(error = "Box Quantity must be greater then 0")
+            }
+            return
+        }
+        if (!state.isAdding) {
+            if (!state.isAdding){
+                setState {
+                    copy(isAdding = true)
                 }
-            }.collect {
-                setSuspendedState {
-                    copy(showConfirm = false)
-                }
-                when(it){
-                    is BaseResult.Error -> {
+                viewModelScope.launch(Dispatchers.IO) {
+                    repository.receivingWorkerTaskCountInsert(
+                        detail.receivingWorkerTaskID,
+                        quantity,
+                        pcb,
+                        pack?.toInt(),
+                        "",
+                        "",
+                        isCrossDock
+                    ).catch {
                         setSuspendedState {
-                            copy(error = it.message)
+                            copy(error = it.message?:"", isAdding = false)
+                        }
+                    }.collect {
+                        setSuspendedState {
+                            copy(isAdding = false)
+                        }
+                        when(it){
+                            is BaseResult.Error -> {
+                                setSuspendedState {
+                                    copy(error = it.message)
+                                }
+                            }
+                            is BaseResult.Success -> {
+                                if (it.data?.isSucceed == true){
+                                    setSuspendedState {
+                                        copy(
+                                            details = emptyList(),
+                                            page = 1,
+                                            toast = "Item add Successfully"
+                                        )
+                                    }
+                                    getItems()
+                                } else {
+                                    setSuspendedState {
+                                        copy(error = it.data?.messages?.firstOrNull()?:"Failed")
+                                    }
+                                }
+                            }
+                            BaseResult.UnAuthorized -> {}
                         }
                     }
-                    is BaseResult.Success -> {
-                        setState {
-                            copy(toast = it.data?.messages?.firstOrNull()?: "Finished Successfully")
+                }
+            }
+
+        }
+    }
+    fun insert() {
+        val pcb = state.quantityInPacket.text.toDoubleOrNull()?:0.0
+        if (state.quantity.text.isEmpty() || (state.quantityInPacket.text.isEmpty()) || (pcb> 1.0 && state.boxQuantity.text.isEmpty())) {
+            setState {
+                copy(error = "Please fill all fields")
+            }
+            return
+        }
+        val quantity = state.quantity.text.toDoubleOrNull()?:0.0
+        if (quantity<0){
+            setState {
+                copy(error = "Quantity must be equal to 0 or greater than 0")
+            }
+            return
+        }
+        if (pcb<1.0){
+            setState {
+                copy(error = "Pcb must be greater then 0")
+            }
+            return
+        }
+        val pack = state.boxQuantity.text.toDoubleOrNull()
+        if ((pack?:0.0)<1 && pcb>1.0){
+            setState {
+                copy(error = "Box Quantity must be greater then 0")
+            }
+            return
+        }
+        if (detail.batchNumber!=null && state.batchNumber.text.isEmpty()){
+            setState {
+                copy(error = "Please fill batch number")
+            }
+            return
+        }
+        if (detail.expireDate!=null && state.expireDate.text.isEmpty()){
+            setState {
+                copy(error = "Please fill expire date")
+            }
+            return
+        }
+        if (state.batchNumber.text.trim().isNotEmpty()){
+            if (state.details.find { it.batchNumber == state.batchNumber.text.trim() } != null){
+                setState {
+                    copy(error = "Batch number already exists")
+                }
+                return
+            }
+        } else {
+            if (state.details.find { it.countQuantity == quantity.toDouble() && it.expireDate == state.expireDate.text.trim() } != null){
+                setState {
+                    copy(error = "Item with same Quantity already exists")
+                }
+                return
+            }
+        }
+        if (!state.isAdding){
+            setState {
+                copy(isAdding = true)
+            }
+            viewModelScope.launch(Dispatchers.IO) {
+                repository.receivingWorkerTaskCountInsert(
+                    detail.receivingWorkerTaskID,
+                    quantity,
+                    pcb,
+                    pack?.toInt(),
+                    state.expireDate.text.trim(),
+                    state.batchNumber.text.trim(),
+                    isCrossDock
+                ).catch {
+                    setSuspendedState {
+                        copy(error = it.message?:"", isAdding = false)
+                    }
+                }.collect {
+                    setSuspendedState {
+                        copy(isAdding = false)
+                    }
+                    when(it){
+                        is BaseResult.Error -> {
+                            setSuspendedState {
+                                copy(error = it.message)
+                            }
                         }
-                        setEffect {
-                            CountingInceptionContract.Effect.NavBack
+                        is BaseResult.Success -> {
+                            if (it.data?.isSucceed == true){
+                                setSuspendedState {
+                                    copy(
+                                        details = emptyList(),
+                                        page = 1,
+                                        quantity = TextFieldValue(),
+                                        batchNumber = TextFieldValue(),
+                                        expireDate = TextFieldValue(),
+                                        toast = "Item add Successfully"
+                                    )
+                                }
+                                getItems()
+                            } else {
+                                setSuspendedState {
+                                    copy(error = it.data?.messages?.firstOrNull()?:"Failed")
+                                }
+                            }
+                        }
+                        BaseResult.UnAuthorized -> {}
+                    }
+                }
+            }
+        }
+    }
+
+    fun delete(item: ReceivingDetailCountModel) {
+        if (!state.isDeleting) {
+            setState {
+                copy(isDeleting = true)
+            }
+            viewModelScope.launch(Dispatchers.IO){
+                repository.receivingWorkerTaskCountDelete(
+                    item.receivingWorkerTaskCountID.toString(),
+                    isCrossDock
+                ).catch {
+                    setSuspendedState {
+                        copy(error = it.message?:"", isDeleting = false)
+                    }
+                }.collect {
+                    setSuspendedState {
+                        copy(
+                            isDeleting = false,
+                            selectedItem = null
+                        )
+                    }
+                    when(it){
+                        is BaseResult.Error -> {
+                            setSuspendedState {
+                                copy(error = it.message)
+                            }
+                        }
+                        is BaseResult.Success -> {
+                            if (it.data?.isSucceed == true){
+                                setSuspendedState {
+                                    copy(
+                                        details = emptyList(),
+                                        page = 1,
+                                        toast = it.data.messages.firstOrNull()?:"Item deleted successfully."
+                                    )
+                                }
+                                getItems()
+                            } else {
+                                setSuspendedState {
+                                    copy(error = it.data?.messages?.firstOrNull()?:"Failed")
+                                }
+                            }
+                        }
+                        BaseResult.UnAuthorized -> {
+
                         }
                     }
-                    else ->{}
+                }
+            }
+        }
+    }
+
+    fun done() {
+        if (!state.isCompleting) {
+            setState {
+                copy(isCompleting = true)
+            }
+            viewModelScope.launch(Dispatchers.IO){
+                repository.receivingWorkerTaskDone(
+                    detail.receivingWorkerTaskID,
+                    isCrossDock
+                ).catch {
+                    setSuspendedState {
+                        copy(error = it.message?:"", isCompleting = false)
+                    }
+                }.collect {
+                    setSuspendedState {
+                        copy(isCompleting = false)
+                    }
+                    when(it){
+                        is BaseResult.Error -> {
+                            setSuspendedState {
+                                copy(error = it.message)
+                            }
+                        }
+                        is BaseResult.Success -> {
+                            if (it.data?.isSucceed == true){
+                                setSuspendedState {
+                                    copy(toast = it.data.messages.firstOrNull()?:"Finished successfully")
+                                }
+                                setEffect {
+                                    CountingInceptionContract.Effect.NavBack
+                                }
+                            } else {
+                                setSuspendedState {
+                                    copy(error = it.data?.messages?.firstOrNull()?:"Failed")
+                                }
+                            }
+                        }
+                        BaseResult.UnAuthorized -> {}
+                    }
                 }
             }
         }

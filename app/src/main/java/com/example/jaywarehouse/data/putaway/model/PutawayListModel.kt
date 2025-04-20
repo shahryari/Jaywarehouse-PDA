@@ -1,4 +1,5 @@
 package com.example.jaywarehouse.data.putaway.model
+import com.example.jaywarehouse.presentation.common.composables.Animatable
 import com.google.gson.annotations.SerializedName
 
 
@@ -12,7 +13,7 @@ data class PutawayListModel(
 data class PutawayListRow(
     @SerializedName("BatchNumber")
     val batchNumber: String?,
-    @SerializedName("ExpireDateString")
+    @SerializedName("ExpireDate")
     val expireDateString: String?,
     @SerializedName("OwnerFullName")
     val ownerFullName: String,
@@ -27,11 +28,16 @@ data class PutawayListRow(
     @SerializedName("PutawayWorkerTaskTypeID")
     val putawayWorkerTaskTypeID: Int,
     @SerializedName("Quantity")
-    val quantity: Int,
+    val quantity: Double,
     @SerializedName("ReceiptDetailID")
     val receiptDetailID: Int,
     @SerializedName("ReceivingDetailID")
     val receivingDetailID: Int,
     @SerializedName("WarehouseLocationCode")
     val warehouseLocationCode: String
-)
+) : Animatable {
+    override fun key(): String {
+        return receiptDetailID.toString()
+    }
+
+}

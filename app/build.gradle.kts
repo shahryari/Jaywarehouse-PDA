@@ -72,4 +72,6 @@ dependencies {
 //    implementation(libs.coil.compose)
     implementation(libs.compose.destinations.core)
     ksp(libs.compose.destinations.ksp)
+
+    implementation(libs.threetenabp)
 }

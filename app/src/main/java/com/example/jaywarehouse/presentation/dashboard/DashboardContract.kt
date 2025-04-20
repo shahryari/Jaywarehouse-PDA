@@ -6,11 +6,27 @@ import com.example.jaywarehouse.presentation.common.utils.UiEvent
 import com.example.jaywarehouse.presentation.common.utils.UiSideEffect
 import com.example.jaywarehouse.presentation.common.utils.UiState
 import com.example.jaywarehouse.presentation.destinations.TypedDestination
+import com.ramcosta.composedestinations.spec.Direction
 import com.ramcosta.composedestinations.spec.DirectionDestinationSpec
 
 class DashboardContract {
     data class State(
         val dashboards: Map<String, List<MainItems>> = MainItems.entries.groupBy { it.category },
+        val dashboardsVisibility: Map<MainItems, Boolean> = MainItems.entries.map { Pair(it,false) }.toMap(),
+        val crossDockDashboards: Map<String, List<MainItems>> = mapOf(
+            "" to listOf(
+                MainItems.Receiving,
+                MainItems.Picking,
+                MainItems.Checking,
+                MainItems.PalletConfirm
+            )
+        ),
+        val crossDockDashboardsVisibility: Map<MainItems, Boolean> = mapOf(
+            MainItems.Receiving to false,
+            MainItems.Picking to false,
+            MainItems.Checking to false,
+            MainItems.PalletConfirm to false,
+        ),
         val name: String = "",
         val showUpdateDialog: Boolean = false,
         val newVersion: String = "",
@@ -27,11 +43,12 @@ class DashboardContract {
     ) : UiState
 
     sealed class Event : UiEvent {
-        data class OnNavigate(val destination: DirectionDestinationSpec) : Event()
+        data class OnNavigate(val destination: Direction) : Event()
         data class OnSelectTab(val tab: DashboardTab) : Event()
         data class OnShowSubDrawers(val drawers: List<MainItems>?) : Event()
         data class ShowSettings(val show: Boolean) : Event()
         data object OnLogout: Event()
+        data object FetchData: Event()
         data class OnLockKeyboardChange(val lock: Boolean) : Event()
         data class OnForwardToDashboard(val forward: Boolean) : Event()
         data class OnOpenDetail(val open: Boolean) : Event()
@@ -40,7 +57,7 @@ class DashboardContract {
     }
 
     sealed class Effect : UiSideEffect {
-        data class Navigate(val destination: DirectionDestinationSpec) : Effect()
+        data class Navigate(val destination: Direction) : Effect()
         data object RestartActivity : Effect()
     }
 }

@@ -109,10 +109,6 @@ fun PickingDetailContent(
 ) {
     val focusRequester = FocusRequester()
 
-    val refreshState = rememberPullRefreshState(
-        refreshing = state.loadingState == Loading.REFRESHING,
-        onRefresh = { onEvent(PickingDetailContract.Event.OnRefresh) }
-    )
     LaunchedEffect(key1 = Unit) {
         focusRequester.requestFocus()
     }
@@ -125,6 +121,9 @@ fun PickingDetailContent(
         toast = state.toast,
         onHideToast = {
             onEvent(PickingDetailContract.Event.HideToast)
+        },
+        onRefresh = {
+            onEvent(PickingDetailContract.Event.OnRefresh)
         }
     ) {
 
@@ -133,7 +132,6 @@ fun PickingDetailContent(
                 .fillMaxSize()) {
             Column(
                 Modifier
-                    .pullRefresh(refreshState)
                     .fillMaxSize()
                     .padding(15.mdp)
             ) {
@@ -173,8 +171,6 @@ fun PickingDetailContent(
                     spacerSize = 7.mdp
                 )
             }
-            PullRefreshIndicator(refreshing = state.loadingState == Loading.REFRESHING, state = refreshState, modifier = Modifier.align(
-                Alignment.TopCenter) )
         }
     }
     if (state.showSortList){
@@ -321,7 +317,7 @@ fun PickingBottomSheet(
                         barcodeFocusRequester.requestFocus()
                     },
                     leadingIcon = R.drawable.location,
-//                    hideKeyboard = state.lockKeyboard,
+                    hideKeyboard = state.lockKeyboard,
                     focusRequester = locationFocusRequester,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
                 )
@@ -335,7 +331,7 @@ fun PickingBottomSheet(
                     },
                     onAny = {},
                     leadingIcon = R.drawable.barcode,
-//                    hideKeyboard = state.lockKeyboard,
+                    hideKeyboard = state.lockKeyboard,
                     focusRequester = barcodeFocusRequester,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
                 )

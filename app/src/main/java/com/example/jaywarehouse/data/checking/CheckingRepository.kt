@@ -47,16 +47,16 @@ class CheckingRepository(
 
     fun checking(
         isCrossDock: Boolean,
-        checkCount: Int,
+        checkCount: Double,
         customerId: String,
-        checkingWorkerTaskId: String,
+        checkingId: String,
         palletBarcode: String
     ) : Flow<BaseResult<ResultMessageModel>> {
         val jsonObject = JsonObject()
         jsonObject.addProperty("IsCrossDock",isCrossDock)
         jsonObject.addProperty("CheckCount",checkCount)
         jsonObject.addProperty("CustomerID",customerId)
-        jsonObject.addProperty("CheckingWorkerTaskID",checkingWorkerTaskId)
+        jsonObject.addProperty("CheckingID",checkingId)
         jsonObject.addProperty("PalletBarcode",palletBarcode)
         return getResult(
             request = {

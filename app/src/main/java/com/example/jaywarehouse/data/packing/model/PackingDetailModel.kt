@@ -1,4 +1,5 @@
 package com.example.jaywarehouse.data.packing.model
+import com.example.jaywarehouse.presentation.common.composables.Animatable
 import com.google.gson.annotations.SerializedName
 
 
@@ -21,5 +22,9 @@ data class PackingDetailRow(
     @SerializedName("PackingID")
     val packingID: Int,
     @SerializedName("Quantity")
-    val quantity: Int
-)
+    val quantity: Double
+) : Animatable {
+    override fun key(): String {
+        return packingDetailID.toString()
+    }
+}

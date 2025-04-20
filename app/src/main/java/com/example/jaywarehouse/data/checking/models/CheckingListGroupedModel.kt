@@ -1,5 +1,6 @@
 package com.example.jaywarehouse.data.checking.models
 
+import com.example.jaywarehouse.presentation.common.composables.Animatable
 import com.google.gson.annotations.SerializedName
 import java.io.Serializable
 
@@ -22,4 +23,8 @@ data class CheckingListGroupedRow(
     val customerName: String,
     @SerializedName("GroupedProductCount")
     val groupedProductCount: Int
-) : Serializable
+) : Serializable, Animatable {
+    override fun key(): String {
+        return customerID.toString()
+    }
+}

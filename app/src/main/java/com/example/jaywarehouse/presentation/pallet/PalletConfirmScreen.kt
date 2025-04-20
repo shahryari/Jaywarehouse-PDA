@@ -10,8 +10,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
@@ -49,6 +47,7 @@ import com.example.jaywarehouse.presentation.common.utils.Loading
 import com.example.jaywarehouse.presentation.common.utils.SIDE_EFFECT_KEY
 import com.example.jaywarehouse.presentation.common.utils.ScreenTransition
 import com.example.jaywarehouse.presentation.counting.ConfirmDialog
+import com.example.jaywarehouse.ui.theme.Orange
 import com.example.jaywarehouse.ui.theme.Primary
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -87,13 +86,6 @@ fun PalletContent(
     }
 
 
-    val refreshState = rememberPullRefreshState(
-        refreshing =  state.loadingState == Loading.REFRESHING,
-        onRefresh = {
-            onEvent(PalletConfirmContract.Event.OnRefresh)
-        }
-    )
-
     LaunchedEffect(key1 = Unit) {
         searchFocusRequester.requestFocus()
         onEvent(PalletConfirmContract.Event.ReloadScreen)
@@ -107,6 +99,9 @@ fun PalletContent(
         toast = state.toast,
         onHideToast = {
             onEvent(PalletConfirmContract.Event.HideToast)
+        },
+        onRefresh = {
+            onEvent(PalletConfirmContract.Event.OnRefresh)
         }
     ) {
 
@@ -114,7 +109,6 @@ fun PalletContent(
             Column(
                 Modifier
                     .fillMaxSize()
-                    .pullRefresh(refreshState)
                     .padding(15.mdp)
             ) {
                 TopBar(
@@ -152,9 +146,6 @@ fun PalletContent(
                 )
                 Spacer(modifier = Modifier.size(70.mdp))
             }
-
-            PullRefreshIndicator(refreshing = state.loadingState == Loading.REFRESHING, state = refreshState, modifier = Modifier.align(Alignment.TopCenter) )
-
         }
     }
     if (state.showSortList){
@@ -174,9 +165,10 @@ fun PalletContent(
             onDismiss = {
                 onEvent(PalletConfirmContract.Event.OnSelectPallet(null))
             },
-            description = "Are you sure to confirm this pallet ${state.selectedPallet.palletBarcode}?",
-            message = "Confirm Pallet",
-            tint = Primary,
+            message = "Are you sure to confirm this pallet ${state.selectedPallet.palletBarcode}?",
+            title = "Confirm Pallet",
+            tint = Orange,
+            isLoading = state.isConfirming,
             onConfirm = {
                 onEvent(PalletConfirmContract.Event.ConfirmPallet(state.selectedPallet))
             }

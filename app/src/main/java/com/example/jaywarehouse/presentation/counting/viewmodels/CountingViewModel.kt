@@ -17,6 +17,7 @@ import kotlinx.coroutines.launch
 
 class CountingViewModel(
     private val repository: ReceivingRepository,
+    private val isCrossDock: Boolean = false,
     private val prefs: Prefs
 ) : BaseViewModel<CountingContract.Event,CountingContract.State,CountingContract.Effect>(){
 
@@ -44,7 +45,7 @@ class CountingViewModel(
 
     private fun getCountingList(keyword: String = "",page: Int = 1, sort: SortItem) {
         viewModelScope.launch(Dispatchers.IO) {
-            repository.getReceivingList(keyword,page,10,order = sort.order.value,sort = sort.sort)
+            repository.getReceivingList(keyword,isCrossDock,page,10,order = sort.order.value,sort = sort.sort)
                 .catch {
                     setSuspendedState {
                         copy(error = it.message?:"", loadingState = Loading.NONE)
@@ -64,6 +65,7 @@ class CountingViewModel(
                             setSuspendedState {
                                 copy(receivingModel = it.data,countingList = countingList+(it.data?.rows?: emptyList()))
                             }
+
                         }
                         else ->{}
                     }

@@ -10,8 +10,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -62,14 +60,13 @@ import com.example.jaywarehouse.presentation.common.utils.Loading
 import com.example.jaywarehouse.presentation.common.utils.SIDE_EFFECT_KEY
 import com.example.jaywarehouse.presentation.common.utils.ScreenTransition
 import com.example.jaywarehouse.presentation.counting.ConfirmDialog
-import com.example.jaywarehouse.presentation.cycle_count.contracts.CycleCountContract
 import com.example.jaywarehouse.presentation.cycle_count.contracts.CycleDetailContract
 import com.example.jaywarehouse.presentation.cycle_count.viewmodels.CycleDetailViewModel
-import com.example.jaywarehouse.presentation.shipping.contracts.ShippingContract
 import com.example.jaywarehouse.ui.theme.Black
 import com.example.jaywarehouse.ui.theme.Border
 import com.example.jaywarehouse.ui.theme.Gray3
 import com.example.jaywarehouse.ui.theme.Gray5
+import com.example.jaywarehouse.ui.theme.Orange
 import com.example.jaywarehouse.ui.theme.Primary
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -130,11 +127,6 @@ fun CycleDetailContent(
         searchFocusRequester.requestFocus()
         onEvent(CycleDetailContract.Event.FetchData)
     }
-
-    val refreshState = rememberPullRefreshState(
-        refreshing = state.loadingState == Loading.REFRESHING,
-        onRefresh = { onEvent(CycleDetailContract.Event.OnRefresh) }
-    )
     MyScaffold(
         loadingState = state.loadingState,
         error = state.error,
@@ -144,6 +136,9 @@ fun CycleDetailContent(
         toast = state.toast,
         onHideToast = {
             onEvent(CycleDetailContract.Event.HideToast)
+        },
+        onRefresh = {
+            onEvent(CycleDetailContract.Event.OnRefresh)
         }
     ) {
 
@@ -154,7 +149,6 @@ fun CycleDetailContent(
                 Column(
                     Modifier
                         .weight(1f)
-                        .pullRefresh(refreshState)
                         .padding(15.mdp)
                 ) {
                     TopBar(
@@ -250,8 +244,6 @@ fun CycleDetailContent(
                     )
                 }
             }
-            PullRefreshIndicator(refreshing = state.loadingState == Loading.REFRESHING, state = refreshState, modifier = Modifier.align(
-                Alignment.TopCenter) )
             if (state.details.isEmpty() && state.loadingState == Loading.NONE){
                 Column(
                     Modifier.align(Alignment.Center),
@@ -329,12 +321,13 @@ fun CycleDetailContent(
             onDismiss = {
                 onEvent(CycleDetailContract.Event.OnShowSubmit(false))
             },
-            message = "Confirm",
-            description = "Are you sure to confirm finish counting of this location?",
+            title = "Confirm",
+            isLoading = state.isCompleting,
+            message = "Are you sure to confirm finish counting of this location?",
             onConfirm = {
                 onEvent(CycleDetailContract.Event.OnEndTaskClick)
             },
-            tint = Primary
+            tint = Orange
         )
     }
     AddBottomSheet(state,onEvent)
@@ -354,7 +347,7 @@ fun CycleDetailItem(
         item2 = BaseListItemModel("Product Code",model.productCode,R.drawable.note),
         item3 = BaseListItemModel("Barcode",model.productBarcodeNumber,R.drawable.barcode),
         item4 = BaseListItemModel("Status", model.quiddityTypeTitle,R.drawable.box_search),
-        item5 = model.expireDate?.let { BaseListItemModel("Expiration Date",it,R.drawable.calendar_add) },
+        item5 = model.expireDate?.let { BaseListItemModel("Exp Date",it,R.drawable.calendar_add) },
         quantityTitle = "",
         primary = model.counting == 1,
         quantity = model.locationCode,
@@ -432,7 +425,7 @@ fun CountBottomSheet(
                     )
                     if (state.selectedCycle.batchNumber!=null && state.selectedCycle.expireDate!=null)Spacer(Modifier.size(5.mdp))
                     if (state.selectedCycle.expireDate!=null)DetailCard(
-                        "Expiration Date",
+                        "Exp Date",
                         state.selectedCycle.expireDate,
                         icon = R.drawable.note,
                         modifier = Modifier.weight(1f)
@@ -579,7 +572,7 @@ fun AddBottomSheet(
                     onClick = {
                         onEvent(CycleDetailContract.Event.OnShowDatePicker(true))
                     },
-                    label = "Expire Date",
+                    label = "Exp Date",
                 )
                 Spacer(Modifier.size(15.mdp))
                 Row(Modifier.fillMaxWidth()) {

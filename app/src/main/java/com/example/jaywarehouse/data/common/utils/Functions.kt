@@ -23,13 +23,8 @@ fun <T:Any> getResult(
 ) : Flow<BaseResult<T>> {
     return flow {
         try {
-            val mutex= Mutex()
-            val response = mutex.withLock {
-//                Log.i("tradLine_req", "getResult: mutex is running")
-                val req = request()
-//                Log.i("tradLine_req", "getResult: mutex ended")
-                req
-            }
+            val response =  request()
+
             Log.i("jaywarehouse_req", "getResult: ${response.raw().request().url()} -> ${response.code()}")
             if (response.isSuccessful) {
                 onSuccess(response.body())

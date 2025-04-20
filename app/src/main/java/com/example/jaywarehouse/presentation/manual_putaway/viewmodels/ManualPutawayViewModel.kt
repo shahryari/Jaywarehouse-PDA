@@ -9,6 +9,7 @@ import com.example.jaywarehouse.presentation.common.utils.Loading
 import com.example.jaywarehouse.presentation.common.utils.Order
 import com.example.jaywarehouse.presentation.common.utils.SortItem
 import com.example.jaywarehouse.presentation.manual_putaway.contracts.ManualPutawayContract
+import com.example.jaywarehouse.presentation.manual_putaway.contracts.ManualPutawayContract.Effect.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
@@ -33,7 +34,6 @@ class ManualPutawayViewModel(
                 }
             }
         }
-        getPutaways(sortItem = state.selectedSort)
     }
     override fun setInitState(): ManualPutawayContract.State {
         return ManualPutawayContract.State()
@@ -58,7 +58,7 @@ class ManualPutawayViewModel(
             }
             is ManualPutawayContract.Event.OnPutawayClick ->  {
                 setEffect {
-                    ManualPutawayContract.Effect.NavToPutawayDetail(event.putaway)
+                    NavToPutawayDetail(event.putaway)
                 }
             }
             ManualPutawayContract.Event.OnReachEnd -> {
@@ -94,6 +94,14 @@ class ManualPutawayViewModel(
                 }
                 getPutaways(state.keyword,state.page,state.selectedSort)
 
+            }
+
+            ManualPutawayContract.Event.FetchData ->  {
+
+                setState {
+                    copy(page = 1, loadingState = Loading.LOADING, putaways = emptyList())
+                }
+                getPutaways(state.keyword,state.page,state.selectedSort)
             }
         }
     }

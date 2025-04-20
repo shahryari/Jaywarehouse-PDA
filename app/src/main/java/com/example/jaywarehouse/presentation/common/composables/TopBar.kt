@@ -40,6 +40,7 @@ fun TopBar(
     modifier: Modifier = Modifier,
     subTitle: String = "",
     endIcon: Int? = null,
+    endIconEnabled: Boolean = true,
     onEndClick: ()-> Unit = {}
 ) {
     AnimatedVisibility(
@@ -113,8 +114,9 @@ fun TopBar(
                     modifier =Modifier
                         .shadow(1.mdp,RoundedCornerShape(6.mdp))
                         .clip(RoundedCornerShape(6.mdp))
-                        .background(Primary)
-                        .clickable {
+                        .background(Color.White)
+                        .background(if (endIconEnabled) Primary else Primary.copy(0.5f))
+                        .clickable(endIconEnabled) {
                             onEndClick()
                         }
                         .padding(12.mdp)

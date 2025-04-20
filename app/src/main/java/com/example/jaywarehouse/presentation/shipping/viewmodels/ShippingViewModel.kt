@@ -409,30 +409,35 @@ class ShippingViewModel(
     private fun checkPalletBarcode(
         barcode: String
     ) {
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.palletBarcodeCheck(barcode)
-                .catch { setSuspendedState {
-                    copy(error = it.message?:"")
-                } }
-                .collect {
-                    setSuspendedState {
-                        copy(palletNumber = TextFieldValue())
-                    }
-                    when(it){
+        if (!state.isChecking){
+            setState {
+                copy(isChecking = true)
+            }
+            viewModelScope.launch(Dispatchers.IO) {
+                repository.palletBarcodeCheck(barcode)
+                    .catch { setSuspendedState {
+                        copy(error = it.message?:"", isChecking = false)
+                    } }
+                    .collect {
+                        setSuspendedState {
+                            copy(palletNumber = TextFieldValue(), isChecking = false)
+                        }
+                        when(it){
 
-                        is BaseResult.Error -> {
-                            setSuspendedState {
-                                copy(error = it.message)
+                            is BaseResult.Error -> {
+                                setSuspendedState {
+                                    copy(error = it.message)
+                                }
                             }
-                        }
-                        is BaseResult.Success -> {
-                            if (it.data!=null)setSuspendedState {
-                                copy(createPallets = createPallets+it.data)
+                            is BaseResult.Success -> {
+                                if (it.data!=null)setSuspendedState {
+                                    copy(createPallets = createPallets+it.data)
+                                }
                             }
+                            BaseResult.UnAuthorized -> {}
                         }
-                        BaseResult.UnAuthorized -> {}
                     }
-                }
+            }
         }
     }
 
@@ -449,85 +454,24 @@ class ShippingViewModel(
             }
             return
         }
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.createShipping(
-                state.createPallets,
-                state.driverName.text,
-                state.driverId.text,
-                state.carNumber.text,
-                state.trailerNumber.text
-            ).catch {
-                setSuspendedState {
-                    copy(error = it.message?:"")
-                }
-            }.collect {
-                when(it){
-                    is BaseResult.Error -> {
-                        setSuspendedState {
-                            copy(error = it.message)
-                        }
-                    }
-                    is BaseResult.Success -> {
-                        setSuspendedState {
-                            copy(showAddDialog = false, shippingList = emptyList(), page = 1, loadingState = Loading.LOADING)
-                        }
-                        getShipping(state.keyword,state.page,state.sort)
-                    }
-                    BaseResult.UnAuthorized -> {}
-                }
+        if (!state.isShipping){
+            setState {
+                copy(isShipping = true)
             }
-        }
-    }
-
-    private fun createPallet(
-        warehouseId: Int
-    ) {
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.submitPalletShipping(
-                state.quantityPallets,
-                warehouseId
-            ).catch {
-                setSuspendedState {
-                    copy(error = it.message?:"")
-                }
-            }.collect {
-                when(it){
-                    is BaseResult.Error -> {
-                        setSuspendedState {
-                            copy(error = it.message)
-                        }
-                    }
-                    is BaseResult.Success -> {
-                        setSuspendedState {
-                            copy(
-                                shippingForPallet = null,
-                                toast = it.data?.messages?.firstOrNull()?:"Added Successfully",
-                                shippingList = emptyList(),
-                                page = 1,
-                                loadingState = Loading.LOADING
-                            )
-                        }
-                        getShipping(state.keyword,state.page,state.sort)
-                    }
-                    BaseResult.UnAuthorized -> {
-
-                    }
-                }
-            }
-        }
-    }
-
-    private fun confirmShipping(shippingId: Int) {
-        viewModelScope.launch {
-            repository.confirmShipping(shippingId)
-                .catch {
+            viewModelScope.launch(Dispatchers.IO) {
+                repository.createShipping(
+                    state.createPallets,
+                    state.driverName.text,
+                    state.driverId.text,
+                    state.carNumber.text,
+                    state.trailerNumber.text
+                ).catch {
                     setSuspendedState {
-                        copy(error = it.message?:"", confirmShipping = null)
+                        copy(error = it.message?:"", isShipping = false)
                     }
-                }
-                .collect {
+                }.collect {
                     setSuspendedState {
-                        copy(confirmShipping = null)
+                        copy(isShipping = false)
                     }
                     when(it){
                         is BaseResult.Error -> {
@@ -536,96 +480,218 @@ class ShippingViewModel(
                             }
                         }
                         is BaseResult.Success -> {
-                            setSuspendedState {
-                                copy(
-                                    confirmShipping = null,
-                                    toast = it.data?.messages?.firstOrNull()?:"Confirmed Successfully",
-                                    shippingList = emptyList(),
-                                    page = 1,
-                                    loadingState = Loading.LOADING
-                                )
+                            if (it.data?.isSucceed == true){
+                                setSuspendedState {
+                                    copy(showAddDialog = false, shippingList = emptyList(), page = 1, loadingState = Loading.LOADING)
+                                }
+                                getShipping(state.keyword,state.page,state.sort)
+                            } else {
+                                setSuspendedState {
+                                    copy(error = it.data?.messages?.firstOrNull()?:"")
+                                }
                             }
-                            getShipping(state.keyword,state.page,state.sort)
                         }
                         BaseResult.UnAuthorized -> {}
                     }
                 }
+            }
+        }
+    }
 
+    private fun createPallet(
+        warehouseId: Int
+    ) {
+        if (!state.isCreatingPallet){
+            setState {
+                copy(isCreatingPallet = true)
+            }
+            viewModelScope.launch(Dispatchers.IO) {
+                repository.submitPalletShipping(
+                    state.quantityPallets,
+                    warehouseId
+                ).catch {
+                    setSuspendedState {
+                        copy(error = it.message?:"", isCreatingPallet = false)
+                    }
+                }.collect {
+                    setSuspendedState {
+                        copy(isCreatingPallet = false)
+                    }
+                    when(it){
+                        is BaseResult.Error -> {
+                            setSuspendedState {
+                                copy(error = it.message)
+                            }
+                        }
+                        is BaseResult.Success -> {
+                            if (it.data?.isSucceed == true){
+                                setSuspendedState {
+                                    copy(
+                                        shippingForPallet = null,
+                                        toast = it.data?.messages?.firstOrNull()?:"Added Successfully",
+                                        shippingList = emptyList(),
+                                        page = 1,
+                                        loadingState = Loading.LOADING
+                                    )
+                                }
+                                getShipping(state.keyword,state.page,state.sort)
+                            } else {
+                                setSuspendedState {
+                                    copy(error = it.data?.messages?.firstOrNull()?:"")
+                                }
+                            }
+                        }
+                        BaseResult.UnAuthorized -> {
+
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun confirmShipping(shippingId: Int) {
+        if (!state.isConfirming){
+            setState {
+                copy(isConfirming = true)
+            }
+            viewModelScope.launch {
+                repository.confirmShipping(shippingId)
+                    .catch {
+                        setSuspendedState {
+                            copy(error = it.message?:"", isConfirming = false, confirmShipping = null)
+                        }
+                    }
+                    .collect {
+                        setSuspendedState {
+                            copy(isConfirming = false,confirmShipping = null)
+                        }
+                        when(it){
+                            is BaseResult.Error -> {
+                                setSuspendedState {
+                                    copy(error = it.message)
+                                }
+                            }
+                            is BaseResult.Success -> {
+                                if (it.data?.isSucceed == true) {
+                                    setSuspendedState {
+                                        copy(
+                                            confirmShipping = null,
+                                            toast = it.data?.messages?.firstOrNull()?:"Confirmed Successfully",
+                                            shippingList = emptyList(),
+                                            page = 1,
+                                            loadingState = Loading.LOADING
+                                        )
+                                    }
+                                    getShipping(state.keyword,state.page,state.sort)
+                                } else {
+                                    setSuspendedState {
+                                        copy(error = it.data?.messages?.firstOrNull()?:"")
+                                    }
+                                }
+                            }
+                            BaseResult.UnAuthorized -> {}
+                        }
+                    }
+
+            }
         }
     }
 
     private fun createInvoice(
         shippingId: Int
     ) {
-       viewModelScope.launch(Dispatchers.IO) {
-           repository.createInvoice(shippingId)
-               .catch {
-                   setSuspendedState { copy(error = it.message?:"", invoiceShipping = null) }
-               }
-               .collect {
-                   setSuspendedState {
-                       copy(invoiceShipping = null)
-                   }
-                   when(it){
-                       is BaseResult.Error -> {
-                           setSuspendedState {
-                               copy(error = it.message)
-                           }
-                       }
-                       is BaseResult.Success -> {
-                           setSuspendedState {
-                               copy(
-                                   invoiceShipping = null,
-                                   toast = it.data?.messages?.firstOrNull()?:"Invoice Created Successfully",
-                                   shippingList = emptyList(),
-                                   page = 1,
-                                   loadingState = Loading.LOADING
-                               )
-                           }
-                           getShipping(state.keyword,state.page,state.sort)
-                       }
-                       BaseResult.UnAuthorized -> {}
-                   }
-               }
-       }
+        if (!state.isCreatingInvoice){
+            setState {
+                copy(isCreatingInvoice = true)
+            }
+            viewModelScope.launch(Dispatchers.IO) {
+                repository.createInvoice(shippingId)
+                    .catch {
+                        setSuspendedState { copy(error = it.message?:"", isCreatingInvoice = false, invoiceShipping = null) }
+                    }
+                    .collect {
+                        setSuspendedState {
+                            copy(isCreatingInvoice = false,invoiceShipping = null)
+                        }
+                        when(it){
+                            is BaseResult.Error -> {
+                                setSuspendedState {
+                                    copy(error = it.message)
+                                }
+                            }
+                            is BaseResult.Success -> {
+                                if (it.data?.isSucceed == true) {
+                                    setSuspendedState {
+                                        copy(
+                                            invoiceShipping = null,
+                                            toast = it.data?.messages?.firstOrNull()?:"Invoice Created Successfully",
+                                            shippingList = emptyList(),
+                                            page = 1,
+                                            loadingState = Loading.LOADING
+                                        )
+                                    }
+                                    getShipping(state.keyword,state.page,state.sort)
+                                } else {
+                                    setSuspendedState {
+                                        copy(error = it.data?.messages?.firstOrNull()?:"")
+                                    }
+                                }
+                            }
+                            BaseResult.UnAuthorized -> {}
+                        }
+                    }
+            }
+        }
     }
 
     private fun createRSInterface(
         shippingId: Int,
         shippingNumber: String
     ) {
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.createRSInterface(shippingId,shippingNumber)
-                .catch {
-                    setSuspendedState {
-                        copy(error = it.message?:"", rsShipping = null)
-                    }
-                }
-                .collect {
-                    setSuspendedState {
-                        copy(rsShipping = null)
-                    }
-                    when(it){
-                        is BaseResult.Error ->  {
-                            setSuspendedState {
-                                copy(error = it.message)
-                            }
+        if (!state.isCreatingRs){
+            setState {
+                copy(isCreatingRs = true)
+            }
+            viewModelScope.launch(Dispatchers.IO) {
+                repository.createRSInterface(shippingId,shippingNumber)
+                    .catch {
+                        setSuspendedState {
+                            copy(error = it.message?:"", isCreatingRs = false, rsShipping = null)
                         }
-                        is BaseResult.Success -> {
-                            setSuspendedState {
-                                copy(
-                                    rsShipping = null,
-                                    toast = it.data?.messages?.firstOrNull()?:"RS Created Successfully",
-                                    shippingList = emptyList(),
-                                    page = 1,
-                                    loadingState = Loading.LOADING
-                                )
-                            }
-                            getShipping(state.keyword,state.page,state.sort)
-                        }
-                        BaseResult.UnAuthorized -> {}
                     }
-                }
+                    .collect {
+                        setSuspendedState {
+                            copy(isCreatingRs = false, rsShipping = null)
+                        }
+                        when(it){
+                            is BaseResult.Error ->  {
+                                setSuspendedState {
+                                    copy(error = it.message)
+                                }
+                            }
+                            is BaseResult.Success -> {
+                                if (it.data?.isSucceed == true){
+                                    setSuspendedState {
+                                        copy(
+                                            rsShipping = null,
+                                            toast = it.data?.messages?.firstOrNull()?:"RS Created Successfully",
+                                            shippingList = emptyList(),
+                                            page = 1,
+                                            loadingState = Loading.LOADING
+                                        )
+                                    }
+                                    getShipping(state.keyword,state.page,state.sort)
+                                } else {
+                                    setSuspendedState {
+                                        copy(error = it.data?.messages?.firstOrNull()?:"")
+                                    }
+                                }
+                            }
+                            BaseResult.UnAuthorized -> {}
+                        }
+                    }
+            }
         }
     }
 

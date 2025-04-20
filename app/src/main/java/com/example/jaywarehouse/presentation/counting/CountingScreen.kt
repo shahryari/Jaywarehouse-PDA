@@ -39,6 +39,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.sp
 import com.example.jaywarehouse.R
 import com.example.jaywarehouse.data.common.utils.mdp
 import com.example.jaywarehouse.data.receiving.model.ReceivingRow
@@ -59,6 +60,7 @@ import com.example.jaywarehouse.ui.theme.Primary
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -70,7 +72,12 @@ import java.util.Locale
 @Composable
 fun CountingScreen(
     navigator: DestinationsNavigator,
-    viewModel: CountingViewModel = koinViewModel()
+    isCrossDock: Boolean = false,
+    viewModel: CountingViewModel = koinViewModel(
+        parameters = {
+            parametersOf(isCrossDock)
+        }
+    )
 ) {
     val state= viewModel.state
     val onEvent = viewModel::setEvent
@@ -80,7 +87,7 @@ fun CountingScreen(
         viewModel.effect.collect {
             when(it){
                 is CountingContract.Effect.NavToReceivingDetail ->{
-                    navigator.navigate(CountingDetailScreenDestination(it.receivingRow))
+                    navigator.navigate(CountingDetailScreenDestination(it.receivingRow,isCrossDock))
                 }
 
                 CountingContract.Effect.NavBack -> {
@@ -104,13 +111,6 @@ private fun CountingContent(
     }
 
 
-    val refreshState = rememberPullRefreshState(
-        refreshing =  state.loadingState == Loading.REFRESHING,
-        onRefresh = {
-            onEvent(CountingContract.Event.OnRefresh)
-        }
-    )
-
     LaunchedEffect(key1 = Unit) {
         searchFocusRequester.requestFocus()
         onEvent(CountingContract.Event.FetchData)
@@ -120,6 +120,9 @@ private fun CountingContent(
         error = state.error,
         onCloseError = {
             onEvent(CountingContract.Event.ClearError)
+        },
+        onRefresh = {
+            onEvent(CountingContract.Event.OnRefresh)
         }
     ) {
 
@@ -127,7 +130,6 @@ private fun CountingContent(
             Column(
                 Modifier
                     .fillMaxSize()
-                    .pullRefresh(refreshState)
                     .padding(15.mdp)
             ) {
                 TopBar(
@@ -163,8 +165,6 @@ private fun CountingContent(
                     }
                 )
             }
-
-            PullRefreshIndicator(refreshing = state.loadingState == Loading.REFRESHING, state = refreshState, modifier = Modifier.align(Alignment.TopCenter) )
 
         }
     }
@@ -302,6 +302,7 @@ fun CountListItem(
                     text = "Total: "+receivingRow.total.toString(),
                     color = Color.White,
                     style = MaterialTheme.typography.bodyLarge,
+                    fontSize = 16.sp,
                     fontWeight = FontWeight.Medium
                 )
             }
@@ -323,6 +324,7 @@ fun CountListItem(
                     text = "Scan: " + (receivingRow.count?.toString()?:"0"),
                     color = Primary,
                     style = MaterialTheme.typography.bodyLarge,
+                    fontSize = 16.sp,
                     fontWeight = FontWeight.Medium
                 )
             }
@@ -338,7 +340,7 @@ private fun CountingPreview() {
     CountingContent(
         state = CountingContract.State(
             countingList = listOf(
-                ReceivingRow(receivingDate = "today", supplierFullName = "test", referenceNumber = "353523525", receivingID = 0, receivingTypeTitle = "general", receivingTypeID = 3, total = 0, count = 0, description = "test", warehouseName = "test"),
+                ReceivingRow(receivingDate = "today", supplierFullName = "test", referenceNumber = "353523525", receivingID = 0, receivingTypeTitle = "general", receivingTypeID = 3, total = 0.0, count = 0.0, description = "test", warehouseName = "test"),
                 ),
         )
     )

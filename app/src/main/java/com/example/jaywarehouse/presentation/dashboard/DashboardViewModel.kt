@@ -8,6 +8,7 @@ import com.example.jaywarehouse.data.common.utils.Prefs
 import com.example.jaywarehouse.presentation.common.utils.BaseViewModel
 import com.example.jaywarehouse.presentation.dashboard.DashboardContract.Effect.*
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 
@@ -28,6 +29,7 @@ class DashboardViewModel(
                 addExtraCycle = prefs.getAddExtraCycleCount()
             )
         }
+        visibleDashboardItems()
         viewModelScope.launch(Dispatchers.IO) {
             prefs.getLockKeyboard().collect {
                 setSuspendedState {
@@ -36,7 +38,6 @@ class DashboardViewModel(
             }
         }
 //        getCurrentUser()
-        getDashboard()
 //        getVersionInfo()
     }
 
@@ -50,6 +51,7 @@ class DashboardViewModel(
                 setState {
                     copy(selectedTab = event.tab)
                 }
+                visibleDashboardItems()
             }
 
             is DashboardContract.Event.OnShowSubDrawers -> {
@@ -61,7 +63,7 @@ class DashboardViewModel(
             DashboardContract.Event.OnLogout -> {
                 prefs.setToken("")
                 setEffect {
-                    DashboardContract.Effect.RestartActivity
+                    RestartActivity
                 }
             }
 
@@ -104,9 +106,50 @@ class DashboardViewModel(
                     copy(addExtraCycle = event.add)
                 }
             }
+
+            DashboardContract.Event.FetchData -> {
+                getDashboard()
+            }
+
         }
     }
 
+
+    private fun visibleDashboardItems() {
+        if (state.selectedTab == DashboardTab.Picking){
+            setState {
+                copy(crossDockDashboardsVisibility = crossDockDashboardsVisibility.mapValues { false })
+            }
+            viewModelScope.launch {
+                state.dashboardsVisibility.onEachIndexed{i,item->
+                    if (!item.value){
+                        delay(i*10L)
+                        val visibilityItems = state.dashboardsVisibility.toMutableMap()
+                        visibilityItems.put(item.key,true)
+                        setSuspendedState {
+                            copy(dashboardsVisibility = visibilityItems)
+                        }
+                    }
+                }
+            }
+        } else {
+            setState {
+                copy(dashboardsVisibility = dashboardsVisibility.mapValues { false })
+            }
+            viewModelScope.launch {
+                state.crossDockDashboardsVisibility.onEachIndexed{i,item->
+                    if (!item.value){
+                        delay(i*70L)
+                        val visibilityItems = state.crossDockDashboardsVisibility.toMutableMap()
+                        visibilityItems.put(item.key,true)
+                        setSuspendedState {
+                            copy(crossDockDashboardsVisibility = visibilityItems)
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     private fun getDashboard(){
         viewModelScope.launch(Dispatchers.IO) {

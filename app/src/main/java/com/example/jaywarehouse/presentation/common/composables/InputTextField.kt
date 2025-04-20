@@ -38,12 +38,14 @@ import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import com.example.jaywarehouse.R
 import com.example.jaywarehouse.data.common.utils.mdp
 import com.example.jaywarehouse.ui.theme.Border
 import com.example.jaywarehouse.ui.theme.Gray1
 import com.example.jaywarehouse.ui.theme.Primary
+import com.example.jaywarehouse.ui.theme.Red
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -54,12 +56,15 @@ fun InputTextField(
     onAny: ()->Unit = {},
     onClick: ()-> Unit = {},
     label: String = "",
+    suffix: String = "",
     leadingIcon: Int? = null,
     trailingIcon: Int? = null,
+    decimalInput: Boolean = false,
     onLeadingClick: (()-> Unit)? = null,
     onTrailingClick: (()-> Unit)? = null,
     enabled: Boolean = true,
     readOnly: Boolean = false,
+    required: Boolean = false,
     hideKeyboard: Boolean = false,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     focusRequester: FocusRequester = FocusRequester.Default,
@@ -92,9 +97,16 @@ fun InputTextField(
             onValueChange = {
                 if (!readOnly){
                     if (it.text.endsWith('\n')) {
+
                         onAny()
                     } else {
-                        onValueChange(it)
+                        if (keyboardOptions.keyboardType == KeyboardType.Number && !decimalInput){
+                            if (!it.text.any { !it.isDigit() }){
+                                onValueChange(it)
+                            }
+                        } else {
+                            onValueChange(it)
+                        }
                     }
                 }
             },
@@ -123,9 +135,9 @@ fun InputTextField(
                     modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(6.mdp))
-                        .background(if (enabled) Color.White else Gray1)
+                        .background(if (enabled) if (required && value.text.isEmpty()) Red.copy(0.1f) else Color.White else Gray1)
                         .border(
-                            1.mdp, if (isFocused) Primary else Border,
+                            1.mdp, if (required && value.text.isEmpty() && enabled) Red else if (isFocused) Primary else Border,
                             RoundedCornerShape(6.mdp)
                         )
                         .then(
@@ -166,6 +178,16 @@ fun InputTextField(
                     }
                     Box{
                         Row(verticalAlignment = Alignment.CenterVertically) {
+                            if (suffix.isNotEmpty()) {
+                                MyText(
+                                    suffix,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.Medium,
+                                    maxLines = 1,
+                                )
+                                Spacer(Modifier.size(7.mdp))
+                            }
+
                             if (enabled && value.text.isNotEmpty()){
                                 MyIcon(icon = R.drawable.vuesax_bulk_broom, showBorder = false) {
                                     onValueChange(TextFieldValue(""))

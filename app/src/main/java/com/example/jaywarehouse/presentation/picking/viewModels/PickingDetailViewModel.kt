@@ -140,63 +140,77 @@ class PickingDetailViewModel(
 
         if (locationCode.isEmpty()){
             setState {
-                copy(toast = "Please fill location")
+                copy(error = "Please fill location")
             }
             return
         }
 
-        if (barcode.isEmpty()){
+        if (locationCode.trim() != pick.warehouseLocationCode){
             setState {
-                copy(toast = "Please fill barcode")
+                copy(error = "Wrong Location")
             }
             return
         }
-        setState {
-            copy(onSaving = true)
+        if (barcode.isEmpty()){
+            setState {
+                copy(error = "Please fill barcode")
+            }
+            return
         }
-        viewModelScope.launch(Dispatchers.IO) {
-            if (state.selectedPick!=null)
-            repository.completePicking(
-                locationCode,
-                barcode,
-                pick.productLocationActivityID.toString())
-                .catch {
-                    setState {
-                        copy(
-                            error = it.message ?: "",
-                            onSaving = false
-                        )
-                    }
-                }
-                .collect {
-                    setSuspendedState {
-                        copy(onSaving = false)
-                    }
-                    when(it){
-                        is BaseResult.Success -> {
-                            setSuspendedState {
-                                copy(
-                                    location = TextFieldValue(),
-                                    barcode = TextFieldValue(),
-                                    pickingList = emptyList(),
-                                    page = 1,
-                                    selectedPick = null,
-                                    toast = it.data?.messages?.first() ?: "",
-                                    loadingState = Loading.LOADING
-                                )
-                            }
-                            getPickings(row.customerID,keyword = state.keyword,page = state.page,sort = state.sort)
+        if (!state.onSaving){
+            setState {
+                copy(onSaving = true)
+            }
+            viewModelScope.launch(Dispatchers.IO) {
+                repository.completePicking(
+                    locationCode,
+                    barcode,
+                    pick.pickingID.toString())
+                    .catch {
+                        setState {
+                            copy(
+                                error = it.message ?: "",
+                                onSaving = false
+                            )
                         }
-                        is BaseResult.Error -> {
-                            setState {
-                                copy(
-                                    error = it.message,
-                                )
-                            }
-                        }
-                        else -> {}
                     }
-                }
+                    .collect {
+                        setSuspendedState {
+                            copy(onSaving = false)
+                        }
+                        when(it){
+                            is BaseResult.Success -> {
+                                if (it.data?.isSucceed == true){
+                                    setSuspendedState {
+                                        copy(
+                                            location = TextFieldValue(),
+                                            barcode = TextFieldValue(),
+                                            pickingList = emptyList(),
+                                            page = 1,
+                                            selectedPick = null,
+                                            toast = it.data?.messages?.first() ?: "Completed Successfully",
+                                            loadingState = Loading.LOADING
+                                        )
+                                    }
+
+                                    getPickings(row.customerID,keyword = state.keyword,page = state.page,sort = state.sort)
+                                } else {
+                                    setSuspendedState {
+                                        copy(error = it.data?.messages?.firstOrNull()?:"Failed")
+                                    }
+                                }
+                            }
+                            is BaseResult.Error -> {
+                                setState {
+                                    copy(
+                                        error = it.message,
+                                    )
+                                }
+                            }
+                            else -> {}
+                        }
+                    }
+            }
         }
     }
 

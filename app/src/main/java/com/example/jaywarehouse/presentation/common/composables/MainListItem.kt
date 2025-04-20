@@ -22,6 +22,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 import com.example.jaywarehouse.R
 import com.example.jaywarehouse.data.common.utils.mdp
 import com.example.jaywarehouse.ui.theme.Primary
@@ -127,6 +128,7 @@ fun MainListItem(
                         text = "$totalTitle: $total",
                         color = Color.White,
                         style = MaterialTheme.typography.bodyLarge,
+                        fontSize = 16.sp,
                         fontWeight = FontWeight.Medium
                     )
                 }
@@ -148,6 +150,7 @@ fun MainListItem(
                         text = "$countTitle: $count",
                         color = PrimaryDark,
                         style = MaterialTheme.typography.bodyLarge,
+                        fontSize = 16.sp,
                         fontWeight = FontWeight.Medium
                     )
                 }

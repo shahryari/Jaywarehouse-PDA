@@ -37,6 +37,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.sp
 import com.example.jaywarehouse.data.common.utils.mdp
 import com.example.jaywarehouse.R
 import com.example.jaywarehouse.data.putaway.model.PutawayListGroupedRow
@@ -92,15 +93,6 @@ fun PutawayContent(
     val searchFocusRequester = remember {
         FocusRequester()
     }
-
-
-    val refreshState = rememberPullRefreshState(
-        refreshing =  state.loadingState == Loading.REFRESHING,
-        onRefresh = {
-            onEvent(PutawayContract.Event.OnRefresh)
-        }
-    )
-
     LaunchedEffect(key1 = Unit) {
         searchFocusRequester.requestFocus()
         onEvent(PutawayContract.Event.ReloadScreen)
@@ -110,6 +102,9 @@ fun PutawayContent(
         error = state.error,
         onCloseError = {
             onEvent(PutawayContract.Event.ClearError)
+        },
+        onRefresh = {
+            onEvent(PutawayContract.Event.ReloadScreen)
         }
     ) {
 
@@ -117,7 +112,6 @@ fun PutawayContent(
             Column(
                 Modifier
                     .fillMaxSize()
-                    .pullRefresh(refreshState)
                     .padding(15.mdp)
             ) {
                 TopBar(
@@ -154,8 +148,6 @@ fun PutawayContent(
                 )
 
             }
-
-            PullRefreshIndicator(refreshing = state.loadingState == Loading.REFRESHING, state = refreshState, modifier = Modifier.align(Alignment.TopCenter) )
 
         }
     }
@@ -257,6 +249,7 @@ fun PutawayItem(
                     text = "Total: "+model.total,
                     color = Color.White,
                     style = MaterialTheme.typography.bodyLarge,
+                    fontSize = 16.sp,
                     fontWeight = FontWeight.Medium
                 )
             }
@@ -278,6 +271,7 @@ fun PutawayItem(
                     text = "Scan: " + model.count,
                     color = Primary,
                     style = MaterialTheme.typography.bodyLarge,
+                    fontSize = 16.sp,
                     fontWeight = FontWeight.Medium
                 )
             }

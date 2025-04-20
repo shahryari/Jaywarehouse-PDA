@@ -1,5 +1,6 @@
 package com.example.jaywarehouse.data.cycle_count.models
 
+import com.example.jaywarehouse.presentation.common.composables.Animatable
 import com.google.gson.annotations.SerializedName
 import java.io.Serializable
 
@@ -35,12 +36,16 @@ data class CycleRow(
     val counting: Int,
     @SerializedName("TaskCount")
     val taskCount: Int
-) : Serializable {
+) : Serializable, Animatable {
     override fun equals(other: Any?): Boolean {
         return other is CycleRow
                 && this.cycleCountID == other.cycleCountID
                 && this.cycleCountLocationID == other.cycleCountLocationID
                 && this.cycleCountWorkerTaskID == other.cycleCountWorkerTaskID
                 && this.locationCode == other.locationCode
+    }
+
+    override fun key(): String {
+        return cycleCountID.toString()
     }
 }

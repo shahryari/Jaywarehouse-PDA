@@ -25,8 +25,8 @@ val networkModule = module {
 //                .connectionPool(ConnectionPool(100,60,TimeUnit.SECONDS))
                 .readTimeout(30,TimeUnit.SECONDS)
                 .connectTimeout(30,TimeUnit.SECONDS)
-                .callTimeout(10,TimeUnit.SECONDS)
-                .writeTimeout(10,TimeUnit.SECONDS)
+                .callTimeout(30,TimeUnit.SECONDS)
+                .writeTimeout(30,TimeUnit.SECONDS)
                 .addInterceptor {
                     var request = it.request()
                     request = request

@@ -1,5 +1,6 @@
 package com.example.jaywarehouse.data.picking.models
 
+import com.example.jaywarehouse.presentation.common.composables.Animatable
 import com.google.gson.annotations.SerializedName
 import java.io.Serializable
 
@@ -21,9 +22,14 @@ data class PickingListGroupedRow(
     @SerializedName("CustomerName")
     val customerName: String,
     @SerializedName("Total")
-    val total: Int,
+    val total: Double,
     @SerializedName("Count")
-    val count: Int,
+    val count: Double,
     @SerializedName("ShippingOrderTypeTitle")
     val typeTitle: String?
-) : Serializable
+) : Serializable, Animatable {
+    override fun key(): String {
+        return customerID.toString()
+    }
+
+}

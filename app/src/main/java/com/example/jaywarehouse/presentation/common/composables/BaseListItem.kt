@@ -25,8 +25,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.sp
 import com.example.jaywarehouse.R
 import com.example.jaywarehouse.data.common.utils.mdp
+import com.example.jaywarehouse.data.common.utils.removeZeroDecimal
 import com.example.jaywarehouse.ui.theme.Black
 import com.example.jaywarehouse.ui.theme.Gray3
 import com.example.jaywarehouse.ui.theme.Gray4
@@ -55,10 +57,10 @@ fun BaseListItem(
     item9: BaseListItemModel? = null,
     showDeleteButton: Boolean = false,
     onRemove: ()->Unit = {},
-    quantity: Int,
+    quantity: Double,
     quantityTitle: String = "Total",
     quantityIcon: Int = R.drawable.vuesax_outline_box_tick,
-    scan: Int,
+    scan: Double,
     enableShowDetail: Boolean = false,
     scanTitle: String = "Scan",
     showFooter: Boolean = true,
@@ -297,6 +299,7 @@ fun BaseListItem(
                     text = "$quantityTitle${if (quantityTitle.isNotEmpty()) ": " else ""}$quantity",
                     color = if (primary) Color.White else Black,
                     style = MaterialTheme.typography.bodyLarge,
+                    fontSize = 16.sp,
                     fontWeight = FontWeight.Medium
                 )
             }
@@ -320,6 +323,7 @@ fun BaseListItem(
                     text = "$scanTitle${if (scanTitle.isNotEmpty()) ": " else ""}$scan",
                     color = if (primary) Primary else Black,
                     style = MaterialTheme.typography.bodyLarge,
+                    fontSize = 16.sp,
                     fontWeight = FontWeight.Medium
                 )
             }
@@ -336,6 +340,6 @@ private fun BaseListItemPreview() {
         item2 = BaseListItemModel("Item Code", "Item Code", R.drawable.fluent_barcode_scanner_20_regular),
         item3 = BaseListItemModel("Location Code", "Location Code test test test test", R.drawable.location),
         showFooter = false,
-        quantity = 10, scan = 10
+        quantity = 10.0, scan = 10.0
     )
 }

@@ -1,4 +1,5 @@
 package com.example.jaywarehouse.data.transfer.models
+import com.example.jaywarehouse.presentation.common.composables.Animatable
 import com.google.gson.annotations.SerializedName
 
 data class TransferModel(
@@ -39,6 +40,10 @@ data class TransferRow(
     val ownerInfoID: Int,
     @SerializedName("OwnerInfoFullName")
     val ownerInfoFullName: String
-)
+) : Animatable {
+    override fun key(): String {
+        return "${productID}_$locationInventoryID"
+    }
+}
 
 
