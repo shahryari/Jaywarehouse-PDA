@@ -146,7 +146,8 @@ class ManualPutawayDetailViewModel(
 
     private fun scanManualPutaway() {
         val quantity = state.details.sumOf { it.quantity } + state.quantity.text.toDouble()
-        if (quantity.toBigDecimal().setScale(4, RoundingMode.UNNECESSARY).toDouble() > put.total){
+        val scaledQty = quantity.toBigDecimal().setScale(4, RoundingMode.DOWN).toDouble()
+        if (scaledQty > put.total){
             setState {
                 copy(error = "Total scanned quantity is more then required quantity")
             }
@@ -288,14 +289,14 @@ class ManualPutawayDetailViewModel(
     }
 
     private fun finishManualPutaway() {
-        val quantity = state.details.sumOf { it.quantity }
-        if ( quantity.toBigDecimal().setScale(4, RoundingMode.UNNECESSARY).toDouble() > put.total){
+        val quantity = state.details.sumOf { it.quantity }.toBigDecimal().setScale(4, RoundingMode.DOWN).toDouble()
+        if ( quantity > put.total){
             setState {
                 copy(error = "You have scanned more than the quantity")
             }
             return
         }
-        if (quantity.toBigDecimal().setScale(4, RoundingMode.UNNECESSARY).toDouble()< put.total) {
+        if (quantity < put.total) {
             setState {
                 copy(error = "Your total scanned is less then required quantity.")
             }

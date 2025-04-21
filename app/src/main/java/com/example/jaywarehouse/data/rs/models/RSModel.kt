@@ -11,35 +11,35 @@ data class PODInvoiceModel(
 
 data class PODInvoiceRow(
     @SerializedName("Address")
-    val address: String,
+    val address: String?,
     @SerializedName("AddressInfoNumber")
     val addressInfoNumber: String?,
     @SerializedName("CarNumber")
-    val carNumber: String,
+    val carNumber: String?,
     @SerializedName("CustomerFullName")
-    val customerFullName: String,
+    val customerFullName: String?,
     @SerializedName("DriverFullName")
-    val driverFullName: String,
+    val driverFullName: String?,
     @SerializedName("DriverTin")
-    val driverTin: String,
+    val driverTin: String?,
     @SerializedName("PODInvoiceID")
     val pODInvoiceID: Int,
     @SerializedName("PODInvoiceNumber")
-    val pODInvoiceNumber: String,
+    val pODInvoiceNumber: String?,
     @SerializedName("ShippingID")
     val shippingID: Int,
     @SerializedName("ShippingOrderReferenceNumbers")
-    val shippingOrderReferenceNumbers: String,
+    val shippingOrderReferenceNumbers: String?,
     @SerializedName("ShippingOrderTypeID")
     val shippingOrderTypeID: Int,
     @SerializedName("ShippingOrderTypeTitle")
-    val shippingOrderTypeTitle: String,
+    val shippingOrderTypeTitle: String?,
     @SerializedName("ShippingTypeID")
     val shippingTypeID: Int,
     @SerializedName("ShippingTypeTitle")
-    val shippingTypeTitle: String,
+    val shippingTypeTitle: String?,
     @SerializedName("TrailerNumber")
-    val trailerNumber: String,
+    val trailerNumber: String?,
     @SerializedName("WaybillNumber")
     val waybillNumber: String?
 ) : Animatable {

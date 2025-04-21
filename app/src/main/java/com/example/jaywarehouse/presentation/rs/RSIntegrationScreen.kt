@@ -120,7 +120,7 @@ fun RSContent(
                     .padding(15.mdp)
             ) {
                 TopBar(
-                    stringResource(R.string.counting),
+                    "RS",
                     onBack = {
                         onEvent(RSIntegrationContract.Event.OnNavBack)
                     }
@@ -196,14 +196,14 @@ fun RsItem(
         ) {
             DetailCard(
                 title = "Driver",
-                detail = model.driverFullName,
+                detail = model.driverFullName?:"",
                 icon = R.drawable.user_square,
                 modifier = Modifier.weight(1f)
             )
             Spacer(Modifier.size(15.mdp))
             DetailCard(
                 title = "Driver Tin",
-                detail = model.driverTin,
+                detail = model.driverTin?:"",
                 icon = R.drawable.note,
                 modifier = Modifier.weight(1f)
             )
@@ -215,14 +215,14 @@ fun RsItem(
         ) {
             DetailCard(
                 title = "Car Number",
-                detail = model.carNumber,
+                detail = model.carNumber?:"",
                 icon = R.drawable.barcode,
                 modifier = Modifier.weight(1f)
             )
             Spacer(Modifier.size(15.mdp))
             DetailCard(
                 title = "Trailer Number",
-                detail = model.trailerNumber,
+                detail = model.trailerNumber?:"",
                 icon = R.drawable.vuesax_linear_box,
                 modifier = Modifier.weight(1f)
             )
@@ -265,7 +265,7 @@ fun UpdateDriverBottomSheet(
                         color = Color(0xFF767676)
                     )
                     MyText(
-                        text = state.selectedRs.pODInvoiceNumber,
+                        text = state.selectedRs.pODInvoiceNumber?:"",
                         fontSize = 16.sp,
                     )
                     MyText(

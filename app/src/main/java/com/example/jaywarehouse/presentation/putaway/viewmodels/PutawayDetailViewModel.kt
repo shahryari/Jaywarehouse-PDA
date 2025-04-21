@@ -133,7 +133,7 @@ class PutawayDetailViewModel(
     ) {
 
 
-        if (selectedPutaway.warehouseLocationCode != locationCode){
+        if (selectedPutaway.warehouseLocationCode.lowercase()!= locationCode.lowercase()){
             setState {
                 copy(toast = "Please select correct location")
             }

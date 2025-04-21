@@ -145,7 +145,7 @@ class PickingDetailViewModel(
             return
         }
 
-        if (locationCode.trim() != pick.warehouseLocationCode){
+        if (locationCode.trim().lowercase() != pick.warehouseLocationCode.lowercase()){
             setState {
                 copy(error = "Wrong Location")
             }
