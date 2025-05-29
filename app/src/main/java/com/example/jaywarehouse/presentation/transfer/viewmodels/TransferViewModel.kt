@@ -4,6 +4,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.viewModelScope
 import com.example.jaywarehouse.data.common.utils.BaseResult
 import com.example.jaywarehouse.data.common.utils.Prefs
+import com.example.jaywarehouse.data.common.utils.ROW_COUNT
 import com.example.jaywarehouse.data.transfer.TransferRepository
 import com.example.jaywarehouse.data.transfer.models.TransferRow
 import com.example.jaywarehouse.presentation.common.utils.BaseViewModel
@@ -70,7 +71,7 @@ class TransferViewModel(
             }
 
             TransferContract.Event.OnReachedEnd -> {
-                if (10*state.page<=state.transferList.size) {
+                if (ROW_COUNT*state.page<=state.transferList.size) {
                     setState {
                         copy(page = state.page+1, loadingState = Loading.LOADING)
                     }
@@ -107,7 +108,7 @@ class TransferViewModel(
                 setState {
                     copy(destination = event.destination)
                 }
-                getWarehouseLocations(event.destination.text)
+//                getWarehouseLocations(event.destination.text)
             }
             is TransferContract.Event.OnChangeExpirationDate -> {
                 setState {
@@ -130,6 +131,7 @@ class TransferViewModel(
                 }
                 if (event.transferRow!=null){
                     getProductStatuses()
+                    getWarehouseLocations("",event.transferRow.warehouseID)
                 }
             }
             is TransferContract.Event.OnTransfer -> {
@@ -157,10 +159,10 @@ class TransferViewModel(
 
 
 
-    private fun getWarehouseLocations(location: String) {
+    private fun getWarehouseLocations(location: String,warehouseID: Int) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.getWarehouseLocations(
-                location
+                location,warehouseID
             ).catch {
                 setSuspendedState {
                     copy(error = it.message?:"")
@@ -212,6 +214,8 @@ class TransferViewModel(
     }
     private fun getTransferList(
     ) {
+
+
         viewModelScope.launch {
             repository.getTransfers(
                 keyword = state.keyword,state.page,state.sort.sort,state.sort.order.value
@@ -246,60 +250,79 @@ class TransferViewModel(
 
 
     private fun transfer(transfer: TransferRow) {
-        if (state.selectedProductStatus!=null && state.selectedLocation!=null){
-            if (!state.isSaving){
-                setState {
-                    copy(isSaving = true)
-                }
-                viewModelScope.launch(Dispatchers.IO) {
-                    repository.transferLocation(
-                        state.selectedProductStatus!!.quiddityTypeId,
-                        state.selectedLocation!!.locationId,
-                        state.selectedLocation!!.locationCode,
-                        transfer.locationInventoryID,
-                        state.expirationDate.text,
-                        transfer.warehouseID
-                    ).catch {
-                        setSuspendedState {
-                            copy(error = it.message?:"", isSaving = false)
+        if (state.quantity.text.isEmpty()){
+            setState {
+                copy(error = "Quantity can't be empty")
+            }
+            return
+        }
+        val quantity = state.quantity.text.toDoubleOrNull()?:0.0
+        if (quantity<=0.0){
+            setState {
+                copy(error = "Quantity can't be zero or less then zero")
+            }
+        }
+        if (state.selectedLocation==null){
+            setState {
+                copy(error = "Destination location is not selected")
+            }
+            return
+        }
+        if (state.selectedProductStatus==null){
+            setState {
+                copy(error = "Product status is not selected")
+            }
+            return
+        }
+        if (!state.isSaving){
+            setState {
+                copy(isSaving = true)
+            }
+            viewModelScope.launch(Dispatchers.IO) {
+                repository.transferLocation(
+                    state.selectedProductStatus!!.quiddityTypeId,
+                    state.selectedLocation!!.locationId,
+                    state.selectedLocation!!.locationCode,
+                    transfer.locationInventoryID,
+                    state.expirationDate.text,
+                    quantity,
+                    transfer.warehouseID
+                ).catch {
+                    setSuspendedState {
+                        copy(error = it.message?:"", isSaving = false)
+                    }
+                }.collect {
+                    setSuspendedState {
+                        copy(
+                            isSaving = false
+                        )
+                    }
+                    when(it){
+                        is BaseResult.Error -> {
+                            setSuspendedState {
+                                copy(error = it.message)
+                            }
                         }
-                    }.collect {
-                        setSuspendedState {
-                            copy(
-                                isSaving = false
-                            )
-                        }
-                        when(it){
-                            is BaseResult.Error -> {
+                        is BaseResult.Success -> {
+                            if (it.data?.isSucceed == true){
                                 setSuspendedState {
-                                    copy(error = it.message)
+                                    copy(
+                                        selectedTransfer = null,
+                                        transferList = emptyList(),
+                                        page = 1,
+                                        loadingState = Loading.LOADING
+                                    )
+                                }
+                                getTransferList()
+                            } else {
+                                setSuspendedState {
+                                    copy(error = it.data?.messages?.firstOrNull()?:"")
                                 }
                             }
-                            is BaseResult.Success -> {
-                                if (it.data?.isSucceed == true){
-                                    setSuspendedState {
-                                        copy(
-                                            selectedTransfer = null,
-                                            transferList = emptyList(),
-                                            page = 1,
-                                            loadingState = Loading.LOADING
-                                        )
-                                    }
-                                    getTransferList()
-                                } else {
-                                    setSuspendedState {
-                                        copy(error = it.data?.messages?.firstOrNull()?:"")
-                                    }
-                                }
-                            }
-                            BaseResult.UnAuthorized -> {}
                         }
+                        BaseResult.UnAuthorized -> {}
                     }
                 }
-            }
-        } else {
-            setState {
-                copy(error = "Please select location and product status.")
             }
         }
     }

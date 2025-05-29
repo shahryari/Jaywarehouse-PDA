@@ -4,6 +4,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.viewModelScope
 import com.example.jaywarehouse.data.common.utils.BaseResult
 import com.example.jaywarehouse.data.common.utils.Prefs
+import com.example.jaywarehouse.data.common.utils.ROW_COUNT
 import com.example.jaywarehouse.data.receiving.model.ReceivingDetailCountModel
 import com.example.jaywarehouse.data.receiving.model.ReceivingDetailRow
 import com.example.jaywarehouse.data.receiving.repository.ReceivingRepository
@@ -112,7 +113,7 @@ class CountingInceptionViewModel(
             }
 
             CountingInceptionContract.Event.OnReachEnd -> {
-                if (10*state.page <= state.details.size){
+                if (ROW_COUNT*state.page <= state.details.size){
                     setState {
                         copy(page = page+1)
                     }
@@ -135,6 +136,12 @@ class CountingInceptionViewModel(
                     copy(details = emptyList(), page = 1)
                 }
                 getItems(Loading.REFRESHING)
+            }
+
+            is CountingInceptionContract.Event.OnSelectedDateChange -> {
+                setState {
+                    copy(selectedDate = event.date)
+                }
             }
         }
     }
@@ -171,7 +178,10 @@ class CountingInceptionViewModel(
                                     details = detailList,
                                     countingDetailRow = it.data?.receivingDetailRow,
                                     quantityInPacket = TextFieldValue(it.data?.pcb?.pcb?.toString()?:it.data?.pcb?.defaultPcb?.toString()?:""),
-                                    pcbEnabled = it.data?.pcb?.pcb == null
+                                    pcbEnabled = if (isCrossDock) it.data?.pcb?.pcb == null else true,
+                                    locationBase = it.data?.pcb?.locationBase == true,
+                                    expEnabled = it.data?.pcb?.expired == true,
+                                    batchNumberEnabled = it.data?.pcb?.hasBatchNumber == true
                                 )
                             }
                         }
@@ -190,13 +200,19 @@ class CountingInceptionViewModel(
             return
         }
         val quantity = state.quantity.text.toDoubleOrNull()?:0.0
-        if (quantity<=0){
+//        if (quantity<=0){
+//            setState {
+//                copy(error = "Quantity must be greater than 0")
+//            }
+//            return
+//        }
+        val pcb = state.quantityInPacket.text.toDoubleOrNull()?:0.0
+        if (state.details.isNotEmpty() && state.details.sumOf { it.countQuantity } == 0.0){
             setState {
-                copy(error = "Quantity must be greater than 0")
+                copy(error = "ِYou already count 0 for this product.")
             }
             return
         }
-        val pcb = state.quantityInPacket.text.toDoubleOrNull()?:0.0
         if (detail.pcb!=null && pcb<1.0){
             setState {
                 copy(error = "Pcb must be greater then 0")
@@ -204,11 +220,38 @@ class CountingInceptionViewModel(
             return
         }
         val pack = state.boxQuantity.text.toDoubleOrNull()
-        if ((pack?:0.0)<1.0 && pcb>1.0){
+        if ((pack?:0.0)<1.0 && pcb>1.0 && quantity > 0){
             setState {
                 copy(error = "Box Quantity must be greater then 0")
             }
             return
+        }
+        if (detail.batchNumber!=null && state.batchNumber.text.isEmpty()){
+            setState {
+                copy(error = "Please fill batch number")
+            }
+            return
+        }
+        if (detail.expireDate!=null && state.expireDate.text.isEmpty()){
+            setState {
+                copy(error = "Please fill expire date")
+            }
+            return
+        }
+        if (state.batchNumber.text.trim().isNotEmpty() && state.expireDate.text.trim().isNotEmpty()){
+            if (state.details.find { it.batchNumber == state.batchNumber.text.trim() && it.expireDate == state.expireDate.text.trim() } != null){
+                setState {
+                    copy(error = "This combination of batch number and expire date currently exists.")
+                }
+                return
+            }
+        } else {
+            if (state.details.find { it.countQuantity == quantity.toDouble() && it.expireDate == state.expireDate.text.trim() } != null){
+                setState {
+                    copy(error = "Item with same Quantity already exists")
+                }
+                return
+            }
         }
         if (!state.isAdding) {
             if (!state.isAdding){
@@ -221,8 +264,8 @@ class CountingInceptionViewModel(
                         quantity,
                         pcb,
                         pack?.toInt(),
-                        "",
-                        "",
+                        state.selectedDate.trim(),
+                        state.batchNumber.text.trim(),
                         isCrossDock
                     ).catch {
                         setSuspendedState {
@@ -277,14 +320,26 @@ class CountingInceptionViewModel(
             }
             return
         }
+        if (state.details.isNotEmpty() && state.details.sumOf { it.countQuantity } == 0.0){
+            setState {
+                copy(error = "ِYou already count 0 for this product.")
+            }
+            return
+        }
         if (pcb<1.0){
             setState {
                 copy(error = "Pcb must be greater then 0")
             }
             return
         }
+        if ( quantity%pcb != 0.0) {
+            setState {
+                copy(error = "Quantity has wrong value")
+            }
+            return
+        }
         val pack = state.boxQuantity.text.toDoubleOrNull()
-        if ((pack?:0.0)<1 && pcb>1.0){
+        if ((pack?:0.0)<1 && pcb>1.0 && quantity > 0){
             setState {
                 copy(error = "Box Quantity must be greater then 0")
             }
@@ -302,10 +357,10 @@ class CountingInceptionViewModel(
             }
             return
         }
-        if (state.batchNumber.text.trim().isNotEmpty()){
-            if (state.details.find { it.batchNumber == state.batchNumber.text.trim() } != null){
+        if (state.batchNumber.text.trim().isNotEmpty() && state.expireDate.text.trim().isNotEmpty()){
+            if (state.details.find { it.batchNumber == state.batchNumber.text.trim() && it.expireDate == state.expireDate.text.trim() } != null){
                 setState {
-                    copy(error = "Batch number already exists")
+                    copy(error = "This combination of batch number and expire date currently exists.")
                 }
                 return
             }
@@ -327,7 +382,7 @@ class CountingInceptionViewModel(
                     quantity,
                     pcb,
                     pack?.toInt(),
-                    state.expireDate.text.trim(),
+                    state.selectedDate.trim(),
                     state.batchNumber.text.trim(),
                     isCrossDock
                 ).catch {

@@ -39,6 +39,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.jaywarehouse.data.common.utils.mdp
 import com.example.jaywarehouse.R
+import com.example.jaywarehouse.data.common.utils.removeZeroDecimal
 import com.example.jaywarehouse.data.picking.models.PickingListGroupedRow
 import com.example.jaywarehouse.presentation.common.composables.DetailCard
 import com.example.jaywarehouse.presentation.common.composables.MyLazyColumn
@@ -195,14 +196,14 @@ fun PickingItem(
             ) {
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
 
-                    if(model.typeTitle != null) Box(
+                    if(model.customerTypeTitle != null) Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(4.mdp))
                             .background(Primary.copy(0.2f))
                             .padding(vertical = 4.mdp, horizontal = 10.mdp)
                     ) {
                         MyText(
-                            text = model.typeTitle,
+                            text = model.customerTypeTitle,
                             style = MaterialTheme.typography.labelSmall,
                             fontWeight = FontWeight.SemiBold,
                             color = Primary
@@ -246,7 +247,7 @@ fun PickingItem(
                 )
                 Spacer(modifier = Modifier.size(7.mdp))
                 MyText(
-                    text = "Total: "+model.total,
+                    text = "Total: "+model.total.removeZeroDecimal(),
                     color = Color.White,
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Medium
@@ -267,7 +268,7 @@ fun PickingItem(
                 )
                 Spacer(modifier = Modifier.size(7.mdp))
                 MyText(
-                    text = "Scan: " + model.count,
+                    text = "Scan: " + model.count.removeZeroDecimal(),
                     color = Primary,
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Medium

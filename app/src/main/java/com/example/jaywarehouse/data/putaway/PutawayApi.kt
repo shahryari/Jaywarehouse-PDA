@@ -16,7 +16,7 @@ import retrofit2.http.POST
 
 interface PutawayApi {
 
-    @POST("PutawayListGrouped")
+    @POST("ManualPutawayListGrouped")
     suspend fun getPutawayListGrouped(
         @Body jsonObject: JsonObject,
         @Header(PAGE) page: Int,

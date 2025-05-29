@@ -42,6 +42,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import com.example.jaywarehouse.R
 import com.example.jaywarehouse.data.common.utils.mdp
+import com.example.jaywarehouse.data.common.utils.removeZeroDecimal
 import com.example.jaywarehouse.data.receiving.model.ReceivingRow
 import com.example.jaywarehouse.presentation.common.composables.DetailCard
 import com.example.jaywarehouse.presentation.common.composables.MyLazyColumn
@@ -241,11 +242,19 @@ fun CountListItem(
                     )
                     Spacer(Modifier.size(10.mdp))
                 }
-                DetailCard(
-                    "Supplier",
-                    icon = R.drawable.barcode,
-                    detail = receivingRow.supplierFullName?:""
-                )
+                if (receivingRow.receivingTypeID == 2){
+                    DetailCard(
+                        "Customer",
+                        icon = R.drawable.user_square,
+                        detail = receivingRow.customerFullName?:""
+                    )
+                } else {
+                    DetailCard(
+                        "Supplier",
+                        icon = R.drawable.user_square,
+                        detail = receivingRow.supplierFullName?:""
+                    )
+                }
                 Spacer(Modifier.size(10.mdp))
                 Row(Modifier.fillMaxWidth()) {
                     DetailCard(
@@ -258,9 +267,10 @@ fun CountListItem(
                     DetailCard(
                         "Receiving Date",
                         icon = R.drawable.vuesax_linear_calendar_2,
-                        detail = try {
+                        detail =
+                        try {
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                                LocalDateTime.parse(receivingRow.receivingDate, DateTimeFormatter.ISO_LOCAL_DATE_TIME).format(
+                                LocalDateTime.parse(receivingRow.receivingDate?:"", DateTimeFormatter.ISO_LOCAL_DATE_TIME).format(
                                     DateTimeFormatter.ISO_LOCAL_DATE)
                             } else {
                                 val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
@@ -271,7 +281,7 @@ fun CountListItem(
 
                             }
                         } catch (e: Exception){
-                            receivingRow.receivingDate
+                            receivingRow.receivingDate?:""
                         },
                         modifier = Modifier.weight(1f)
                     )
@@ -299,7 +309,7 @@ fun CountListItem(
                 )
                 Spacer(modifier = Modifier.size(7.mdp))
                 MyText(
-                    text = "Total: "+receivingRow.total.toString(),
+                    text = "Total: "+receivingRow.total.removeZeroDecimal().toString(),
                     color = Color.White,
                     style = MaterialTheme.typography.bodyLarge,
                     fontSize = 16.sp,
@@ -321,7 +331,7 @@ fun CountListItem(
                 )
                 Spacer(modifier = Modifier.size(7.mdp))
                 MyText(
-                    text = "Scan: " + (receivingRow.count?.toString()?:"0"),
+                    text = "Count: " + (receivingRow.count?.removeZeroDecimal()?.toString()?:""),
                     color = Primary,
                     style = MaterialTheme.typography.bodyLarge,
                     fontSize = 16.sp,
@@ -340,7 +350,6 @@ private fun CountingPreview() {
     CountingContent(
         state = CountingContract.State(
             countingList = listOf(
-                ReceivingRow(receivingDate = "today", supplierFullName = "test", referenceNumber = "353523525", receivingID = 0, receivingTypeTitle = "general", receivingTypeID = 3, total = 0.0, count = 0.0, description = "test", warehouseName = "test"),
                 ),
         )
     )

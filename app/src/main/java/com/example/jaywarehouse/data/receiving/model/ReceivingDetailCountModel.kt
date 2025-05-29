@@ -33,11 +33,19 @@ data class ReceivingDetailGetItemsModel(
     @SerializedName("Task") val receivingDetailRow: ReceivingDetailRow,
     @SerializedName("PCB") val pcb: PcbModel
 )
+
+
 data class PcbModel(
     @SerializedName("DefaultPcb")
-    val defaultPcb: Double?,
+    val defaultPcb: Int,
+    @SerializedName("Expired")
+    val expired: Boolean,
+    @SerializedName("HasBatchNumber")
+    val hasBatchNumber: Boolean,
     @SerializedName("IsWeight")
     val isWeight: Boolean,
+    @SerializedName("LocationBase")
+    val locationBase: Boolean,
     @SerializedName("Pcb")
-    val pcb: Double?
+    val pcb: Int?
 )

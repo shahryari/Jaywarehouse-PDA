@@ -1,8 +1,8 @@
 package com.example.jaywarehouse.presentation.manual_putaway.contracts
 
 import androidx.compose.ui.text.input.TextFieldValue
-import com.example.jaywarehouse.data.manual_putaway.repository.ManualPutawayDetailRow
-import com.example.jaywarehouse.data.manual_putaway.repository.ManualPutawayRow
+import com.example.jaywarehouse.data.manual_putaway.models.ManualPutawayDetailRow
+import com.example.jaywarehouse.data.manual_putaway.models.ManualPutawayRow
 import com.example.jaywarehouse.presentation.common.utils.Loading
 import com.example.jaywarehouse.presentation.common.utils.Order
 import com.example.jaywarehouse.presentation.common.utils.SortItem
@@ -37,7 +37,8 @@ class ManualPutawayDetailContract {
         val isScanning: Boolean = false,
         val isFinishing: Boolean = false,
         val isDeleting: Boolean = false,
-        val selectedDetail: ManualPutawayDetailRow? = null,
+        val selectedForRemove: ManualPutawayDetailRow? = null,
+        val selectedDetail : ManualPutawayDetailRow? = null,
         val showConfirmFinish: Boolean = false,
     ) : UiState
 
@@ -47,7 +48,9 @@ class ManualPutawayDetailContract {
         data class OnLocationCodeChange(val locationCode: TextFieldValue) : Event()
         data class OnSortChange(val sort: SortItem) : Event()
         data class OnShowSortList(val show: Boolean) : Event()
-        data class OnSelectDetail(val detail: ManualPutawayDetailRow?) : Event()
+        data class OnSelectDetailForRemove(val detail: ManualPutawayDetailRow?) : Event()
+        data class OnSelectDetails(val detail: ManualPutawayDetailRow?) : Event()
+        data class OnCheckLocation(val detail: ManualPutawayDetailRow,val location: String) : Event()
         data object OnCloseError: Event()
         data object HideToast: Event()
         data object OnSubmit: Event()

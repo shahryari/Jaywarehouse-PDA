@@ -34,6 +34,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.jaywarehouse.R
+import com.example.jaywarehouse.data.common.utils.ROW_COUNT
 import com.example.jaywarehouse.data.common.utils.mdp
 import com.example.jaywarehouse.data.pallet.model.PalletConfirmRow
 import com.example.jaywarehouse.presentation.common.composables.DetailCard
@@ -259,7 +260,7 @@ private fun PalletPreview() {
     Column {
         PalletItem(
             PalletConfirmRow(
-                palletManifestID = 10,
+                palletManifestID = ROW_COUNT,
                 palletBarcode = "test",
                 customerName = "",
                 customerCode = "",

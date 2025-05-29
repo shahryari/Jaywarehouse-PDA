@@ -4,6 +4,8 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.viewModelScope
 import com.example.jaywarehouse.data.common.utils.BaseResult
 import com.example.jaywarehouse.data.common.utils.Prefs
+import com.example.jaywarehouse.data.common.utils.ROW_COUNT
+import com.example.jaywarehouse.data.common.utils.validatePallet
 import com.example.jaywarehouse.data.shipping.ShippingRepository
 import com.example.jaywarehouse.data.shipping.models.PalletInShippingRow
 import com.example.jaywarehouse.presentation.common.utils.BaseViewModel
@@ -101,7 +103,7 @@ class ShippingViewModel(
             }
 
             ShippingContract.Event.OnReachEnd -> {
-                if (10 * state.page <= state.shippingList.size) {
+                if (ROW_COUNT * state.page <= state.shippingList.size) {
                     setState {
                         copy(page = page + 1, loadingState = Loading.LOADING)
                     }
@@ -341,7 +343,7 @@ class ShippingViewModel(
         viewModelScope.launch(Dispatchers.IO) {
 
             repository.getShipping(
-                keyword, page, 10, sort.sort,sort.order.value
+                keyword, page, ROW_COUNT, sort.sort,sort.order.value
             ).catch {
                 setSuspendedState {
                     copy(error = it.message.toString(), loadingState = Loading.NONE)
@@ -409,6 +411,14 @@ class ShippingViewModel(
     private fun checkPalletBarcode(
         barcode: String
     ) {
+        if (prefs.getValidatePallet()){
+            if (!validatePallet(barcode,"BD")) {
+                setState {
+                    copy(error = "Invalid Pallet")
+                }
+                return
+            }
+        }
         if (!state.isChecking){
             setState {
                 copy(isChecking = true)

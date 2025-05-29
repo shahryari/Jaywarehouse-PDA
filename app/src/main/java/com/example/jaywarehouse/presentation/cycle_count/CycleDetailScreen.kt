@@ -309,8 +309,8 @@ fun CycleDetailContent(
                 onEvent(CycleDetailContract.Event.OnShowDatePicker(false))
             },
             selectedDate = state.expireDate.text.ifEmpty { null }
-        ) {
-            onEvent(CycleDetailContract.Event.OnChangeExpireDate(TextFieldValue(it)))
+        ) {f1,f2->
+            onEvent(CycleDetailContract.Event.OnChangeExpireDate(TextFieldValue(f1)))
             onEvent(CycleDetailContract.Event.OnShowDatePicker(false))
 
         }
@@ -346,11 +346,11 @@ fun CycleDetailItem(
         item1 = BaseListItemModel("Name",model.productTitle,R.drawable.vuesax_outline_3d_cube_scan),
         item2 = BaseListItemModel("Product Code",model.productCode,R.drawable.note),
         item3 = BaseListItemModel("Barcode",model.productBarcodeNumber,R.drawable.barcode),
-        item4 = BaseListItemModel("Status", model.quiddityTypeTitle,R.drawable.box_search),
+        item4 = BaseListItemModel("Status", model.quiddityTypeTitle?:"",R.drawable.box_search),
         item5 = model.expireDate?.let { BaseListItemModel("Exp Date",it,R.drawable.calendar_add) },
         quantityTitle = "",
         primary = model.counting == 1,
-        quantity = model.locationCode,
+        quantity = model.locationCode?:"",
         scanTitle = "Count",
         scan = model.countQuantity?.toString()?:""
     )
@@ -419,7 +419,7 @@ fun CountBottomSheet(
                 Row(Modifier.fillMaxWidth()) {
                     DetailCard(
                         "Status",
-                        state.selectedCycle.quiddityTypeTitle,
+                        state.selectedCycle.quiddityTypeTitle?:"",
                         icon = R.drawable.box_search,
                         modifier = Modifier.weight(1f)
                     )

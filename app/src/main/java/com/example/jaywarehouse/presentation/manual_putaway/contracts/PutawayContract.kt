@@ -1,6 +1,5 @@
-package com.example.jaywarehouse.presentation.putaway.contracts
+package com.example.jaywarehouse.presentation.manual_putaway.contracts
 
-import androidx.compose.ui.text.input.TextFieldValue
 import com.example.jaywarehouse.data.putaway.model.PutawayListGroupedModel
 import com.example.jaywarehouse.data.putaway.model.PutawayListGroupedRow
 import com.example.jaywarehouse.presentation.common.utils.Loading

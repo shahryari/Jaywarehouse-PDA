@@ -3,7 +3,9 @@ package com.example.jaywarehouse.presentation.manual_putaway.viewmodels
 import androidx.lifecycle.viewModelScope
 import com.example.jaywarehouse.data.common.utils.BaseResult
 import com.example.jaywarehouse.data.common.utils.Prefs
+import com.example.jaywarehouse.data.common.utils.ROW_COUNT
 import com.example.jaywarehouse.data.manual_putaway.ManualPutawayRepository
+import com.example.jaywarehouse.data.putaway.model.PutawayListGroupedRow
 import com.example.jaywarehouse.presentation.common.utils.BaseViewModel
 import com.example.jaywarehouse.presentation.common.utils.Loading
 import com.example.jaywarehouse.presentation.common.utils.Order
@@ -16,6 +18,7 @@ import kotlinx.coroutines.launch
 
 class ManualPutawayViewModel(
     private val repository: ManualPutawayRepository,
+    private val putaway: PutawayListGroupedRow,
     private val prefs: Prefs
 )  : BaseViewModel<ManualPutawayContract.Event,ManualPutawayContract.State,ManualPutawayContract.Effect>(){
     init {
@@ -26,6 +29,9 @@ class ManualPutawayViewModel(
             setState {
                 copy(selectedSort = sort)
             }
+        }
+        setState {
+            copy(putRow = putaway)
         }
         viewModelScope.launch(Dispatchers.IO) {
             prefs.getLockKeyboard().collect {
@@ -62,7 +68,7 @@ class ManualPutawayViewModel(
                 }
             }
             ManualPutawayContract.Event.OnReachEnd -> {
-                if (10*state.page <= state.putaways.size){
+                if (ROW_COUNT*state.page <= state.putaways.size){
                     setState {
                         copy(page = page+1, loadingState = Loading.LOADING)
                     }
@@ -114,6 +120,7 @@ class ManualPutawayViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             repository.getManualPutawayList(
                 keyword,
+                putaway.receiptID,
                 page,
                 sort = sortItem.sort,
                 sortItem.order.value

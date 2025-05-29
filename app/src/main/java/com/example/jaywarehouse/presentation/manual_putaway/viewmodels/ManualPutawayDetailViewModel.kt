@@ -4,8 +4,10 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.viewModelScope
 import com.example.jaywarehouse.data.common.utils.BaseResult
 import com.example.jaywarehouse.data.common.utils.Prefs
+import com.example.jaywarehouse.data.common.utils.ROW_COUNT
 import com.example.jaywarehouse.data.manual_putaway.ManualPutawayRepository
-import com.example.jaywarehouse.data.manual_putaway.repository.ManualPutawayRow
+import com.example.jaywarehouse.data.manual_putaway.models.ManualPutawayDetailRow
+import com.example.jaywarehouse.data.manual_putaway.models.ManualPutawayRow
 import com.example.jaywarehouse.presentation.common.utils.BaseViewModel
 import com.example.jaywarehouse.presentation.common.utils.Loading
 import com.example.jaywarehouse.presentation.common.utils.Order
@@ -13,10 +15,7 @@ import com.example.jaywarehouse.presentation.manual_putaway.contracts.ManualPuta
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
-import org.koin.core.component.getScopeName
-import java.math.BigDecimal
 import java.math.RoundingMode
-import java.text.DecimalFormat
 
 class ManualPutawayDetailViewModel(
     private val repository: ManualPutawayRepository,
@@ -59,9 +58,8 @@ class ManualPutawayDetailViewModel(
                 }
             }
             ManualPutawayDetailContract.Event.OnAddClick -> {
-                if (state.quantity.text.isNotEmpty() && state.locationCode.text.isNotEmpty()) {
-                    scanManualPutaway()
-                }
+
+                scanManualPutaway()
             }
             ManualPutawayDetailContract.Event.OnCloseError -> {
                 setState {
@@ -89,7 +87,7 @@ class ManualPutawayDetailViewModel(
                 }
             }
             ManualPutawayDetailContract.Event.OnReachEnd -> {
-                if (10*state.page <= state.details.size){
+                if (ROW_COUNT*state.page <= state.details.size){
                     setState {
                         copy(page = page+1, loadingState = Loading.LOADING)
                     }
@@ -123,9 +121,9 @@ class ManualPutawayDetailViewModel(
             is ManualPutawayDetailContract.Event.OnRemove -> {
                 removeManualPutaway(event.detail.putawayDetailID.toString())
             }
-            is ManualPutawayDetailContract.Event.OnSelectDetail -> {
+            is ManualPutawayDetailContract.Event.OnSelectDetailForRemove -> {
                 setState {
-                    copy(selectedDetail = event.detail)
+                    copy(selectedForRemove = event.detail)
                 }
             }
 
@@ -141,15 +139,59 @@ class ManualPutawayDetailViewModel(
                     copy(showConfirmFinish = event.show)
                 }
             }
+
+            is ManualPutawayDetailContract.Event.OnSelectDetails -> {
+                setState {
+                    copy(selectedDetail = event.detail, locationCode = TextFieldValue())
+                }
+            }
+
+            is ManualPutawayDetailContract.Event.OnCheckLocation -> {
+                if (event.detail.locationCode.lowercase() == event.location.trim().lowercase()){
+                    manualPutawayDone(event.detail)
+                } else {
+                    setState {
+                        copy(error = "Location code does not match")
+                    }
+                }
+            }
         }
     }
 
     private fun scanManualPutaway() {
-        val quantity = state.details.sumOf { it.quantity } + state.quantity.text.toDouble()
+        val quantity = state.details.sumOf { it.quantity } + (state.quantity.text.toDoubleOrNull()?:0.0)
         val scaledQty = quantity.toBigDecimal().setScale(4, RoundingMode.DOWN).toDouble()
+        if (state.quantity.text.isEmpty() && state.locationCode.text.isEmpty()){
+            setState {
+                copy(
+                    error = "Please fill location and quantity"
+                )
+            }
+            return
+        }
+        if (state.quantity.text.isEmpty()){
+            setState {
+                copy(
+                    error = "Please fill quantity"
+                )
+            }
+            return
+        }
+        if (state.locationCode.text.isEmpty()){
+            setState {
+                copy(error = "Please fill location")
+            }
+            return
+        }
         if (scaledQty > put.total){
             setState {
                 copy(error = "Total scanned quantity is more then required quantity")
+            }
+            return
+        }
+        if (state.details.find { it.locationCode == state.locationCode.text.trim() }!= null){
+            setState {
+                copy(error = "Duplicate location")
             }
             return
         }
@@ -214,11 +256,11 @@ class ManualPutawayDetailViewModel(
                     putawayDetailID
                 ).catch {
                     setSuspendedState {
-                        copy(error = it.message?:"", isDeleting = false, selectedDetail = null)
+                        copy(error = it.message?:"", isDeleting = false, selectedForRemove = null)
                     }
                 }.collect {
                     setSuspendedState {
-                        copy(isDeleting = false,selectedDetail = null)
+                        copy(isDeleting = false,selectedForRemove = null)
                     }
                     when(it){
                         is BaseResult.Error -> {
@@ -292,13 +334,13 @@ class ManualPutawayDetailViewModel(
         val quantity = state.details.sumOf { it.quantity }.toBigDecimal().setScale(4, RoundingMode.DOWN).toDouble()
         if ( quantity > put.total){
             setState {
-                copy(error = "You have scanned more than the quantity")
+                copy(error = "You have scanned more than the quantity", showConfirmFinish = false)
             }
             return
         }
         if (quantity < put.total) {
             setState {
-                copy(error = "Your total scanned is less then required quantity.")
+                copy(error = "Your total scanned is less then required quantity.", showConfirmFinish = false)
             }
             return
         }
@@ -310,12 +352,12 @@ class ManualPutawayDetailViewModel(
                 repository.finishManualPutaway(put.receiptDetailID.toString(),put.putawayID.toString())
                     .catch {
                         setSuspendedState {
-                            copy(error = it.message?:"", isFinishing = false)
+                            copy(error = it.message?:"", isFinishing = false, showConfirmFinish = false)
                         }
                     }
                     .collect {
                         setSuspendedState {
-                            copy(isFinishing = false)
+                            copy(isFinishing = false, showConfirmFinish = false)
                         }
                         when(it){
                             is BaseResult.Error -> {
@@ -331,6 +373,53 @@ class ManualPutawayDetailViewModel(
                                     setEffect {
                                         ManualPutawayDetailContract.Effect.NavBack
                                     }
+                                } else {
+                                    setSuspendedState {
+                                        copy(error = it.data?.messages?.firstOrNull()?:"")
+                                    }
+                                }
+                            }
+                            BaseResult.UnAuthorized -> {}
+                        }
+                    }
+            }
+        }
+    }
+
+    private fun manualPutawayDone(detail: ManualPutawayDetailRow) {
+        if (!state.isScanning){
+            setState {
+                copy(isScanning = true)
+            }
+            viewModelScope.launch(Dispatchers.IO) {
+                repository.putawayManualDone(detail.putawayDetailID)
+                    .catch {
+                        setSuspendedState {
+                            copy(error = it.message?:"", isScanning = false)
+                        }
+                    }
+                    .collect {
+                        setSuspendedState {
+                            copy(isScanning = false)
+                        }
+                        when(it){
+                            is BaseResult.Error -> {
+                                setSuspendedState {
+                                    copy(error = it.message)
+                                }
+                            }
+                            is BaseResult.Success -> {
+                                if (it.data?.isSucceed == true) {
+                                    setSuspendedState {
+                                        copy(
+                                            toast = it.data.messages.firstOrNull() ?: "Done Successfully",
+                                            selectedDetail = null,
+                                            loadingState = Loading.LOADING,
+                                            page = 1,
+                                            details = emptyList()
+                                        )
+                                    }
+                                    getManualPutawayDetails()
                                 } else {
                                     setSuspendedState {
                                         copy(error = it.data?.messages?.firstOrNull()?:"")

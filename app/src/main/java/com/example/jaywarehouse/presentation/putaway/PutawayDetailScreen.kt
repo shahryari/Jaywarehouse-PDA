@@ -33,6 +33,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.jaywarehouse.R
 import com.example.jaywarehouse.data.common.utils.mdp
+import com.example.jaywarehouse.data.common.utils.removeZeroDecimal
 import com.example.jaywarehouse.data.putaway.model.PutawayListGroupedRow
 import com.example.jaywarehouse.data.putaway.model.PutawayListRow
 import com.example.jaywarehouse.presentation.common.composables.BaseListItem
@@ -193,7 +194,7 @@ fun PutawayDetailItem(
         item5 = BaseListItemModel("Exp Date",model.expireDateString?:"",R.drawable.calendar_add),
         quantity = model.warehouseLocationCode,
         quantityTitle = "Location",
-        scan = model.quantity.toString(),
+        scan = model.quantity.removeZeroDecimal().toString(),
         scanTitle = "Quantity"
     )
 }
@@ -289,7 +290,7 @@ fun PutawayBottomSheet(
                     DetailCard(
                         title = "Quantity",
                         icon = R.drawable.vuesax_linear_box,
-                        detail = state.selectedPutaway.quantity.toString(),
+                        detail = state.selectedPutaway.quantity.removeZeroDecimal().toString(),
                         modifier = Modifier.weight(1f)
                     )
                 }

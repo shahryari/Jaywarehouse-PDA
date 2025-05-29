@@ -4,6 +4,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.viewModelScope
 import com.example.jaywarehouse.data.common.utils.BaseResult
 import com.example.jaywarehouse.data.common.utils.Prefs
+import com.example.jaywarehouse.data.common.utils.ROW_COUNT
 import com.example.jaywarehouse.data.putaway.PutawayRepository
 import com.example.jaywarehouse.data.putaway.model.PutawayListGroupedRow
 import com.example.jaywarehouse.data.putaway.model.PutawayListRow
@@ -81,7 +82,7 @@ class PutawayDetailViewModel(
             }
 
             PutawayDetailContract.Event.OnReachEnd -> {
-                if (10*state.page<=state.putaways.size){
+                if (ROW_COUNT*state.page<=state.putaways.size){
                     setState {
                         copy(page = state.page+1, loadingState = Loading.LOADING)
                     }

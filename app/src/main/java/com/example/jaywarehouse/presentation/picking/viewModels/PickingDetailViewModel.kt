@@ -4,6 +4,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.viewModelScope
 import com.example.jaywarehouse.data.common.utils.BaseResult
 import com.example.jaywarehouse.data.common.utils.Prefs
+import com.example.jaywarehouse.data.common.utils.ROW_COUNT
 import com.example.jaywarehouse.data.picking.PickingRepository
 import com.example.jaywarehouse.data.picking.models.PickingListGroupedRow
 import com.example.jaywarehouse.data.picking.models.PickingListRow
@@ -81,7 +82,7 @@ class PickingDetailViewModel(
             }
 
             PickingDetailContract.Event.OnReachEnd -> {
-                if (10*state.page<=state.pickingList.size){
+                if (ROW_COUNT*state.page<=state.pickingList.size){
                     setState {
                         copy(page = state.page+1, loadingState = Loading.LOADING)
                     }
@@ -138,24 +139,40 @@ class PickingDetailViewModel(
     ) {
 
 
-        if (locationCode.isEmpty()){
-            setState {
-                copy(error = "Please fill location")
-            }
-            return
-        }
 
-        if (locationCode.trim().lowercase() != pick.warehouseLocationCode.lowercase()){
-            setState {
-                copy(error = "Wrong Location")
+        if (pick.warehouseLocationCode!=null){
+            if (locationCode.isEmpty() && barcode.isEmpty()){
+                setState {
+                    copy(error = "Please fill location and barcode")
+                }
+                return
             }
-            return
+            if (locationCode.isEmpty()){
+                setState {
+                    copy(error = "Please fill location")
+                }
+                return
+            }
+            if (locationCode.trim().lowercase() != pick.warehouseLocationCode.lowercase()){
+                setState {
+                    copy(error = "Wrong Location")
+                }
+                return
+            }
         }
         if (barcode.isEmpty()){
             setState {
                 copy(error = "Please fill barcode")
             }
             return
+        }
+        if (pick.barcodeNumber!=null){
+            if (barcode.trim() != pick.barcodeNumber){
+                setState {
+                    copy(error = "Wrong Barcode")
+                }
+                return
+            }
         }
         if (!state.onSaving){
             setState {
@@ -221,7 +238,7 @@ class PickingDetailViewModel(
                 customerId = customerId.toString(),
                 keyword = keyword,
                 sort = sort.sort,
-                rows = 10,
+                rows = ROW_COUNT,
                 page = page,
                 order = sort.order.value
             )

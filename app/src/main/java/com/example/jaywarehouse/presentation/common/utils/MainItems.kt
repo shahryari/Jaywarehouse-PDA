@@ -28,25 +28,25 @@ enum class MainItems(
     val destination: Direction? = null
 ) {
     Receiving(
-        "Receiving",
+        "Count",
         R.drawable.delivery,
         "Count",
         Primary,
         CountingScreenDestination(isCrossDock = false)
     ),
-    Putaway(
-        "Putaway",
-        R.drawable.putaway,
-        "Count",
-        Primary,
-        PutawayScreenDestination
-    ),
+//    Putaway(
+//        "Putaway",
+//        R.drawable.putaway,
+//        "Count",
+//        Primary,
+//        PutawayScreenDestination
+//    ),
     ManualPutaway(
-        "Manual\nPutaway",
+        "Putaway",
         R.drawable.manual_putaway,
         "Count",
         Primary,
-        ManualPutawayScreenDestination
+        PutawayScreenDestination
     ),
     ReturnReceiving(
         "Return\nReceiving",

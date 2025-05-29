@@ -1,10 +1,11 @@
 package com.example.jaywarehouse.data.manual_putaway
 
 import com.example.jaywarehouse.data.common.utils.BaseResult
+import com.example.jaywarehouse.data.common.utils.ROW_COUNT
 import com.example.jaywarehouse.data.common.utils.ResultMessageModel
 import com.example.jaywarehouse.data.common.utils.getResult
-import com.example.jaywarehouse.data.manual_putaway.repository.ManualPutawayDetailModel
-import com.example.jaywarehouse.data.manual_putaway.repository.ManualPutawayModel
+import com.example.jaywarehouse.data.manual_putaway.models.ManualPutawayDetailModel
+import com.example.jaywarehouse.data.manual_putaway.models.ManualPutawayModel
 import com.google.gson.JsonObject
 import kotlinx.coroutines.flow.Flow
 
@@ -13,15 +14,17 @@ class ManualPutawayRepository(
 ) {
     fun getManualPutawayList(
         keyword: String,
+        receiptID: Int,
         page: Int,
         sort: String,
         order: String
     ) : Flow<BaseResult<ManualPutawayModel>> {
         val jsonObject = JsonObject()
         jsonObject.addProperty("Keyword",keyword)
+        jsonObject.addProperty("ReceiptID",receiptID)
         return getResult(
             request = {
-                api.getManualPutawayList(jsonObject,page,10,sort,order)
+                api.getManualPutawayList(jsonObject,page,ROW_COUNT,sort,order)
             }
         )
     }
@@ -83,8 +86,18 @@ class ManualPutawayRepository(
         jsonObject.addProperty("PutawayID",putawayID)
         return getResult(
             request = {
-                api.getManualPutawayDetail(jsonObject,page,10,sort,order)
+                api.getManualPutawayDetail(jsonObject,page,100,sort,order)
             }
         )
     }
+
+    fun putawayManualDone(
+        putawayDetailID: Int
+    ) = getResult(
+        request = {
+            val jsonObject = JsonObject()
+            jsonObject.addProperty("PutawayDetailID",putawayDetailID)
+            api.putawayManualDone(jsonObject)
+        }
+    )
 }

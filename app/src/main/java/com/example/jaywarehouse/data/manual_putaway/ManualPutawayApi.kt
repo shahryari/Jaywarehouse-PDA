@@ -5,8 +5,8 @@ import com.example.jaywarehouse.data.common.utils.PAGE
 import com.example.jaywarehouse.data.common.utils.ROWS
 import com.example.jaywarehouse.data.common.utils.ResultMessageModel
 import com.example.jaywarehouse.data.common.utils.SORT
-import com.example.jaywarehouse.data.manual_putaway.repository.ManualPutawayDetailModel
-import com.example.jaywarehouse.data.manual_putaway.repository.ManualPutawayModel
+import com.example.jaywarehouse.data.manual_putaway.models.ManualPutawayDetailModel
+import com.example.jaywarehouse.data.manual_putaway.models.ManualPutawayModel
 import com.google.gson.JsonObject
 import retrofit2.Response
 import retrofit2.http.Body
@@ -51,5 +51,10 @@ interface ManualPutawayApi {
         @Header(SORT) sort: String,
         @Header(ORDER) order: String
     ) : Response<ManualPutawayDetailModel>
+
+    @POST("PutawayManualDone")
+    suspend fun putawayManualDone(
+        @Body jsonObject: JsonObject
+    ): Response<ResultMessageModel>
 
 }

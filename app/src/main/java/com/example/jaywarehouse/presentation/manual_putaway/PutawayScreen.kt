@@ -1,4 +1,4 @@
-package com.example.jaywarehouse.presentation.putaway
+package com.example.jaywarehouse.presentation.manual_putaway
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
@@ -12,13 +12,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.pullrefresh.PullRefreshIndicator
-import androidx.compose.material.pullrefresh.pullRefresh
-import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -40,6 +35,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import com.example.jaywarehouse.data.common.utils.mdp
 import com.example.jaywarehouse.R
+import com.example.jaywarehouse.data.common.utils.removeZeroDecimal
 import com.example.jaywarehouse.data.putaway.model.PutawayListGroupedRow
 import com.example.jaywarehouse.presentation.common.composables.DetailCard
 import com.example.jaywarehouse.presentation.common.composables.MyLazyColumn
@@ -51,9 +47,11 @@ import com.example.jaywarehouse.presentation.common.composables.TopBar
 import com.example.jaywarehouse.presentation.common.utils.Loading
 import com.example.jaywarehouse.presentation.common.utils.SIDE_EFFECT_KEY
 import com.example.jaywarehouse.presentation.common.utils.ScreenTransition
+import com.example.jaywarehouse.presentation.destinations.ManualPutawayScreenDestination
 import com.example.jaywarehouse.presentation.destinations.PutawayDetailScreenDestination
-import com.example.jaywarehouse.presentation.putaway.contracts.PutawayContract
-import com.example.jaywarehouse.presentation.putaway.viewmodels.PutawayViewModel
+import com.example.jaywarehouse.presentation.destinations.PutawayDetailScreenDestination.invoke
+import com.example.jaywarehouse.presentation.manual_putaway.contracts.PutawayContract
+import com.example.jaywarehouse.presentation.manual_putaway.viewmodels.PutawayViewModel
 import com.example.jaywarehouse.ui.theme.Primary
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -72,7 +70,7 @@ fun PutawayScreen(
         viewModel.effect.collect {
             when(it){
                 is PutawayContract.Effect.NavToPutawayDetail -> {
-                    navigator.navigate(PutawayDetailScreenDestination(it.readyToPutRow))
+                    navigator.navigate(ManualPutawayScreenDestination(it.readyToPutRow))
                 }
 
                 PutawayContract.Effect.NavBack -> {
@@ -104,7 +102,7 @@ fun PutawayContent(
             onEvent(PutawayContract.Event.ClearError)
         },
         onRefresh = {
-            onEvent(PutawayContract.Event.ReloadScreen)
+            onEvent(PutawayContract.Event.OnRefresh)
         }
     ) {
 
@@ -197,7 +195,7 @@ fun PutawayItem(
             ) {
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
 
-                    Box(
+                    if (!model.receivingTypeTitle.isNullOrBlank())Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(4.mdp))
                             .background(Primary.copy(0.2f))
@@ -246,7 +244,7 @@ fun PutawayItem(
                 )
                 Spacer(modifier = Modifier.size(7.mdp))
                 MyText(
-                    text = "Total: "+model.total,
+                    text = "Total: "+model.total.removeZeroDecimal(),
                     color = Color.White,
                     style = MaterialTheme.typography.bodyLarge,
                     fontSize = 16.sp,
@@ -268,7 +266,7 @@ fun PutawayItem(
                 )
                 Spacer(modifier = Modifier.size(7.mdp))
                 MyText(
-                    text = "Scan: " + model.count,
+                    text = "Scan: " + (model.count?.removeZeroDecimal()?:""),
                     color = Primary,
                     style = MaterialTheme.typography.bodyLarge,
                     fontSize = 16.sp,

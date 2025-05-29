@@ -9,9 +9,9 @@ data class ReceivingDetailRow(
     @SerializedName("CountQuantity")
     val countQuantity: Double?,
     @SerializedName("OwnerFullName")
-    val ownerFullName: String,
+    val ownerFullName: String?,
     @SerializedName("ProductBarcodeNumber")
-    val productBarcodeNumber: String,
+    val productBarcodeNumber: String?,
     @SerializedName("ProductCode")
     val productCode: String,
     @SerializedName("ProductName")
@@ -19,7 +19,7 @@ data class ReceivingDetailRow(
     @SerializedName("Quantity")
     val quantity: Double,
     @SerializedName("QuiddityTypeID")
-    val quiddityTypeID: Int,
+    val quiddityTypeID: Int?,
     @SerializedName("QuiddityTypeTitle")
     val quiddityTypeTitle: String?,
     @SerializedName("ReceivingTypeID")
@@ -29,9 +29,9 @@ data class ReceivingDetailRow(
     @SerializedName("ReceivingWorkerTaskID")
     val receivingWorkerTaskID: Int,
     @SerializedName("ReferenceNumber")
-    val referenceNumber: String,
+    val referenceNumber: String?,
     @SerializedName("SupplierFullName")
-    val supplierFullName: String,
+    val supplierFullName: String?,
     @SerializedName("BatchNumber")
     val batchNumber: String?,
     @SerializedName("ExpDate")

@@ -4,6 +4,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.viewModelScope
 import com.example.jaywarehouse.data.common.utils.BaseResult
 import com.example.jaywarehouse.data.common.utils.Prefs
+import com.example.jaywarehouse.data.common.utils.ROW_COUNT
 import com.example.jaywarehouse.data.loading.LoadingRepository
 import com.example.jaywarehouse.presentation.common.utils.BaseViewModel
 import com.example.jaywarehouse.presentation.common.utils.Loading
@@ -79,7 +80,7 @@ class LoadingViewModel(
             }
 
             LoadingContract.Event.OnReachedEnd -> {
-                if (10*state.page<=state.loadingList.size) {
+                if (ROW_COUNT*state.page<=state.loadingList.size) {
                     setState {
                         copy(page = state.page+1, loadingState = Loading.LOADING)
                     }

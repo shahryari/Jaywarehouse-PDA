@@ -31,11 +31,20 @@ interface TransferApi {
     ) : Response<ResultMessageModel>
 
     @POST("ProductStatus")
-    suspend fun getProductStatus() : Response<ProductStatusModel>
+    suspend fun getProductStatus(
+        @Header(PAGE) page: Int,
+        @Header(ROWS) rows: Int,
+        @Header(SORT) sort: String,
+        @Header(ORDER) order: String
+    ) : Response<ProductStatusModel>
 
     @POST("WarehouseLocation")
     suspend fun getWarehouseLocations(
-        @Body jsonObject: JsonObject
+        @Body jsonObject: JsonObject,
+        @Header(PAGE) page: Int,
+        @Header(ROWS) rows: Int,
+        @Header(SORT) sort: String,
+        @Header(ORDER) order: String
     ) : Response<WarehouseLocationModel>
 
 }

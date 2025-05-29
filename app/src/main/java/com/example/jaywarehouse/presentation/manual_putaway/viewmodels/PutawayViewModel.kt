@@ -1,15 +1,15 @@
-package com.example.jaywarehouse.presentation.putaway.viewmodels
+package com.example.jaywarehouse.presentation.manual_putaway.viewmodels
 
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.viewModelScope
 import com.example.jaywarehouse.data.common.utils.BaseResult
 import com.example.jaywarehouse.data.common.utils.Prefs
+import com.example.jaywarehouse.data.common.utils.ROW_COUNT
 import com.example.jaywarehouse.data.putaway.PutawayRepository
 import com.example.jaywarehouse.presentation.common.utils.BaseViewModel
 import com.example.jaywarehouse.presentation.common.utils.Loading
 import com.example.jaywarehouse.presentation.common.utils.Order
 import com.example.jaywarehouse.presentation.common.utils.SortItem
-import com.example.jaywarehouse.presentation.putaway.contracts.PutawayContract
+import com.example.jaywarehouse.presentation.manual_putaway.contracts.PutawayContract
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
@@ -74,7 +74,7 @@ class PutawayViewModel(
             }
 
             PutawayContract.Event.OnReachedEnd -> {
-                if (10*state.page<=state.puts.size) {
+                if (ROW_COUNT*state.page<=state.puts.size) {
                     setState {
                         copy(page = state.page+1, loadingState = Loading.LOADING)
                     }

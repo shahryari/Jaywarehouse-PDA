@@ -32,7 +32,7 @@ import com.example.jaywarehouse.presentation.pallet.PalletConfirmViewModel
 import com.example.jaywarehouse.presentation.picking.viewModels.PickingDetailViewModel
 import com.example.jaywarehouse.presentation.picking.viewModels.PickingViewModel
 import com.example.jaywarehouse.presentation.putaway.viewmodels.PutawayDetailViewModel
-import com.example.jaywarehouse.presentation.putaway.viewmodels.PutawayViewModel
+import com.example.jaywarehouse.presentation.manual_putaway.viewmodels.PutawayViewModel
 import com.example.jaywarehouse.presentation.rs.RSIntegrationViewModel
 import com.example.jaywarehouse.presentation.shipping.viewmodels.ShippingViewModel
 import com.example.jaywarehouse.presentation.transfer.viewmodels.TransferViewModel
@@ -86,7 +86,7 @@ val mainModule = module {
     }
 
     viewModel {
-        ManualPutawayViewModel(get(),get())
+        ManualPutawayViewModel(get(),it.get(),get())
     }
 
     viewModel {

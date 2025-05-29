@@ -5,8 +5,12 @@ import androidx.lifecycle.viewModelScope
 import com.example.jaywarehouse.data.checking.CheckingRepository
 import com.example.jaywarehouse.data.checking.models.CheckingListGroupedRow
 import com.example.jaywarehouse.data.checking.models.CheckingListRow
+import com.example.jaywarehouse.data.checking.models.PalletStatusModel
+import com.example.jaywarehouse.data.checking.models.PalletStatusRow
 import com.example.jaywarehouse.data.common.utils.BaseResult
 import com.example.jaywarehouse.data.common.utils.Prefs
+import com.example.jaywarehouse.data.common.utils.ROW_COUNT
+import com.example.jaywarehouse.data.common.utils.validatePallet
 import com.example.jaywarehouse.presentation.checking.contracts.CheckingDetailContract
 import com.example.jaywarehouse.presentation.common.utils.BaseViewModel
 import com.example.jaywarehouse.presentation.common.utils.Loading
@@ -69,6 +73,10 @@ class CheckingDetailViewModel(
                 }
             }
             is CheckingDetailContract.Event.OnSelectCheck -> {
+                if (event.checking!=null){
+                    getPalletTypeList()
+                    getPalletStatusList()
+                }
                 setState {
                     copy(selectedChecking = event.checking)
                 }
@@ -81,7 +89,7 @@ class CheckingDetailViewModel(
             }
 
             CheckingDetailContract.Event.OnReachEnd -> {
-                if (10*state.page<=state.checkingList.size){
+                if (ROW_COUNT *state.page<=state.checkingList.size){
                     setState {
                         copy(page = state.page+1, loadingState = Loading.LOADING)
                     }
@@ -101,7 +109,7 @@ class CheckingDetailViewModel(
                 }
             }
             is CheckingDetailContract.Event.OnCompleteChecking -> {
-                completeChecking(event.checking,state.count.text.trim().toDouble(), state.barcode.text.trim())
+                completeChecking(event.checking,state.count.text.trim().toDoubleOrNull(), state.barcode.text.trim())
             }
 //            is CheckingDetailContract.Event.OnChangeKeyword -> {
 //                setState {
@@ -127,15 +135,66 @@ class CheckingDetailViewModel(
                 }
                 getCheckings(row.customerID,keyword = state.keyword,page = state.page,sort = event.sortItem)
             }
+
+            is CheckingDetailContract.Event.OnSelectPalletStatus -> {
+                setState {
+                    copy(selectedPalletStatus = event.palletStatus)
+                }
+            }
+            is CheckingDetailContract.Event.OnSelectPalletType -> {
+                setState {
+                    copy(selectedPalletType = event.palletType)
+                }
+            }
+
+            is CheckingDetailContract.Event.OnPalletStatusChange -> {
+                setState {
+                    copy(palletStatus = event.palletStatus)
+                }
+            }
+            is CheckingDetailContract.Event.OnPalletTypeChange -> {
+                setState {
+                    copy(palletType = event.palletType)
+                }
+            }
         }
     }
 
 
     private fun completeChecking(
         checking: CheckingListRow,
-        count: Double,
+        count: Double?,
         barcode: String
     ) {
+
+        if (count == null){
+            setState {
+                copy(error = "Quantity can not be empty")
+            }
+            return
+        }
+        if (prefs.getValidatePallet()) {
+            if (!validatePallet(barcode)) {
+                setState {
+                    copy(error = "Invalid Pallet")
+                }
+                return
+            }
+        }
+
+        if (state.selectedPalletStatus==null){
+            setState {
+                copy(error = "Pallet Status not selected.")
+            }
+            return
+        }
+
+        if (state.selectedPalletType==null){
+            setState {
+                copy(error = "Pallet type not selected")
+            }
+            return
+        }
 
         if (state.selectedChecking!=null){
             setState {
@@ -147,8 +206,10 @@ class CheckingDetailViewModel(
                     count,
                     checking.customerID.toString(),
                     checking.checkingID.toString(),
-                    barcode)
-                    .catch {
+                    barcode,
+                    state.selectedPalletStatus!!.palletStatusID,
+                    state.selectedPalletType!!.palletTypeID
+                ).catch {
                         setState {
                             copy(
                                 error = it.message ?: "",
@@ -233,6 +294,62 @@ class CheckingDetailViewModel(
                             }
                         }
                         else -> {}
+                    }
+                }
+        }
+    }
+
+    fun getPalletTypeList() {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.getPalletTypes()
+                .catch {
+                    setSuspendedState {
+                        copy(error = it.message?:"")
+                    }
+                }
+                .collect {
+                    when(it){
+                        is BaseResult.Error -> {
+                            setSuspendedState {
+                                copy(error = it.message)
+                            }
+                        }
+                        is BaseResult.Success -> {
+                            setSuspendedState {
+                                copy(palletTypeList = it.data?.rows?:emptyList())
+                            }
+                        }
+                        BaseResult.UnAuthorized -> {
+
+                        }
+                    }
+                }
+        }
+    }
+
+    fun getPalletStatusList() {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.getPalletStatuses()
+                .catch {
+                    setSuspendedState {
+                        copy(error = it.message?:"")
+                    }
+                }
+                .collect {
+                    when(it){
+                        is BaseResult.Error -> {
+                            setSuspendedState {
+                                copy(error = it.message)
+                            }
+                        }
+                        is BaseResult.Success -> {
+                            setSuspendedState {
+                                copy( palletStatusList= it.data?.rows?:emptyList())
+                            }
+                        }
+                        BaseResult.UnAuthorized -> {
+
+                        }
                     }
                 }
         }

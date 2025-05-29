@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.jaywarehouse.data.checking.CheckingRepository
 import com.example.jaywarehouse.data.common.utils.BaseResult
 import com.example.jaywarehouse.data.common.utils.Prefs
+import com.example.jaywarehouse.data.common.utils.ROW_COUNT
 import com.example.jaywarehouse.presentation.checking.contracts.CheckingContract
 import com.example.jaywarehouse.presentation.common.utils.BaseViewModel
 import com.example.jaywarehouse.presentation.common.utils.Loading
@@ -79,7 +80,7 @@ class CheckingViewModel(
             }
 
             CheckingContract.Event.OnReachedEnd -> {
-                if (10*state.page<=state.checkingList.size) {
+                if (ROW_COUNT*state.page<=state.checkingList.size) {
                     setState {
                         copy(page = state.page+1, loadingState = Loading.LOADING)
                     }

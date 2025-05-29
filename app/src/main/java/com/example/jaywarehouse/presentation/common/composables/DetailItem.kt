@@ -2,7 +2,9 @@ package com.example.jaywarehouse.presentation.common.composables
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -44,7 +46,9 @@ fun DetailItem(
     second: String,
     secondIcon: Int = R.drawable.box_search,
     selected: Boolean = false,
-    onRemove: ()->Unit = {}
+    removable: Boolean = true,
+    onRemove: ()->Unit = {},
+    onClick: ()->Unit = {}
 ) {
 
     val dismissState = rememberSwipeToDismissBoxState(
@@ -56,7 +60,7 @@ fun DetailItem(
                 }
                 SwipeToDismissBoxValue.Settled -> {}
             }
-            true
+            removable
         },
         positionalThreshold = {
             it*0.25f
@@ -65,42 +69,60 @@ fun DetailItem(
     if (!selected && dismissState.currentValue != SwipeToDismissBoxValue.Settled)LaunchedEffect(Unit) {
         dismissState.reset()
     }
-    SwipeToDismissBox(
-        state = dismissState,
-        backgroundContent = {
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(6.mdp))
-                    .background(ErrorRed)
-                    .padding(10.mdp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+    @Composable
+    fun ItemBox( content: @Composable ()-> Unit){
+        if (removable) {
+            SwipeToDismissBox(
+                state = dismissState,
+                backgroundContent = {
+                    Row(
+                        Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(6.mdp))
+                            .background(ErrorRed)
+                            .padding(10.mdp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        if(dismissState.dismissDirection == SwipeToDismissBoxValue.EndToStart) Spacer(Modifier.size(5.mdp))
+                        AnimatedVisibility(dismissState.dismissDirection == SwipeToDismissBoxValue.StartToEnd) {
+                            Icon(
+                                Icons.Default.Delete,
+                                contentDescription = "",
+                                modifier = Modifier.size(20.mdp),
+                                tint = Color.White
+                            )
+                        }
+                        AnimatedVisibility(dismissState.dismissDirection == SwipeToDismissBoxValue.EndToStart) {
+                            Icon(
+                                Icons.Default.Delete,
+                                contentDescription = "",
+                                modifier = Modifier.size(20.mdp),
+                                tint = Color.White
+                            )
+                        }
+                    }
+                },
+                enableDismissFromStartToEnd = removable,
+                enableDismissFromEndToStart = removable
             ) {
-                if(dismissState.dismissDirection == SwipeToDismissBoxValue.EndToStart) Spacer(Modifier.size(5.mdp))
-                AnimatedVisibility(dismissState.dismissDirection == SwipeToDismissBoxValue.StartToEnd) {
-                    Icon(
-                        Icons.Default.Delete,
-                        contentDescription = "",
-                        modifier = Modifier.size(20.mdp),
-                        tint = Color.White
-                    )
-                }
-                AnimatedVisibility(dismissState.dismissDirection == SwipeToDismissBoxValue.EndToStart) {
-                    Icon(
-                        Icons.Default.Delete,
-                        contentDescription = "",
-                        modifier = Modifier.size(20.mdp),
-                        tint = Color.White
-                    )
-                }
+                content()
             }
         }
-    ) {
+        else {
+            Box {
+                content()
+            }
+        }
+    }
+    ItemBox {
         Column(
             modifier = Modifier
                 .shadow(1.mdp, RoundedCornerShape(6.mdp))
                 .fillMaxWidth()
+                .clickable(!removable){
+                    onClick()
+                }
                 .clip(RoundedCornerShape(6.mdp))
                 .background(Color.White)
                 .padding(10.mdp)
@@ -161,6 +183,7 @@ fun DetailItem(
     second: String,
     third: String,
     forth: String,
+    removable: Boolean = true,
     selected: Boolean = false,
     onRemove: ()->Unit = {}
 ) {
@@ -183,38 +206,53 @@ fun DetailItem(
     if (!selected && dismissState.currentValue != SwipeToDismissBoxValue.Settled)LaunchedEffect(Unit) {
         dismissState.reset()
     }
-    SwipeToDismissBox(
-        state = dismissState,
-        backgroundContent = {
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(6.mdp))
-                    .background(ErrorRed)
-                    .padding(10.mdp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+    @Composable
+    fun ItemBox( content: @Composable ()-> Unit){
+        if (removable) {
+            SwipeToDismissBox(
+                state = dismissState,
+                backgroundContent = {
+                    Row(
+                        Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(6.mdp))
+                            .background(ErrorRed)
+                            .padding(10.mdp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        if(dismissState.dismissDirection == SwipeToDismissBoxValue.EndToStart) Spacer(Modifier.size(5.mdp))
+                        AnimatedVisibility(dismissState.dismissDirection == SwipeToDismissBoxValue.StartToEnd) {
+                            Icon(
+                                Icons.Default.Delete,
+                                contentDescription = "",
+                                modifier = Modifier.size(20.mdp),
+                                tint = Color.White
+                            )
+                        }
+                        AnimatedVisibility(dismissState.dismissDirection == SwipeToDismissBoxValue.EndToStart) {
+                            Icon(
+                                Icons.Default.Delete,
+                                contentDescription = "",
+                                modifier = Modifier.size(20.mdp),
+                                tint = Color.White
+                            )
+                        }
+                    }
+                },
+                enableDismissFromStartToEnd = removable,
+                enableDismissFromEndToStart = removable
             ) {
-                if(dismissState.dismissDirection == SwipeToDismissBoxValue.EndToStart) Spacer(Modifier.size(5.mdp))
-                AnimatedVisibility(dismissState.dismissDirection == SwipeToDismissBoxValue.StartToEnd) {
-                    Icon(
-                        Icons.Default.Delete,
-                        contentDescription = "",
-                        modifier = Modifier.size(20.mdp),
-                        tint = Color.White
-                    )
-                }
-                AnimatedVisibility(dismissState.dismissDirection == SwipeToDismissBoxValue.EndToStart) {
-                    Icon(
-                        Icons.Default.Delete,
-                        contentDescription = "",
-                        modifier = Modifier.size(20.mdp),
-                        tint = Color.White
-                    )
-                }
+                content()
             }
         }
-    ) {
+        else {
+            Box {
+                content()
+            }
+        }
+    }
+    ItemBox {
         Column(
             modifier = Modifier
                 .shadow(1.mdp, RoundedCornerShape(6.mdp))
@@ -236,7 +274,7 @@ fun DetailItem(
                 )
                 Spacer(Modifier.size(10.mdp))
 
-                Row(modifier = Modifier.weight(0.5f),verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
+                Row(modifier = Modifier.weight(1f),verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
                     MyText(
                         text = first,
                         style = MaterialTheme.typography.bodyMedium,

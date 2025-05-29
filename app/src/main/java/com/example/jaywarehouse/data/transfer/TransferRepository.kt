@@ -1,6 +1,7 @@
 package com.example.jaywarehouse.data.transfer
 
 import com.example.jaywarehouse.data.common.utils.BaseResult
+import com.example.jaywarehouse.data.common.utils.ROW_COUNT
 import com.example.jaywarehouse.data.common.utils.ResultMessageModel
 import com.example.jaywarehouse.data.common.utils.getResult
 import com.example.jaywarehouse.data.transfer.models.TransferModel
@@ -18,7 +19,7 @@ class TransferRepository(private val api: TransferApi) {
         jsonObject.addProperty("Keyword",keyword)
         return getResult(
             request = {
-                api.getTransferList(jsonObject, page, 10, sort, order)
+                api.getTransferList(jsonObject, page, ROW_COUNT, sort, order)
             }
         )
     }
@@ -29,6 +30,7 @@ class TransferRepository(private val api: TransferApi) {
         warehouseLocationCodeTo: String,
         locationInventoryId: Int,
         expireDateTo: String,
+        quantity: Double,
         warehouseId: Int
     ) : Flow<BaseResult<ResultMessageModel>> {
         val jsonObject = JsonObject()
@@ -38,6 +40,7 @@ class TransferRepository(private val api: TransferApi) {
         jsonObject.addProperty("WarehouseLocationCodeTo",warehouseLocationCodeTo)
         jsonObject.addProperty("LocationInventoryID",locationInventoryId)
         jsonObject.addProperty("ExpireDateTo",expireDateTo)
+        jsonObject.addProperty("Quantity",quantity)
         jsonObject.addProperty("WarehouseID",warehouseId)
         return getResult(
             request = {
@@ -48,18 +51,19 @@ class TransferRepository(private val api: TransferApi) {
 
     fun getProductStatuses() = getResult(
         request = {
-            api.getProductStatus()
+            api.getProductStatus(1,100,"CreatedOn","desc")
         }
     )
 
     fun getWarehouseLocations(
-        keyword: String
+        keyword: String,
+        warehouseID: Int
     ) = getResult(
         request = {
             val jsonObject = JsonObject()
             jsonObject.addProperty("Keyword",keyword)
-            jsonObject.addProperty("WarehouseLocationID",18)
-            api.getWarehouseLocations(jsonObject)
+            jsonObject.addProperty("WarehouseID",warehouseID)
+            api.getWarehouseLocations(jsonObject,1,100,"CreatedOn","desc")
         }
     )
 }

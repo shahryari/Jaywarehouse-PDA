@@ -59,6 +59,7 @@ import androidx.compose.ui.unit.sp
 import com.example.jaywarehouse.MainActivity
 import com.example.jaywarehouse.data.common.utils.mdp
 import com.example.jaywarehouse.R
+import com.example.jaywarehouse.data.auth.models.AccessPermissionModel
 import com.example.jaywarehouse.data.auth.models.DashboardModel
 import com.example.jaywarehouse.data.common.utils.restartActivity
 import com.example.jaywarehouse.presentation.common.composables.MyScaffold
@@ -147,40 +148,40 @@ private fun DashboardContent(
                             )
                         }
                         Spacer(modifier = Modifier.size(12.mdp))
-                        Row(
-                            Modifier
-                                .fillMaxWidth()
-                                .shadow(5.mdp, RoundedCornerShape(8.mdp))
-                                .clip(RoundedCornerShape(8.mdp))
-                                .background(Color.White)
-                                .padding(5.mdp)
-                        ) {
-                            DashboardTab.entries.forEach {
-                                Box(
-                                    Modifier
-                                        .weight(1f)
-                                        .clip(RoundedCornerShape(6.mdp))
-                                        .background(if (state.selectedTab == it) Primary else Color.Transparent)
-                                        .clickable {
-                                            onEvent(DashboardContract.Event.OnSelectTab(it))
-//                                            scope.launch {
-//                                                drawerState.close()
-//                                            }
-                                        }
-                                        .padding(8.mdp),
-                                    contentAlignment = Alignment.Center
-
-                                ) {
-                                    MyText(
-                                        text = it.title,
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        fontWeight = FontWeight.W500,
-                                        color = if (state.selectedTab == it) Color.White else Primary
-                                    )
-                                }
-                            }
-                        }
-                        Spacer(modifier = Modifier.size(15.mdp))
+//                        Row(
+//                            Modifier
+//                                .fillMaxWidth()
+//                                .shadow(5.mdp, RoundedCornerShape(8.mdp))
+//                                .clip(RoundedCornerShape(8.mdp))
+//                                .background(Color.White)
+//                                .padding(5.mdp)
+//                        ) {
+//                            DashboardTab.entries.forEach {
+//                                Box(
+//                                    Modifier
+//                                        .weight(1f)
+//                                        .clip(RoundedCornerShape(6.mdp))
+//                                        .background(if (state.selectedTab == it) Primary else Color.Transparent)
+//                                        .clickable {
+//                                            onEvent(DashboardContract.Event.OnSelectTab(it))
+////                                            scope.launch {
+////                                                drawerState.close()
+////                                            }
+//                                        }
+//                                        .padding(8.mdp),
+//                                    contentAlignment = Alignment.Center
+//
+//                                ) {
+//                                    MyText(
+//                                        text = it.title,
+//                                        style = MaterialTheme.typography.bodyMedium,
+//                                        fontWeight = FontWeight.W500,
+//                                        color = if (state.selectedTab == it) Color.White else Primary
+//                                    )
+//                                }
+//                            }
+//                        }
+//                        Spacer(modifier = Modifier.size(15.mdp))
                         Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.SpaceBetween) {
                             AnimatedContent(state.subDrawerState, label = "drawer Animation") { subState ->
                                 when(subState){
@@ -198,37 +199,47 @@ private fun DashboardContent(
                                                     }
                                                 )
                                             }
-                                            if (state.selectedTab == DashboardTab.Picking){
-                                                items(state.dashboards.toList(),key = {it.first}){
+                                            items(state.dashboards.toList(),key = {it.first}){
+                                                val details = it.second.filter {item->
+                                                    state.accessPermissions?.checkAccess(item) == true
+                                                }
+                                                if (details.isNotEmpty()) {
                                                     DrawerItem(
                                                         title = it.first,
-                                                        icon = R.drawable.truck_next,
+                                                        icon = when(it.first){
+                                                            "Count"-> R.drawable.search
+                                                            "Shipping" -> R.drawable.truck_next
+                                                            "Stock" -> R.drawable.inventory
+                                                            else -> R.drawable.integeration
+                                                        },
                                                         modifier = Modifier.animateEnterExit(),
                                                         onClick = {
                                                             onEvent(DashboardContract.Event.OnShowSubDrawers(it.second))
                                                         }
                                                     )
                                                 }
-                                            } else {
-                                                items(state.crossDockDashboards.values.first()){
-                                                    DrawerItem(
-                                                        it.title.replace('\n',' '),
-                                                        it.icon,
-                                                        modifier = Modifier.animateEnterExit(
-                                                            enter = slideInHorizontally(),
-                                                            exit = slideOutHorizontally()
-                                                        ),
-                                                    ) {
-                                                        when(it){
-                                                            MainItems.Receiving -> {
-                                                                onEvent(DashboardContract.Event.OnNavigate(
-                                                                    CountingScreenDestination(isCrossDock = true)))
-                                                            }
-                                                           else -> {}
-                                                        }
-                                                    }
-                                                }
                                             }
+//                                            if (state.selectedTab == DashboardTab.Picking){
+//                                            } else {
+//                                                items(state.crossDockDashboards.values.first()){
+//                                                    DrawerItem(
+//                                                        it.title.replace('\n',' '),
+//                                                        it.icon,
+//                                                        modifier = Modifier.animateEnterExit(
+//                                                            enter = slideInHorizontally(),
+//                                                            exit = slideOutHorizontally()
+//                                                        ),
+//                                                    ) {
+//                                                        when(it){
+//                                                            MainItems.Receiving -> {
+//                                                                onEvent(DashboardContract.Event.OnNavigate(
+//                                                                    CountingScreenDestination(isCrossDock = true)))
+//                                                            }
+//                                                           else -> {}
+//                                                        }
+//                                                    }
+//                                                }
+//                                            }
                                         }
                                     }
                                     SubDrawerState.SubDrawers -> {
@@ -244,10 +255,11 @@ private fun DashboardContent(
                                                     }
                                                 )
                                             }
-                                            items(state.subDrawers, key = {
+                                            items(state.subDrawers.filter {
+                                                state.accessPermissions?.checkAccess(it) == true
+                                            }, key = {
                                                 it.title
                                             }){
-
                                                 DrawerItem(
                                                     title = it.title.replace('\n',' '),
                                                     icon = it.icon,
@@ -314,6 +326,16 @@ private fun DashboardContent(
                                                 switchState = state.addExtraCycle,
                                                 onSwitchChange = {
                                                     onEvent(DashboardContract.Event.OnAddExtraCycleChange(it))
+                                                }
+                                            )
+                                            HorizontalDivider(color = Gray4)
+                                            SettingDrawer(
+                                                title = "Validate Pallet Number",
+                                                icon = R.drawable.barcode,
+                                                showSwitch = true,
+                                                switchState = state.validatePallet,
+                                                onSwitchChange = {
+                                                    onEvent(DashboardContract.Event.OnValidatePalletChange(it))
                                                 }
                                             )
                                         }
@@ -417,70 +439,70 @@ private fun DashboardContent(
                             tint = Black
                         )
                     }
-                    Box(
-                        modifier = Modifier
-                            .shadow(1.mdp, RoundedCornerShape(6.mdp))
-                            .clip(RoundedCornerShape(6.mdp))
-                            .background(Color.White)
-                            .padding(13.mdp)
-                    ) {
-                        MyText(
-                            text = state.selectedTab.title,
-                            fontWeight = FontWeight.W500,
-                            fontSize = 14.sp
-                        )
-                    }
+//                    Box(
+//                        modifier = Modifier
+//                            .shadow(1.mdp, RoundedCornerShape(6.mdp))
+//                            .clip(RoundedCornerShape(6.mdp))
+//                            .background(Color.White)
+//                            .padding(13.mdp)
+//                    ) {
+//                        MyText(
+//                            text = state.selectedTab.title,
+//                            fontWeight = FontWeight.W500,
+//                            fontSize = 14.sp
+//                        )
+//                    }
                 }
 
                 Spacer(Modifier.size(10.mdp))
                 Column(Modifier.verticalScroll(rememberScrollState())) {
                     Spacer(Modifier.size(10.mdp))
-                    if (state.selectedTab == DashboardTab.Picking){
-                        state.dashboards.forEach {entry ->
-                            Column {
-                                val labelVisible = when(entry.key){
-                                    "Count"->{
-                                        true
-                                    }
-                                    "Shipping"->{
-                                        state.dashboardsVisibility.filter{it.key.category == "Count"}.all { it.value }
-                                    }
-                                    "Stock"->{
-                                        state.dashboardsVisibility.filter{it.key.category == "Shipping"}.all { it.value }
-
-                                    }
-                                    "Integration"-> {
-                                        state.dashboardsVisibility.filter{it.key.category == "Stock"}.all { it.value }
-
-                                    }
-                                    else -> {
-                                        true
-                                    }
+                    state.dashboards.forEach {entry ->
+                        Column {
+                            val labelVisible = when(entry.key){
+                                "Count"->{
+                                    true
                                 }
+                                "Shipping"->{
+                                    state.dashboardsVisibility.filter{it.key.category == "Count"}.all { it.value }
+                                }
+                                "Stock"->{
+                                    state.dashboardsVisibility.filter{it.key.category == "Shipping"}.all { it.value }
+
+                                }
+                                "Integration"-> {
+                                    state.dashboardsVisibility.filter{it.key.category == "Stock"}.all { it.value }
+
+                                }
+                                else -> {
+                                    true
+                                }
+                            }
 //                                val labelVisible = !state.dashboardsVisibility.any { it.key.category == entry.key && !it.value }
-                                DashboardListItem(entry,labelVisible,state.dashboardsVisibility,state.dashboard) {
-                                    if(it.destination!=null)onEvent(DashboardContract.Event.OnNavigate(it.destination))
-                                }
-                            }
-                            Spacer(modifier = Modifier.size(15.mdp))
-                        }
-                    } else {
-                        state.crossDockDashboards.forEach { entry->
-
-                            Column {
-                                DashboardListItem(entry,true,state.crossDockDashboardsVisibility,null){
-                                    when(it){
-                                        MainItems.Receiving-> {
-                                            onEvent(DashboardContract.Event.OnNavigate(
-                                                CountingScreenDestination(isCrossDock = true)))
-                                        }
-                                        else -> {}
-                                    }
-                                }
+                            DashboardListItem(entry,labelVisible,state.dashboardsVisibility,state.dashboard,state.accessPermissions) {
+                                if(it.destination!=null)onEvent(DashboardContract.Event.OnNavigate(it.destination))
                             }
                         }
-//                        CrossDashboard {  }
+                        Spacer(modifier = Modifier.size(15.mdp))
                     }
+//                    if (state.selectedTab == DashboardTab.Picking){
+//                    } else {
+//                        state.crossDockDashboards.forEach { entry->
+//
+//                            Column {
+//                                DashboardListItem(entry,true,state.crossDockDashboardsVisibility,null){
+//                                    when(it){
+//                                        MainItems.Receiving-> {
+//                                            onEvent(DashboardContract.Event.OnNavigate(
+//                                                CountingScreenDestination(isCrossDock = true)))
+//                                        }
+//                                        else -> {}
+//                                    }
+//                                }
+//                            }
+//                        }
+////                        CrossDashboard {  }
+//                    }
                 }
             }
         }
@@ -591,50 +613,58 @@ fun DashboardListItem(
     labelVisibility: Boolean = false,
     visibility: Map<MainItems, Boolean>,
     dashboardModel: DashboardModel?,
+    access: AccessPermissionModel?,
     onItemClick: (MainItems)-> Unit
 ) {
-    AnimatedVisibility(labelVisibility) {
-        MyText(
-            item.key,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.W500,
-            fontSize = 16.sp,
-            color = Black
-        )
-    }
-    Spacer(Modifier.size(5.mdp))
-    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-        for (i in 0..3){
-            val it = item.value.getOrNull(i)
-            if (it != null){
+    val list = item.value.filter { access?.checkAccess(it) == true  }
 
-                DashboardSubItem(
-                    item = it,
-                    count = dashboardModel?.getCount(it) ,
-                    isVisible = visibility.getOrDefault(it,false),
-                    onClick = {
-                        onItemClick(it)
-                    }
-                )
-            } else {
-                Spacer(Modifier.size(80.mdp))
+    if (list.isNotEmpty()) {
+        AnimatedVisibility(labelVisibility) {
+            MyText(
+                item.key,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.W500,
+                fontSize = 16.sp,
+                color = Black
+            )
+        }
+        Spacer(Modifier.size(5.mdp))
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            for (i in 0..3) {
+                val it = list.getOrNull(i)
+                if (it != null) {
+
+                    DashboardSubItem(
+                        item = it,
+                        count = dashboardModel?.getCount(it),
+                        isVisible = visibility.getOrDefault(it, false),
+                        onClick = {
+                            onItemClick(it)
+                        }
+                    )
+                } else {
+                    Spacer(Modifier.size(80.mdp))
+                }
             }
         }
-    }
-    if (item.value.size > 4)Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-        for (i in 4..7){
-            val it = item.value.getOrNull(i)
-            if (it != null){
-                DashboardSubItem(
-                    item = it,
-                    count = dashboardModel?.getCount(it),
-                    isVisible = visibility.getOrDefault(it,false),
-                    onClick = {
-                        onItemClick(it)
-                    }
-                )
-            } else {
-                Spacer(Modifier.size(80.mdp))
+        if (list.size > 4) Row(
+            Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            for (i in 4..7) {
+                val it = list.getOrNull(i)
+                if (it != null) {
+                    DashboardSubItem(
+                        item = it,
+                        count = dashboardModel?.getCount(it),
+                        isVisible = visibility.getOrDefault(it, false),
+                        onClick = {
+                            onItemClick(it)
+                        }
+                    )
+                } else {
+                    Spacer(Modifier.size(80.mdp))
+                }
             }
         }
     }

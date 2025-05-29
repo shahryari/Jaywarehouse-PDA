@@ -1,6 +1,7 @@
 package com.example.jaywarehouse.data.cycle_count
 
 import com.example.jaywarehouse.data.common.utils.BaseResult
+import com.example.jaywarehouse.data.common.utils.ROW_COUNT
 import com.example.jaywarehouse.data.common.utils.ResultMessageModel
 import com.example.jaywarehouse.data.common.utils.getResult
 import com.example.jaywarehouse.data.cycle_count.models.CycleDetailModel
@@ -30,7 +31,7 @@ class CycleRepository(
             api.getCycleCountLocations(
                 jsonObject,
                 page,
-                10,
+                ROW_COUNT,
                 Gson().toJson(sortList.toTypedArray())
             )
         }
@@ -50,7 +51,7 @@ class CycleRepository(
             api.getCycleCountLocationDetail(
                 jsonObject,
                 page,
-                10,
+                ROW_COUNT,
                 sort,
                 order
             )

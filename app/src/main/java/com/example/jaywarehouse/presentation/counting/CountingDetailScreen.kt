@@ -29,6 +29,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.jaywarehouse.R
 import com.example.jaywarehouse.data.common.utils.mdp
+import com.example.jaywarehouse.data.common.utils.removeZeroDecimal
 import com.example.jaywarehouse.data.receiving.model.ReceivingDetailRow
 import com.example.jaywarehouse.data.receiving.model.ReceivingRow
 import com.example.jaywarehouse.presentation.common.composables.BaseListItem
@@ -179,7 +180,7 @@ fun CountingDetailContent(
                         )
                         Spacer(modifier = Modifier.size(10.mdp))
                         MyText(
-                            "Total: "+state.total.toString(),
+                            "Total: "+state.total.removeZeroDecimal().toString(),
                             color = Color.Black,
                             style = MaterialTheme.typography.bodyLarge,
                             fontWeight = FontWeight.W500,
@@ -201,7 +202,7 @@ fun CountingDetailContent(
                         )
                         Spacer(modifier = Modifier.size(10.mdp))
                         MyText(
-                            "Scan: "+state.scan.toString(),
+                            "Count: "+state.scan.removeZeroDecimal().toString(),
                             style = MaterialTheme.typography.bodyLarge,
                             fontWeight = FontWeight.W500
                         )
@@ -277,11 +278,11 @@ fun CountingDetailItem(
         onClick = onClick,
         item1 = BaseListItemModel("Name",model.productName,R.drawable.vuesax_outline_3d_cube_scan),
         item2 = if (showDetail) BaseListItemModel("Product Code",model.productCode,R.drawable.fluent_barcode_scanner_20_regular) else null,
-        item3 = if (showDetail) BaseListItemModel("Barcode",model.productBarcodeNumber,R.drawable.note) else null,
+        item3 = if (showDetail) BaseListItemModel("Barcode",model.productBarcodeNumber?:"",R.drawable.note) else null,
         item4 = if (showDetail) BaseListItemModel("Product Type",model.quiddityTypeTitle?:"",R.drawable.vuesax_linear_box) else null,
-        scan = model.countQuantity?:0.0,
+        scan = (model.countQuantity?.removeZeroDecimal()?.toString() ?: "") + if (model.isWeight == true && model.countQuantity != null) " kg" else "",
         scanTitle = "Count",
-        quantity = model.quantity
+        quantity = model.quantity.removeZeroDecimal().toString() + if (model.isWeight == true) " kg" else "",
     )
 }
 

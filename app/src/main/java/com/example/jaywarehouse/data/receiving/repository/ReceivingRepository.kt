@@ -1,20 +1,14 @@
 package com.example.jaywarehouse.data.receiving.repository
 
 import com.example.jaywarehouse.data.common.utils.BaseResult
-import com.example.jaywarehouse.data.common.utils.ResultMessageModel
+import com.example.jaywarehouse.data.common.utils.ROW_COUNT
 import com.example.jaywarehouse.data.common.utils.getResult
 import com.example.jaywarehouse.data.receiving.ReceivingApi
-import com.example.jaywarehouse.data.receiving.model.ReceivingDetailCountModel
 import com.example.jaywarehouse.data.receiving.model.ReceivingDetailGetItemsModel
 import com.example.jaywarehouse.data.receiving.model.ReceivingDetailModel
-import com.example.jaywarehouse.data.receiving.model.ReceivingDetailScanModel
-import com.example.jaywarehouse.data.receiving.model.ReceivingDetailScanRemoveModel
 import com.example.jaywarehouse.data.receiving.model.ReceivingModel
-import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import retrofit2.Response
 
 class ReceivingRepository(
     private val api: ReceivingApi
@@ -32,7 +26,7 @@ class ReceivingRepository(
     ) : Flow<BaseResult<ReceivingModel>> {
         val jsonObject = JsonObject()
         jsonObject.addProperty("Keyword",keyword)
-        jsonObject.addProperty("ReceivingType",if (isCrossDock) 2 else 1)
+//        jsonObject.addProperty("ReceivingType",if (isCrossDock) 2 else 1)
         return getResult(
             request = {
                 api.getReceivingList(jsonObject,page, rows, sort, order)
@@ -51,7 +45,7 @@ class ReceivingRepository(
     ) : Flow<BaseResult<ReceivingDetailModel>> {
         val jsonObject = JsonObject()
         jsonObject.addProperty("ReceivingID",receivingID)
-        jsonObject.addProperty("ReceivingType",if (isCrossDock) 2 else 1)
+//        jsonObject.addProperty("ReceivingType",if (isCrossDock) 2 else 1)
         jsonObject.addProperty("Keyword",keyword)
         return getResult(
             request = {
@@ -67,10 +61,10 @@ class ReceivingRepository(
     ) : Flow<BaseResult<ReceivingDetailGetItemsModel>>{
         val jsonObject = JsonObject()
         jsonObject.addProperty("ReceivingWorkerTaskID",receivingWorkerTaskId)
-        jsonObject.addProperty("ReceivingType",if (isCrossDock) 2 else 1)
+//        jsonObject.addProperty("ReceivingType",if (isCrossDock) 2 else 1)
         return getResult(
             request = {
-                api.getReceivingDetailCountItems(jsonObject,page,10,"CreatedOn","desc")
+                api.getReceivingDetailCountItems(jsonObject,page,ROW_COUNT,"CreatedOn","desc")
             }
         )
     }
@@ -86,7 +80,7 @@ class ReceivingRepository(
     ) = getResult(
         request = {
             val jsonObject = JsonObject()
-            jsonObject.addProperty("ReceivingType",if (isCrossDock) 2 else 1)
+//            jsonObject.addProperty("ReceivingType",if (isCrossDock) 2 else 1)
             jsonObject.addProperty("ReceivingWorkerTaskID",receivingWorkerTaskId)
             jsonObject.addProperty("CountQuantity",quantity)
             jsonObject.addProperty("PCB",quantityInPacket)
@@ -103,7 +97,7 @@ class ReceivingRepository(
     ) = getResult(
         request = {
             val jsonObject = JsonObject()
-            jsonObject.addProperty("ReceivingType",if (isCrossDock) 2 else 1)
+//            jsonObject.addProperty("ReceivingType",if (isCrossDock) 2 else 1)
             jsonObject.addProperty("ReceivingWorkerTaskCountID",receivingWorkerTaskCountID)
             api.receivingWorkerTaskCountDelete(jsonObject)
         }
@@ -116,7 +110,7 @@ class ReceivingRepository(
         request = {
             val jsonObject = JsonObject()
             jsonObject.addProperty("ReceivingWorkerTaskID",receivingWorkerTaskId)
-            jsonObject.addProperty("ReceivingType",if (isCrossDock) 2 else 1)
+//            jsonObject.addProperty("ReceivingType",if (isCrossDock) 2 else 1)
             api.receivingWorkerTaskDone(jsonObject)
         }
     )

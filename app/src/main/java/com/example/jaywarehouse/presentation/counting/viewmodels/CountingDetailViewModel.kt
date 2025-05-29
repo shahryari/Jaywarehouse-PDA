@@ -3,20 +3,15 @@ package com.example.jaywarehouse.presentation.counting.viewmodels
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.viewModelScope
 import com.example.jaywarehouse.data.common.utils.BaseResult
-import com.example.jaywarehouse.data.common.utils.ORDER
 import com.example.jaywarehouse.data.common.utils.Prefs
-import com.example.jaywarehouse.data.receiving.model.ReceivingDetailRow
-import com.example.jaywarehouse.data.receiving.model.ReceivingDetailScanModel
-import com.example.jaywarehouse.data.receiving.model.ReceivingDetailScanRemoveModel
+import com.example.jaywarehouse.data.common.utils.ROW_COUNT
 import com.example.jaywarehouse.data.receiving.model.ReceivingRow
 import com.example.jaywarehouse.data.receiving.repository.ReceivingRepository
 import com.example.jaywarehouse.presentation.common.utils.BaseViewModel
 import com.example.jaywarehouse.presentation.common.utils.Loading
 import com.example.jaywarehouse.presentation.common.utils.Order
-import com.example.jaywarehouse.presentation.common.utils.SortItem
 import com.example.jaywarehouse.presentation.counting.contracts.CountingDetailContract
-import com.example.jaywarehouse.presentation.counting.contracts.CountingDetailContract.Effect.*
-import com.google.gson.Gson
+import com.example.jaywarehouse.presentation.counting.contracts.CountingDetailContract.Effect.OnNavToInception
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
@@ -98,9 +93,9 @@ class CountingDetailViewModel(
                 prefs.setCountingDetailSort(event.sort.sort)
                 prefs.setCountingDetailOrder(event.sort.order.value)
                 setState {
-                    copy(sort = event.sort, countingDetailRow = emptyList(), page = 1, loadingState = Loading.LOADING)
+                    copy(sort = event.sort, countingDetailRow = emptyList(), page = 1)
                 }
-                getReceivingDetailList(receivingRow.receivingID,state.keyword,state.page,event.sort)
+                getReceivingDetailList()
             }
             is CountingDetailContract.Event.OnShowSortList -> {
                 setState {
@@ -110,26 +105,26 @@ class CountingDetailViewModel(
 
 
             CountingDetailContract.Event.OnReachedEnd -> {
-                if (10*state.page <= state.countingDetailRow.size){
+                if (ROW_COUNT*state.page <= state.countingDetailRow.size){
                     setState {
-                        copy(page = page+1, loadingState = Loading.LOADING)
+                        copy(page = page+1)
                     }
-                    getReceivingDetailList(receivingRow.receivingID,state.keyword,state.page,state.sort)
+                    getReceivingDetailList()
                 }
             }
 
             is CountingDetailContract.Event.OnSearch -> {
                 setState {
-                    copy(page = 1, countingDetailRow = emptyList(), loadingState = Loading.SEARCHING, keyword = event.keyword)
+                    copy(page = 1, countingDetailRow = emptyList(), keyword = event.keyword)
                 }
-                getReceivingDetailList(receivingRow.receivingID,state.keyword,state.page,state.sort)
+                getReceivingDetailList(Loading.SEARCHING)
             }
 
             CountingDetailContract.Event.OnRefresh -> {
                 setState {
-                    copy(page = 1, loadingState = Loading.REFRESHING, countingDetailRow = emptyList())
+                    copy(page = 1, countingDetailRow = emptyList())
                 }
-                getReceivingDetailList(receivingRow.receivingID,state.keyword,state.page,state.sort)
+                getReceivingDetailList(Loading.REFRESHING)
             }
 
             is CountingDetailContract.Event.OnDetailClick -> {
@@ -140,50 +135,57 @@ class CountingDetailViewModel(
 
             CountingDetailContract.Event.FetchData -> {
                 setState {
-                    copy(page = 1, loadingState = Loading.LOADING, countingDetailRow = emptyList())
+                    copy(page = 1, countingDetailRow = emptyList())
                 }
-                getReceivingDetailList(receivingRow.receivingID,state.keyword,state.page,state.sort)
+                getReceivingDetailList()
             }
         }
     }
 
-    private fun getReceivingDetailList(receivingID: Int,keyword: String,page: Int = 1,sort: SortItem) {
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.getReceivingDetails(receivingID,isCrossDock,keyword,page,10,sort = sort.sort,order = sort.order.value)
-                .catch {
-                    setSuspendedState {
-                        copy(error = it.message?:"", loadingState = Loading.NONE)
-                    }
-                }
-                .collect {
-                    setSuspendedState {
-                        copy(loadingState = Loading.NONE)
-                    }
-                    when(it){
-                        is BaseResult.Error -> {
-                            setSuspendedState {
-                                copy(error = it.message)
-                            }
+    private fun getReceivingDetailList(
+        loading: Loading = Loading.LOADING
+    ) {
+        if (state.loadingState == Loading.NONE){
+            setState {
+                copy(loadingState = loading)
+            }
+            viewModelScope.launch(Dispatchers.IO) {
+                repository.getReceivingDetails(receivingRow.receivingID,isCrossDock,state.keyword,state.page,ROW_COUNT,sort = state.sort.sort,order = state.sort.order.value)
+                    .catch {
+                        setSuspendedState {
+                            copy(error = it.message?:"", loadingState = Loading.NONE)
                         }
-                        is BaseResult.Success -> {
-
-                            setSuspendedState {
-                                copy(
-                                    countingDetailModel = it.data,
-                                    countingDetailRow = it.data?.rows?: emptyList(),
-                                    total = it.data?.rows?.sumOf { it.quantity } ?:0.0,
-                                    scan = it.data?.rows?.sumOf { it.countQuantity?:0.0 }?:0.0
-                                )
-                            }
-                            if (it.data?.rows.isNullOrEmpty()){
-                                setEffect {
-                                    CountingDetailContract.Effect.NavBack
+                    }
+                    .collect {
+                        setSuspendedState {
+                            copy(loadingState = Loading.NONE)
+                        }
+                        when(it){
+                            is BaseResult.Error -> {
+                                setSuspendedState {
+                                    copy(error = it.message)
                                 }
                             }
+                            is BaseResult.Success -> {
+
+                                setSuspendedState {
+                                    copy(
+                                        countingDetailModel = it.data,
+                                        countingDetailRow = it.data?.rows?: emptyList(),
+                                        total = it.data?.rows?.sumOf { it.quantity } ?:0.0,
+                                        scan = it.data?.rows?.sumOf { it.countQuantity?:0.0 }?:0.0
+                                    )
+                                }
+                                if (loading != Loading.SEARCHING && it.data?.rows.isNullOrEmpty()){
+                                    setEffect {
+                                        CountingDetailContract.Effect.NavBack
+                                    }
+                                }
+                            }
+                            else ->{}
                         }
-                        else ->{}
                     }
-                }
+            }
         }
     }
 }

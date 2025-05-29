@@ -1,6 +1,7 @@
 package com.example.jaywarehouse.data.pallet
 
 import com.example.jaywarehouse.data.common.utils.BaseResult
+import com.example.jaywarehouse.data.common.utils.ROW_COUNT
 import com.example.jaywarehouse.data.common.utils.ResultMessageModel
 import com.example.jaywarehouse.data.common.utils.getResult
 import com.example.jaywarehouse.data.pallet.model.PalletConfirmModel
@@ -23,7 +24,7 @@ class PalletRepository(
                 api.getPalletManifestList(
                     jsonObject,
                     page,
-                    10,
+                    ROW_COUNT,
                     sort,
                     order
                 )

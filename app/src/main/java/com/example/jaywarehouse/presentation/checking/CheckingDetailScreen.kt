@@ -10,7 +10,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
@@ -35,8 +37,10 @@ import com.example.jaywarehouse.R
 import com.example.jaywarehouse.data.checking.models.CheckingListGroupedRow
 import com.example.jaywarehouse.data.checking.models.CheckingListRow
 import com.example.jaywarehouse.data.common.utils.mdp
+import com.example.jaywarehouse.data.common.utils.removeZeroDecimal
 import com.example.jaywarehouse.presentation.checking.contracts.CheckingDetailContract
 import com.example.jaywarehouse.presentation.checking.viewModels.CheckingDetailViewModel
+import com.example.jaywarehouse.presentation.common.composables.AutoDropDownTextField
 import com.example.jaywarehouse.presentation.common.composables.BaseListItem
 import com.example.jaywarehouse.presentation.common.composables.BaseListItemModel
 import com.example.jaywarehouse.presentation.common.composables.DetailCard
@@ -54,6 +58,7 @@ import com.example.jaywarehouse.presentation.common.utils.SIDE_EFFECT_KEY
 import com.example.jaywarehouse.presentation.common.utils.ScreenTransition
 import com.example.jaywarehouse.presentation.destinations.DashboardScreenDestination
 import com.example.jaywarehouse.presentation.destinations.PutawayScreenDestination
+import com.example.jaywarehouse.presentation.shipping.contracts.ShippingContract
 import com.example.jaywarehouse.ui.theme.Gray3
 import com.example.jaywarehouse.ui.theme.Gray5
 import com.ramcosta.composedestinations.annotation.Destination
@@ -199,13 +204,13 @@ fun CheckingDetailItem(
         onClick = onClick,
         item1 = BaseListItemModel("Name",model.productName, R.drawable.vuesax_outline_3d_cube_scan),
         item2 = BaseListItemModel("Product Code",model.productCode,R.drawable.barcode),
-        item3 = BaseListItemModel("Barcode",model.barcodeNumber,R.drawable.note),
+        item3 = BaseListItemModel("Barcode",model.barcodeNumber?:"",R.drawable.note),
         item4 = BaseListItemModel("Reference", model.referenceNumber?:"",R.drawable.hashtag),
-        item5 = BaseListItemModel("Quantity", model.quantity.toString(),R.drawable.vuesax_linear_box),
+        item5 = BaseListItemModel("Quantity", model.quantity.removeZeroDecimal().toString(),R.drawable.vuesax_linear_box),
         showFooter = false,
         quantity = "",
         quantityTitle = "Location",
-        scan = model.quantity.toString(),
+        scan = model.quantity.removeZeroDecimal().toString(),
         scanTitle = "Quantity"
     )
 }
@@ -242,6 +247,7 @@ fun CheckingBottomSheet(
         ) {
             Column (
                 Modifier
+                    .verticalScroll(rememberScrollState())
                     .padding(horizontal = 24.mdp)
                     .padding(bottom = 24.mdp)
             ){
@@ -269,7 +275,7 @@ fun CheckingBottomSheet(
                     DetailCard(
                         title = "Barcode",
                         icon = R.drawable.barcode,
-                        detail = state.selectedChecking.barcodeNumber,
+                        detail = state.selectedChecking.barcodeNumber?:"",
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -285,7 +291,7 @@ fun CheckingBottomSheet(
                     DetailCard(
                         title = "Quantity",
                         icon = R.drawable.vuesax_linear_box,
-                        detail = state.selectedChecking.quantity.toString(),
+                        detail = state.selectedChecking.quantity.removeZeroDecimal().toString(),
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -322,6 +328,45 @@ fun CheckingBottomSheet(
                     focusRequester = barcodeFocusRequester,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
                 )
+                Spacer(Modifier.size(10.mdp))
+                Row(Modifier.fillMaxWidth()) {
+                    Column(Modifier.weight(1f)) {
+                        TitleView(
+                            title = "Pallet Status"
+                        )
+                        Spacer(Modifier.size(5.mdp))
+                        AutoDropDownTextField(
+                            state.palletStatus,
+                            onValueChange = {
+                                onEvent(CheckingDetailContract.Event.OnPalletStatusChange(it))
+                            },
+                            suggestions = state.palletStatusList,
+                            icon = R.drawable.user_square,
+                            onSuggestionClick = {
+                                onEvent(CheckingDetailContract.Event.OnSelectPalletStatus(it))
+                            }
+//                    hideKeyboard = state.lockKeyboard,
+                        )
+                    }
+                    Spacer(Modifier.size(10.mdp))
+                    Column(Modifier.weight(1f)) {
+                        TitleView(title = "Pallet Type")
+                        Spacer(Modifier.size(5.mdp))
+                        AutoDropDownTextField(
+                            state.palletType,
+                            onValueChange = {
+                                onEvent(CheckingDetailContract.Event.OnPalletTypeChange(it))
+                            },
+                            suggestions = state.palletTypeList,
+                            icon = R.drawable.user_square,
+                            onSuggestionClick = {
+                                onEvent(CheckingDetailContract.Event.OnSelectPalletType(it))
+                            }
+//                    hideKeyboard = state.lockKeyboard,
+                        )
+                    }
+                }
+
                 Spacer(Modifier.size(15.mdp))
                 Row(Modifier.fillMaxWidth()) {
                     MyButton(

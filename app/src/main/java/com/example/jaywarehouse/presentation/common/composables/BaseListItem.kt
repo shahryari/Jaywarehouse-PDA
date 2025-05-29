@@ -13,12 +13,20 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -59,12 +67,13 @@ fun BaseListItem(
     onRemove: ()->Unit = {},
     quantity: Double,
     quantityTitle: String = "Total",
-    quantityIcon: Int = R.drawable.vuesax_outline_box_tick,
+    quantityIcon: Int? = null,
     scan: Double,
     enableShowDetail: Boolean = false,
     scanTitle: String = "Scan",
     showFooter: Boolean = true,
-    scanIcon: Int = R.drawable.scanner
+    expandable: Boolean = false,
+    scanIcon: Int? = null
 ) = BaseListItem(
     modifier = modifier,
     onClick = onClick,
@@ -79,13 +88,14 @@ fun BaseListItem(
     item9 = item9,
     showDeleteButton = showDeleteButton,
     onRemove = onRemove,
-    quantity = quantity.toString(),
+    quantity = quantity.removeZeroDecimal().toString(),
     enableShowDetail = enableShowDetail,
     quantityTitle = quantityTitle,
     quantityIcon = quantityIcon,
-    scan = scan.toString(),
+    scan = scan.removeZeroDecimal().toString(),
     scanTitle = scanTitle,
     showFooter = showFooter,
+    expandable = expandable,
     scanIcon = scanIcon
 )
 
@@ -107,12 +117,13 @@ fun BaseListItem(
     quantity: String,
     primary: Boolean = false,
     quantityTitle: String = "Total",
-    quantityIcon: Int = R.drawable.vuesax_outline_box_tick,
+    quantityIcon: Int? = null,
     scan: String,
     enableShowDetail: Boolean = false,
+    expandable: Boolean = false,
     scanTitle: String = "Scan",
     showFooter: Boolean = true,
-    scanIcon: Int = R.drawable.scanner
+    scanIcon: Int? = null
 ) {
 
     val showItem1 = item1 != null && item1.value.isNotEmpty()
@@ -124,6 +135,9 @@ fun BaseListItem(
     val showItem7 = item7 != null && item7.value.isNotEmpty()
     val showItem8 = item8 != null && item8.value.isNotEmpty()
     val showItem9 = item9 != null && item9.value.isNotEmpty()
+    var expended by remember {
+        mutableStateOf(false)
+    }
     Column(
         modifier = modifier
             .shadow(3.mdp, RoundedCornerShape(10.mdp))
@@ -223,7 +237,7 @@ fun BaseListItem(
                 )
             }
         }
-        AnimatedVisibility(visible = showItem6 || showItem7) {
+        AnimatedVisibility(visible = (showItem6 || showItem7) && (expended || !expandable)) {
 
             Row(
                 Modifier
@@ -249,7 +263,7 @@ fun BaseListItem(
                 )
             }
         }
-        AnimatedVisibility(visible = showItem8 || showItem9) {
+        AnimatedVisibility(visible = (showItem8 || showItem9) && (expended || !expandable)) {
             Row(
                 Modifier
                     .fillMaxWidth()
@@ -274,7 +288,21 @@ fun BaseListItem(
                 )
             }
         }
-        Spacer(modifier = Modifier.size(15.mdp))
+        Spacer(Modifier.size(8.mdp))
+        if (expandable && !expended)IconButton(
+            onClick = {
+                expended = !expended
+            },
+            modifier = Modifier.align(Alignment.Start),
+        ) {
+            Icon(
+                Icons.Default.MoreVert,
+                contentDescription = "",
+                modifier = Modifier.rotate(90f),
+                tint = Color.Black
+            )
+        }
+        Spacer(modifier = Modifier.size(8.mdp))
         if (showFooter)Row(
             Modifier
                 .fillMaxWidth()
@@ -288,13 +316,15 @@ fun BaseListItem(
                     .padding(12.mdp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-//                Icon(
-//                    painter = painterResource(id = quantityIcon),
-//                    contentDescription = "",
-//                    modifier = Modifier.size(28.mdp),
-//                    tint = Color.White
-//                )
-//                Spacer(modifier = Modifier.size(7.mdp))
+                if (quantityIcon!=null){
+                    Icon(
+                        painter = painterResource(id = quantityIcon),
+                        contentDescription = "",
+                        modifier = Modifier.size(28.mdp),
+                        tint = Color.Black
+                    )
+                    Spacer(modifier = Modifier.size(7.mdp))
+                }
                 MyText(
                     text = "$quantityTitle${if (quantityTitle.isNotEmpty()) ": " else ""}$quantity",
                     color = if (primary) Color.White else Black,
@@ -312,13 +342,15 @@ fun BaseListItem(
                     .padding(12.mdp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-//                Icon(
-//                    painter = painterResource(id = scanIcon),
-//                    contentDescription = "",
-//                    modifier = Modifier.size(28.mdp),
-//                    tint = Color.White
-//                )
-//                Spacer(modifier = Modifier.size(7.mdp))
+                if (scanIcon!=null){
+                    Icon(
+                        painter = painterResource(id = scanIcon),
+                        contentDescription = "",
+                        modifier = Modifier.size(28.mdp),
+                        tint = Color.Black
+                    )
+                    Spacer(modifier = Modifier.size(7.mdp))
+                }
                 MyText(
                     text = "$scanTitle${if (scanTitle.isNotEmpty()) ": " else ""}$scan",
                     color = if (primary) Primary else Black,

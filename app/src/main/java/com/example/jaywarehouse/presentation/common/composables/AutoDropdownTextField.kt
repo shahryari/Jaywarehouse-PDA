@@ -46,9 +46,7 @@ fun <T>AutoDropDownTextField(
         mutableStateOf(false)
     }
 
-    val focusRequester = remember {
-        FocusRequester()
-    }
+
 
     var textFieldSize by remember {
         mutableStateOf(IntSize.Zero)
@@ -65,7 +63,6 @@ fun <T>AutoDropDownTextField(
                 onValueChange(it)
                     isExpanded = it.text.isNotEmpty()
             },
-            focusRequester = focusRequester,
             label = label,
             readOnly = clickable,
             onClick = {

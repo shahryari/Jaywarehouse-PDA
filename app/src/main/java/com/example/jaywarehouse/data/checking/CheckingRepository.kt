@@ -3,6 +3,7 @@ package com.example.jaywarehouse.data.checking
 import com.example.jaywarehouse.data.checking.models.CheckingListGroupedModel
 import com.example.jaywarehouse.data.checking.models.CheckingListModel
 import com.example.jaywarehouse.data.common.utils.BaseResult
+import com.example.jaywarehouse.data.common.utils.ROW_COUNT
 import com.example.jaywarehouse.data.common.utils.ResultMessageModel
 import com.example.jaywarehouse.data.common.utils.getResult
 import com.example.jaywarehouse.presentation.common.composables.BaseListItemModel
@@ -23,7 +24,7 @@ class CheckingRepository(
         jsonObject.addProperty("Keyword",keyword)
         return getResult(
             request = {
-                api.getCheckingListGrouped(jsonObject, page, 10, sort, order)
+                api.getCheckingListGrouped(jsonObject, page, ROW_COUNT, sort, order)
             }
         )
     }
@@ -40,7 +41,7 @@ class CheckingRepository(
         jsonObject.addProperty("CustomerID",customerId)
         return getResult(
             request = {
-                api.getCheckingList(jsonObject, page, 10, sort, order)
+                api.getCheckingList(jsonObject, page, ROW_COUNT, sort, order)
             }
         )
     }
@@ -50,7 +51,9 @@ class CheckingRepository(
         checkCount: Double,
         customerId: String,
         checkingId: String,
-        palletBarcode: String
+        palletBarcode: String,
+        palletStatusID: Int,
+        palletTypeID: Int
     ) : Flow<BaseResult<ResultMessageModel>> {
         val jsonObject = JsonObject()
         jsonObject.addProperty("IsCrossDock",isCrossDock)
@@ -58,10 +61,24 @@ class CheckingRepository(
         jsonObject.addProperty("CustomerID",customerId)
         jsonObject.addProperty("CheckingID",checkingId)
         jsonObject.addProperty("PalletBarcode",palletBarcode)
+        jsonObject.addProperty("PalletStatusID",palletStatusID)
+        jsonObject.addProperty("PalletTypeID",palletTypeID)
         return getResult(
             request = {
                 api.checking(jsonObject)
             }
         )
     }
+
+    fun getPalletTypes() = getResult(
+        request = {
+            api.getPalletTypes()
+        }
+    )
+
+    fun getPalletStatuses() = getResult(
+        request = {
+            api.getPalletStatuses()
+        }
+    )
 }

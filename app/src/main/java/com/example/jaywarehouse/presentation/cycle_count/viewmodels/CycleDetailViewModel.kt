@@ -4,6 +4,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.viewModelScope
 import com.example.jaywarehouse.data.common.utils.BaseResult
 import com.example.jaywarehouse.data.common.utils.Prefs
+import com.example.jaywarehouse.data.common.utils.ROW_COUNT
 import com.example.jaywarehouse.data.common.utils.addAll
 import com.example.jaywarehouse.data.cycle_count.CycleRepository
 import com.example.jaywarehouse.data.cycle_count.models.CycleDetailRow
@@ -87,7 +88,7 @@ class CycleDetailViewModel(
             }
 
             CycleDetailContract.Event.OnReachEnd -> {
-                if (10*state.page<=state.details.size){
+                if (ROW_COUNT*state.page<=state.details.size){
                     setState {
                         copy(page = state.page+1, loadingState = Loading.LOADING)
                     }

@@ -14,7 +14,7 @@ data class CheckingListRow(
     @SerializedName("B2BCustomer")
     val b2BCustomer: String?,
     @SerializedName("BarcodeNumber")
-    val barcodeNumber: String,
+    val barcodeNumber: String?,
     @SerializedName("CheckingWorkerTaskID")
     val checkingWorkerTaskID: Int,
     @SerializedName("CheckingID")

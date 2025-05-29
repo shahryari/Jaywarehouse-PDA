@@ -39,8 +39,14 @@ fun String.endsWithEnter(): Boolean {
 }
 
 fun Double.removeZeroDecimal() : String {
-    val df = DecimalFormat("#.##")
-    return df.format(this)
+    try {
+        val df = DecimalFormat("#.####").apply {
+            isDecimalSeparatorAlwaysShown = false
+        }
+        return df.format(this)
+    }catch (e: Exception) {
+        return toString()
+    }
 }
 
 fun String.withEnglishDigits() : String {

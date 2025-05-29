@@ -52,7 +52,7 @@ fun DetailHeader(
             )
             Spacer(Modifier.size(10.mdp))
 
-            Row(modifier = Modifier.weight(0.5f),verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
+            Row(modifier = Modifier.weight(1f),verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
                 MyText(
                     text = firstTitle,
                     style = MaterialTheme.typography.bodyMedium,

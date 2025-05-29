@@ -4,6 +4,9 @@ import androidx.compose.ui.text.input.TextFieldValue
 import com.example.jaywarehouse.data.checking.models.CheckingListGroupedRow
 import com.example.jaywarehouse.data.checking.models.CheckingListModel
 import com.example.jaywarehouse.data.checking.models.CheckingListRow
+import com.example.jaywarehouse.data.checking.models.PalletStatusModel
+import com.example.jaywarehouse.data.checking.models.PalletStatusRow
+import com.example.jaywarehouse.data.shipping.models.PalletTypeRow
 import com.example.jaywarehouse.presentation.common.utils.Loading
 import com.example.jaywarehouse.presentation.common.utils.Order
 import com.example.jaywarehouse.presentation.common.utils.SortItem
@@ -37,6 +40,12 @@ class CheckingDetailContract {
             SortItem("Barcode Descending","BarcodeNumber", Order.Desc),
         ),
         val sort: SortItem = sortList.first(),
+        val palletTypeList: List<PalletTypeRow> = emptyList(),
+        val palletStatusList: List<PalletStatusRow> = emptyList(),
+        val selectedPalletType: PalletTypeRow? = null,
+        val selectedPalletStatus: PalletStatusRow? = null,
+        val palletType: TextFieldValue = TextFieldValue(),
+        val palletStatus: TextFieldValue = TextFieldValue(),
         val onSaving: Boolean = false,
     ) : UiState
 
@@ -53,6 +62,10 @@ class CheckingDetailContract {
         data class OnShowSortList(val show: Boolean) : Event()
         data class OnSearch(val keyword: String): Event()
         data class OnSortChange(val sortItem: SortItem): Event()
+        data class OnSelectPalletType(val palletType: PalletTypeRow?) : Event()
+        data class OnSelectPalletStatus(val palletStatus: PalletStatusRow?) : Event()
+        data class OnPalletTypeChange(val palletType: TextFieldValue) : Event()
+        data class OnPalletStatusChange(val palletStatus: TextFieldValue) : Event()
     }
 
     sealed class Effect: UiSideEffect {

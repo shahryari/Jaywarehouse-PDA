@@ -1,13 +1,11 @@
 package com.example.jaywarehouse.data.auth.models
 
-import com.example.jaywarehouse.presentation.pallet.PalletConfirmContract
+import com.example.jaywarehouse.presentation.common.utils.MainItems
 import com.google.gson.annotations.SerializedName
 
-data class LoginModel(
-    @SerializedName("Username") val username: String,
-    @SerializedName("FullName") val fullName: String,
-    @SerializedName("TokenID") val tokenID: String,
-    @SerializedName("Message") val message: String? = null,
+
+data class AccessPermissionModel(
+
     @SerializedName("HasChecking")
     val hasChecking: Boolean,
     @SerializedName("HasCount")
@@ -32,5 +30,21 @@ data class LoginModel(
     val hasShipping: Boolean,
     @SerializedName("HasTransfer")
     val hasTransfer: Boolean,
-)
-
+) {
+    fun checkAccess(mainItems: MainItems) : Boolean{
+        return when(mainItems){
+            MainItems.Receiving -> hasCount
+            MainItems.ManualPutaway -> hasPutaway
+            MainItems.ReturnReceiving -> hasReturnReceiving
+            MainItems.Picking -> hasPicking
+            MainItems.Checking -> hasChecking
+            MainItems.PalletConfirm -> hasPalletConfirm
+            MainItems.Loading -> hasLoading
+            MainItems.ShippingTruck -> hasShipping
+            MainItems.Inventory -> hasInventory
+            MainItems.Transfer -> hasTransfer
+            MainItems.CycleCount -> hasCycleCount
+            MainItems.RS -> hasRS
+        }
+    }
+}

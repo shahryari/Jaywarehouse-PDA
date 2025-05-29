@@ -4,6 +4,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.viewModelScope
 import com.example.jaywarehouse.data.common.utils.BaseResult
 import com.example.jaywarehouse.data.common.utils.Prefs
+import com.example.jaywarehouse.data.common.utils.ROW_COUNT
 import com.example.jaywarehouse.data.receiving.repository.ReceivingRepository
 import com.example.jaywarehouse.presentation.common.utils.BaseViewModel
 import com.example.jaywarehouse.presentation.common.utils.Loading
@@ -45,7 +46,7 @@ class CountingViewModel(
 
     private fun getCountingList(keyword: String = "",page: Int = 1, sort: SortItem) {
         viewModelScope.launch(Dispatchers.IO) {
-            repository.getReceivingList(keyword,isCrossDock,page,10,order = sort.order.value,sort = sort.sort)
+            repository.getReceivingList(keyword,isCrossDock,page,ROW_COUNT,order = sort.order.value,sort = sort.sort)
                 .catch {
                     setSuspendedState {
                         copy(error = it.message?:"", loadingState = Loading.NONE)
@@ -112,7 +113,7 @@ class CountingViewModel(
             }
 
             CountingContract.Event.OnListEndReached -> {
-                if(state.page*10 <= state.countingList.size){
+                if(state.page*ROW_COUNT <= state.countingList.size){
                     setState {
                         copy(page = page+1, loadingState = Loading.LOADING)
                     }

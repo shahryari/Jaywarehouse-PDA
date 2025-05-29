@@ -35,7 +35,9 @@ class PickingDetailContract {
             SortItem("Product Code A-Z","ProductCode", Order.Asc),
             SortItem("Product Code Z-A","ProductCode", Order.Desc),
             SortItem("Barcode Ascending","Barcode", Order.Asc),
-            SortItem("Barcode Descending","Barcode", Order.Desc)
+            SortItem("Barcode Descending","Barcode", Order.Desc),
+            SortItem("Reference Number Ascending","ReferenceNumber",Order.Asc),
+            SortItem("Reference Number Descending","ReferenceNumber",Order.Desc)
         ),
         val sort: SortItem = sortList.first(),
         val onSaving: Boolean = false,

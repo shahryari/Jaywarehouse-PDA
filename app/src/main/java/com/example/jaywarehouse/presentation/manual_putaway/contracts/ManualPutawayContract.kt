@@ -1,7 +1,7 @@
 package com.example.jaywarehouse.presentation.manual_putaway.contracts
 
-import androidx.compose.ui.text.input.TextFieldValue
-import com.example.jaywarehouse.data.manual_putaway.repository.ManualPutawayRow
+import com.example.jaywarehouse.data.manual_putaway.models.ManualPutawayRow
+import com.example.jaywarehouse.data.putaway.model.PutawayListGroupedRow
 import com.example.jaywarehouse.presentation.common.utils.Loading
 import com.example.jaywarehouse.presentation.common.utils.Order
 import com.example.jaywarehouse.presentation.common.utils.SortItem
@@ -15,14 +15,15 @@ class ManualPutawayContract {
         val loadingState: Loading = Loading.NONE,
         val error: String = "",
         val putaways: List<ManualPutawayRow> = emptyList(),
+        val putRow: PutawayListGroupedRow? = null,
         val showSortList: Boolean = false,
         val sortList: List<SortItem> = listOf(
             SortItem("Product Name A-Z", "ProductName", Order.Asc),
-            SortItem("Product Name Z-A", "ProductName", Order.Asc),
+            SortItem("Product Name Z-A", "ProductName", Order.Desc),
             SortItem("Product Code Ascending", "ProductCode", Order.Asc),
             SortItem("Product Code Descending", "ProductCode", Order.Desc),
-            SortItem("Barcode Ascending", "Barcode", Order.Desc),
-            SortItem("Barcode Descending", "Barcode", Order.Asc)
+            SortItem("Barcode Ascending", "Barcode", Order.Asc),
+            SortItem("Barcode Descending", "Barcode", Order.Desc)
         ),
         val selectedSort: SortItem = sortList.first(),
         val page: Int = 1,

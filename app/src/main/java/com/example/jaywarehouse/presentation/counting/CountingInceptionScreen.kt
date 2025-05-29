@@ -34,6 +34,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.jaywarehouse.R
 import com.example.jaywarehouse.data.common.utils.mdp
+import com.example.jaywarehouse.data.common.utils.removeZeroDecimal
 import com.example.jaywarehouse.data.receiving.model.ReceivingDetailCountModel
 import com.example.jaywarehouse.data.receiving.model.ReceivingDetailRow
 import com.example.jaywarehouse.presentation.common.composables.DatePickerDialog
@@ -48,6 +49,7 @@ import com.example.jaywarehouse.presentation.common.utils.SIDE_EFFECT_KEY
 import com.example.jaywarehouse.presentation.common.utils.ScreenTransition
 import com.example.jaywarehouse.presentation.counting.contracts.CountingInceptionContract
 import com.example.jaywarehouse.presentation.counting.viewmodels.CountingInceptionViewModel
+import com.example.jaywarehouse.ui.theme.Background
 import com.example.jaywarehouse.ui.theme.Orange
 import com.example.jaywarehouse.ui.theme.Primary
 import com.ramcosta.composedestinations.annotation.Destination
@@ -153,7 +155,7 @@ fun CountingInceptionContent(
                 MyLazyColumn(
                     items = state.details,
                     itemContent = {i,it->
-                        CountingInceptionDetailItem(state.details.size-i,it,it == state.selectedItem){
+                        CountingInceptionDetailItem(state.details.size-i,it,true,it == state.selectedItem){
                             onEvent(CountingInceptionContract.Event.OnSelectedItem(it))
                         }
                     },
@@ -202,8 +204,46 @@ fun CountingInceptionContent(
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
                                 leadingIcon = R.drawable.vuesax_linear_box,
                                 required = true,
-                                label = "Box Quantity",
+                                label = "Pack",
                             )
+                            if (state.locationBase){
+                                Spacer(Modifier.size(7.mdp))
+
+                                Row(Modifier.fillMaxWidth()) {
+                                    if (state.expEnabled)InputTextField(
+                                        state.expireDate,
+                                        onValueChange = {
+                                            onEvent(CountingInceptionContract.Event.OnChangeExpireDate(it))
+                                            if (it.text.isEmpty()){
+                                                onEvent(CountingInceptionContract.Event.OnSelectedDateChange(""))
+                                            }
+                                        },
+                                        modifier = Modifier.weight(1f),
+                                        leadingIcon = R.drawable.calendar_add,
+                                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                                        onLeadingClick = {
+                                            onEvent(CountingInceptionContract.Event.OnShowDatePicker(true))
+                                        },
+                                        readOnly = true,
+                                        onClick = {
+                                            onEvent(CountingInceptionContract.Event.OnShowDatePicker(true))
+                                        },
+                                        label = "Exp Date",
+                                    )
+                                    if (state.expEnabled && state.batchNumberEnabled)Spacer(Modifier.size(7.mdp))
+                                    if (state.batchNumberEnabled) InputTextField(
+                                        state.batchNumber,
+                                        onValueChange = {
+                                            onEvent(CountingInceptionContract.Event.OnChangeBatchNumber(it))
+                                        },
+                                        modifier = Modifier.weight(1f),
+                                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                                        leadingIcon = R.drawable.keyboard,
+                                        label = "Batch No.",
+                                    )
+                                }
+                            }
+
                             if (state.details.isEmpty())Spacer(Modifier.size(10.mdp))
                             AnimatedVisibility(state.details.isEmpty()) {
                                 Row(
@@ -236,9 +276,9 @@ fun CountingInceptionContent(
                             AnimatedVisibility(state.details.isNotEmpty()) {
                                 DetailHeader(
                                     "Weight",
-                                    "",
-                                    "",
-                                    ""
+                                    "Pack",
+                                    if (state.batchNumberEnabled)"Batch No." else "",
+                                    if (state.expEnabled)"Exp Date" else ""
                                 )
                             }
 
@@ -260,7 +300,7 @@ fun CountingInceptionContent(
                         }
                     },
                     header = {
-                        Column {
+                        Column(Modifier.background(Background)) {
                             if (state.countingDetailRow!=null){
                                 CountingDetailItem(state.countingDetailRow, showDetail = showDetail){
                                     showDetail = !showDetail
@@ -304,47 +344,53 @@ fun CountingInceptionContent(
                                     leadingIcon = R.drawable.vuesax_linear_box,
                                     required = true,
                                     enabled = boxVisibility,
-                                    label = "Box Quantity",
+                                    label = "Pack",
                                 )
 //                                Spacer(Modifier.weight(1f))
                             }
-                            Spacer(Modifier.size(7.mdp))
-                            Row(Modifier.fillMaxWidth()) {
-                                InputTextField(
-                                    state.expireDate,
-                                    onValueChange = {
-                                        onEvent(CountingInceptionContract.Event.OnChangeExpireDate(it))
-                                    },
-                                    modifier = Modifier.weight(1f),
-                                    leadingIcon = R.drawable.calendar_add,
-                                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                                    onLeadingClick = {
-                                        onEvent(CountingInceptionContract.Event.OnShowDatePicker(true))
-                                    },
-                                    readOnly = true,
-                                    onClick = {
-                                        onEvent(CountingInceptionContract.Event.OnShowDatePicker(true))
-                                    },
-                                    label = "Exp Date",
-                                )
+                            if (state.locationBase){
                                 Spacer(Modifier.size(7.mdp))
-                                InputTextField(
-                                    state.batchNumber,
-                                    onValueChange = {
-                                        onEvent(CountingInceptionContract.Event.OnChangeBatchNumber(it))
-                                    },
-                                    modifier = Modifier.weight(1f),
-                                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                                    leadingIcon = R.drawable.keyboard,
-//                                    hideKeyboard = state.hideKeyboard,
-                                    label = "Batch No.",
-                                )
+
+                                Row(Modifier.fillMaxWidth()) {
+                                    if (state.expEnabled)InputTextField(
+                                        state.expireDate,
+                                        onValueChange = {
+                                            onEvent(CountingInceptionContract.Event.OnChangeExpireDate(it))
+                                            if (it.text.isEmpty()){
+                                                onEvent(CountingInceptionContract.Event.OnSelectedDateChange(""))
+                                            }
+                                        },
+                                        modifier = Modifier.weight(1f),
+                                        leadingIcon = R.drawable.calendar_add,
+                                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                                        onLeadingClick = {
+                                            onEvent(CountingInceptionContract.Event.OnShowDatePicker(true))
+                                        },
+                                        readOnly = true,
+                                        onClick = {
+                                            onEvent(CountingInceptionContract.Event.OnShowDatePicker(true))
+                                        },
+                                        label = "Exp Date",
+                                    )
+                                    if (state.expEnabled && state.batchNumberEnabled)Spacer(Modifier.size(7.mdp))
+                                    if (state.batchNumberEnabled)InputTextField(
+                                        state.batchNumber,
+                                        onValueChange = {
+                                            onEvent(CountingInceptionContract.Event.OnChangeBatchNumber(it))
+                                        },
+                                        modifier = Modifier.weight(1f),
+                                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                                        leadingIcon = R.drawable.keyboard,
+                                        label = "Batch No.",
+                                    )
+                                }
                             }
                             Spacer(Modifier.size(10.mdp))
                             Row(
                                 Modifier
                                     .fillMaxWidth()
                                     .clip(RoundedCornerShape(6.mdp))
+                                    .background(Color.White)
                                     .background(Primary.copy(0.2f))
                                     .clickable(!state.isAdding) {
                                         onEvent(CountingInceptionContract.Event.OnAddClick)
@@ -370,8 +416,8 @@ fun CountingInceptionContent(
                                 DetailHeader(
                                     "Qty",
                                     "Pack",
-                                    "Batch No.",
-                                    "Exp Date"
+                                    if (state.batchNumberEnabled)"Batch No." else "",
+                                    if (state.expEnabled)"Exp Date" else ""
                                 )
                             }
 
@@ -393,9 +439,10 @@ fun CountingInceptionContent(
             onDismiss = {
                 onEvent(CountingInceptionContract.Event.OnShowDatePicker(false))
             },
-            selectedDate = state.expireDate.text.ifEmpty { null }
-        ) {
-            onEvent(CountingInceptionContract.Event.OnChangeExpireDate(TextFieldValue(it)))
+            selectedDate = state.selectedDate.ifEmpty { null }
+        ) {f1,f2->
+            onEvent(CountingInceptionContract.Event.OnChangeExpireDate(TextFieldValue(f2)))
+            onEvent(CountingInceptionContract.Event.OnSelectedDateChange(f1))
             onEvent(CountingInceptionContract.Event.OnShowDatePicker(false))
 
         }
@@ -432,12 +479,13 @@ fun CountingInceptionContent(
 fun CountingInceptionDetailItem(
     i: Int,
     model: ReceivingDetailCountModel,
+    isWeight: Boolean = false,
     selected: Boolean = false,
     onRemove: ()->Unit
 ) {
     DetailItem(
         i,
-        first = model.countQuantity.toString(),
+        first = model.countQuantity.removeZeroDecimal() + if (isWeight) " kg" else "",
         second = model.pack?.toString()?:"",
         third = model.batchNumber?:"",
         forth = model.expireDate?:"",

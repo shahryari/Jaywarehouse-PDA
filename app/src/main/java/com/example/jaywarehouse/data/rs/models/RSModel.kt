@@ -31,11 +31,11 @@ data class PODInvoiceRow(
     @SerializedName("ShippingOrderReferenceNumbers")
     val shippingOrderReferenceNumbers: String?,
     @SerializedName("ShippingOrderTypeID")
-    val shippingOrderTypeID: Int,
+    val shippingOrderTypeID: Int?,
     @SerializedName("ShippingOrderTypeTitle")
     val shippingOrderTypeTitle: String?,
     @SerializedName("ShippingTypeID")
-    val shippingTypeID: Int,
+    val shippingTypeID: Int?,
     @SerializedName("ShippingTypeTitle")
     val shippingTypeTitle: String?,
     @SerializedName("TrailerNumber")

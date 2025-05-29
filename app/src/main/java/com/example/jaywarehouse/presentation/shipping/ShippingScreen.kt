@@ -325,7 +325,7 @@ fun ShippingItem(
                 DetailCard(
                     "Status",
                     icon = R.drawable.note,
-                    detail = model.currentStatusCode,
+                    detail = model.currentStatusCode?:"",
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -333,21 +333,21 @@ fun ShippingItem(
             DetailCard(
                 "Driver",
                 icon = R.drawable.user_square,
-                detail = model.driverFullName
+                detail = model.driverFullName?:""
             )
             Spacer(Modifier.size(10.mdp))
             Row(Modifier.fillMaxWidth()) {
                 DetailCard(
                     "Car Number",
                     icon = R.drawable.user_square,
-                    detail = model.carNumber,
+                    detail = model.carNumber?:"",
                     modifier = Modifier.weight(1f)
                 )
                 Spacer(Modifier.size(5.mdp))
                 DetailCard(
                     "Trailer Number",
                     icon = R.drawable.note,
-                    detail = model.trailerNumber,
+                    detail = model.trailerNumber?:"",
                     modifier = Modifier.weight(1f)
                 )
             }

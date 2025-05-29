@@ -14,11 +14,11 @@ data class ShippingModel(
 
 data class ShippingRow(
     @SerializedName("CarNumber")
-    val carNumber: String,
+    val carNumber: String?,
     @SerializedName("CurrentStatusCode")
-    val currentStatusCode: String,
+    val currentStatusCode: String?,
     @SerializedName("DriverFullName")
-    val driverFullName: String,
+    val driverFullName: String?,
     @SerializedName("DriverTin")
     val driverTin: String,
     @SerializedName("ShippingID")
@@ -26,7 +26,7 @@ data class ShippingRow(
     @SerializedName("ShippingNumber")
     val shippingNumber: String,
     @SerializedName("TrailerNumber")
-    val trailerNumber: String
+    val trailerNumber: String?
 ) : Serializable, Animatable {
     override fun key(): String {
         return shippingID.toString()

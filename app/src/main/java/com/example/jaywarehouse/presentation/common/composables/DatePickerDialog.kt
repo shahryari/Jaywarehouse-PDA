@@ -42,7 +42,7 @@ fun DatePickerDialog(
 //    dayOfMonth: Int,
     selectedDate: String? = null,
     yearsRange: IntRange = 1900..2100,
-    onSave: (String) -> Unit
+    onSave: (f1:String,f2: String) -> Unit
 ) {
 
     val inputFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
@@ -104,20 +104,23 @@ fun DatePickerDialog(
         negativeButton = "Cancel",
         onPositiveClick = {
 
-            onSave("${selectedYear!!.value}-${String.format(Locale.US,"%02d",selectedMonth.value)}-${String.format(Locale.US,"%02d",selectedDayOfMonth!!.value)}")
+            onSave(
+                "${selectedYear!!.value}-${String.format(Locale.US,"%02d",selectedMonth.value)}-${String.format(Locale.US,"%02d",selectedDayOfMonth!!.value)}",
+                "${String.format(Locale.US,"%02d",selectedDayOfMonth!!.value)}/${String.format(Locale.US,"%02d",selectedMonth.value)}/${selectedYear!!.value}"
+            )
         }
     ) {
         Row(
             Modifier
                 .clip(RoundedCornerShape(8.mdp))
             , verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
-            Picker(
-                items = years,
-                modifier = Modifier.weight(1f),
-                onSelect = { selectedYear = it },
-                startIndex = years.indexOf(selectedYear)
-            )
 
+            Picker(
+                items = days,
+                modifier = Modifier.weight(1f),
+                onSelect = { selectedDayOfMonth = it },
+                startIndex = days.indexOf(selectedDayOfMonth)
+            )
             Spacer(Modifier.size(10.mdp))
             Picker(
                 items = months,
@@ -127,10 +130,10 @@ fun DatePickerDialog(
             )
             Spacer(Modifier.size(10.mdp))
             Picker(
-                items = days,
+                items = years,
                 modifier = Modifier.weight(1f),
-                onSelect = { selectedDayOfMonth = it },
-                startIndex = days.indexOf(selectedDayOfMonth)
+                onSelect = { selectedYear = it },
+                startIndex = years.indexOf(selectedYear)
             )
         }
     }
@@ -141,6 +144,6 @@ fun DatePickerDialog(
 @Composable
 private fun DatePickerDialogPreview() {
     MyScaffold {
-        DatePickerDialog({}) { }
+        DatePickerDialog({}) {_,_-> }
     }
 }

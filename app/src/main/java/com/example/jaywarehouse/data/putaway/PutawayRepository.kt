@@ -1,6 +1,7 @@
 package com.example.jaywarehouse.data.putaway
 
 import com.example.jaywarehouse.data.common.utils.BaseResult
+import com.example.jaywarehouse.data.common.utils.ROW_COUNT
 import com.example.jaywarehouse.data.common.utils.ResultMessageModel
 import com.example.jaywarehouse.data.common.utils.getResult
 import com.example.jaywarehouse.data.putaway.model.ScanModel
@@ -25,7 +26,7 @@ class PutawayRepository(
                 api.getPutawayListGrouped(
                     jsonObject = jsonObject,
                     page = page,
-                    rows = 10,
+                    rows = ROW_COUNT,
                     sort = sort,
                     order = order
                 )
@@ -49,7 +50,7 @@ class PutawayRepository(
                 api.getPutawayList(
                     jsonObject = jsonObject,
                     page = page,
-                    rows = 10,
+                    rows = ROW_COUNT,
                     sort = sort,
                     order =order
                 )

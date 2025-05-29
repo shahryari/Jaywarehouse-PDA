@@ -14,17 +14,17 @@ data class PutawayListGroupedModel(
 
 data class PutawayListGroupedRow(
     @SerializedName("Count")
-    val count: Double,
+    val count: Double?,
     @SerializedName("ReceiptID")
     val receiptID: Int,
     @SerializedName("ReceivingTypeID")
-    val receivingTypeID: Int,
+    val receivingTypeID: Int?,
     @SerializedName("ReceivingTypeTitle")
-    val receivingTypeTitle: String,
+    val receivingTypeTitle: String?,
     @SerializedName("ReferenceNumber")
-    val referenceNumber: String,
+    val referenceNumber: String?,
     @SerializedName("SupplierFullName")
-    val supplierFullName: String,
+    val supplierFullName: String?,
     @SerializedName("Total")
     val total: Double
 ) : Serializable, Animatable{

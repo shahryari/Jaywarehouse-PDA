@@ -193,7 +193,7 @@ fun TransferItem(
         typeTitle = model.expireDate,
         modelNumber = model.productBarcodeNumber,
         item1 = BaseListItemModel("Product Name",model.productName, R.drawable.barcode),
-        item2 = BaseListItemModel("Location",model.warehouseLocationCode, R.drawable.location),
+        item2 = BaseListItemModel("Location",model.warehouseLocationCode?:"", R.drawable.location),
         totalTitle = "Real",
         total = model.realInventory.toString(),
         countTitle = "Available",
@@ -242,14 +242,14 @@ fun TransferBottomSheet(
                     DetailCard(
                         title = "Barcode",
                         icon = R.drawable.barcode,
-                        detail = state.selectedTransfer.productBarcodeNumber,
+                        detail = state.selectedTransfer.productBarcodeNumber?:"",
                         modifier = Modifier.weight(1f)
                     )
                     Spacer(Modifier.size(5.mdp))
                     DetailCard(
                         title = "Location",
                         icon = R.drawable.location,
-                        detail = state.selectedTransfer.warehouseLocationCode,
+                        detail = state.selectedTransfer.warehouseLocationCode?:"",
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -282,9 +282,10 @@ fun TransferBottomSheet(
                         label = "Quantity",
                         leadingIcon = R.drawable.box_search,
 //                    hideKeyboard = state.lockKeyboard,
+                        modifier = Modifier.weight(1f),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                     )
-                    Spacer(Modifier.size(5.mdp))
+                    Spacer(Modifier.size(10.mdp))
                     AutoDropDownTextField(
                         state.destination,
                         onValueChange = {
@@ -295,7 +296,8 @@ fun TransferBottomSheet(
                         suggestions = state.locationList,
                         onSuggestionClick = {
                             onEvent(TransferContract.Event.OnSelectWarehouseLocation(it))
-                        }
+                        },
+                        modifier = Modifier.weight(1f)
 //                    hideKeyboard = state.lockKeyboard,
                     )
                 }
@@ -365,8 +367,8 @@ fun TransferBottomSheet(
                     onEvent(TransferContract.Event.OnShowDatePicker(false))
                 },
                 selectedDate = state.expirationDate.text.ifEmpty { null }
-            ) {
-                onEvent(TransferContract.Event.OnChangeExpirationDate(TextFieldValue(it)))
+            ) {f1,f2->
+                onEvent(TransferContract.Event.OnChangeExpirationDate(TextFieldValue(f1)))
                 onEvent(TransferContract.Event.OnShowDatePicker(false))
 
             }

@@ -1,5 +1,6 @@
 package com.example.jaywarehouse.presentation.dashboard
 
+import com.example.jaywarehouse.data.auth.models.AccessPermissionModel
 import com.example.jaywarehouse.data.auth.models.DashboardModel
 import com.example.jaywarehouse.presentation.common.utils.MainItems
 import com.example.jaywarehouse.presentation.common.utils.UiEvent
@@ -12,7 +13,12 @@ import com.ramcosta.composedestinations.spec.DirectionDestinationSpec
 class DashboardContract {
     data class State(
         val dashboards: Map<String, List<MainItems>> = MainItems.entries.groupBy { it.category },
-        val dashboardsVisibility: Map<MainItems, Boolean> = MainItems.entries.map { Pair(it,false) }.toMap(),
+        val dashboardsVisibility: Map<MainItems, Boolean> = MainItems.entries.associate {
+            Pair(
+                it,
+                false
+            )
+        },
         val crossDockDashboards: Map<String, List<MainItems>> = mapOf(
             "" to listOf(
                 MainItems.Receiving,
@@ -30,6 +36,7 @@ class DashboardContract {
         val name: String = "",
         val showUpdateDialog: Boolean = false,
         val newVersion: String = "",
+        val accessPermissions: AccessPermissionModel? = null,
         val updateUrl: String = "",
         val subDrawerState: SubDrawerState = SubDrawerState.Drawers,
         val subDrawers: List<MainItems>? = null,
@@ -40,6 +47,7 @@ class DashboardContract {
         val showChangPasswordDialog: Boolean = false,
         val selectedTab: DashboardTab = DashboardTab.Picking,
         val addExtraCycle: Boolean = false,
+        val validatePallet: Boolean = true,
     ) : UiState
 
     sealed class Event : UiEvent {
@@ -54,6 +62,7 @@ class DashboardContract {
         data class OnOpenDetail(val open: Boolean) : Event()
         data class OnShowChangePasswordDialog(val show: Boolean) : Event()
         data class OnAddExtraCycleChange(val add: Boolean): Event()
+        data class OnValidatePalletChange(val validate: Boolean): Event()
     }
 
     sealed class Effect : UiSideEffect {

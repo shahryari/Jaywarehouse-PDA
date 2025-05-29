@@ -26,7 +26,9 @@ class DashboardViewModel(
                 name = prefs.getFullName(),
                 forwardToDashboard = prefs.getIsNavToParent(),
                 openDetail = prefs.getIsNavToDetail(),
-                addExtraCycle = prefs.getAddExtraCycleCount()
+                addExtraCycle = prefs.getAddExtraCycleCount(),
+                validatePallet = prefs.getValidatePallet(),
+                accessPermissions = prefs.getAccessPermission()
             )
         }
         visibleDashboardItems()
@@ -111,6 +113,12 @@ class DashboardViewModel(
                 getDashboard()
             }
 
+            is DashboardContract.Event.OnValidatePalletChange -> {
+                prefs.setValidatePallet(event.validate)
+                setState {
+                    copy(validatePallet = event.validate)
+                }
+            }
         }
     }
 
@@ -123,7 +131,7 @@ class DashboardViewModel(
             viewModelScope.launch {
                 state.dashboardsVisibility.onEachIndexed{i,item->
                     if (!item.value){
-                        delay(i*10L)
+                        if (state.accessPermissions?.checkAccess(item.key) == true) delay(i*10L)
                         val visibilityItems = state.dashboardsVisibility.toMutableMap()
                         visibilityItems.put(item.key,true)
                         setSuspendedState {

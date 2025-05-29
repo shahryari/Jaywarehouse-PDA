@@ -1,5 +1,6 @@
 package com.example.jaywarehouse.data.rs
 
+import com.example.jaywarehouse.data.common.utils.ROW_COUNT
 import com.example.jaywarehouse.data.common.utils.getResult
 import com.google.gson.JsonObject
 
@@ -17,7 +18,7 @@ class RSRepository(
         request = {
             val jsonObject = JsonObject()
             jsonObject.addProperty("Keyword",keyword)
-            api.getPodInvoice(jsonObject,page,10,sort,order)
+            api.getPodInvoice(jsonObject,page,ROW_COUNT,sort,order)
         }
     )
 

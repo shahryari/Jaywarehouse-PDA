@@ -18,6 +18,7 @@ class CountingInceptionContract {
         val boxQuantity: TextFieldValue = TextFieldValue(),
         val batchNumber: TextFieldValue = TextFieldValue(),
         val expireDate: TextFieldValue = TextFieldValue(),
+        val selectedDate: String = "",
         val showDatePicker: Boolean = false,
         val hideKeyboard: Boolean = false,
         val selectedItem: ReceivingDetailCountModel? = null,
@@ -31,7 +32,10 @@ class CountingInceptionContract {
         val isCompleting: Boolean = false,
         val showConfirm: Boolean = false,
         val disableQuantityInPacket: Boolean = false,
-        val pcbEnabled: Boolean = true
+        val pcbEnabled: Boolean = true,
+        val locationBase: Boolean = true,
+        val expEnabled: Boolean = true,
+        val batchNumberEnabled: Boolean = true
     ) : UiState
 
     sealed class Event : UiEvent {
@@ -43,6 +47,7 @@ class CountingInceptionContract {
         data class OnChangeExpireDate(val value: TextFieldValue) : Event()
         data class OnShowDatePicker(val value: Boolean) : Event()
         data object OnAddClick: Event()
+        data class OnSelectedDateChange(val date: String) : Event()
         data object OnBack : Event()
         data class OnShowConfirmDialog(val show: Boolean) : Event()
         data object CloseError: Event()

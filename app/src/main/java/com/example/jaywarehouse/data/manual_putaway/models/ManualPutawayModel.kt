@@ -1,4 +1,4 @@
-package com.example.jaywarehouse.data.manual_putaway.repository
+package com.example.jaywarehouse.data.manual_putaway.models
 
 import com.example.jaywarehouse.presentation.common.composables.Animatable
 import com.google.gson.annotations.SerializedName
@@ -15,7 +15,7 @@ data class ManualPutawayModel(
 data class ManualPutawayRow(
     @SerializedName("BatchNumber")
     val batchNumber: String?,
-    @SerializedName("ExpireDate")
+    @SerializedName("ExpDate")
     val expireDate: String?,
     @SerializedName("ProductBarcodeNumber")
     val productBarcodeNumber: String,
@@ -35,8 +35,18 @@ data class ManualPutawayRow(
     val total: Double,
     @SerializedName("WarehouseID")
     val warehouseID: Int,
+    @SerializedName("CreatedBy")
+    val createdBy: String?,
     @SerializedName("WarehouseLocationCode")
-    val warehouseLocationCode: String?
+    val warehouseLocationCode: String?,
+    @SerializedName("WarehouseName")
+    val warehouseName: String?,
+    @SerializedName("ReferenceNumber")
+    val referenceNumber: String?,
+    @SerializedName("ReceivingTypeTitle")
+    val receivingTypeTitle: String?,
+    @SerializedName("IsWeight")
+    val isWeight: Boolean
 ) : Serializable, Animatable {
     override fun key(): String {
         return putawayID.toString()

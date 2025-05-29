@@ -46,6 +46,6 @@ data class CycleRow(
     }
 
     override fun key(): String {
-        return cycleCountID.toString()
+        return cycleCountLocationID.toString()
     }
 }

@@ -3,6 +3,7 @@ package com.example.jaywarehouse.presentation.loading.viewmodels
 import androidx.lifecycle.viewModelScope
 import com.example.jaywarehouse.data.common.utils.BaseResult
 import com.example.jaywarehouse.data.common.utils.Prefs
+import com.example.jaywarehouse.data.common.utils.ROW_COUNT
 import com.example.jaywarehouse.data.loading.LoadingRepository
 import com.example.jaywarehouse.data.loading.models.LoadingListGroupedRow
 import com.example.jaywarehouse.data.pallet.model.PalletConfirmRow
@@ -73,7 +74,7 @@ class LoadingDetailViewModel(
             }
 
             LoadingDetailContract.Event.OnReachEnd -> {
-                if (10*state.page<=state.details.size){
+                if (ROW_COUNT*state.page<=state.details.size){
                     setState {
                         copy(page = state.page+1, loadingState = Loading.LOADING)
                     }

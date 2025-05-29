@@ -25,6 +25,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.example.jaywarehouse.R
 import com.example.jaywarehouse.data.common.utils.mdp
+import com.example.jaywarehouse.data.common.utils.removeZeroDecimal
 import com.example.jaywarehouse.ui.theme.Primary
 import com.example.jaywarehouse.ui.theme.PrimaryContainer
 import com.example.jaywarehouse.ui.theme.PrimaryDark
@@ -125,7 +126,7 @@ fun MainListItem(
                     )
                     Spacer(modifier = Modifier.size(7.mdp))
                     MyText(
-                        text = "$totalTitle: $total",
+                        text = "$totalTitle: ${total.toDoubleOrNull()?.removeZeroDecimal()?:total}",
                         color = Color.White,
                         style = MaterialTheme.typography.bodyLarge,
                         fontSize = 16.sp,
@@ -147,7 +148,7 @@ fun MainListItem(
                     )
                     Spacer(modifier = Modifier.size(7.mdp))
                     MyText(
-                        text = "$countTitle: $count",
+                        text = "$countTitle: ${count.toDoubleOrNull()?.removeZeroDecimal()?:count}",
                         color = PrimaryDark,
                         style = MaterialTheme.typography.bodyLarge,
                         fontSize = 16.sp,

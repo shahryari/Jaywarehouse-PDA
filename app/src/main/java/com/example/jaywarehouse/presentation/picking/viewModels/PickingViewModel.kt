@@ -4,6 +4,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.viewModelScope
 import com.example.jaywarehouse.data.common.utils.BaseResult
 import com.example.jaywarehouse.data.common.utils.Prefs
+import com.example.jaywarehouse.data.common.utils.ROW_COUNT
 import com.example.jaywarehouse.data.picking.PickingRepository
 import com.example.jaywarehouse.presentation.common.utils.BaseViewModel
 import com.example.jaywarehouse.presentation.common.utils.Loading
@@ -79,7 +80,7 @@ class PickingViewModel(
             }
 
             PickingContract.Event.OnReachedEnd -> {
-                if (10*state.page<=state.pickings.size) {
+                if (ROW_COUNT*state.page<=state.pickings.size) {
                     setState {
                         copy(page = state.page+1, loadingState = Loading.LOADING)
                     }
@@ -118,7 +119,7 @@ class PickingViewModel(
     ) {
         viewModelScope.launch {
             repository.getPickingListGrouped(
-                keyword = keyword,page,10,sort.sort,sort.order.value
+                keyword = keyword,page,ROW_COUNT,sort.sort,sort.order.value
             )
                 .catch {
                     setSuspendedState {

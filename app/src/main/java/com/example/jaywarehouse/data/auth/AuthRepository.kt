@@ -2,6 +2,7 @@ package com.example.jaywarehouse.data.auth
 
 import android.os.UserManager
 import android.telephony.TelephonyCallback.UserMobileDataStateListener
+import com.example.jaywarehouse.data.auth.models.AccessPermissionModel
 import com.example.jaywarehouse.data.auth.models.ChangePasswordModel
 import com.example.jaywarehouse.data.auth.models.CurrentVersionModel
 import com.example.jaywarehouse.data.auth.models.DashboardModel
@@ -33,6 +34,22 @@ class AuthRepository(
             onSuccess = {
                 prefs.setToken(it?.tokenID?:"")
                 prefs.setFullName(it?.fullName?:"")
+                prefs.setAccessPermission(
+                    accessPermissionModel = AccessPermissionModel(
+                        hasRS = it?.hasRS == true,
+                        hasCount = it?.hasCount == true,
+                        hasLoading = it?.hasLoading == true,
+                        hasPicking = it?.hasPicking == true,
+                        hasPutaway = it?.hasPutaway == true,
+                        hasChecking = it?.hasChecking == true,
+                        hasShipping = it?.hasShipping == true,
+                        hasTransfer = it?.hasTransfer == true,
+                        hasInventory = it?.hasInventory == true,
+                        hasCycleCount = it?.hasCycleCount == true,
+                        hasPalletConfirm = it?.hasPalletConfirm == true,
+                        hasReturnReceiving = it?.hasReturnReceiving == true
+                    )
+                )
                 if (rememberMe){
                     val encryptor = Encryptor.getInstance()
                     prefs.setUserName(username)

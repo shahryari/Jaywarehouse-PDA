@@ -11,21 +11,23 @@ data class ReceivingRow(
     @SerializedName("Description")
     val description: String?,
     @SerializedName("Date")
-    val receivingDate: String,
+    val receivingDate: String?,
     @SerializedName("ReceivingID")
     val receivingID: Int,
     @SerializedName("ReceivingTypeID")
-    val receivingTypeID: Int,
+    val receivingTypeID: Int?,
     @SerializedName("ReceivingTypeTitle")
-    val receivingTypeTitle: String,
+    val receivingTypeTitle: String?,
     @SerializedName("ReferenceNumber")
-    val referenceNumber: String,
+    val referenceNumber: String?,
     @SerializedName("SupplierFullName")
-    val supplierFullName: String,
+    val supplierFullName: String?,
+    @SerializedName("CustomerFullName")
+    val customerFullName: String?,
     @SerializedName("Total")
     val total: Double,
     @SerializedName("WarehouseName")
-    val warehouseName: String
+    val warehouseName: String?
 ) : Serializable, Animatable{
     override fun key(): String {
         return receivingID.toString()

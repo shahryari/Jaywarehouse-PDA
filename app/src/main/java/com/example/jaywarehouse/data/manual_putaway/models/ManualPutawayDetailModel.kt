@@ -1,4 +1,4 @@
-package com.example.jaywarehouse.data.manual_putaway.repository
+package com.example.jaywarehouse.data.manual_putaway.models
 
 import com.example.jaywarehouse.presentation.common.composables.Animatable
 import com.google.gson.annotations.SerializedName

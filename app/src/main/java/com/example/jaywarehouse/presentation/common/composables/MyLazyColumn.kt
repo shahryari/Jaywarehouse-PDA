@@ -32,7 +32,7 @@ fun <T : Animatable>MyLazyColumn(
 
     LazyColumn(modifier,state = state) {
         stickyHeader { header() }
-        itemsIndexed(items, key = {_,it->it.key()}){i,it->
+        itemsIndexed(items, key = {i,it->it.key()+i}){i,it->
             Column(Modifier.animateItem(
                 fadeInSpec = tween(delayMillis = i*50)
             )) {

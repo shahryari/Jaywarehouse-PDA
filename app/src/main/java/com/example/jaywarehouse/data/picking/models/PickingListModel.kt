@@ -10,39 +10,36 @@ data class PickingListModel(
     val total: Int
 )
 
+
 data class PickingListRow(
     @SerializedName("B2BCustomer")
     val b2BCustomer: String?,
     @SerializedName("BarcodeNumber")
-    val barcodeNumber: String,
+    val barcodeNumber: String?,
     @SerializedName("CustomerCode")
     val customerCode: String,
     @SerializedName("CustomerID")
     val customerID: Int,
-    @SerializedName("PickingID")
-    val pickingID: Int,
     @SerializedName("CustomerName")
     val customerName: String,
+    @SerializedName("ExpDate")
+    val expDate: String?,
+    @SerializedName("PickingID")
+    val pickingID: Int,
     @SerializedName("ProductCode")
-    val productCode: String,
-    @SerializedName("ExpireDate")
-    val productInventoryExpireDate: String?,
-    @SerializedName("ProductInventoryHistoryID")
-    val productInventoryHistoryID: Int?,
-    @SerializedName("ProductLocationActivityID")
-    val productLocationActivityID: Int,
+    val productCode: String?,
     @SerializedName("ProductName")
-    val productName: String,
+    val productName: String?,
     @SerializedName("Quantity")
     val quantity: Double,
     @SerializedName("ReferenceNumber")
-    val referenceNumber: String,
+    val referenceNumber: String?,
     @SerializedName("ShippingOrderDetailID")
     val shippingOrderDetailID: Int,
     @SerializedName("TypeofOrderAcquisition")
     val typeofOrderAcquisition: String?,
     @SerializedName("WarehouseLocationCode")
-    val warehouseLocationCode: String
+    val warehouseLocationCode: String?
 ) : Animatable {
     override fun key(): String {
         return pickingID.toString()

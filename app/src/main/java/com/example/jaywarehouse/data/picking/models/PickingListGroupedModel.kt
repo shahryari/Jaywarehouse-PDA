@@ -21,6 +21,8 @@ data class PickingListGroupedRow(
     val customerID: Int,
     @SerializedName("CustomerName")
     val customerName: String,
+    @SerializedName("CustomerTypeTitle")
+    val customerTypeTitle: String?,
     @SerializedName("Total")
     val total: Double,
     @SerializedName("Count")

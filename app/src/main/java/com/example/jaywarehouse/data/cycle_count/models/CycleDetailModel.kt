@@ -9,13 +9,13 @@ data class CycleDetailModel(
 )
 data class CycleDetailRow(
     @SerializedName("Aisle")
-    val aisle: String,
+    val aisle: String?,
     @SerializedName("Bank")
-    val bank: String,
+    val bank: String?,
     @SerializedName("BatchNumber")
     val batchNumber: String?,
     @SerializedName("Bay")
-    val bay: String,
+    val bay: String?,
     @SerializedName("BookedQuantity")
     val bookedQuantity: Int,
     @SerializedName("CountQuantity")
@@ -29,9 +29,9 @@ data class CycleDetailRow(
     @SerializedName("ExpireDate")
     val expireDate: String?,
     @SerializedName("LevelInfo")
-    val levelInfo: String,
+    val levelInfo: String?,
     @SerializedName("LocationCode")
-    val locationCode: String,
+    val locationCode: String?,
     @SerializedName("ProductBarcodeID")
     val productBarcodeID: Int,
     @SerializedName("ProductBarcodeNumber")
@@ -43,9 +43,9 @@ data class CycleDetailRow(
     @SerializedName("ProductTitle")
     val productTitle: String,
     @SerializedName("QuiddityTypeID")
-    val quiddityTypeID: Int,
+    val quiddityTypeID: Int?,
     @SerializedName("QuiddityTypeTitle")
-    val quiddityTypeTitle: String,
+    val quiddityTypeTitle: String?,
     @SerializedName("CycleCountWorkerTaskDetailID")
     val cycleCountWorkerTaskDetailID: String,
     @SerializedName("Counting")
@@ -64,6 +64,31 @@ data class CycleDetailRow(
     }
 
     override fun key(): String {
-        return cycleCountWorkerTaskID
+        return cycleCountWorkerTaskDetailID
+    }
+
+    override fun hashCode(): Int {
+        var result = bookedQuantity
+        result = 31 * result + (countQuantity ?: 0)
+        result = 31 * result + productBarcodeID
+        result = 31 * result + productID
+        result = 31 * result + (quiddityTypeID?:0)
+        result = 31 * result + counting
+        result = 31 * result + aisle.hashCode()
+        result = 31 * result + bank.hashCode()
+        result = 31 * result + (batchNumber?.hashCode() ?: 0)
+        result = 31 * result + bay.hashCode()
+        result = 31 * result + cycleCountID.hashCode()
+        result = 31 * result + cycleCountLocationID.hashCode()
+        result = 31 * result + cycleCountWorkerTaskID.hashCode()
+        result = 31 * result + (expireDate?.hashCode() ?: 0)
+        result = 31 * result + levelInfo.hashCode()
+        result = 31 * result + locationCode.hashCode()
+        result = 31 * result + productBarcodeNumber.hashCode()
+        result = 31 * result + productCode.hashCode()
+        result = 31 * result + productTitle.hashCode()
+        result = 31 * result + quiddityTypeTitle.hashCode()
+        result = 31 * result + cycleCountWorkerTaskDetailID.hashCode()
+        return result
     }
 }

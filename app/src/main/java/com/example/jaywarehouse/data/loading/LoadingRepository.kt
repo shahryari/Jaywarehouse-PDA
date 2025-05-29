@@ -1,6 +1,7 @@
 package com.example.jaywarehouse.data.loading
 
 import com.example.jaywarehouse.data.common.utils.BaseResult
+import com.example.jaywarehouse.data.common.utils.ROW_COUNT
 import com.example.jaywarehouse.data.common.utils.ResultMessageModel
 import com.example.jaywarehouse.data.common.utils.getResult
 import com.example.jaywarehouse.data.loading.models.LoadingListGroupedModel
@@ -22,7 +23,7 @@ class LoadingRepository(private val api: LoadingApi) {
 
         return getResult(
             request = {
-                api.getLoadingListGrouped(jsonObject,page,10,sort,order)
+                api.getLoadingListGrouped(jsonObject,page,ROW_COUNT,sort,order)
             }
         )
     }
@@ -41,7 +42,7 @@ class LoadingRepository(private val api: LoadingApi) {
 
         return getResult(
             request = {
-                api.getLoadingList(jsonObject,page,10,sort,order)
+                api.getLoadingList(jsonObject,page,ROW_COUNT,sort,order)
             }
         )
     }

@@ -19,30 +19,30 @@ data class TransferRow(
     @SerializedName("ProductBarcodeID")
     val productBarcodeID: String,
     @SerializedName("ProductBarcodeNumber")
-    val productBarcodeNumber: String,
+    val productBarcodeNumber: String?,
     @SerializedName("LocationInventoryID")
     val locationInventoryID: Int,
     @SerializedName("WarehouseLocationCode")
-    val warehouseLocationCode: String,
+    val warehouseLocationCode: String?,
     @SerializedName("WarehouseLocationID")
     val warehouseLocationID: Int,
     @SerializedName("BatchNumber")
-    val batchNumber: String,
+    val batchNumber: String?,
     @SerializedName("ExpireDate")
-    val expireDate: String,
+    val expireDate: String?,
     @SerializedName("AvailableInventory")
-    val availableInventory: Int,
+    val availableInventory: Double,
     @SerializedName("RealInventory")
-    val realInventory: Int,
+    val realInventory: Double,
     @SerializedName("WarehouseID")
     val warehouseID: Int,
     @SerializedName("OwnerInfoID")
-    val ownerInfoID: Int,
+    val ownerInfoID: String?,
     @SerializedName("OwnerInfoFullName")
-    val ownerInfoFullName: String
+    val ownerInfoFullName: String?
 ) : Animatable {
     override fun key(): String {
-        return "${productID}_$locationInventoryID"
+        return "${ownerInfoID}_${locationInventoryID}_${warehouseLocationID}_$productBarcodeID"
     }
 }
 

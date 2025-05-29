@@ -4,8 +4,10 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import com.example.jaywarehouse.data.auth.models.AccessPermissionModel
 import com.example.jaywarehouse.data.common.modules.dataStore
 import com.example.jaywarehouse.presentation.common.utils.Order
+import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -14,6 +16,7 @@ class Prefs(private val context: Context) {
     private val preferences: SharedPreferences = context.getSharedPreferences("prefs",Context.MODE_PRIVATE)
 
     val lockKeyboardKey = booleanPreferencesKey("lockKeyboardKey")
+
     //token
     fun setToken(token: String) {
         with(preferences.edit()){
@@ -26,6 +29,21 @@ class Prefs(private val context: Context) {
         return preferences.getString("token","")?:""
     }
 
+    //access permissions
+    fun setAccessPermission(accessPermissionModel: AccessPermissionModel){
+        with(preferences.edit()){
+            putString("access",Gson().toJson(accessPermissionModel))
+            apply()
+        }
+    }
+
+    fun getAccessPermission() : AccessPermissionModel? {
+        return try {
+            Gson().fromJson(preferences.getString("access",""), AccessPermissionModel::class.java)
+        } catch (e: Exception){
+            null
+        }
+    }
     //extra cycle count
 
     fun setAddExtraCycleCount(add: Boolean) {
@@ -238,7 +256,7 @@ class Prefs(private val context: Context) {
     }
 
     fun getPickingSort() : String {
-        return preferences.getString("pickingSort", DEFAULT_SORT)?: DEFAULT_SORT
+        return preferences.getString("pickingSort", "ProductName")?: "ProductName"
     }
 
     fun setPickingOrder(order: String) {
@@ -261,7 +279,7 @@ class Prefs(private val context: Context) {
     }
 
     fun getPickingCustomerSort() : String {
-        return preferences.getString("pickingCustomerSort", DEFAULT_SORT)?: DEFAULT_SORT
+        return preferences.getString("pickingCustomerSort", "CustomerName")?: "CustomerName"
     }
 
     fun setPickingCustomerOrder(order: String) {
@@ -575,6 +593,17 @@ class Prefs(private val context: Context) {
     }
 
 
+    //validate Pallet
+    fun setValidatePallet(validate: Boolean) {
+        with(preferences.edit()){
+            putBoolean("validatePallet",validate)
+            apply()
+        }
+    }
+
+    fun getValidatePallet() : Boolean {
+        return preferences.getBoolean("validatePallet", true)
+    }
 
 
 }

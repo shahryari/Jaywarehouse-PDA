@@ -8,8 +8,6 @@ import com.example.jaywarehouse.data.common.utils.SORT
 import com.example.jaywarehouse.data.receiving.model.ReceivingDetailCountModel
 import com.example.jaywarehouse.data.receiving.model.ReceivingDetailGetItemsModel
 import com.example.jaywarehouse.data.receiving.model.ReceivingDetailModel
-import com.example.jaywarehouse.data.receiving.model.ReceivingDetailScanModel
-import com.example.jaywarehouse.data.receiving.model.ReceivingDetailScanRemoveModel
 import com.example.jaywarehouse.data.receiving.model.ReceivingModel
 import com.google.gson.JsonObject
 import retrofit2.Response

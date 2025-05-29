@@ -33,6 +33,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.jaywarehouse.R
 import com.example.jaywarehouse.data.common.utils.mdp
+import com.example.jaywarehouse.data.common.utils.removeZeroDecimal
 import com.example.jaywarehouse.data.picking.models.PickingListGroupedRow
 import com.example.jaywarehouse.data.picking.models.PickingListRow
 import com.example.jaywarehouse.presentation.common.composables.BaseListItem
@@ -196,15 +197,17 @@ fun PickingDetailItem(
 ) {
     BaseListItem(
         onClick = onClick,
-        item1 = BaseListItemModel("Name",model.productName, R.drawable.vuesax_outline_3d_cube_scan),
-        item2 = BaseListItemModel("Product Code",model.productCode,R.drawable.barcode),
-        item3 = BaseListItemModel("Barcode",model.barcodeNumber,R.drawable.note),
-        item4 = BaseListItemModel("LPO", model.customerName,R.drawable.vuesax_linear_box),
+        item1 = BaseListItemModel("Name",model.productName?:"", R.drawable.vuesax_outline_3d_cube_scan),
+        item2 = BaseListItemModel("Product Code",model.productCode?:"",R.drawable.barcode),
+        item3 = BaseListItemModel("Barcode",model.barcodeNumber?:"",R.drawable.note),
+        item4 = BaseListItemModel("Reference Number", model.referenceNumber?:"",R.drawable.hashtag),
         item5 = if(model.typeofOrderAcquisition!=null) BaseListItemModel("Type of order acquisition", model.typeofOrderAcquisition,R.drawable.calendar_add)else null,
-        quantity = model.warehouseLocationCode,
+        quantity = model.warehouseLocationCode?:"",
         quantityTitle = "",
-        scan = model.quantity.toString(),
-        scanTitle = "Quantity"
+        quantityIcon = R.drawable.location,
+        scan = model.quantity.removeZeroDecimal().toString(),
+        scanTitle = "",
+        scanIcon = R.drawable.vuesax_linear_box
     )
 }
 
@@ -229,7 +232,8 @@ fun PickingBottomSheet(
         }
 
         LaunchedEffect(Unit) {
-            locationFocusRequester.requestFocus()
+            if (!state.selectedPick.warehouseLocationCode.isNullOrEmpty())locationFocusRequester.requestFocus()
+            else barcodeFocusRequester.requestFocus()
         }
         ModalBottomSheet(
             sheetState = sheetState,
@@ -253,75 +257,81 @@ fun PickingBottomSheet(
                 DetailCard(
                     title = "Name",
                     icon = R.drawable.vuesax_outline_3d_cube_scan,
-                    detail = state.selectedPick.productName,
+                    detail = state.selectedPick.productName?:"",
                 )
                 Spacer(Modifier.size(10.mdp))
                 Row(Modifier.fillMaxWidth()) {
                     DetailCard(
                         title = "Product Code",
                         icon = R.drawable.note,
-                        detail = state.selectedPick.productCode,
+                        detail = state.selectedPick.productCode?:"",
                         modifier = Modifier.weight(1f)
                     )
                     Spacer(Modifier.size(5.mdp))
                     DetailCard(
                         title = "Barcode",
                         icon = R.drawable.barcode,
-                        detail = state.selectedPick.barcodeNumber,
+                        detail = state.selectedPick.barcodeNumber?:"",
                         modifier = Modifier.weight(1f)
                     )
                 }
                 Spacer(Modifier.size(10.mdp))
                 Row(Modifier.fillMaxWidth()) {
                     DetailCard(
-                        title = "LPO",
-                        icon = R.drawable.vuesax_linear_box,
-                        detail = state.selectedPick.customerName,
+                        title = "Reference Number",
+                        icon = R.drawable.hashtag,
+                        detail = state.selectedPick.referenceNumber?:"",
                         modifier = Modifier.weight(1f)
                     )
                     Spacer(Modifier.size(5.mdp))
+
+                    DetailCard(
+                        title = "Quantity",
+                        icon = R.drawable.vuesax_linear_box,
+                        detail = state.selectedPick.quantity.removeZeroDecimal().toString(),
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+                Spacer(Modifier.size(10.mdp))
+                Row(Modifier.fillMaxWidth()) {
+                    if (!state.selectedPick.warehouseLocationCode.isNullOrEmpty()){
+                        DetailCard(
+                            title = "Location",
+                            icon = R.drawable.location,
+                            detail = state.selectedPick.warehouseLocationCode?:"",
+                            modifier = Modifier.weight(1f)
+                        )
+                        Spacer(Modifier.size(5.mdp))
+                    }
                     if (state.selectedPick.typeofOrderAcquisition!=null)DetailCard(
                         title = "Type of order acquisition",
                         icon = R.drawable.calendar_add,
                         detail = state.selectedPick.typeofOrderAcquisition,
                         modifier = Modifier.weight(1f)
                     )
+
                 }
                 Spacer(Modifier.size(10.mdp))
-                Row(Modifier.fillMaxWidth()) {
-                    DetailCard(
-                        title = "Location",
-                        icon = R.drawable.location,
-                        detail = state.selectedPick.warehouseLocationCode,
-                        modifier = Modifier.weight(1f)
+                if (!state.selectedPick.warehouseLocationCode.isNullOrEmpty()){
+                    TitleView(
+                        title = "Location Code"
                     )
                     Spacer(Modifier.size(5.mdp))
-                    DetailCard(
-                        title = "Quantity",
-                        icon = R.drawable.vuesax_linear_box,
-                        detail = state.selectedPick.quantity.toString(),
-                        modifier = Modifier.weight(1f)
+                    InputTextField(
+                        state.location,
+                        onValueChange = {
+                            onEvent(PickingDetailContract.Event.OnChangeLocation(it))
+                        },
+                        onAny = {
+                            barcodeFocusRequester.requestFocus()
+                        },
+                        leadingIcon = R.drawable.location,
+                        hideKeyboard = state.lockKeyboard,
+                        focusRequester = locationFocusRequester,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
                     )
+                    Spacer(Modifier.size(10.mdp))
                 }
-                Spacer(Modifier.size(10.mdp))
-                TitleView(
-                    title = "Location Code"
-                )
-                Spacer(Modifier.size(5.mdp))
-                InputTextField(
-                    state.location,
-                    onValueChange = {
-                        onEvent(PickingDetailContract.Event.OnChangeLocation(it))
-                    },
-                    onAny = {
-                        barcodeFocusRequester.requestFocus()
-                    },
-                    leadingIcon = R.drawable.location,
-                    hideKeyboard = state.lockKeyboard,
-                    focusRequester = locationFocusRequester,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
-                )
-                Spacer(Modifier.size(10.mdp))
                 TitleView(title = "Barcode")
                 Spacer(Modifier.size(5.mdp))
                 InputTextField(

@@ -4,6 +4,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.viewModelScope
 import com.example.jaywarehouse.data.common.utils.BaseResult
 import com.example.jaywarehouse.data.common.utils.Prefs
+import com.example.jaywarehouse.data.common.utils.ROW_COUNT
 import com.example.jaywarehouse.data.rs.RSApi
 import com.example.jaywarehouse.data.rs.RSRepository
 import com.example.jaywarehouse.data.rs.models.PODInvoiceRow
@@ -77,7 +78,7 @@ class RSIntegrationViewModel(
                 }
             }
             RSIntegrationContract.Event.OnReachEnd -> {
-                if (10*state.page<=state.rsList.size) {
+                if (ROW_COUNT*state.page<=state.rsList.size) {
                     setState {
                         copy(page = state.page + 1, loadingState = Loading.LOADING)
                     }

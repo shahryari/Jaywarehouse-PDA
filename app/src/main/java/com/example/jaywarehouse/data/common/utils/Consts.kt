@@ -1,6 +1,7 @@
- package com.example.jaywarehouse.data.common.utils
+package com.example.jaywarehouse.data.common.utils
 
 const val ROWS = "Rows"
+const val ROW_COUNT = 1
 const val ORDER = "Order"
 const val PAGE = "Page"
 const val SORT = "Sort"
