@@ -2,6 +2,7 @@ package com.example.jaywarehouse.data.picking.models
 
 import com.example.jaywarehouse.presentation.common.composables.Animatable
 import com.google.gson.annotations.SerializedName
+import java.io.Serializable
 
 
 data class PurchaseOrderDetailListBDModel(
@@ -17,6 +18,8 @@ data class PurchaseOrderDetailListBDRow(
     val productCode: String?,
     @SerializedName("ProductName")
     val productName: String?,
+    @SerializedName("ProductBarcodeNumber")
+    val barcodeNumber: String?,
     @SerializedName("Quantity")
     val quantity: Double?,
     @SerializedName("PCB")
@@ -25,7 +28,7 @@ data class PurchaseOrderDetailListBDRow(
     val productID: Int?,
     @SerializedName("SumReceiptQuantity")
     val sumReceiptQuantity: Double?
-) : Animatable {
+) : Animatable, Serializable {
     override fun key(): String {
         return purchaseOrderDetailID.toString()
     }

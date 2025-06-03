@@ -11,12 +11,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.res.stringResource
 import com.example.jaywarehouse.R
 import com.example.jaywarehouse.data.common.utils.mdp
+import com.example.jaywarehouse.data.common.utils.removeZeroDecimal
+import com.example.jaywarehouse.data.picking.models.PurchaseOrderDetailListBDRow
 import com.example.jaywarehouse.data.picking.models.PurchaseOrderListBDRow
+import com.example.jaywarehouse.presentation.common.composables.BaseListItem
 import com.example.jaywarehouse.presentation.common.composables.BaseListItemModel
-import com.example.jaywarehouse.presentation.common.composables.MainListItem
 import com.example.jaywarehouse.presentation.common.composables.MyLazyColumn
 import com.example.jaywarehouse.presentation.common.composables.MyScaffold
 import com.example.jaywarehouse.presentation.common.composables.SearchInput
@@ -25,18 +26,24 @@ import com.example.jaywarehouse.presentation.common.composables.TopBar
 import com.example.jaywarehouse.presentation.common.utils.Loading
 import com.example.jaywarehouse.presentation.common.utils.SIDE_EFFECT_KEY
 import com.example.jaywarehouse.presentation.common.utils.ScreenTransition
-import com.example.jaywarehouse.presentation.destinations.PurchaseOrderDetailScreenDestination
-import com.example.jaywarehouse.presentation.picking.contracts.PurchaseOrderContract
-import com.example.jaywarehouse.presentation.picking.viewModels.PurchaseOrderViewModel
+import com.example.jaywarehouse.presentation.picking.contracts.PurchaseOrderDetailContract
+import com.example.jaywarehouse.presentation.picking.viewModels.PurchaseOrderDetailViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
+
 
 @Destination(style = ScreenTransition::class)
 @Composable
-fun PurchaseOrderScreen(
+fun PurchaseOrderDetailScreen(
     navigator: DestinationsNavigator,
-    viewModel: PurchaseOrderViewModel = koinViewModel()
+    purchase: PurchaseOrderListBDRow,
+    viewModel: PurchaseOrderDetailViewModel = koinViewModel(
+        parameters = {
+            parametersOf(purchase)
+        }
+    )
 ) {
     val state = viewModel.state
     val onEvent = viewModel::setEvent
@@ -44,42 +51,40 @@ fun PurchaseOrderScreen(
     LaunchedEffect(SIDE_EFFECT_KEY) {
         viewModel.effect.collect {
             when(it){
-                PurchaseOrderContract.Effect.NavBack -> {
+                PurchaseOrderDetailContract.Effect.NavBack -> {
                     navigator.popBackStack()
                 }
-                is PurchaseOrderContract.Effect.NavToPurchaseOrderDetail -> {
-                    navigator.navigate(PurchaseOrderDetailScreenDestination(it.purchase))
+                is PurchaseOrderDetailContract.Effect.NavToShippingOrderDetail -> {
+
                 }
             }
         }
     }
-    PurchaseOrderContent(state,onEvent)
+    PurchaseOrderDetailContent(state,onEvent)
 }
 
-
 @Composable
-fun PurchaseOrderContent(
-    state: PurchaseOrderContract.State = PurchaseOrderContract.State(),
-    onEvent: (PurchaseOrderContract.Event)-> Unit
-) {
-
+fun PurchaseOrderDetailContent(
+    state: PurchaseOrderDetailContract.State = PurchaseOrderDetailContract.State(),
+    onEvent: (PurchaseOrderDetailContract.Event)-> Unit = {}
+){
     val focusRequester = remember {
         FocusRequester()
     }
 
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
-        onEvent(PurchaseOrderContract.Event.ReloadScreen)
+        onEvent(PurchaseOrderDetailContract.Event.ReloadScreen)
     }
 
     MyScaffold(
         loadingState = state.loadingState,
         error = state.error,
         onCloseError = {
-            onEvent(PurchaseOrderContract.Event.ClearError)
+            onEvent(PurchaseOrderDetailContract.Event.ClearError)
         },
         onRefresh = {
-            onEvent(PurchaseOrderContract.Event.OnRefresh)
+            onEvent(PurchaseOrderDetailContract.Event.OnRefresh)
         }
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
@@ -89,20 +94,21 @@ fun PurchaseOrderContent(
                     .padding(15.mdp)
             ) {
                 TopBar(
-                    "Purchase Order",
+                    title = state.purchaseOrderRow?.supplierName?.trim()?:"",
+                    subTitle = "Purchase Order",
                     onBack = {
-                        onEvent(PurchaseOrderContract.Event.OnBackPressed)
+                        onEvent(PurchaseOrderDetailContract.Event.OnBackPressed)
                     }
                 )
                 Spacer(modifier = Modifier.size(10.mdp))
                 SearchInput(
                     onSearch = {
-                        onEvent(PurchaseOrderContract.Event.OnSearch(it.text))
+                        onEvent(PurchaseOrderDetailContract.Event.OnSearch(it.text))
                     },
                     value = state.keyword,
                     isLoading = state.loadingState == Loading.SEARCHING,
                     onSortClick = {
-                        onEvent(PurchaseOrderContract.Event.OnShowSortList(true))
+                        onEvent(PurchaseOrderDetailContract.Event.OnShowSortList(true))
                     },
                     hideKeyboard = state.lockKeyboard,
                     focusRequester = focusRequester
@@ -110,14 +116,14 @@ fun PurchaseOrderContent(
                 Spacer(modifier = Modifier.size(15.mdp))
                 MyLazyColumn(
                     modifier=  Modifier.fillMaxSize(),
-                    items = state.purchaseOrderList,
+                    items = state.purchaseOrderDetailList,
                     itemContent = {_,it->
-                        PurchaseItem(it) {
-                            onEvent(PurchaseOrderContract.Event.OnPurchaseClick(it))
+                        PurchaseDetailItem(it) {
+                            onEvent(PurchaseOrderDetailContract.Event.OnPurchaseDetailClick(it))
                         }
                     },
                     onReachEnd = {
-                        onEvent(PurchaseOrderContract.Event.OnReachedEnd)
+                        onEvent(PurchaseOrderDetailContract.Event.OnReachedEnd)
                     }
                 )
             }
@@ -128,29 +134,32 @@ fun PurchaseOrderContent(
     if (state.showSortList){
         SortBottomSheet(
             onDismiss = {
-                onEvent(PurchaseOrderContract.Event.OnShowSortList(false))
+                onEvent(PurchaseOrderDetailContract.Event.OnShowSortList(false))
             },
             sortOptions = state.sortList,
             selectedSort = state.sort,
             onSelectSort = {
-                onEvent(PurchaseOrderContract.Event.OnChangeSort(it))
+                onEvent(PurchaseOrderDetailContract.Event.OnChangeSort(it))
             }
         )
     }
-
 }
 
+
 @Composable
-fun PurchaseItem(
-    model: PurchaseOrderListBDRow,
+fun PurchaseDetailItem(
+    model: PurchaseOrderDetailListBDRow,
     onClick: ()-> Unit
 ) {
-    MainListItem(
+    BaseListItem(
         onClick = onClick,
-        typeTitle = model.purchaseOrderDate,
-        modelNumber = model.referenceNumber,
-        item1 = BaseListItemModel("Supplier Name",model.supplierName?:"",R.drawable.user_square),
-        item2 = BaseListItemModel("Supplier Code",model.supplierCode?:"",R.drawable.vuesax_linear_box),
-        showFooter = false
+        item1 = BaseListItemModel("Name",model.productName?:"", R.drawable.vuesax_outline_3d_cube_scan),
+        item2 = BaseListItemModel("Product Code",model.productCode?:"",R.drawable.note),
+        item3 = BaseListItemModel("Barcode",model.barcodeNumber?:"",R.drawable.barcode),
+        item4 = BaseListItemModel("PCB", model.pcb?.toString()?:"",R.drawable.hashtag),
+        quantity = model.quantity?.removeZeroDecimal()?:"",
+        quantityTitle = "Quantity",
+        scan = model.sumReceiptQuantity?.removeZeroDecimal()?.toString()?:"",
+        scanTitle = "Scan",
     )
 }
