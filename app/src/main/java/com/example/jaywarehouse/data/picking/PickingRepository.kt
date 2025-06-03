@@ -1,6 +1,7 @@
 package com.example.jaywarehouse.data.picking
 
 import com.example.jaywarehouse.data.common.utils.BaseResult
+import com.example.jaywarehouse.data.common.utils.ROW_COUNT
 import com.example.jaywarehouse.data.common.utils.ResultMessageModel
 import com.example.jaywarehouse.data.common.utils.getResult
 import com.example.jaywarehouse.data.picking.models.PickingListGroupedModel
@@ -59,5 +60,49 @@ class PickingRepository(private val api: PickingApi) {
             }
         )
     }
+
+
+    fun getPurchaseOrderListBD(
+        keyword: String,
+        page: Int,
+        sort: String,
+        order: String
+    ) = getResult(
+        request = {
+            val jsonObject = JsonObject()
+            jsonObject.addProperty("Keyword",keyword)
+            api.getPurchaseOrderListBD(jsonObject,page,ROW_COUNT,sort,order)
+        }
+    )
+
+    fun getPurchaseOrderDetailListBD(
+        keyword: String,
+        purchaseOrderID: String,
+        page: Int,
+        sort: String,
+        order: String
+    ) = getResult(
+        request = {
+            val jsonObject = JsonObject()
+            jsonObject.addProperty("Keyword",keyword)
+            jsonObject.addProperty("PurchaseOrderID",purchaseOrderID)
+            api.getPurchaseOrderDetailListBD(jsonObject,page,ROW_COUNT,sort,order)
+        }
+    )
+
+    fun getShippingOrderDetailListBD(
+        keyword: String,
+        purchaseOrderDetailID: Int,
+        page: Int,
+        sort: String,
+        order: String
+    ) = getResult(
+        request = {
+            val jsonObject = JsonObject()
+            jsonObject.addProperty("Keyword",keyword)
+            jsonObject.addProperty("PurchaseOrderDetailID",purchaseOrderDetailID)
+            api.getShippingOrderDetailListBD(jsonObject,page,ROW_COUNT,sort,order)
+        }
+    )
 
 }

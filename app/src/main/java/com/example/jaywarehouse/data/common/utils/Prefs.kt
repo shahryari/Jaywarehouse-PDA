@@ -293,27 +293,73 @@ class Prefs(private val context: Context) {
         return preferences.getString("pickingCustomerOrder", Order.Desc.value)?: Order.Desc.value
     }
 
-    //packing
-    fun setPackingSort(sort: String) {
+    //purchase order
+    fun setPurchaseOrderSort(sort: String) {
         with(preferences.edit()){
-            putString("packingSort",sort)
+            putString("purchaseSort",sort)
             apply()
         }
     }
 
-    fun getPackingSort() : String {
-        return preferences.getString("packingSort", DEFAULT_SORT)?: DEFAULT_SORT
+    fun getPurchaseOrderSort() : String {
+        return preferences.getString("purchaseSort", DEFAULT_SORT)?: DEFAULT_SORT
     }
 
-    fun setPackingOrder(order: String) {
+    fun setPurchaseOrderOrder(order: String) {
         with(preferences.edit()){
-            putString("packingOrder",order)
+            putString("purchaseOrder",order)
             apply()
         }
     }
 
-    fun getPackingOrder() : String {
-        return preferences.getString("packingOrder", Order.Desc.value)?: Order.Desc.value
+    fun getPurchaseOrderOrder() : String {
+        return preferences.getString("purchaseOrder", Order.Desc.value)?: Order.Desc.value
+    }
+
+    //purchase order detail
+    fun setPurchaseOrderDetailSort(sort: String) {
+        with(preferences.edit()){
+            putString("purchaseDetailSort",sort)
+            apply()
+        }
+    }
+
+    fun getPurchaseOrderDetailSort() : String {
+        return preferences.getString("purchaseDetailSort", DEFAULT_SORT)?: DEFAULT_SORT
+    }
+
+    fun setPurchaseOrderDetailOrder(order: String) {
+        with(preferences.edit()){
+            putString("purchaseDetailOrder",order)
+            apply()
+        }
+    }
+
+    fun getPurchaseOrderDetailOrder() : String {
+        return preferences.getString("purchaseDetailOrder", Order.Desc.value)?: Order.Desc.value
+    }
+
+    //shipping order detail
+    fun setShippingOrderDetailSort(sort: String) {
+        with(preferences.edit()){
+            putString("shippingDetailSort",sort)
+            apply()
+        }
+    }
+
+    fun getShippingOrderDetailSort() : String {
+        return preferences.getString("shippingDetailSort", DEFAULT_SORT)?: DEFAULT_SORT
+    }
+
+    fun setShippingOrderDetailOrder(order: String) {
+        with(preferences.edit()){
+            putString("shippingDetailOrder",order)
+            apply()
+        }
+    }
+
+    fun getShippingOrderDetailOrder() : String {
+        return preferences.getString("shippingDetailOrder", Order.Desc.value)?: Order.Desc.value
     }
 
     //putaway

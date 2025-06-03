@@ -153,7 +153,7 @@ fun CountingDetailContent(
                     },
                     spacerSize = 7.mdp,
                     onReachEnd = {
-
+                        onEvent(CountingDetailContract.Event.OnReachedEnd)
                     }
                 )
             }

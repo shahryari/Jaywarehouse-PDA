@@ -222,19 +222,19 @@ fun LoadingDetailItem(
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.W500,
             )
-            Box(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(4.mdp))
-                    .background(Primary.copy(0.2f))
-                    .padding(vertical = 4.mdp, horizontal = 10.mdp)
-            ) {
-                MyText(
-                    text = model.total?.toString() ?: "0",
-                    style = MaterialTheme.typography.labelSmall,
-                    fontWeight = FontWeight.W500,
-                    color = Primary
-                )
-            }
+//            Box(
+//                modifier = Modifier
+//                    .clip(RoundedCornerShape(4.mdp))
+//                    .background(Primary.copy(0.2f))
+//                    .padding(vertical = 4.mdp, horizontal = 10.mdp)
+//            ) {
+//                MyText(
+//                    text = model.total?.toString() ?: "0",
+//                    style = MaterialTheme.typography.labelSmall,
+//                    fontWeight = FontWeight.W500,
+//                    color = Primary
+//                )
+//            }
         }
     }
 }

@@ -45,7 +45,7 @@ class PickingDetailViewModel(
                 }
             }
         }
-        getPickings(row.customerID,sort = state.sort)
+        getPickings()
     }
 
     override fun setInitState(): PickingDetailContract.State {
@@ -84,17 +84,17 @@ class PickingDetailViewModel(
             PickingDetailContract.Event.OnReachEnd -> {
                 if (ROW_COUNT*state.page<=state.pickingList.size){
                     setState {
-                        copy(page = state.page+1, loadingState = Loading.LOADING)
+                        copy(page = state.page+1)
                     }
-                    getPickings(row.customerID,keyword = state.keyword,page = state.page,sort = state.sort)
+                    getPickings()
                 }
             }
 
             PickingDetailContract.Event.OnRefresh -> {
                 setState {
-                    copy(page = 1, pickingList = emptyList(), loadingState = Loading.REFRESHING)
+                    copy(page = 1, pickingList = emptyList())
                 }
-                getPickings(row.customerID,keyword = state.keyword,page = state.page,sort = state.sort)
+                getPickings(Loading.REFRESHING)
             }
             is PickingDetailContract.Event.OnChangeLocation -> {
                 setState {
@@ -111,9 +111,9 @@ class PickingDetailViewModel(
 //            }
             is PickingDetailContract.Event.OnSearch -> {
                 setState {
-                    copy(loadingState = Loading.SEARCHING, pickingList = emptyList(), page = 1, keyword = event.keyword)
+                    copy(pickingList = emptyList(), page = 1, keyword = event.keyword)
                 }
-                getPickings(row.customerID,keyword = state.keyword,page = state.page,sort = state.sort)
+                getPickings(Loading.SEARCHING)
             }
             is PickingDetailContract.Event.OnShowSortList -> {
                 setState {
@@ -124,9 +124,9 @@ class PickingDetailViewModel(
                 prefs.setPickingSort(event.sortItem.sort)
                 prefs.setPickingOrder(event.sortItem.order.value)
                 setState {
-                    copy(sort = event.sortItem, page = 1, pickingList = emptyList(), loadingState = Loading.LOADING)
+                    copy(sort = event.sortItem, page = 1, pickingList = emptyList())
                 }
-                getPickings(row.customerID,keyword = state.keyword,page = state.page,sort = event.sortItem)
+                getPickings()
             }
         }
     }
@@ -206,11 +206,10 @@ class PickingDetailViewModel(
                                             page = 1,
                                             selectedPick = null,
                                             toast = it.data?.messages?.first() ?: "Completed Successfully",
-                                            loadingState = Loading.LOADING
                                         )
                                     }
 
-                                    getPickings(row.customerID,keyword = state.keyword,page = state.page,sort = state.sort)
+                                    getPickings()
                                 } else {
                                     setSuspendedState {
                                         copy(error = it.data?.messages?.firstOrNull()?:"Failed")
@@ -232,46 +231,59 @@ class PickingDetailViewModel(
     }
 
 
-    private fun getPickings(customerId: Int, keyword: String = "", page: Int = 1, sort: SortItem) {
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.getPickingList(
-                customerId = customerId.toString(),
-                keyword = keyword,
-                sort = sort.sort,
-                rows = ROW_COUNT,
-                page = page,
-                order = sort.order.value
-            )
-                .catch {
-                    setState {
-                        copy(
-                            error = it.message ?: "",
-                            loadingState = Loading.NONE
-                        )
-                    }
-                }
-                .collect {
-                    setSuspendedState {
-                        copy(loadingState = Loading.NONE)
-                    }
-                    when(it){
-                        is BaseResult.Success -> {
-                            setState {
-                                copy(
-                                    pickingList = pickingList + (it.data?.rows ?: emptyList()),
-                                )
-                            }
+    private fun getPickings(
+        loading: Loading = Loading.LOADING
+    ) {
+        if (state.loadingState == Loading.NONE){
+            setState {
+                copy(loadingState = loading)
+            }
+            viewModelScope.launch(Dispatchers.IO) {
+                repository.getPickingList(
+                    customerId = row.customerID.toString(),
+                    keyword = state.keyword,
+                    sort = state.sort.sort,
+                    rows = ROW_COUNT,
+                    page = state.page,
+                    order = state.sort.order.value
+                )
+                    .catch {
+                        setState {
+                            copy(
+                                error = it.message ?: "",
+                                loadingState = Loading.NONE
+                            )
                         }
-                        is BaseResult.Error -> {
-                            setState {
-                                copy(
-                                    error = it.message,
-                                )
-                            }
-                        }
-                        else -> {}
                     }
-                }
+                    .collect {
+                        setSuspendedState {
+                            copy(loadingState = Loading.NONE)
+                        }
+                        when(it){
+                            is BaseResult.Success -> {
+                                val list = state.pickingList + (it.data?.rows ?: emptyList())
+                                setState {
+                                    copy(
+                                        pickingList = list,
+                                    )
+                                }
+                                if (loading != Loading.SEARCHING && list.isEmpty()){
+                                    setEffect {
+                                        PickingDetailContract.Effect.NavBack
+                                    }
+                                }
+                            }
+                            is BaseResult.Error -> {
+                                setState {
+                                    copy(
+                                        error = it.message,
+                                    )
+                                }
+                            }
+                            else -> {}
+                        }
+                    }
+            }
         }
     }
 }

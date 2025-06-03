@@ -168,15 +168,16 @@ class CountingDetailViewModel(
                             }
                             is BaseResult.Success -> {
 
+                                val list = state.countingDetailRow + (it.data?.rows?: emptyList())
                                 setSuspendedState {
                                     copy(
                                         countingDetailModel = it.data,
-                                        countingDetailRow = it.data?.rows?: emptyList(),
+                                        countingDetailRow = list,
                                         total = it.data?.rows?.sumOf { it.quantity } ?:0.0,
                                         scan = it.data?.rows?.sumOf { it.countQuantity?:0.0 }?:0.0
                                     )
                                 }
-                                if (loading != Loading.SEARCHING && it.data?.rows.isNullOrEmpty()){
+                                if (loading != Loading.SEARCHING && list.isEmpty()){
                                     setEffect {
                                         CountingDetailContract.Effect.NavBack
                                     }

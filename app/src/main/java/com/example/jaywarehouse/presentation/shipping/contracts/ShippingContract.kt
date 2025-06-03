@@ -44,10 +44,6 @@ class ShippingContract {
         val sortList: List<SortItem> = listOf(
             SortItem("Created On closed to now", "CreatedOn",Order.Desc),
             SortItem("Created On farthest from now", "CreatedOn",Order.Asc),
-            SortItem("Receiving Number Descending", "Receiving",Order.Desc),
-            SortItem("Receiving Number Ascending", "Receiving",Order.Asc),
-            SortItem("Most Progress", "Progress",Order.Desc),
-            SortItem("Least Progress", "Progress",Order.Asc)
         ),
         val sort: SortItem = sortList.first(),
         val showFilterList: Boolean = false,

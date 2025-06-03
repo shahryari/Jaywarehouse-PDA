@@ -188,7 +188,7 @@ fun CountingInceptionContent(
                                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
                                     leadingIcon = R.drawable.box_search,
                                     decimalInput = true,
-                                    required = true,
+                                    required = state.details.isEmpty(),
                                     modifier = Modifier.weight(1f),
                                     suffix = "Kg",
                                     label = "Weight",
@@ -203,7 +203,7 @@ fun CountingInceptionContent(
                                 modifier = Modifier.fillMaxWidth(),
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
                                 leadingIcon = R.drawable.vuesax_linear_box,
-                                required = true,
+                                required = state.details.isEmpty(),
                                 label = "Pack",
                             )
                             if (state.locationBase){
@@ -277,8 +277,8 @@ fun CountingInceptionContent(
                                 DetailHeader(
                                     "Weight",
                                     "Pack",
-                                    if (state.batchNumberEnabled)"Batch No." else "",
-                                    if (state.expEnabled)"Exp Date" else ""
+                                    if (state.batchNumberEnabled && state.locationBase)"Batch No." else "",
+                                    if (state.expEnabled && state.locationBase)"Exp Date" else ""
                                 )
                             }
 
@@ -315,7 +315,7 @@ fun CountingInceptionContent(
                                     modifier = Modifier.weight(1f),
                                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
                                     leadingIcon = R.drawable.barcode,
-                                    required = true,
+                                    required = state.pcbEnabled && (!state.locationBase || (!state.batchNumberEnabled || !state.expEnabled)),
                                     enabled = state.pcbEnabled,
                                     label = "Pcb",
                                 )
@@ -416,8 +416,8 @@ fun CountingInceptionContent(
                                 DetailHeader(
                                     "Qty",
                                     "Pack",
-                                    if (state.batchNumberEnabled)"Batch No." else "",
-                                    if (state.expEnabled)"Exp Date" else ""
+                                    if (state.batchNumberEnabled && state.locationBase)"Batch No." else "",
+                                    if (state.expEnabled && state.locationBase)"Exp Date" else ""
                                 )
                             }
 

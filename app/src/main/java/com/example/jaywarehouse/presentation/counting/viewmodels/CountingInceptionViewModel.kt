@@ -17,10 +17,10 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 
 class CountingInceptionViewModel(
-   private val repository: ReceivingRepository,
+    private val repository: ReceivingRepository,
     prefs: Prefs,
     private val detail: ReceivingDetailRow,
-   private val isCrossDock: Boolean = false,
+    private val isCrossDock: Boolean = false,
     private val receivingId: Int,
 ) : BaseViewModel<CountingInceptionContract.Event,CountingInceptionContract.State,CountingInceptionContract.Effect>(){
     init {
@@ -178,7 +178,7 @@ class CountingInceptionViewModel(
                                     details = detailList,
                                     countingDetailRow = it.data?.receivingDetailRow,
                                     quantityInPacket = TextFieldValue(it.data?.pcb?.pcb?.toString()?:it.data?.pcb?.defaultPcb?.toString()?:""),
-                                    pcbEnabled = if (isCrossDock) it.data?.pcb?.pcb == null else true,
+                                    pcbEnabled =it.data?.pcb?.pcb == null,
                                     locationBase = it.data?.pcb?.locationBase == true,
                                     expEnabled = it.data?.pcb?.expired == true,
                                     batchNumberEnabled = it.data?.pcb?.hasBatchNumber == true

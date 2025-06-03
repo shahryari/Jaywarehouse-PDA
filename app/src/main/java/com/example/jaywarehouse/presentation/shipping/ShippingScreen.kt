@@ -2,6 +2,7 @@ package com.example.jaywarehouse.presentation.shipping
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -16,9 +17,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material.icons.Icons
@@ -37,8 +40,11 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -277,11 +283,19 @@ fun ShippingItem(
     onRs: ()->Unit
 ) {
 
+    var expend by remember {
+        mutableStateOf(false)
+    }
+
     Column(
         Modifier
             .shadow(1.mdp, RoundedCornerShape(6.mdp))
             .fillMaxWidth()
+            .animateContentSize()
             .clip(RoundedCornerShape(6.mdp))
+            .clickable {
+                expend = !expend
+            }
             .background(Color.White)
 
     ) {
@@ -292,20 +306,20 @@ fun ShippingItem(
                 .padding(15.mdp)
         ) {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
-
-                Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(4.mdp))
-                        .background(Primary.copy(0.2f))
-                        .padding(vertical = 4.mdp, horizontal = 10.mdp)
-                ) {
-                    MyText(
-                        text = model.shippingNumber,
-                        style = MaterialTheme.typography.labelSmall,
-                        fontWeight = FontWeight.SemiBold,
-                        color = Primary
-                    )
-                }
+//
+//                Box(
+//                    modifier = Modifier
+//                        .clip(RoundedCornerShape(4.mdp))
+//                        .background(Primary.copy(0.2f))
+//                        .padding(vertical = 4.mdp, horizontal = 10.mdp)
+//                ) {
+//                    MyText(
+//                        text = model.shippingNumber,
+//                        style = MaterialTheme.typography.labelSmall,
+//                        fontWeight = FontWeight.SemiBold,
+//                        color = Primary
+//                    )
+//                }
                 MyText(
                     text = "#${model.shippingNumber?:""}",
                     style = MaterialTheme.typography.bodyLarge,
@@ -314,44 +328,48 @@ fun ShippingItem(
 
             }
             Spacer(Modifier.size(10.mdp))
-            Row(Modifier.fillMaxWidth()) {
-                DetailCard(
-                    "Driver ID",
-                    icon = R.drawable.vuesax_linear_user_tag,
-                    detail = model.driverTin,
-                    modifier = Modifier.weight(1f)
-                )
-                Spacer(Modifier.size(5.mdp))
-                DetailCard(
-                    "Status",
-                    icon = R.drawable.note,
-                    detail = model.currentStatusCode?:"",
-                    modifier = Modifier.weight(1f)
-                )
-            }
-            Spacer(modifier = Modifier.size(10.mdp))
             DetailCard(
                 "Driver",
                 icon = R.drawable.user_square,
                 detail = model.driverFullName?:""
             )
             Spacer(Modifier.size(10.mdp))
-            Row(Modifier.fillMaxWidth()) {
-                DetailCard(
-                    "Car Number",
-                    icon = R.drawable.user_square,
-                    detail = model.carNumber?:"",
-                    modifier = Modifier.weight(1f)
-                )
-                Spacer(Modifier.size(5.mdp))
-                DetailCard(
-                    "Trailer Number",
-                    icon = R.drawable.note,
-                    detail = model.trailerNumber?:"",
-                    modifier = Modifier.weight(1f)
-                )
+            AnimatedVisibility(expend){
+                Column(Modifier.fillMaxWidth()) {
+                    Row(Modifier.fillMaxWidth()) {
+                        DetailCard(
+                            "Driver ID",
+                            icon = R.drawable.vuesax_linear_user_tag,
+                            detail = model.driverTin,
+                            modifier = Modifier.weight(1f)
+                        )
+                        Spacer(Modifier.size(5.mdp))
+                        DetailCard(
+                            "Status",
+                            icon = R.drawable.note,
+                            detail = model.currentStatusCode?:"",
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                    Spacer(modifier = Modifier.size(10.mdp))
+                    Row(Modifier.fillMaxWidth()) {
+                        DetailCard(
+                            "Car No.",
+                            icon = R.drawable.truck_next,
+                            detail = model.carNumber?:"",
+                            modifier = Modifier.weight(1f)
+                        )
+                        Spacer(Modifier.size(5.mdp))
+                        DetailCard(
+                            "Trailer No.",
+                            icon = R.drawable.vuesax_outline_truck_tick,
+                            detail = model.trailerNumber?:"",
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                    Spacer(modifier = Modifier.size(15.mdp))
+                }
             }
-            Spacer(modifier = Modifier.size(15.mdp))
 
         }
         Row(
@@ -426,6 +444,7 @@ fun AddShippingBottomSheet(
         ) {
             Column (
                 Modifier
+                    .verticalScroll(rememberScrollState())
                     .padding(horizontal = 24.mdp)
                     .padding(bottom = 24.mdp)
             ){
@@ -458,7 +477,7 @@ fun AddShippingBottomSheet(
                 )
                 Spacer(Modifier.size(10.mdp))
                 val editDriver = state.selectedDriver == null && state.isDriverIdScanned
-                TitleView(title = "Driver FullName")
+                TitleView(title = "Driver")
                 Spacer(Modifier.size(5.mdp))
                 InputTextField(
                     state.driverName,
@@ -474,7 +493,7 @@ fun AddShippingBottomSheet(
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
                 )
                 Spacer(Modifier.size(10.mdp))
-                TitleView(title = "Car Number")
+                TitleView(title = "Car No.")
                 Spacer(Modifier.size(5.mdp))
                 InputTextField(
                     state.carNumber,
@@ -488,7 +507,7 @@ fun AddShippingBottomSheet(
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
                 )
                 Spacer(Modifier.size(10.mdp))
-                TitleView(title = "Trailer Number")
+                TitleView(title = "Trailer No.")
                 Spacer(Modifier.size(5.mdp))
                 InputTextField(
                     state.trailerNumber,
@@ -502,7 +521,7 @@ fun AddShippingBottomSheet(
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
                 )
                 Spacer(Modifier.size(10.mdp))
-                TitleView(title = "Pallet Number")
+                TitleView(title = "Pallet No.")
                 Spacer(Modifier.size(5.mdp))
                 InputTextField(
                     state.palletNumber,
@@ -582,6 +601,7 @@ fun PalletQuantityBottomSheet(
         ) {
             Column (
                 Modifier
+                    .verticalScroll(rememberScrollState())
                     .padding(horizontal = 24.mdp)
                     .padding(bottom = 24.mdp)
             ){
@@ -609,7 +629,7 @@ fun PalletQuantityBottomSheet(
 //                    hideKeyboard = state.lockKeyboard,
                 )
                 Spacer(Modifier.size(10.mdp))
-                val editDriver = state.selectedDriver == null && state.isDriverIdScanned
+//                val editDriver = state.selectedDriver == null && state.isDriverIdScanned
                 TitleView(title = "Pallet Type")
                 Spacer(Modifier.size(5.mdp))
                 AutoDropDownTextField(
@@ -621,7 +641,22 @@ fun PalletQuantityBottomSheet(
                     icon = R.drawable.user_square,
                     onSuggestionClick = {
                         onEvent(ShippingContract.Event.OnSelectPalletType(it))
-                    }
+                    },
+//                    hideKeyboard = state.lockKeyboard,
+                )
+                Spacer(Modifier.size(10.mdp))
+                TitleView(title = "Pallet Status")
+                Spacer(Modifier.size(5.mdp))
+                AutoDropDownTextField(
+                    state.palletType,
+                    onValueChange = {
+                        onEvent(ShippingContract.Event.OnPalletTypeChange(it))
+                    },
+                    suggestions = state.palletTypes,
+                    icon = R.drawable.user_square,
+                    onSuggestionClick = {
+                        onEvent(ShippingContract.Event.OnSelectPalletType(it))
+                    },
 //                    hideKeyboard = state.lockKeyboard,
                 )
                 Spacer(Modifier.size(10.mdp))
@@ -637,7 +672,7 @@ fun PalletQuantityBottomSheet(
                     },
                     leadingIcon = R.drawable.vuesax_linear_box,
 //                    hideKeyboard = state.lockKeyboard,
-                    enabled = editDriver,
+//                    enabled = editDriver,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     trailingIcon = R.drawable.fluent_barcode_scanner_20_regular,
                     onTrailingClick = {

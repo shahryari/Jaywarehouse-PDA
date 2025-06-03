@@ -326,6 +326,7 @@ fun CheckingBottomSheet(
                     leadingIcon = R.drawable.barcode,
                     hideKeyboard = state.lockKeyboard,
                     focusRequester = barcodeFocusRequester,
+                    prefix = "PM-",
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
                 )
                 Spacer(Modifier.size(10.mdp))

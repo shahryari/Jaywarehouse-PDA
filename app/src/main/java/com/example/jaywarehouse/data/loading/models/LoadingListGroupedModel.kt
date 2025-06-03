@@ -15,7 +15,9 @@ data class LoadingListGroupedRow(
     @SerializedName("CustomerCode")
     val customerCode: String?,
     @SerializedName("CustomerName")
-    val customerName: String?
+    val customerName: String?,
+    @SerializedName("CustomerTypeTitle")
+    val customerTypeTitle: String?
 ) : Serializable, Animatable {
     override fun key(): String {
         return customerCode?:""

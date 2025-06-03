@@ -57,6 +57,6 @@ fun MyText(
         maxLines,
         minLines,
         onTextLayout,
-        if (style == LocalTextStyle.current) style else style.copy(fontSize = style.fontSize.times(factor))
+        if (style == LocalTextStyle.current || style == TextStyle.Default) style else style.copy(fontSize = style.fontSize.times(factor))
     )
 }

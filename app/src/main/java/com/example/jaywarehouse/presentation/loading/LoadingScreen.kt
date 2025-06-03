@@ -46,6 +46,7 @@ import com.example.jaywarehouse.presentation.common.utils.ScreenTransition
 import com.example.jaywarehouse.presentation.destinations.LoadingDetailScreenDestination
 import com.example.jaywarehouse.presentation.loading.contracts.LoadingContract
 import com.example.jaywarehouse.presentation.loading.viewmodels.LoadingViewModel
+import com.example.jaywarehouse.ui.theme.Primary
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import org.koin.androidx.compose.koinViewModel
@@ -182,22 +183,21 @@ fun LoadingItem(
         ) {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
 
-//                if(model.b2BCustomer!=null)Box(
-//                    modifier = Modifier
-//                        .clip(RoundedCornerShape(4.mdp))
-//                        .background(Primary.copy(0.2f))
-//                        .padding(vertical = 4.mdp, horizontal = 10.mdp)
-//                ) {
-//                    MyText(
-//                        text = model.b2BCustomer,
-//                        style = MaterialTheme.typography.labelSmall,
-//                        fontFamily = poppins,
-//                        fontWeight = FontWeight.SemiBold,
-//                        color = Primary
-//                    )
-//                } else  {
+                if(model.customerTypeTitle!=null)Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(4.mdp))
+                        .background(Primary.copy(0.2f))
+                        .padding(vertical = 4.mdp, horizontal = 10.mdp)
+                ) {
+                    MyText(
+                        text = model.customerTypeTitle,
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Primary
+                    )
+                } else  {
                     Spacer(Modifier.size(10.mdp))
-//                }
+                }
                 MyText(
                     text = "#${model.customerCode?:""}",
                     style = MaterialTheme.typography.bodyLarge,

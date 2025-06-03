@@ -195,14 +195,14 @@ fun CheckingItem(
             ) {
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
 
-                    if(model.b2BCustomer!=null)Box(
+                    if(model.customerTypeTitle!=null)Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(4.mdp))
                             .background(Primary.copy(0.2f))
                             .padding(vertical = 4.mdp, horizontal = 10.mdp)
                     ) {
                         MyText(
-                            text = model.b2BCustomer,
+                            text = model.customerTypeTitle,
                             style = MaterialTheme.typography.labelSmall,
                             fontWeight = FontWeight.SemiBold,
                             color = Primary

@@ -21,6 +21,8 @@ data class CheckingListGroupedRow(
     val customerID: Int,
     @SerializedName("CustomerName")
     val customerName: String,
+    @SerializedName("CustomerTypeTitle")
+    val customerTypeTitle: String?,
     @SerializedName("GroupedProductCount")
     val groupedProductCount: Int
 ) : Serializable, Animatable {

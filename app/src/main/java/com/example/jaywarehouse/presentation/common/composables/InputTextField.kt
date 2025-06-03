@@ -17,6 +17,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
@@ -38,6 +39,7 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
@@ -61,6 +63,7 @@ fun InputTextField(
     onClick: () -> Unit = {},
     label: String = "",
     suffix: String = "",
+    prefix: String = "",
     leadingIcon: Int? = null,
     trailingIcon: Int? = null,
     decimalInput: Boolean = false,
@@ -183,7 +186,15 @@ fun InputTextField(
                                     color = Color.LightGray
                                 )
                             }
-                            it()
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                MyText(
+                                    prefix,
+                                    maxLines = 1,
+                                    style = TextStyle.Default,
+                                    fontWeight = FontWeight.Normal
+                                )
+                                it()
+                            }
                             if (isFocused && hideKeyboard) {
                                 Box(
                                     modifier = Modifier

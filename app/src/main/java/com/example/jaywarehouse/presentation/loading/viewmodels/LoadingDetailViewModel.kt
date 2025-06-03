@@ -42,7 +42,7 @@ class LoadingDetailViewModel(
                 }
             }
         }
-        getDetails(sort = state.sort)
+        getDetails()
     }
 
     override fun setInitState(): LoadingDetailContract.State {
@@ -76,17 +76,17 @@ class LoadingDetailViewModel(
             LoadingDetailContract.Event.OnReachEnd -> {
                 if (ROW_COUNT*state.page<=state.details.size){
                     setState {
-                        copy(page = state.page+1, loadingState = Loading.LOADING)
+                        copy(page = state.page+1)
                     }
-                    getDetails(keyword = state.keyword,page = state.page,sort = state.sort)
+                    getDetails()
                 }
             }
 
             LoadingDetailContract.Event.OnRefresh -> {
                 setState {
-                    copy(page = 1, details = emptyList(), loadingState = Loading.REFRESHING)
+                    copy(page = 1, details = emptyList())
                 }
-                getDetails(keyword = state.keyword,page = state.page,sort = state.sort)
+                getDetails(Loading.REFRESHING)
             }
             is LoadingDetailContract.Event.OnConfirmLoading -> {
                 completeChecking(event.item)
@@ -98,9 +98,9 @@ class LoadingDetailViewModel(
 //            }
             is LoadingDetailContract.Event.OnSearch -> {
                 setState {
-                    copy(loadingState = Loading.SEARCHING, details = emptyList(), page = 1, keyword = event.keyword)
+                    copy(details = emptyList(), page = 1, keyword = event.keyword)
                 }
-                getDetails(keyword = state.keyword,page = state.page,sort = state.sort)
+                getDetails(Loading.SEARCHING)
             }
             is LoadingDetailContract.Event.OnShowSortList -> {
                 setState {
@@ -111,9 +111,9 @@ class LoadingDetailViewModel(
                 prefs.setLoadingDetailSort(event.sortItem.sort)
                 prefs.setLoadingDetailOrder(event.sortItem.order.value)
                 setState {
-                    copy(sort = event.sortItem, page = 1, details = emptyList(), loadingState = Loading.LOADING)
+                    copy(sort = event.sortItem, page = 1, details = emptyList())
                 }
-                getDetails(keyword = state.keyword,page = state.page,sort = event.sortItem)
+                getDetails()
             }
         }
     }
@@ -152,10 +152,9 @@ class LoadingDetailViewModel(
                                             page = 1,
                                             selectedLoading = null,
                                             toast = it.data.messages.firstOrNull() ?: "Completed successfully.",
-                                            loadingState = Loading.LOADING
                                         )
                                     }
-                                    getDetails(keyword = state.keyword,page = state.page,sort = state.sort)
+                                    getDetails()
                                 } else {
                                     setSuspendedState {
                                         copy(error = it.data?.messages?.firstOrNull()?:"Failed")
@@ -177,45 +176,58 @@ class LoadingDetailViewModel(
     }
 
 
-    private fun getDetails(keyword: String = "", page: Int = 1, sort: SortItem) {
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.getLoadingList(
-                customerCode = row.customerCode?:"",
-                keyword = keyword,
-                sort = sort.sort,
-                page = page,
-                order = sort.order.value
-            )
-                .catch {
-                    setState {
-                        copy(
-                            error = it.message ?: "",
-                            loadingState = Loading.NONE
-                        )
-                    }
-                }
-                .collect {
-                    setSuspendedState {
-                        copy(loadingState = Loading.NONE)
-                    }
-                    when(it){
-                        is BaseResult.Success -> {
-                            setState {
-                                copy(
-                                    details = details + (it.data?.rows ?: emptyList()),
-                                )
-                            }
+    private fun getDetails(
+        loading: Loading = Loading.LOADING
+    ) {
+        if (state.loadingState == Loading.NONE){
+            setState {
+                copy(loadingState = loading)
+            }
+            viewModelScope.launch(Dispatchers.IO) {
+                repository.getLoadingList(
+                    customerCode = row.customerCode?:"",
+                    keyword = state.keyword,
+                    sort = state.sort.sort,
+                    page = state.page,
+                    order = state.sort.order.value
+                )
+                    .catch {
+                        setState {
+                            copy(
+                                error = it.message ?: "",
+                                loadingState = Loading.NONE
+                            )
                         }
-                        is BaseResult.Error -> {
-                            setState {
-                                copy(
-                                    error = it.message,
-                                )
-                            }
-                        }
-                        else -> {}
                     }
-                }
+                    .collect {
+                        setSuspendedState {
+                            copy(loadingState = Loading.NONE)
+                        }
+                        when(it){
+                            is BaseResult.Success -> {
+                                val list = state.details + (it.data?.rows ?: emptyList())
+                                setState {
+                                    copy(
+                                        details = list,
+                                    )
+                                }
+                                if (loading != Loading.SEARCHING && list.isEmpty()){
+                                    setEffect {
+                                        LoadingDetailContract.Effect.NavBack
+                                    }
+                                }
+                            }
+                            is BaseResult.Error -> {
+                                setState {
+                                    copy(
+                                        error = it.message,
+                                    )
+                                }
+                            }
+                            else -> {}
+                        }
+                    }
+            }
         }
     }
 }
