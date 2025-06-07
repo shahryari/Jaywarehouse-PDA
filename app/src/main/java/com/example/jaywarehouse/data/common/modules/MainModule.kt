@@ -7,6 +7,8 @@ import com.example.jaywarehouse.data.loading.loadingModule
 import com.example.jaywarehouse.data.manual_putaway.manualPutawayModule
 import com.example.jaywarehouse.data.packing.packingModule
 import com.example.jaywarehouse.data.pallet.palletModule
+import com.example.jaywarehouse.data.picking.models.PurchaseOrderDetailListBDRow
+import com.example.jaywarehouse.data.picking.models.PurchaseOrderListBDRow
 import com.example.jaywarehouse.data.picking.pickingModule
 import com.example.jaywarehouse.data.putaway.putawayModule
 import com.example.jaywarehouse.data.receiving.model.ReceivingDetailRow
@@ -33,6 +35,7 @@ import com.example.jaywarehouse.presentation.picking.viewModels.PickingDetailVie
 import com.example.jaywarehouse.presentation.picking.viewModels.PickingViewModel
 import com.example.jaywarehouse.presentation.putaway.viewmodels.PutawayDetailViewModel
 import com.example.jaywarehouse.presentation.manual_putaway.viewmodels.PutawayViewModel
+import com.example.jaywarehouse.presentation.picking.viewModels.PickingListBDViewModel
 import com.example.jaywarehouse.presentation.picking.viewModels.PurchaseOrderDetailViewModel
 import com.example.jaywarehouse.presentation.picking.viewModels.PurchaseOrderViewModel
 import com.example.jaywarehouse.presentation.rs.RSIntegrationViewModel
@@ -149,5 +152,9 @@ val mainModule = module {
 
     viewModel {
         PurchaseOrderDetailViewModel(get(),get(),it.get())
+    }
+
+    viewModel {
+        PickingListBDViewModel(get(),get(),it.get<PurchaseOrderListBDRow>(),it.get<PurchaseOrderDetailListBDRow>())
     }
 }

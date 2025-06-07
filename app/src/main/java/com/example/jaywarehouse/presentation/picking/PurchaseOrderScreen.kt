@@ -89,7 +89,7 @@ fun PurchaseOrderContent(
                     .padding(15.mdp)
             ) {
                 TopBar(
-                    "Purchase Order",
+                    "PickingBD",
                     onBack = {
                         onEvent(PurchaseOrderContract.Event.OnBackPressed)
                     }

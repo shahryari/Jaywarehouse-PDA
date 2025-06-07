@@ -45,6 +45,7 @@ data class AccessPermissionModel(
             MainItems.Transfer -> hasTransfer
             MainItems.CycleCount -> hasCycleCount
             MainItems.RS -> hasRS
+            MainItems.PickingBD -> true
         }
     }
 }

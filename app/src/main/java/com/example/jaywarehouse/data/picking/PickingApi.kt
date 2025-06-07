@@ -9,7 +9,7 @@ import com.example.jaywarehouse.data.picking.models.PickingListGroupedModel
 import com.example.jaywarehouse.data.picking.models.PickingListModel
 import com.example.jaywarehouse.data.picking.models.PurchaseOrderDetailListBDModel
 import com.example.jaywarehouse.data.picking.models.PurchaseOrderListBDModel
-import com.example.jaywarehouse.data.picking.models.ShippingOrderDetailListBDModel
+import com.example.jaywarehouse.data.picking.models.PickingListBDModel
 import com.google.gson.JsonObject
 import retrofit2.Response
 import retrofit2.http.Body
@@ -60,12 +60,22 @@ interface PickingApi {
         @Header(ORDER) order: String
     ) : Response<PurchaseOrderDetailListBDModel>
 
-    @POST("ShippingOrderDetailListBD")
-    suspend fun getShippingOrderDetailListBD(
+    @POST("PickingListBD")
+    suspend fun getPickingListBD(
         @Body jsonObject: JsonObject,
         @Header(PAGE) page: Int,
         @Header(ROWS) rows: Int,
         @Header(SORT) sort: String,
         @Header(ORDER) order: String
-    ) : Response<ShippingOrderDetailListBDModel>
+    ) : Response<PickingListBDModel>
+
+    @POST("FinishPurchaseOrderDetailBD")
+    suspend fun finishPurchaseOrderDetailBD(
+        @Body jsonObject: JsonObject
+    ) : Response<ResultMessageModel>
+
+    @POST("ModifyPickQuantityBD")
+    suspend fun modifyPickQuantityBD(
+        @Body jsonObject: JsonObject
+    ) : Response<ResultMessageModel>
 }

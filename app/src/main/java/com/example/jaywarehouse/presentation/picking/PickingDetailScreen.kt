@@ -195,20 +195,20 @@ fun PickingDetailItem(
     model: PickingListRow,
     onClick: ()->Unit
 ) {
-    BaseListItem(
-        onClick = onClick,
-        item1 = BaseListItemModel("Name",model.productName?:"", R.drawable.vuesax_outline_3d_cube_scan),
-        item2 = BaseListItemModel("Product Code",model.productCode?:"",R.drawable.barcode),
-        item3 = BaseListItemModel("Barcode",model.barcodeNumber?:"",R.drawable.note),
-        item4 = BaseListItemModel("Reference Number", model.referenceNumber?:"",R.drawable.hashtag),
-        item5 = if(model.typeofOrderAcquisition!=null) BaseListItemModel("Type of order acquisition", model.typeofOrderAcquisition,R.drawable.calendar_add)else null,
-        quantity = model.warehouseLocationCode?:"",
-        quantityTitle = "",
-        quantityIcon = R.drawable.location,
-        scan = model.quantity.removeZeroDecimal().toString(),
-        scanTitle = "",
-        scanIcon = R.drawable.vuesax_linear_box
-    )
+        BaseListItem(
+            onClick = onClick,
+            item1 = BaseListItemModel("Name",model.productName?:"", R.drawable.vuesax_outline_3d_cube_scan),
+            item2 = BaseListItemModel("Product Code",model.productCode?:"",R.drawable.barcode),
+            item3 = BaseListItemModel("Barcode",model.barcodeNumber?:"",R.drawable.note),
+            item4 = BaseListItemModel("Reference Number", model.referenceNumber?:"",R.drawable.hashtag),
+            item5 = if(model.typeofOrderAcquisition!=null) BaseListItemModel("Type of order acquisition", model.typeofOrderAcquisition,R.drawable.calendar_add)else null,
+            quantity = model.warehouseLocationCode?:"",
+            quantityTitle = "",
+            quantityIcon = R.drawable.location,
+            scan = model.quantity.removeZeroDecimal().toString(),
+            scanTitle = "",
+            scanIcon = R.drawable.vuesax_linear_box
+        )
 }
 
 

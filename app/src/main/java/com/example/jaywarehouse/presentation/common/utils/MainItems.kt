@@ -9,6 +9,7 @@ import com.example.jaywarehouse.presentation.destinations.LoadingScreenDestinati
 import com.example.jaywarehouse.presentation.destinations.ManualPutawayScreenDestination
 import com.example.jaywarehouse.presentation.destinations.PalletScreenDestination
 import com.example.jaywarehouse.presentation.destinations.PickingScreenDestination
+import com.example.jaywarehouse.presentation.destinations.PurchaseOrderScreenDestination
 import com.example.jaywarehouse.presentation.destinations.PutawayScreenDestination
 import com.example.jaywarehouse.presentation.destinations.RSScreenDestination
 import com.example.jaywarehouse.presentation.destinations.ShippingScreenDestination
@@ -60,6 +61,13 @@ enum class MainItems(
         "Shipping",
         Blue,
         PickingScreenDestination
+    ),
+    PickingBD(
+        "PickingBD",
+        R.drawable.trolley,
+        "Shipping",
+        Blue,
+        PurchaseOrderScreenDestination
     ),
     Checking(
         "Checking",

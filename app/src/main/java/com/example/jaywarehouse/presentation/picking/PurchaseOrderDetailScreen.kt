@@ -26,6 +26,7 @@ import com.example.jaywarehouse.presentation.common.composables.TopBar
 import com.example.jaywarehouse.presentation.common.utils.Loading
 import com.example.jaywarehouse.presentation.common.utils.SIDE_EFFECT_KEY
 import com.example.jaywarehouse.presentation.common.utils.ScreenTransition
+import com.example.jaywarehouse.presentation.destinations.PickingListBDScreenDestination
 import com.example.jaywarehouse.presentation.picking.contracts.PurchaseOrderDetailContract
 import com.example.jaywarehouse.presentation.picking.viewModels.PurchaseOrderDetailViewModel
 import com.ramcosta.composedestinations.annotation.Destination
@@ -55,7 +56,8 @@ fun PurchaseOrderDetailScreen(
                     navigator.popBackStack()
                 }
                 is PurchaseOrderDetailContract.Effect.NavToShippingOrderDetail -> {
-
+                    navigator.navigate(PickingListBDScreenDestination(purchase,it.purchase
+                    ))
                 }
             }
         }
@@ -95,7 +97,7 @@ fun PurchaseOrderDetailContent(
             ) {
                 TopBar(
                     title = state.purchaseOrderRow?.supplierName?.trim()?:"",
-                    subTitle = "Purchase Order",
+                    subTitle = "PickingBD",
                     onBack = {
                         onEvent(PurchaseOrderDetailContract.Event.OnBackPressed)
                     }

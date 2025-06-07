@@ -27,7 +27,9 @@ data class PurchaseOrderDetailListBDRow(
     @SerializedName("ProductID")
     val productID: Int?,
     @SerializedName("SumReceiptQuantity")
-    val sumReceiptQuantity: Double?
+    val sumReceiptQuantity: Double?,
+    @SerializedName("QuantityDifferencePodandPicks")
+    val quantityDifferencePodandPIcks: Double?
 ) : Animatable, Serializable {
     override fun key(): String {
         return purchaseOrderDetailID.toString()

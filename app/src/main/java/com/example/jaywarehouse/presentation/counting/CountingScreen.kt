@@ -274,7 +274,7 @@ fun CountListItem(
                                     DateTimeFormatter.ISO_LOCAL_DATE)
                             } else {
                                 val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
-                                val date: Date = inputFormat.parse(receivingRow.receivingDate)!!
+                                val date: Date = inputFormat.parse(receivingRow.receivingDate!!)!!
 
                                 val outputFormat = SimpleDateFormat("yyyy-MMM-dd", Locale.getDefault())
                                 outputFormat.format(date)

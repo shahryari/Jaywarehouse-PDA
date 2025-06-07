@@ -57,8 +57,8 @@ class PurchaseOrderDetailViewModel(
                 }
             }
             is PurchaseOrderDetailContract.Event.OnChangeSort -> {
-                prefs.setPurchaseOrderSort(event.sort.sort)
-                prefs.setPurchaseOrderOrder(event.sort.order.value)
+                prefs.setPurchaseOrderDetailSort(event.sort.sort)
+                prefs.setPurchaseOrderDetailOrder(event.sort.order.value)
                 setState {
                     copy(sort = event.sort)
                 }

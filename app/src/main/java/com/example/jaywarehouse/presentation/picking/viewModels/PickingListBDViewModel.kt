@@ -1,0 +1,258 @@
+package com.example.jaywarehouse.presentation.picking.viewModels
+
+import androidx.lifecycle.viewModelScope
+import com.example.jaywarehouse.data.common.utils.BaseResult
+import com.example.jaywarehouse.data.common.utils.Prefs
+import com.example.jaywarehouse.data.picking.PickingRepository
+import com.example.jaywarehouse.data.picking.models.PurchaseOrderDetailListBDRow
+import com.example.jaywarehouse.data.picking.models.PurchaseOrderListBDRow
+import com.example.jaywarehouse.data.picking.models.PickingListBDRow
+import com.example.jaywarehouse.presentation.common.utils.BaseViewModel
+import com.example.jaywarehouse.presentation.common.utils.Loading
+import com.example.jaywarehouse.presentation.common.utils.Order
+import com.example.jaywarehouse.presentation.picking.contracts.PickingListBDContract
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.launch
+
+class PickingListBDViewModel(
+    private val repository: PickingRepository,
+    private val prefs: Prefs,
+    private val purchase: PurchaseOrderListBDRow,
+    private val purchaseDetail: PurchaseOrderDetailListBDRow
+) : BaseViewModel<PickingListBDContract.Event, PickingListBDContract.State, PickingListBDContract.Effect>(){
+
+    init {
+        setState {
+            copy(purchaseOrderRow = purchase, purchaseOrderDetailRow = purchaseDetail)
+        }
+        val sort = state.sortList.find {
+            it.sort == prefs.getShippingOrderDetailSort() && it.order == Order.getFromValue(prefs.getShippingOrderDetailOrder())
+        }
+        if (sort!=null) setState {
+            copy(sort = sort)
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            prefs.getLockKeyboard().collect {
+                setSuspendedState {
+                    copy(lockKeyboard = it)
+                }
+            }
+        }
+    }
+    override fun setInitState(): PickingListBDContract.State {
+        return PickingListBDContract.State()
+    }
+
+    override fun onEvent(event: PickingListBDContract.Event) {
+        when(event){
+            PickingListBDContract.Event.ClearError -> {
+                setState {
+                    copy(error = "")
+                }
+            }
+            PickingListBDContract.Event.OnBackPressed -> {
+                setEffect {
+                    PickingListBDContract.Effect.NavBack
+                }
+            }
+            is PickingListBDContract.Event.OnChangeSort -> {
+                prefs.setShippingOrderDetailSort(event.sort.sort)
+                prefs.setShippingOrderDetailOrder(event.sort.order.value)
+                setState {
+                    copy(sort = event.sort)
+                }
+                getShippingOrderList()
+            }
+            PickingListBDContract.Event.OnFinish -> {
+                finishPurchaseOrderDetail()
+            }
+            PickingListBDContract.Event.OnReachedEnd -> {
+                getShippingOrderList(emptyList = false)
+            }
+            PickingListBDContract.Event.OnRefresh -> {
+                getShippingOrderList(loading = Loading.REFRESHING)
+            }
+            is PickingListBDContract.Event.OnSearch -> {
+                setState {
+                    copy(keyword = event.keyword)
+                }
+                getShippingOrderList(loading = Loading.SEARCHING)
+            }
+            is PickingListBDContract.Event.OnShowFinishConfirm -> {
+                setState {
+                    copy(showConfirmFinish = event.show)
+                }
+            }
+            is PickingListBDContract.Event.OnShowSortList -> {
+                setState {
+                    copy(showSortList = event.showSortList)
+                }
+            }
+            PickingListBDContract.Event.ReloadScreen -> {
+                getShippingOrderList()
+            }
+            is PickingListBDContract.Event.OnModify -> {
+                modifyPicking()
+            }
+            is PickingListBDContract.Event.OnSelectShippingDetail -> {
+                setState {
+                    copy(selectedPicking = event.picking)
+                }
+            }
+            PickingListBDContract.Event.HideToast -> {
+                setState {
+                    copy(toast = "")
+                }
+            }
+
+            is PickingListBDContract.Event.OnQuantityChange -> TODO()
+        }
+    }
+
+    private fun getShippingOrderList(
+        loading: Loading = Loading.LOADING,
+        emptyList: Boolean = true,
+    ) {
+        if (state.loadingState == Loading.NONE){
+            if (emptyList){
+                setState {
+                    copy(shippingOrderDetailList = emptyList(),page = 1, loadingState = loading)
+                }
+            } else {
+                setState {
+                    copy(page = page + 1, loadingState = loading)
+                }
+            }
+            viewModelScope.launch(Dispatchers.IO) {
+                repository.getShippingOrderDetailListBD(
+                    state.keyword,
+                    purchaseDetail.purchaseOrderDetailID,
+                    state.page,
+                    state.sort.sort,
+                    state.sort.order.value
+                ).catch {
+                    setSuspendedState {
+                        copy(error = it.message?:"", loadingState = Loading.NONE)
+                    }
+                }.collect {
+                    setSuspendedState {
+                        copy(loadingState = Loading.NONE)
+                    }
+                    when(it){
+                        is BaseResult.Error -> {
+                            setSuspendedState {
+                                copy(error = it.message)
+                            }
+                        }
+                        is BaseResult.Success -> {
+                            val list = state.shippingOrderDetailList + (it.data?.rows?:emptyList())
+                            setSuspendedState {
+                                copy(shippingOrderDetailList = list,purchaseOrderDetailRow = it.data?.purchaseOrderDetail)
+                            }
+                        }
+                        BaseResult.UnAuthorized -> {
+
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun finishPurchaseOrderDetail(){
+        if (!state.isFinishing) {
+            setState {
+                copy(isFinishing = true)
+            }
+            viewModelScope.launch(Dispatchers.IO) {
+                repository.finishPurchaseOrderDetailBD(purchaseDetail.purchaseOrderDetailID)
+                    .catch {
+                        setSuspendedState {
+                            copy(error = it.message ?: "", isFinishing = false, showConfirmFinish = false)
+                        }
+                    }
+                    .collect {
+                        setSuspendedState {
+                            copy(isFinishing = false, showConfirmFinish = false)
+                        }
+                        when(it){
+                            is BaseResult.Error -> {
+                                setSuspendedState {
+                                    copy(error = it.message)
+                                }
+                            }
+                            is BaseResult.Success -> {
+                                if (it.data?.isSucceed == true){
+                                    setEffect {
+                                        PickingListBDContract.Effect.NavBack
+                                    }
+                                } else {
+                                    setSuspendedState {
+                                        copy(error = it.data?.messages?.firstOrNull()?:"")
+                                    }
+                                }
+                            }
+                            BaseResult.UnAuthorized -> {}
+                        }
+                    }
+            }
+        }
+    }
+
+
+    private fun modifyPicking(){
+        val quantity = state.quantity.text.toDoubleOrNull()
+
+        if (quantity==null){
+            setState {
+                copy(error = "Please fill quantity")
+            }
+            return
+        }
+        if (!state.isModifying){
+            if (state.selectedPicking!=null){
+                setState {
+                    copy(isModifying = true)
+                }
+
+                viewModelScope.launch(Dispatchers.IO) {
+                    repository.modifyPickQuantityBD(
+                        state.selectedPicking!!.pickingID,
+                        quantity = quantity
+                    ).catch {
+                        setSuspendedState {
+                            copy(error = it.message?:"", isModifying = false)
+                        }
+                    }.collect {
+                        setSuspendedState {
+                            copy(isModifying = false)
+                        }
+                        when(it){
+                            is BaseResult.Error -> {
+                                setSuspendedState {
+                                    copy(error = it.message)
+                                }
+                            }
+                            is BaseResult.Success -> {
+                                if (it.data?.isSucceed == true) {
+                                    setSuspendedState {
+                                        copy(selectedPicking = null, toast = it.data.messages.firstOrNull()?:"Modified successfully")
+                                    }
+                                } else {
+                                    setSuspendedState {
+                                        copy(error = it.data?.messages?.firstOrNull()?:"")
+                                    }
+                                }
+                            }
+                            BaseResult.UnAuthorized -> {
+
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+}

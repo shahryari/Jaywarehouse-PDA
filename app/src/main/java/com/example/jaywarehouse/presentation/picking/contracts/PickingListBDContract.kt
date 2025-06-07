@@ -1,7 +1,9 @@
 package com.example.jaywarehouse.presentation.picking.contracts
 
+import androidx.compose.ui.text.input.TextFieldValue
 import com.example.jaywarehouse.data.picking.models.PurchaseOrderDetailListBDRow
 import com.example.jaywarehouse.data.picking.models.PurchaseOrderListBDRow
+import com.example.jaywarehouse.data.picking.models.PickingListBDRow
 import com.example.jaywarehouse.presentation.common.utils.Loading
 import com.example.jaywarehouse.presentation.common.utils.Order
 import com.example.jaywarehouse.presentation.common.utils.SortItem
@@ -9,10 +11,11 @@ import com.example.jaywarehouse.presentation.common.utils.UiEvent
 import com.example.jaywarehouse.presentation.common.utils.UiSideEffect
 import com.example.jaywarehouse.presentation.common.utils.UiState
 
-class PurchaseOrderDetailContract {
+class PickingListBDContract {
     data class State(
-        val purchaseOrderDetailList: List<PurchaseOrderDetailListBDRow> = emptyList(),
+        val shippingOrderDetailList: List<PickingListBDRow> = emptyList(),
         val purchaseOrderRow: PurchaseOrderListBDRow? = null,
+        val purchaseOrderDetailRow: PurchaseOrderDetailListBDRow? = null,
         val keyword: String = "",
         val loadingState: Loading = Loading.NONE,
         val error: String = "",
@@ -27,12 +30,19 @@ class PurchaseOrderDetailContract {
         val sort: SortItem = sortList.first(),
         val page: Int = 1,
         val showSortList: Boolean = false,
-        val lockKeyboard: Boolean = false
+        val lockKeyboard: Boolean = false,
+        val showConfirmFinish: Boolean = false,
+        val isFinishing: Boolean = false,
+        val selectedPicking: PickingListBDRow? = null,
+        val isModifying: Boolean = false,
+        val toast: String = "",
+        val quantity: TextFieldValue = TextFieldValue(),
     ) : UiState
 
     sealed class Event : UiEvent {
-        data class OnPurchaseDetailClick(val purchase: PurchaseOrderDetailListBDRow) : Event()
+//        data class OnPurchaseDetailClick(val purchase: PurchaseOrderDetailListBDRow) : Event()
         data object ClearError: Event()
+        data object HideToast: Event()
         data class OnChangeSort(val sort: SortItem) : Event()
         data class OnShowSortList(val showSortList: Boolean) : Event()
         data object ReloadScreen: Event()
@@ -40,11 +50,15 @@ class PurchaseOrderDetailContract {
         data class OnSearch(val keyword: String): Event()
         data object OnRefresh: Event()
         data object OnBackPressed: Event()
+        data class OnShowFinishConfirm(val show: Boolean) : Event()
+        data object OnFinish: Event()
+        data class OnSelectShippingDetail(val picking: PickingListBDRow?) : Event()
+        data object OnModify : Event()
+        data class OnQuantityChange(val quantity: TextFieldValue) : Event()
 
     }
 
     sealed class Effect: UiSideEffect {
-        data class NavToShippingOrderDetail(val purchase: PurchaseOrderDetailListBDRow) : Effect()
         data object NavBack: Effect()
     }
 }
