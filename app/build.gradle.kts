@@ -6,17 +6,17 @@ plugins {
 }
 
 android {
-    namespace = "com.example.jaywarehouse"
+    namespace = "com.linari"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.jaywarehouse"
+        applicationId = "com.linari"
         minSdk = 25
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
-        setProperty("archivesBaseName","jaywarehouse")
+        setProperty("archivesBaseName","linari")
 
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"

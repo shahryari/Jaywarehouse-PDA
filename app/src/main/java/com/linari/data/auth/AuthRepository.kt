@@ -1,0 +1,111 @@
+package com.linari.data.auth
+
+import android.os.UserManager
+import android.telephony.TelephonyCallback.UserMobileDataStateListener
+import com.linari.data.auth.models.AccessPermissionModel
+import com.linari.data.auth.models.ChangePasswordModel
+import com.linari.data.auth.models.CurrentVersionModel
+import com.linari.data.auth.models.DashboardModel
+import com.linari.data.auth.models.LoginModel
+import com.linari.data.common.utils.BaseResult
+import com.linari.data.common.utils.Encryptor
+import com.linari.data.common.utils.Prefs
+import com.linari.data.common.utils.getResult
+import com.google.gson.JsonObject
+import kotlinx.coroutines.flow.Flow
+
+class AuthRepository(
+    private val api: AuthApi,
+    private val prefs: Prefs
+) {
+    suspend fun login(
+        username: String,
+        password: String,
+        rememberMe: Boolean
+    ) : Flow<BaseResult<LoginModel>> {
+        val jsonObject = JsonObject()
+        jsonObject.addProperty("Username",username)
+        jsonObject.addProperty("Password",password)
+        return getResult(
+            isLogin = true,
+            request = {
+                api.login(jsonObject)
+            },
+            onSuccess = {
+                prefs.setToken(it?.tokenID?:"")
+                prefs.setFullName(it?.fullName?:"")
+                prefs.setAccessPermission(
+                    accessPermissionModel = AccessPermissionModel(
+                        hasRS = it?.hasRS == true,
+                        hasCount = it?.hasCount == true,
+                        hasLoading = it?.hasLoading == true,
+                        hasPicking = it?.hasPicking == true,
+                        hasPutaway = it?.hasPutaway == true,
+                        hasChecking = it?.hasChecking == true,
+                        hasShipping = it?.hasShipping == true,
+                        hasTransfer = it?.hasTransfer == true,
+                        hasInventory = it?.hasInventory == true,
+                        hasCycleCount = it?.hasCycleCount == true,
+                        hasPalletConfirm = it?.hasPalletConfirm == true,
+                        hasReturnReceiving = it?.hasReturnReceiving == true,
+                        hasPickingBD = it?.hasPickingBD == true
+                    )
+                )
+                prefs.setWarehouse(it?.warehouse)
+                prefs.setHasModifyPick(it?.hasModifyPickQty == true)
+                prefs.setHasWaste(it?.hasWaste == true)
+                if (rememberMe){
+                    val encryptor = Encryptor.getInstance()
+                    prefs.setUserName(username)
+                    prefs.setPassword(encryptor.encrypt(password))
+                } else {
+                    prefs.setUserName("")
+                    prefs.setPassword("")
+                }
+            }
+        )
+    }
+
+    suspend fun getCurrentUser(
+    ) : Flow<BaseResult<LoginModel>>{
+        return getResult(
+            request = {
+                api.getCurrentUser()
+            }
+        )
+    }
+
+    suspend fun  changePassword(
+        password: String
+    ) : Flow<BaseResult<ChangePasswordModel>> {
+        val jsonObject = JsonObject()
+        jsonObject.addProperty("Password",password)
+        return getResult(
+            request = {
+                api.changePassword(jsonObject)
+            }
+        )
+    }
+
+    suspend fun getCurrentVersionInfo() : Flow<BaseResult<CurrentVersionModel>> {
+        return getResult(
+            request = {
+                api.getCurrentVersionInfo()
+            }
+        )
+    }
+
+    suspend fun getDashboard() : Flow<BaseResult<DashboardModel>> {
+        return getResult(
+            request = {
+                api.getDashboard()
+            }
+        )
+    }
+
+    fun getWarehouses() = getResult(
+        request = {
+            api.getWarehouses()
+        }
+    )
+}

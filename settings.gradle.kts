@@ -21,5 +21,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "JayWarehouse"
+rootProject.name = "Linari"
 include(":app")
