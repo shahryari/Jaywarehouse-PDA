@@ -2,6 +2,7 @@ package com.example.jaywarehouse.presentation.checking
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -43,6 +44,7 @@ import com.example.jaywarehouse.presentation.checking.viewModels.CheckingDetailV
 import com.example.jaywarehouse.presentation.common.composables.AutoDropDownTextField
 import com.example.jaywarehouse.presentation.common.composables.BaseListItem
 import com.example.jaywarehouse.presentation.common.composables.BaseListItemModel
+import com.example.jaywarehouse.presentation.common.composables.ComboBox
 import com.example.jaywarehouse.presentation.common.composables.DetailCard
 import com.example.jaywarehouse.presentation.common.composables.InputTextField
 import com.example.jaywarehouse.presentation.common.composables.MyButton
@@ -64,6 +66,7 @@ import com.example.jaywarehouse.ui.theme.Gray5
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.popUpTo
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -203,8 +206,8 @@ fun CheckingDetailItem(
     BaseListItem(
         onClick = onClick,
         item1 = BaseListItemModel("Name",model.productName, R.drawable.vuesax_outline_3d_cube_scan),
-        item2 = BaseListItemModel("Product Code",model.productCode,R.drawable.barcode),
-        item3 = BaseListItemModel("Barcode",model.barcodeNumber?:"",R.drawable.note),
+        item2 = BaseListItemModel("Product Code",model.productCode,R.drawable.note),
+        item3 = BaseListItemModel("Barcode",model.barcodeNumber?:"",R.drawable.barcode),
         item4 = BaseListItemModel("Reference", model.referenceNumber?:"",R.drawable.hashtag),
         item5 = BaseListItemModel("Quantity", model.quantity.removeZeroDecimal().toString(),R.drawable.vuesax_linear_box),
         showFooter = false,
@@ -236,6 +239,7 @@ fun CheckingBottomSheet(
         }
 
         LaunchedEffect(Unit) {
+            delay(200)
             locationFocusRequester.requestFocus()
         }
         ModalBottomSheet(
@@ -248,8 +252,8 @@ fun CheckingBottomSheet(
             Column (
                 Modifier
                     .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 24.mdp)
-                    .padding(bottom = 24.mdp)
+                    .padding(horizontal = 20.mdp)
+                    .padding(bottom = 20.mdp)
             ){
                 MyText(
                     text = "Checking",
@@ -315,7 +319,7 @@ fun CheckingBottomSheet(
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                 )
                 Spacer(Modifier.size(10.mdp))
-                TitleView(title = "Pallet(PM-yyMMdd-xxx)")
+                TitleView(title = "Pallet(${state.palletMask}-yyMMdd-xxx)")
                 Spacer(Modifier.size(5.mdp))
                 InputTextField(
                     state.barcode,
@@ -326,7 +330,7 @@ fun CheckingBottomSheet(
                     leadingIcon = R.drawable.barcode,
                     hideKeyboard = state.lockKeyboard,
                     focusRequester = barcodeFocusRequester,
-                    prefix = "PM-",
+                    prefix = "${state.palletMask}-",
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
                 )
                 Spacer(Modifier.size(10.mdp))
@@ -336,34 +340,30 @@ fun CheckingBottomSheet(
                             title = "Pallet Status"
                         )
                         Spacer(Modifier.size(5.mdp))
-                        AutoDropDownTextField(
-                            state.palletStatus,
-                            onValueChange = {
-                                onEvent(CheckingDetailContract.Event.OnPalletStatusChange(it))
-                            },
-                            suggestions = state.palletStatusList,
-                            icon = R.drawable.user_square,
-                            onSuggestionClick = {
+                        ComboBox(
+                            modifier = Modifier,
+                            items = state.palletStatusList,
+                            selectedItem = state.selectedPalletStatus,
+                            icon = R.drawable.vuesax_outline_box_tick,
+                            listPadding = PaddingValues(horizontal = 20.mdp),
+                            onSelectItem = {
                                 onEvent(CheckingDetailContract.Event.OnSelectPalletStatus(it))
                             }
-//                    hideKeyboard = state.lockKeyboard,
                         )
                     }
                     Spacer(Modifier.size(10.mdp))
                     Column(Modifier.weight(1f)) {
                         TitleView(title = "Pallet Type")
                         Spacer(Modifier.size(5.mdp))
-                        AutoDropDownTextField(
-                            state.palletType,
-                            onValueChange = {
-                                onEvent(CheckingDetailContract.Event.OnPalletTypeChange(it))
-                            },
-                            suggestions = state.palletTypeList,
-                            icon = R.drawable.user_square,
-                            onSuggestionClick = {
+                        ComboBox(
+                            modifier = Modifier,
+                            items = state.palletTypeList,
+                            selectedItem = state.selectedPalletType,
+                            icon = R.drawable.box_search,
+                            listPadding = PaddingValues(horizontal = 20.mdp),
+                            onSelectItem = {
                                 onEvent(CheckingDetailContract.Event.OnSelectPalletType(it))
                             }
-//                    hideKeyboard = state.lockKeyboard,
                         )
                     }
                 }
@@ -391,6 +391,7 @@ fun CheckingBottomSheet(
                         },
                         title = "Save",
                         isLoading = state.onSaving,
+                        enabled = state.count.text.isNotEmpty() && state.barcode.text.isNotEmpty(),
                         modifier = Modifier.weight(1f)
                     )
                 }

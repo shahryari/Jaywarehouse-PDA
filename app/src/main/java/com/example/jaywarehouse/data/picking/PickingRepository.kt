@@ -118,16 +118,30 @@ class PickingRepository(private val api: PickingApi) {
 
     fun modifyPickQuantityBD(
         pickingID: Int,
+        purchaseOrderDetailID: Int,
         quantity: Double
     ) = getResult(
         request = {
             val jsonObject = JsonObject()
             jsonObject.addProperty("PickingID",pickingID)
+            jsonObject.addProperty("PurchaseOrderDetailID",purchaseOrderDetailID)
             jsonObject.addProperty("NewQty",quantity)
             api.modifyPickQuantityBD(jsonObject)
         }
     )
 
+
+    fun wasteOnPicking(
+        pickingID: Int,
+        quantity: Double
+    ) = getResult(
+        request = {
+            val jsonObject = JsonObject()
+            jsonObject.addProperty("PickingID",pickingID)
+            jsonObject.addProperty("Quantity",quantity)
+            api.wasteOnPicking(jsonObject)
+        }
+    )
 
 
 }

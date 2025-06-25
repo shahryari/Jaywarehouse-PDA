@@ -16,6 +16,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 
 import androidx.compose.ui.text.TextStyle
@@ -29,7 +30,7 @@ fun DetailCard(
     title: String,
     detail: String,
     modifier: Modifier = Modifier,
-    textStyle : TextStyle = MaterialTheme.typography.titleMedium,
+    textStyle : TextStyle? = MaterialTheme.typography.titleMedium.copy(color = Color.Black),
     enableDetail: Boolean = false,
     icon: Int?,
 ) {
@@ -68,10 +69,11 @@ fun DetailCard(
             if (icon!=null)Spacer(modifier = Modifier.size(7.mdp))
             MyText(
                 text = detail,
-                style = textStyle,
+                style = textStyle?: MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Normal,
                 maxLines = if (showAllDetail) 3 else 1,
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis,
+                color = textStyle?.color ?: Color.Black
             )
         }
     }

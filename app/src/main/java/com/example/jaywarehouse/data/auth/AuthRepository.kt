@@ -47,9 +47,13 @@ class AuthRepository(
                         hasInventory = it?.hasInventory == true,
                         hasCycleCount = it?.hasCycleCount == true,
                         hasPalletConfirm = it?.hasPalletConfirm == true,
-                        hasReturnReceiving = it?.hasReturnReceiving == true
+                        hasReturnReceiving = it?.hasReturnReceiving == true,
+                        hasPickingBD = it?.hasPickingBD == true
                     )
                 )
+                prefs.setWarehouse(it?.warehouse)
+                prefs.setHasModifyPick(it?.hasModifyPickQty == true)
+                prefs.setHasWaste(it?.hasWaste == true)
                 if (rememberMe){
                     val encryptor = Encryptor.getInstance()
                     prefs.setUserName(username)
@@ -98,4 +102,10 @@ class AuthRepository(
             }
         )
     }
+
+    fun getWarehouses() = getResult(
+        request = {
+            api.getWarehouses()
+        }
+    )
 }

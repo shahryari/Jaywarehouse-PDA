@@ -30,6 +30,8 @@ data class AccessPermissionModel(
     val hasShipping: Boolean,
     @SerializedName("HasTransfer")
     val hasTransfer: Boolean,
+    @SerializedName("HasPickingBD")
+    val hasPickingBD: Boolean
 ) {
     fun checkAccess(mainItems: MainItems) : Boolean{
         return when(mainItems){
@@ -45,7 +47,7 @@ data class AccessPermissionModel(
             MainItems.Transfer -> hasTransfer
             MainItems.CycleCount -> hasCycleCount
             MainItems.RS -> hasRS
-            MainItems.PickingBD -> true
+            MainItems.PickingBD -> hasPickingBD
         }
     }
 }

@@ -38,7 +38,9 @@ data class CheckingListRow(
     @SerializedName("Quantity")
     val quantity: Double,
     @SerializedName("ReferenceNumber")
-    val referenceNumber: String?
+    val referenceNumber: String?,
+    @SerializedName("WarehouseID")
+    val warehouseID: Int
 ) : Animatable {
     override fun key(): String {
         return checkingID.toString()

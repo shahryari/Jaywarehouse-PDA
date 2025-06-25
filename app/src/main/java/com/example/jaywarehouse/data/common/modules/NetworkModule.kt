@@ -43,6 +43,8 @@ val networkModule = module {
                             androidContext().restartActivity()
                         }
                     }
+                    val body = response.body().toString()
+                    body
                     response
                 }
                 .build()

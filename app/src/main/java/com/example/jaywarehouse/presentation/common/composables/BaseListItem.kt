@@ -65,14 +65,15 @@ fun BaseListItem(
     item9: BaseListItemModel? = null,
     showDeleteButton: Boolean = false,
     onRemove: ()->Unit = {},
-    quantity: Double,
+    quantity: Double?,
     quantityTitle: String = "Total",
     quantityIcon: Int? = null,
-    scan: Double,
+    scan: Double?,
     enableShowDetail: Boolean = false,
     scanTitle: String = "Scan",
     showFooter: Boolean = true,
     expandable: Boolean = false,
+    scanContent: (@Composable ()->Unit)? = null,
     scanIcon: Int? = null
 ) = BaseListItem(
     modifier = modifier,
@@ -88,14 +89,15 @@ fun BaseListItem(
     item9 = item9,
     showDeleteButton = showDeleteButton,
     onRemove = onRemove,
-    quantity = quantity.removeZeroDecimal().toString(),
+    quantity = quantity?.removeZeroDecimal()?.toString(),
     enableShowDetail = enableShowDetail,
     quantityTitle = quantityTitle,
     quantityIcon = quantityIcon,
-    scan = scan.removeZeroDecimal().toString(),
+    scan = scan?.removeZeroDecimal()?.toString(),
     scanTitle = scanTitle,
     showFooter = showFooter,
     expandable = expandable,
+    scanContent = scanContent,
     scanIcon = scanIcon
 )
 
@@ -114,15 +116,16 @@ fun BaseListItem(
     item9: BaseListItemModel? = null,
     showDeleteButton: Boolean = false,
     onRemove: ()->Unit = {},
-    quantity: String,
+    quantity: String?,
     primary: Boolean = false,
     quantityTitle: String = "Total",
     quantityIcon: Int? = null,
-    scan: String,
+    scan: String?,
     enableShowDetail: Boolean = false,
     expandable: Boolean = false,
     scanTitle: String = "Scan",
     showFooter: Boolean = true,
+    scanContent: (@Composable ()->Unit)? = null,
     scanIcon: Int? = null
 ) {
 
@@ -162,7 +165,7 @@ fun BaseListItem(
                     icon = item1.icon,
                     enableDetail = enableShowDetail,
                     modifier = Modifier.weight(1f),
-                    textStyle = item1.style?:MaterialTheme.typography.titleMedium
+                    textStyle = item1.style?:MaterialTheme.typography.titleMedium.copy(color = Color.Black)
                 )
             }
         }
@@ -180,7 +183,7 @@ fun BaseListItem(
                     icon = item2.icon,
                     modifier = Modifier.weight(1f),
                     enableDetail = enableShowDetail,
-                    textStyle = item2.style?:MaterialTheme.typography.titleMedium
+                    textStyle = item2.style?:MaterialTheme.typography.titleMedium.copy(color = Color.Black)
                 )
                 Spacer(modifier = Modifier.size(5.mdp))
                 if(showItem3)DetailCard(
@@ -189,7 +192,7 @@ fun BaseListItem(
                     icon =item3.icon,
                     modifier = Modifier.weight(1f),
                     enableDetail = enableShowDetail,
-                    textStyle = item3.style?:MaterialTheme.typography.titleMedium
+                    textStyle = item3.style?:MaterialTheme.typography.titleMedium.copy(color = Color.Black)
                 )
                 if(showDeleteButton)Spacer(modifier = Modifier.size(5.mdp))
                 if (showDeleteButton){
@@ -224,7 +227,7 @@ fun BaseListItem(
                     icon = item4.icon,
                     modifier = Modifier.weight(1f),
                     enableDetail = enableShowDetail,
-                    textStyle = item4.style?:MaterialTheme.typography.bodyMedium
+                    textStyle = item4.style?:MaterialTheme.typography.bodyMedium.copy(color = Color.Black)
                 )
                 Spacer(modifier = Modifier.size(5.mdp))
                 if(showItem5)DetailCard(
@@ -233,7 +236,7 @@ fun BaseListItem(
                     icon =item5.icon,
                     enableDetail = enableShowDetail,
                     modifier = Modifier.weight(1f),
-                    textStyle = item5.style?:MaterialTheme.typography.bodyMedium
+                    textStyle = item5.style?:MaterialTheme.typography.bodyMedium.copy(color = Color.Black)
                 )
             }
         }
@@ -250,7 +253,7 @@ fun BaseListItem(
                     icon = item6.icon,
                     modifier = Modifier.weight(1f),
                     enableDetail = enableShowDetail,
-                    textStyle = item6.style ?: MaterialTheme.typography.bodyMedium
+                    textStyle = item6.style ?: MaterialTheme.typography.bodyMedium.copy(color = Color.Black)
                 )
                 Spacer(modifier = Modifier.size(5.mdp))
                 if (showItem7) DetailCard(
@@ -259,7 +262,7 @@ fun BaseListItem(
                     icon = item7.icon,
                     enableDetail = enableShowDetail,
                     modifier = Modifier.weight(1f),
-                    textStyle = item7.style ?: MaterialTheme.typography.bodyMedium
+                    textStyle = item7.style ?: MaterialTheme.typography.bodyMedium.copy(color = Color.Black)
                 )
             }
         }
@@ -275,7 +278,7 @@ fun BaseListItem(
                     icon = item8.icon,
                     modifier = Modifier.weight(1f),
                     enableDetail = enableShowDetail,
-                    textStyle = item8.style ?: MaterialTheme.typography.bodyMedium
+                    textStyle = item8.style ?: MaterialTheme.typography.bodyMedium.copy(color = Color.Black)
                 )
                 Spacer(modifier = Modifier.size(5.mdp))
                 if (showItem9) DetailCard(
@@ -284,7 +287,9 @@ fun BaseListItem(
                     icon = item9.icon,
                     enableDetail = enableShowDetail,
                     modifier = Modifier.weight(1f),
-                    textStyle = item9.style ?: MaterialTheme.typography.bodyMedium
+                    textStyle = item9.style ?: MaterialTheme.typography.bodyMedium.copy(
+                        color = Color.Black
+                    )
                 )
             }
         }
@@ -303,61 +308,69 @@ fun BaseListItem(
             )
         }
         Spacer(modifier = Modifier.size(8.mdp))
-        if (showFooter)Row(
-            Modifier
-                .fillMaxWidth()
-        ) {
+        if (showFooter){
             Row(
                 Modifier
-                    .weight(1f)
-                    .background(
-                        if (primary) Primary else Gray3
-                    )
-                    .padding(12.mdp),
-                verticalAlignment = Alignment.CenterVertically,
+                    .fillMaxWidth()
             ) {
-                if (quantityIcon!=null){
-                    Icon(
-                        painter = painterResource(id = quantityIcon),
-                        contentDescription = "",
-                        modifier = Modifier.size(28.mdp),
-                        tint = Color.Black
+                if (quantity != null)Row(
+                    Modifier
+                        .weight(1f)
+                        .background(
+                            if (primary) Primary else Gray3
+                        )
+                        .padding(12.mdp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    if (quantityIcon!=null){
+                        Icon(
+                            painter = painterResource(id = quantityIcon),
+                            contentDescription = "",
+                            modifier = Modifier.size(28.mdp),
+                            tint = Color.Black
+                        )
+                        Spacer(modifier = Modifier.size(7.mdp))
+                    }
+                    MyText(
+                        text = "$quantityTitle${if (quantityTitle.isNotEmpty()) ": " else ""}$quantity",
+                        color = if (primary) Color.White else Black,
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Medium
                     )
-                    Spacer(modifier = Modifier.size(7.mdp))
                 }
-                MyText(
-                    text = "$quantityTitle${if (quantityTitle.isNotEmpty()) ": " else ""}$quantity",
-                    color = if (primary) Color.White else Black,
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium
-                )
-            }
-            Row(
-                Modifier
-                    .weight(1f)
-                    .background(
-                        if (primary) Primary.copy(0.2f) else Gray4
-                    )
-                    .padding(12.mdp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                if (scanIcon!=null){
-                    Icon(
-                        painter = painterResource(id = scanIcon),
-                        contentDescription = "",
-                        modifier = Modifier.size(28.mdp),
-                        tint = Color.Black
-                    )
-                    Spacer(modifier = Modifier.size(7.mdp))
+                if (scan!=null)Row(
+                    Modifier
+                        .weight(1f)
+                        .background(
+                            if (primary) Primary.copy(0.2f) else Gray4
+                        )
+                        .padding(12.mdp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        if (scanIcon!=null){
+                            Icon(
+                                painter = painterResource(id = scanIcon),
+                                contentDescription = "",
+                                modifier = Modifier.size(28.mdp),
+                                tint = Color.Black
+                            )
+                            Spacer(modifier = Modifier.size(7.mdp))
+                        }
+                        MyText(
+                            text = "$scanTitle${if (scanTitle.isNotEmpty()) ": " else ""}$scan",
+                            color = if (primary) Primary else Black,
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+                    if (scanContent!=null){
+                        scanContent()
+                    }
                 }
-                MyText(
-                    text = "$scanTitle${if (scanTitle.isNotEmpty()) ": " else ""}$scan",
-                    color = if (primary) Primary else Black,
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium
-                )
             }
         }
     }

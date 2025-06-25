@@ -1,5 +1,6 @@
 package com.example.jaywarehouse.data.shipping.models
 
+import com.example.jaywarehouse.presentation.common.utils.Selectable
 import com.google.gson.annotations.SerializedName
 
 data class PalletTypeModel(
@@ -10,8 +11,12 @@ data class PalletTypeModel(
 data class PalletTypeRow(
     @SerializedName("PalletTypeID")val palletTypeID: Int,
     @SerializedName("PalletTypeTitle")val palletTypeTitle: String
-) {
+) : Selectable{
     override fun toString(): String {
+        return palletTypeTitle
+    }
+
+    override fun string(): String {
         return palletTypeTitle
     }
 }

@@ -79,7 +79,7 @@ class PurchaseOrderDetailViewModel(
             }
             is PurchaseOrderDetailContract.Event.OnSearch -> {
                 setState {
-                    copy(keyword = keyword)
+                    copy(keyword = event.keyword)
                 }
                 getPurchaseOrderDetailList(loading = Loading.SEARCHING)
             }

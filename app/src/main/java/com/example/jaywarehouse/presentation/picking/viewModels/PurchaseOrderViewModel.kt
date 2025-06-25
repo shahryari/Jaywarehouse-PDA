@@ -73,7 +73,7 @@ class PurchaseOrderViewModel(
             }
             is PurchaseOrderContract.Event.OnSearch -> {
                 setState {
-                    copy(keyword = keyword)
+                    copy(keyword = event.keyword)
                 }
                 getPurchaseOrderList(loading = Loading.SEARCHING)
             }

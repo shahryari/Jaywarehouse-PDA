@@ -8,6 +8,7 @@ import com.example.jaywarehouse.data.common.utils.PAGE
 import com.example.jaywarehouse.data.common.utils.ROWS
 import com.example.jaywarehouse.data.common.utils.ResultMessageModel
 import com.example.jaywarehouse.data.common.utils.SORT
+import com.example.jaywarehouse.data.shipping.models.PalletMaskModel
 import com.example.jaywarehouse.data.shipping.models.PalletTypeModel
 import com.google.gson.JsonObject
 import retrofit2.Response
@@ -49,4 +50,10 @@ interface CheckingApi {
 
     @POST("PalletStatus")
     suspend fun getPalletStatuses() : Response<PalletStatusModel>
+
+
+    @POST("GetPalletMaskAbbriviation")
+    suspend fun getPalletMask(
+        @Body jsonObject: JsonObject
+    ) : Response<PalletMaskModel>
 }

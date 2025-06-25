@@ -32,5 +32,13 @@ data class LoginModel(
     val hasShipping: Boolean,
     @SerializedName("HasTransfer")
     val hasTransfer: Boolean,
+    @SerializedName("HasPickingBD")
+    val hasPickingBD: Boolean,
+    @SerializedName("Warehouse")
+    val warehouse: WarehouseModel?,
+    @SerializedName("HasModifyPickQty")
+    val hasModifyPickQty: Boolean,
+    @SerializedName("HasWaste")
+    val hasWaste: Boolean
 )
 

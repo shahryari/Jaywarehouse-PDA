@@ -50,7 +50,7 @@ enum class MainItems(
         PutawayScreenDestination
     ),
     ReturnReceiving(
-        "Return\nReceiving",
+        "Return",
         R.drawable.delivery_return,
         "Count",
         Primary
@@ -63,8 +63,8 @@ enum class MainItems(
         PickingScreenDestination
     ),
     PickingBD(
-        "PickingBD",
-        R.drawable.trolley,
+        "Picking",
+        R.drawable.inventory_management,
         "Shipping",
         Blue,
         PurchaseOrderScreenDestination
@@ -77,7 +77,7 @@ enum class MainItems(
         CheckingScreenDestination
     ),
     PalletConfirm(
-        "Pallet\nConfirm",
+        "Completion",
         R.drawable.pallet,
         "Shipping",
         Blue,
@@ -91,7 +91,7 @@ enum class MainItems(
         LoadingScreenDestination
     ),
     ShippingTruck(
-        "Shipping\nTruck",
+        "Shipping",
         R.drawable.fast_delivery,
         "Shipping",
         Blue,
@@ -111,7 +111,7 @@ enum class MainItems(
         TransferScreenDestination
     ),
     CycleCount(
-        "Cycle\nCount",
+        "Cycle Count",
         R.drawable.task,
         "Stock",
         Yellow,

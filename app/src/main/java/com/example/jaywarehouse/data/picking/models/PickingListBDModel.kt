@@ -19,6 +19,8 @@ data class PickingListBDRow(
     val referenceNumber: String?,
     @SerializedName("PickingID")
     val pickingID: Int,
+    @SerializedName("PurchaseOrderDetailID")
+    val purchaseOrderDetailID: Int,
     @SerializedName("CustomerName")
     val customerName: String?,
     @SerializedName("CustomerCode")

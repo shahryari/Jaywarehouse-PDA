@@ -277,8 +277,8 @@ fun CountingDetailItem(
     BaseListItem(
         onClick = onClick,
         item1 = BaseListItemModel("Name",model.productName,R.drawable.vuesax_outline_3d_cube_scan),
-        item2 = if (showDetail) BaseListItemModel("Product Code",model.productCode,R.drawable.fluent_barcode_scanner_20_regular) else null,
-        item3 = if (showDetail) BaseListItemModel("Barcode",model.productBarcodeNumber?:"",R.drawable.note) else null,
+        item2 = if (showDetail) BaseListItemModel("Product Code",model.productCode,R.drawable.note) else null,
+        item3 = if (showDetail) BaseListItemModel("Barcode",model.productBarcodeNumber?:"",R.drawable.barcode) else null,
         item4 = if (showDetail) BaseListItemModel("Product Type",model.quiddityTypeTitle?:"",R.drawable.vuesax_linear_box) else null,
         scan = (model.countQuantity?.removeZeroDecimal()?.toString() ?: "") + if (model.isWeight == true && model.countQuantity != null) " kg" else "",
         scanTitle = "Count",

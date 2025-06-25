@@ -37,8 +37,6 @@ class CheckingDetailViewModel(
         setState {
             copy(
                 checkRow = row,
-//                boxNumber = TextFieldValue(putRow.boxNumber?:""),
-//                enableBoxNumber = putRow.boxNumber?.isEmpty() ?: true
             )
         }
         viewModelScope.launch(Dispatchers.IO) {
@@ -73,12 +71,21 @@ class CheckingDetailViewModel(
                 }
             }
             is CheckingDetailContract.Event.OnSelectCheck -> {
+                setState {
+                    copy(
+                        selectedChecking = event.checking,
+                        count = TextFieldValue(),
+                        barcode = TextFieldValue(),
+                        palletType = TextFieldValue(),
+                        palletStatus = TextFieldValue(),
+                        selectedPalletType = null,
+                        selectedPalletStatus = null
+                    )
+                }
                 if (event.checking!=null){
                     getPalletTypeList()
                     getPalletStatusList()
-                }
-                setState {
-                    copy(selectedChecking = event.checking)
+                    getPalletMask(event.checking.warehouseID.toString())
                 }
             }
 
@@ -166,6 +173,13 @@ class CheckingDetailViewModel(
         count: Double?,
         barcode: String
     ) {
+        if (barcode.isEmpty()){
+            setState {
+                copy(error = "Please fill pallet barcode.")
+            }
+            return
+        }
+        val palletBarcode = "${state.palletMask}-$barcode"
 
         if (count == null){
             setState {
@@ -174,9 +188,9 @@ class CheckingDetailViewModel(
             return
         }
         if (prefs.getValidatePallet()) {
-            if (!validatePallet(barcode)) {
+            if (!validatePallet(palletBarcode,state.palletMask)) {
                 setState {
-                    copy(error = "Invalid Pallet")
+                    copy(error = "The Pallet Number must match ${state.palletMask}-yyyyMMdd-xxx")
                 }
                 return
             }
@@ -206,7 +220,7 @@ class CheckingDetailViewModel(
                     count,
                     checking.customerID.toString(),
                     checking.checkingID.toString(),
-                    barcode,
+                    palletBarcode,
                     state.selectedPalletStatus!!.palletStatusID,
                     state.selectedPalletType!!.palletTypeID
                 ).catch {
@@ -228,6 +242,10 @@ class CheckingDetailViewModel(
                                         copy(
                                             count = TextFieldValue(),
                                             barcode = TextFieldValue(),
+                                            selectedPalletType = null,
+                                            selectedPalletStatus = null,
+                                            palletType = TextFieldValue(),
+                                            palletStatus = TextFieldValue(),
                                             checkingList = emptyList(),
                                             page = 1,
                                             selectedChecking = null,
@@ -307,16 +325,22 @@ class CheckingDetailViewModel(
                         copy(error = it.message?:"")
                     }
                 }
-                .collect {
-                    when(it){
+                .collect { result ->
+                    when(result){
                         is BaseResult.Error -> {
                             setSuspendedState {
-                                copy(error = it.message)
+                                copy(error = result.message)
                             }
                         }
                         is BaseResult.Success -> {
+                            val list = result.data?.rows?:emptyList()
+                            val selected = list.find { it.palletTypeID == 1 }
                             setSuspendedState {
-                                copy(palletTypeList = it.data?.rows?:emptyList())
+                                copy(
+                                    palletTypeList = list,
+                                    palletType = TextFieldValue(selected?.palletTypeTitle?:""),
+                                    selectedPalletType = selected
+                                )
                             }
                         }
                         BaseResult.UnAuthorized -> {
@@ -335,21 +359,47 @@ class CheckingDetailViewModel(
                         copy(error = it.message?:"")
                     }
                 }
-                .collect {
-                    when(it){
+                .collect {result ->
+                    when(result){
                         is BaseResult.Error -> {
                             setSuspendedState {
-                                copy(error = it.message)
+                                copy(error = result.message)
                             }
                         }
                         is BaseResult.Success -> {
+                            val list = result.data?.rows?:emptyList()
+                            val selected = list.find { it.palletStatusID == 1 }
                             setSuspendedState {
-                                copy( palletStatusList= it.data?.rows?:emptyList())
+                                copy(
+                                    palletStatusList = list,
+                                    palletStatus = TextFieldValue(selected?.palletStatusTitle?:""),
+                                    selectedPalletStatus = selected
+                                )
                             }
                         }
                         BaseResult.UnAuthorized -> {
 
                         }
+                    }
+                }
+        }
+    }
+
+    private fun getPalletMask(
+        warehouseID: String
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.getPalletMask(warehouseID)
+                .catch {  }
+                .collect {
+                    when(it){
+                        is BaseResult.Error -> {}
+                        is BaseResult.Success -> {
+                            setSuspendedState {
+                                copy(palletMask = it.data?.palletMaskAbbreviation ?:"")
+                            }
+                        }
+                        BaseResult.UnAuthorized -> {}
                     }
                 }
         }

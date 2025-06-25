@@ -1,12 +1,16 @@
 package com.example.jaywarehouse.presentation.shipping.contracts
 
 import androidx.compose.ui.text.input.TextFieldValue
-import com.example.jaywarehouse.data.pallet.model.PalletConfirmRow
+import com.example.jaywarehouse.data.checking.models.PalletStatusRow
+import com.example.jaywarehouse.data.pallet.model.PalletManifestProductRow
+import com.example.jaywarehouse.data.picking.models.PalletManifest
 import com.example.jaywarehouse.data.shipping.models.CustomerRow
 import com.example.jaywarehouse.data.shipping.models.DriverModel
 import com.example.jaywarehouse.data.shipping.models.PalletInShippingRow
 import com.example.jaywarehouse.data.shipping.models.PalletTypeRow
+import com.example.jaywarehouse.data.shipping.models.ShippingDetailListOfPalletRow
 import com.example.jaywarehouse.data.shipping.models.ShippingModel
+import com.example.jaywarehouse.data.shipping.models.ShippingPalletManifestRow
 import com.example.jaywarehouse.data.shipping.models.ShippingRow
 import com.example.jaywarehouse.presentation.common.utils.Loading
 import com.example.jaywarehouse.presentation.common.utils.Order
@@ -23,14 +27,18 @@ class ShippingContract {
         val carNumber: TextFieldValue = TextFieldValue(),
         val trailerNumber : TextFieldValue = TextFieldValue(),
         val palletNumber: TextFieldValue = TextFieldValue(),
-        val createPallets: List<PalletConfirmRow> = emptyList(),
+        val createPallets: List<ShippingPalletManifestRow> = emptyList(),
+        val shippingPalletManifestList: List<ShippingPalletManifestRow> = emptyList(),
+        val palletProducts: List<PalletManifestProductRow> = emptyList(),
         val showAddDialog: Boolean = false,
         val selectedDriver: DriverModel? = null,
         val isDriverIdScanned: Boolean = false,
+        val selectedPallet: ShippingPalletManifestRow? = null,
         //pallet quantity
         val quantity: TextFieldValue = TextFieldValue(),
         val customer: TextFieldValue = TextFieldValue(),
         val palletType: TextFieldValue = TextFieldValue(),
+        val palletStatus: TextFieldValue = TextFieldValue(),
         val quantityPallets: List<PalletInShippingRow> = emptyList(),
         val shippingForPallet: ShippingRow? = null,
         //
@@ -59,9 +67,23 @@ class ShippingContract {
         val isChecking: Boolean = false,
         val isShipping: Boolean = false,
         val isCreatingPallet: Boolean = false,
+        val isAddingPallet: Boolean = false,
+        val isUpdatingPallet: Boolean = false,
+        val isDeletingPallet: Boolean = false,
         val isConfirming: Boolean = false,
         val isCreatingInvoice: Boolean = false,
-        val isCreatingRs: Boolean = false
+        val isCreatingRs: Boolean = false,
+        val isProductLoading: Boolean = false,
+        val palletStatusList: List<PalletStatusRow> = emptyList(),
+        val selectedPalletStatus: PalletStatusRow? = null,
+        val editDriver: Boolean = false,
+        val showAddPallet: Boolean = false,
+        val palletMask: String = "",
+        val warehouseID: String = "",
+        val showUpdatePallet: PalletInShippingRow? = null,
+        val showConfirmDeletePallet: PalletInShippingRow? = null,
+        val showRollbackConfirm: ShippingRow? = null,
+        val isRollingBack: Boolean = false,
     ) : UiState
 
     sealed class Event : UiEvent {
@@ -76,13 +98,14 @@ class ShippingContract {
         data object OnRefresh: Event()
         data object FetchData: Event()
         data object OnNavBack : Event()
+        data class OnSelectShipping(val shipping: ShippingRow) : Event()
         data class OnConfirm(val shipping: ShippingRow): Event()
         data class OnCreateInvoice(val shipping: ShippingRow): Event()
-        data class OnCreateRS(val shipping: ShippingRow): Event()
+        data class OnRollbackShipping(val shipping: ShippingRow): Event()
         data class OnShowPalletQuantitySheet(val shipping: ShippingRow?): Event()
         data class OnShowConfirm(val shipping: ShippingRow?) : Event()
         data class OnShowInvoice(val shipping: ShippingRow?) : Event()
-        data class OnShowRs(val shipping: ShippingRow?) : Event()
+        data class OnShowRollbackConfirm(val shipping: ShippingRow?) : Event()
         //create shipping
         data class OnDriverIdChange(val id: TextFieldValue) : Event()
         data class OnDriverNameChange(val name: TextFieldValue) : Event()
@@ -90,21 +113,31 @@ class ShippingContract {
         data class OnTrailerNumberChange(val number: TextFieldValue) : Event()
         data class OnPalletNumberChange(val number: TextFieldValue) : Event()
         data object OnAddShipping: Event()
+        data class OnSelectPallet(val pallet: ShippingPalletManifestRow?) : Event()
         data object OnScanPalletBarcode: Event()
+        data class FetchPalletProducts(val palletManifest: ShippingPalletManifestRow) : Event()
         data object OnScanDriverId: Event()
-        data class OnRemovePallet(val pallet: PalletConfirmRow) : Event()
+        data class OnRemovePallet(val pallet: ShippingPalletManifestRow) : Event()
         //pallet quantity
         data class OnQuantityChange(val quantity: TextFieldValue) : Event()
         data class OnCustomerChange(val customer: TextFieldValue) : Event()
         data class OnPalletTypeChange(val type: TextFieldValue) : Event()
-        data object OnAddPallet: Event()
+        data class OnConfirmPallet(val shipping: ShippingRow): Event()
         data object OnScanPalletQuantity: Event()
         data class OnRemovePalletQuantity(val pallet: PalletInShippingRow) : Event()
-        data class OnSelectCustomer(val customer: CustomerRow) : Event()
-        data class OnSelectPalletType(val type: PalletTypeRow) : Event()
+        data class OnSelectCustomer(val customer: CustomerRow?) : Event()
+        data class OnSelectPalletType(val type: PalletTypeRow?) : Event()
+        data class OnSelectPalletStatus(val status: PalletStatusRow?) : Event()
+        data class OnPalletStatusChange(val status: TextFieldValue) : Event()
+        data class OnShowAddPallet(val show: Boolean) : Event()
+        data class OnShowUpdatePallet(val show: PalletInShippingRow?) : Event()
+
+        data class OnShowConfirmDeletePallet(val show: PalletInShippingRow?) : Event()
+        data class OnUpdatePallet(val pallet: PalletInShippingRow) : Event()
     }
 
     sealed class Effect : UiSideEffect {
         data object NavBack: Effect()
+        data class NavToShippingDetail(val shipping: ShippingRow) : Effect()
     }
 }

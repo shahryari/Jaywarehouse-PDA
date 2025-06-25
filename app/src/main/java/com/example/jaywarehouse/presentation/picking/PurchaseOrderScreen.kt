@@ -89,7 +89,7 @@ fun PurchaseOrderContent(
                     .padding(15.mdp)
             ) {
                 TopBar(
-                    "PickingBD",
+                    "Picking",
                     onBack = {
                         onEvent(PurchaseOrderContract.Event.OnBackPressed)
                     }
@@ -147,7 +147,7 @@ fun PurchaseItem(
 ) {
     MainListItem(
         onClick = onClick,
-        typeTitle = model.purchaseOrderDate,
+        typeTitle = model.purchaseOrderDate?.take(10),
         modelNumber = model.referenceNumber,
         item1 = BaseListItemModel("Supplier Name",model.supplierName?:"",R.drawable.user_square),
         item2 = BaseListItemModel("Supplier Code",model.supplierCode?:"",R.drawable.vuesax_linear_box),

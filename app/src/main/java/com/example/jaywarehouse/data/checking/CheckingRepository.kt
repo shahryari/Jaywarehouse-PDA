@@ -81,4 +81,14 @@ class CheckingRepository(
             api.getPalletStatuses()
         }
     )
+
+    fun getPalletMask(
+        warehouseID: String
+    ) = getResult(
+        request = {
+            val jsonObject = JsonObject()
+            jsonObject.addProperty("WarehouseID",warehouseID)
+            api.getPalletMask(jsonObject)
+        }
+    )
 }

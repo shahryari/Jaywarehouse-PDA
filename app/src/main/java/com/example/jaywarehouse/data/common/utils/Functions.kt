@@ -83,10 +83,14 @@ fun hideKeyboard2(activity: Activity) {
     }
 }
 
-fun validatePallet(pallet: String,startString: String = "PM") : Boolean {
+fun validatePallet(pallet: String,startString: String = "") : Boolean {
     val palletFields = pallet.trim().split("-")
     if (palletFields.size != 3) return false
-    if (palletFields[0].uppercase() != startString.uppercase()) return false
+    if (startString.isNotEmpty()) {
+        if (palletFields[0].uppercase() != startString.uppercase()) return false
+    } else {
+        if (palletFields[0].length != 2) return false
+    }
     if (palletFields[1].length != 6) return false
     if (palletFields[1].any { !it.isDigit() }) return false
     if (palletFields[2].length != 3) return false

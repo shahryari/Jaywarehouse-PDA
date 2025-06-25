@@ -32,6 +32,8 @@ data class PickingListRow(
     val productName: String?,
     @SerializedName("Quantity")
     val quantity: Double,
+    @SerializedName("PurchaseOrderDetailID")
+    val purchaseOrderDetailID: Int,
     @SerializedName("ReferenceNumber")
     val referenceNumber: String?,
     @SerializedName("ShippingOrderDetailID")

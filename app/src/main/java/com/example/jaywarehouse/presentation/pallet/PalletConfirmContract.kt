@@ -5,6 +5,7 @@ import com.example.jaywarehouse.data.checking.models.CheckingListGroupedModel
 import com.example.jaywarehouse.data.checking.models.CheckingListGroupedRow
 import com.example.jaywarehouse.data.pallet.model.PalletConfirmModel
 import com.example.jaywarehouse.data.pallet.model.PalletConfirmRow
+import com.example.jaywarehouse.data.pallet.model.PalletManifestProductRow
 import com.example.jaywarehouse.data.picking.models.PickingListGroupedModel
 import com.example.jaywarehouse.data.picking.models.PickingListGroupedRow
 import com.example.jaywarehouse.presentation.common.utils.Loading
@@ -18,6 +19,11 @@ class PalletConfirmContract {
     data class State(
         val palletModel: PalletConfirmModel? = null,
         val palletList: List<PalletConfirmRow> = emptyList(),
+        val palletProducts: List<PalletManifestProductRow> = emptyList(),
+        val showPalletProducts: PalletConfirmRow? = null,
+        val productLoading: Loading = Loading.NONE,
+        val productPage: Int = 1,
+        val productKeyword: String = "",
         val keyword: String = "",
         val loadingState: Loading = Loading.NONE,
         val error: String = "",
@@ -35,7 +41,7 @@ class PalletConfirmContract {
         val lockKeyboard: Boolean = false,
         val isConfirming: Boolean = false,
         val selectedPallet: PalletConfirmRow? = null,
-        val toast: String = ""
+        val toast: String = "",
     ) : UiState
 
     sealed class Event : UiEvent {
@@ -48,8 +54,11 @@ class PalletConfirmContract {
         data class OnSearch(val keyword: String): Event()
         data object OnRefresh: Event()
         data object OnBackPressed: Event()
+        data class OnShowPalletProduct(val show: PalletConfirmRow?) : Event()
         data class ConfirmPallet(val pallet: PalletConfirmRow) : Event()
         data object HideToast: Event()
+        data class FetchProducts(val pallet: PalletConfirmRow) : Event()
+        data class OnProductsReachEnd(val pallet: PalletConfirmRow) : Event()
 
     }
 

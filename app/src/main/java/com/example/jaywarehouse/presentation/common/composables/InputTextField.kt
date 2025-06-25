@@ -97,7 +97,7 @@ fun InputTextField(
     LaunchedEffect(keyword.text) {
         debounceJob?.cancel()
         debounceJob = coroutineScope.launch {
-            delay(150)
+            delay(300)
             onValueChange(keyword)
         }
     }

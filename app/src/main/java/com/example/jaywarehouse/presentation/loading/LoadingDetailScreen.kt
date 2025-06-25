@@ -12,6 +12,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.Icon
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
@@ -27,8 +30,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.jaywarehouse.R
 import com.example.jaywarehouse.data.common.utils.mdp
 import com.example.jaywarehouse.data.loading.models.LoadingListGroupedRow
 import com.example.jaywarehouse.data.pallet.model.PalletConfirmRow
@@ -44,6 +50,7 @@ import com.example.jaywarehouse.presentation.common.utils.ScreenTransition
 import com.example.jaywarehouse.presentation.counting.ConfirmDialog
 import com.example.jaywarehouse.presentation.loading.contracts.LoadingDetailContract
 import com.example.jaywarehouse.presentation.loading.viewmodels.LoadingDetailViewModel
+import com.example.jaywarehouse.ui.theme.Green
 import com.example.jaywarehouse.ui.theme.Orange
 import com.example.jaywarehouse.ui.theme.Primary
 import com.ramcosta.composedestinations.annotation.Destination
@@ -195,10 +202,12 @@ fun LoadingDetailItem(
                 SwipeToDismissBoxValue.StartToEnd,
                 SwipeToDismissBoxValue.EndToStart -> {
                     onSelect()
+                    false
                 }
-                SwipeToDismissBoxValue.Settled -> {}
+                SwipeToDismissBoxValue.Settled -> {
+                    true
+                }
             }
-            true
         }
     )
     LaunchedEffect(swipeState.currentValue) {
@@ -206,7 +215,30 @@ fun LoadingDetailItem(
     }
     SwipeToDismissBox(
         state = swipeState,
-        backgroundContent = {}
+        enableDismissFromEndToStart = false,
+        backgroundContent = {
+            Row(
+                Modifier.fillMaxSize()
+                    .shadow(1.mdp, RoundedCornerShape(6.mdp))
+                    .clip(RoundedCornerShape(6.mdp))
+                    .background(Green)
+                    .padding(vertical = 6.mdp, horizontal = 8.mdp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Start
+            ){
+                Icon(
+                    imageVector = Icons.Default.Check,
+                    contentDescription = "",
+                    tint = Color.White
+                )
+                Spacer(Modifier.size(10.mdp))
+                MyText(
+                    text = "",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.W500,
+                )
+            }
+        }
     ) {
         Row(
             Modifier.fillMaxWidth()

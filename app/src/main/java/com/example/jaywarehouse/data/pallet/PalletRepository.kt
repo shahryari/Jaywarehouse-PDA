@@ -43,4 +43,19 @@ class PalletRepository(
             }
         )
     }
+
+    fun getPalletProductList(
+        keyword: String,
+        palletManifestId: String,
+        page: Int,
+        sort: String,
+        order: String
+    ) = getResult(
+        request = {
+            val jsonObject = JsonObject()
+            jsonObject.addProperty("Keyword",keyword)
+            jsonObject.addProperty("PalletManifestID",palletManifestId)
+            api.getPalletManifestProduct(jsonObject,page,ROW_COUNT,sort,order)
+        }
+    )
 }

@@ -41,6 +41,7 @@ import com.example.jaywarehouse.presentation.common.composables.BaseListItemMode
 import com.example.jaywarehouse.presentation.common.composables.DetailCard
 import com.example.jaywarehouse.presentation.common.composables.InputTextField
 import com.example.jaywarehouse.presentation.common.composables.MyButton
+import com.example.jaywarehouse.presentation.common.composables.MyIcon
 import com.example.jaywarehouse.presentation.common.composables.MyLazyColumn
 import com.example.jaywarehouse.presentation.common.composables.MyScaffold
 import com.example.jaywarehouse.presentation.common.composables.MyText
@@ -54,6 +55,7 @@ import com.example.jaywarehouse.presentation.common.utils.ScreenTransition
 import com.example.jaywarehouse.presentation.destinations.DashboardScreenDestination
 import com.example.jaywarehouse.presentation.destinations.PutawayScreenDestination
 import com.example.jaywarehouse.presentation.picking.contracts.PickingDetailContract
+import com.example.jaywarehouse.presentation.picking.contracts.PickingListBDContract
 import com.example.jaywarehouse.presentation.picking.viewModels.PickingDetailViewModel
 import com.example.jaywarehouse.ui.theme.Gray3
 import com.example.jaywarehouse.ui.theme.Gray5
@@ -141,7 +143,7 @@ fun PickingDetailContent(
                     subTitle = "Picking",
                     onBack = {
                         onEvent(PickingDetailContract.Event.OnNavBack)
-                    }
+                    },
                 )
                 Spacer(modifier = Modifier.size(20.mdp))
                 SearchInput(
@@ -162,9 +164,20 @@ fun PickingDetailContent(
                     modifier = Modifier.fillMaxSize(),
                     items = state.pickingList,
                     itemContent = {_,it->
-                        PickingDetailItem(it){
-                            onEvent(PickingDetailContract.Event.OnSelectPick(it))
-                        }
+                        PickingDetailItem(
+                            it,
+                            hasWaste = state.hasWaste,
+                            hasModify = state.hasModify,
+                            onClick = {
+                                onEvent(PickingDetailContract.Event.OnSelectPick(it))
+                            },
+                            onModify = {
+                                onEvent(PickingDetailContract.Event.OnShowModify(it))
+                            },
+                            onWasteClick = {
+                                onEvent(PickingDetailContract.Event.OnShowWaste(it))
+                            }
+                        )
                     },
                     onReachEnd = {
                         onEvent(PickingDetailContract.Event.OnReachEnd)
@@ -187,27 +200,49 @@ fun PickingDetailContent(
         )
     }
     PickingBottomSheet(state,onEvent)
+    WasteSheet(state,onEvent)
+    ModifySheet(state,onEvent)
 }
 
 
 @Composable
 fun PickingDetailItem(
     model: PickingListRow,
-    onClick: ()->Unit
+    hasModify: Boolean,
+    hasWaste: Boolean,
+    onClick: ()->Unit,
+    onModify: ()->Unit = {},
+    onWasteClick:()->Unit = {}
 ) {
         BaseListItem(
             onClick = onClick,
             item1 = BaseListItemModel("Name",model.productName?:"", R.drawable.vuesax_outline_3d_cube_scan),
-            item2 = BaseListItemModel("Product Code",model.productCode?:"",R.drawable.barcode),
-            item3 = BaseListItemModel("Barcode",model.barcodeNumber?:"",R.drawable.note),
+            item2 = BaseListItemModel("Product Code",model.productCode?:"",R.drawable.note),
+            item3 = BaseListItemModel("Barcode",model.barcodeNumber?:"",R.drawable.barcode),
             item4 = BaseListItemModel("Reference Number", model.referenceNumber?:"",R.drawable.hashtag),
             item5 = if(model.typeofOrderAcquisition!=null) BaseListItemModel("Type of order acquisition", model.typeofOrderAcquisition,R.drawable.calendar_add)else null,
-            quantity = model.warehouseLocationCode?:"",
+            item6 = BaseListItemModel("Location",model.warehouseLocationCode?:"",R.drawable.location),
+            quantity = null,
             quantityTitle = "",
             quantityIcon = R.drawable.location,
             scan = model.quantity.removeZeroDecimal().toString(),
             scanTitle = "",
-            scanIcon = R.drawable.vuesax_linear_box
+            scanIcon = R.drawable.vuesax_linear_box,
+            scanContent = {
+                Row {
+                    if (hasWaste)MyIcon(
+                        showBorder = true,
+                        onClick = onWasteClick,
+                        icon = R.drawable.trash
+                    )
+                    Spacer(Modifier.size(10.mdp))
+                    if (hasModify)MyIcon(
+                        showBorder = true,
+                        onClick = onModify,
+                        icon = R.drawable.baseline_edit_24
+                    )
+                }
+            },
         )
 }
 
@@ -368,6 +403,257 @@ fun PickingBottomSheet(
                         },
                         title = "Save",
                         isLoading = state.onSaving,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+        }
+    }
+}
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ModifySheet(
+    state: PickingDetailContract.State,
+    onEvent: (PickingDetailContract.Event) -> Unit
+) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val scope = rememberCoroutineScope()
+
+    if (state.showModify!=null){
+        val focusRequester = remember {
+            FocusRequester()
+        }
+        LaunchedEffect(Unit) {
+            focusRequester.requestFocus()
+        }
+
+        ModalBottomSheet(
+            sheetState = sheetState,
+            onDismissRequest = {
+                onEvent(PickingDetailContract.Event.OnShowModify(null))
+            },
+            containerColor = Color.White
+        ) {
+            Column(
+                Modifier
+                    .padding(horizontal = 24.mdp)
+                    .padding(bottom = 24.mdp)
+            ) {
+                MyText(
+                    text = "Modify Picking",
+                    fontWeight = FontWeight.W500,
+                    style = MaterialTheme.typography.titleLarge
+                )
+                Spacer(Modifier.size(10.mdp))
+
+                DetailCard(
+                    title = "Customer Name",
+                    icon = R.drawable.vuesax_outline_3d_cube_scan,
+                    detail = state.showModify.customerName?:"",
+                )
+                Spacer(Modifier.size(10.mdp))
+                Row(Modifier.fillMaxWidth()) {
+                    DetailCard(
+                        title = "Customer Code",
+                        icon = R.drawable.note,
+                        detail = state.showModify.customerCode?:"",
+                        modifier = Modifier.weight(1f)
+                    )
+                    Spacer(Modifier.size(5.mdp))
+                    DetailCard(
+                        title = "Reference Number",
+                        icon = R.drawable.hashtag,
+                        detail = state.showModify.referenceNumber?:"",
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+                Spacer(Modifier.size(10.mdp))
+                Row(Modifier.fillMaxWidth()) {
+
+                    DetailCard(
+                        title = "Quantity",
+                        icon = R.drawable.vuesax_linear_box,
+                        detail = state.showModify.quantity.removeZeroDecimal(),
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+                Spacer(Modifier.size(10.mdp))
+                TitleView(
+                    title = "Quantity"
+                )
+                Spacer(Modifier.size(5.mdp))
+                InputTextField(
+                    state.quantity,
+                    onValueChange = {
+                        onEvent(PickingDetailContract.Event.ChangeQuantity(it))
+                    },
+                    onAny = {},
+                    leadingIcon = R.drawable.box_search,
+                    hideKeyboard = state.lockKeyboard,
+                    focusRequester = focusRequester,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
+                )
+                Spacer(Modifier.size(15.mdp))
+                Row(Modifier.fillMaxWidth()) {
+                    MyButton(
+                        onClick = {
+                            scope.launch { sheetState.hide() }.invokeOnCompletion {
+                                onEvent(PickingDetailContract.Event.OnShowModify(null))
+                            }
+                        },
+                        title = "Cancel",
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Gray3,
+                            contentColor = Gray5
+                        ),
+                        modifier = Modifier.weight(1f)
+                    )
+                    Spacer(Modifier.size(10.mdp))
+                    MyButton(
+                        onClick = {
+
+                            onEvent(PickingDetailContract.Event.OnModifyPick(state.showModify))
+                        },
+                        title = "Save",
+                        isLoading = state.isModifying,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun WasteSheet(
+    state: PickingDetailContract.State,
+    onEvent: (PickingDetailContract.Event) -> Unit
+) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val scope = rememberCoroutineScope()
+
+    if (state.showWaste!=null){
+        val focusRequester = remember {
+            FocusRequester()
+        }
+        LaunchedEffect(Unit) {
+            focusRequester.requestFocus()
+        }
+
+        ModalBottomSheet(
+            sheetState = sheetState,
+            onDismissRequest = {
+                onEvent(PickingDetailContract.Event.OnShowWaste(null))
+            },
+            containerColor = Color.White
+        ) {
+            Column(
+                Modifier
+                    .padding(horizontal = 24.mdp)
+                    .padding(bottom = 24.mdp)
+            ) {
+                MyText(
+                    text = "Waste Picking",
+                    fontWeight = FontWeight.W500,
+                    style = MaterialTheme.typography.titleLarge
+                )
+                Spacer(Modifier.size(10.mdp))
+
+                DetailCard(
+                    title = "Customer Name",
+                    icon = R.drawable.vuesax_outline_3d_cube_scan,
+                    detail = state.showWaste.customerName?:"",
+                )
+                Spacer(Modifier.size(10.mdp))
+                Row(Modifier.fillMaxWidth()) {
+                    DetailCard(
+                        title = "Customer Code",
+                        icon = R.drawable.note,
+                        detail = state.showWaste.customerCode?:"",
+                        modifier = Modifier.weight(1f)
+                    )
+                    Spacer(Modifier.size(5.mdp))
+                    DetailCard(
+                        title = "Reference Number",
+                        icon = R.drawable.hashtag,
+                        detail = state.showWaste.referenceNumber?:"",
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+                Spacer(Modifier.size(10.mdp))
+                Row(Modifier.fillMaxWidth()) {
+                    DetailCard(
+                        title = "Product Name",
+                        icon = R.drawable.notes,
+                        detail = state.showWaste?.productName?:"",
+                        modifier = Modifier.weight(1f)
+                    )
+                    Spacer(Modifier.size(5.mdp))
+                    DetailCard(
+                        title = "Product Code",
+                        icon = R.drawable.keyboard2,
+                        detail = state.showWaste?.productCode?:"",
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+                Spacer(Modifier.size(10.mdp))
+                Row(Modifier.fillMaxWidth()) {
+                    DetailCard(
+                        title = "Barcode",
+                        icon = R.drawable.barcode,
+                        detail = state.showWaste?.barcodeNumber?:"",
+                        modifier = Modifier.weight(1f)
+                    )
+                    Spacer(Modifier.size(5.mdp))
+                    DetailCard(
+                        title = "Quantity",
+                        icon = R.drawable.vuesax_linear_box,
+                        detail = state.showWaste.quantity?.removeZeroDecimal()?.toString()?:"",
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+                Spacer(Modifier.size(10.mdp))
+                TitleView(
+                    title  ="Waste Quantity"
+                )
+                Spacer(Modifier.size(5.mdp))
+                InputTextField(
+                    state.quantity,
+                    onValueChange = {
+                        onEvent(PickingDetailContract.Event.ChangeQuantity(it))
+                    },
+                    onAny = {},
+                    leadingIcon = R.drawable.box_search,
+                    hideKeyboard = state.lockKeyboard,
+                    focusRequester = focusRequester,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
+                )
+                Spacer(Modifier.size(15.mdp))
+                Row(Modifier.fillMaxWidth()) {
+                    MyButton(
+                        onClick = {
+                            scope.launch { sheetState.hide() }.invokeOnCompletion {
+                                onEvent(PickingDetailContract.Event.OnShowWaste(null))
+                            }
+                        },
+                        title = "Cancel",
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Gray3,
+                            contentColor = Gray5
+                        ),
+                        modifier = Modifier.weight(1f)
+                    )
+                    Spacer(Modifier.size(10.mdp))
+                    MyButton(
+                        onClick = {
+
+                            onEvent(PickingDetailContract.Event.OnWastePick(state.showWaste))
+                        },
+                        title = "Save",
+                        isLoading = state.isWasting,
                         modifier = Modifier.weight(1f)
                     )
                 }

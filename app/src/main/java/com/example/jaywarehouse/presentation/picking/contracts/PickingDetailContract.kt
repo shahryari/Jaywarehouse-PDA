@@ -41,6 +41,13 @@ class PickingDetailContract {
         ),
         val sort: SortItem = sortList.first(),
         val onSaving: Boolean = false,
+        val showModify: PickingListRow? =null,
+        val showWaste: PickingListRow? = null,
+        val quantity: TextFieldValue = TextFieldValue(),
+        val isWasting: Boolean = false,
+        val isModifying: Boolean = false,
+        val hasModify: Boolean = true,
+        val hasWaste: Boolean = true,
     ) : UiState
 
     sealed class Event : UiEvent {
@@ -56,6 +63,11 @@ class PickingDetailContract {
         data class OnShowSortList(val show: Boolean) : Event()
         data class OnSearch(val keyword: String): Event()
         data class OnSortChange(val sortItem: SortItem): Event()
+        data class OnShowModify(val pick: PickingListRow?): Event()
+        data class OnShowWaste(val pick: PickingListRow?): Event()
+        data class OnWastePick(val pick: PickingListRow): Event()
+        data class OnModifyPick(val pick: PickingListRow): Event()
+        data class ChangeQuantity(val quantity: TextFieldValue): Event()
     }
 
     sealed class Effect: UiSideEffect {

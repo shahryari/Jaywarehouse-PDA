@@ -57,10 +57,12 @@ fun DetailItem(
                 SwipeToDismissBoxValue.StartToEnd,
                 SwipeToDismissBoxValue.EndToStart -> {
                     onRemove()
+                    false
                 }
-                SwipeToDismissBoxValue.Settled -> {}
+                SwipeToDismissBoxValue.Settled -> {
+                    removable
+                }
             }
-            removable
         },
         positionalThreshold = {
             it*0.25f

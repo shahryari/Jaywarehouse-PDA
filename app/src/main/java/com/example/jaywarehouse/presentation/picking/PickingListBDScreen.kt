@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -19,6 +20,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -34,11 +36,13 @@ import com.example.jaywarehouse.presentation.common.composables.BaseListItemMode
 import com.example.jaywarehouse.presentation.common.composables.DetailCard
 import com.example.jaywarehouse.presentation.common.composables.InputTextField
 import com.example.jaywarehouse.presentation.common.composables.MyButton
+import com.example.jaywarehouse.presentation.common.composables.MyIcon
 import com.example.jaywarehouse.presentation.common.composables.MyLazyColumn
 import com.example.jaywarehouse.presentation.common.composables.MyScaffold
 import com.example.jaywarehouse.presentation.common.composables.MyText
 import com.example.jaywarehouse.presentation.common.composables.SearchInput
 import com.example.jaywarehouse.presentation.common.composables.SortBottomSheet
+import com.example.jaywarehouse.presentation.common.composables.TitleView
 import com.example.jaywarehouse.presentation.common.composables.TopBar
 import com.example.jaywarehouse.presentation.common.utils.Loading
 import com.example.jaywarehouse.presentation.common.utils.SIDE_EFFECT_KEY
@@ -123,38 +127,16 @@ fun PickingListBDContent(
             ) {
                 TopBar(
                     title = state.purchaseOrderRow?.supplierName?.trim()?:"",
-                    subTitle = "PickingBD",
+                    subTitle = "Picking",
                     onBack = {
                         onEvent(PickingListBDContract.Event.OnBackPressed)
                     },
                     endIcon = R.drawable.tick,
                     onEndClick = {
                         onEvent(PickingListBDContract.Event.OnShowFinishConfirm(true))
-                    }
+                    },
+                    endIconEnabled = state.purchaseOrderDetailRow?.quantityDifferencePodandPIcks == 0.0
                 )
-                Spacer(modifier = Modifier.size(10.mdp))
-                if (state.purchaseOrderDetailRow!=null){
-                    val quantityDiff = state.purchaseOrderDetailRow.quantityDifferencePodandPIcks?:0.0
-                    BaseListItem(
-                        onClick = { },
-                        item1 = BaseListItemModel("Name",state.purchaseOrderDetailRow.productName?:"", R.drawable.vuesax_outline_3d_cube_scan),
-                        item2 = BaseListItemModel("Product Code",state.purchaseOrderDetailRow.productCode?:"",R.drawable.note),
-                        item3 = BaseListItemModel("Barcode",state.purchaseOrderDetailRow.barcodeNumber?:"",R.drawable.barcode),
-                        item4 = BaseListItemModel("PCB", state.purchaseOrderDetailRow.pcb?.toString()?:"",R.drawable.hashtag),
-                        item5 = BaseListItemModel(
-                            "Quantity Difference",
-                            state.purchaseOrderDetailRow.quantityDifferencePodandPIcks?.removeZeroDecimal()?:"0",
-                            R.drawable.vuesax_linear_card_remove,
-                            MaterialTheme.typography.bodyMedium.copy(
-                                color = if (quantityDiff < 0) Color(0xFFFF9800) else if (quantityDiff > 0) Color.Red else Green
-                            )
-                        ),
-                        quantity = state.purchaseOrderDetailRow.quantity?.removeZeroDecimal()?:"",
-                        quantityTitle = "Total",
-                        scan = state.purchaseOrderDetailRow.sumReceiptQuantity?.removeZeroDecimal()?.toString()?:"",
-                        scanTitle = "Quantity"
-                    )
-                }
                 Spacer(Modifier.size(10.mdp))
                 SearchInput(
                     onSearch = {
@@ -168,12 +150,42 @@ fun PickingListBDContent(
                     hideKeyboard = state.lockKeyboard,
                     focusRequester = focusRequester
                 )
+                Spacer(modifier = Modifier.size(10.mdp))
+                if (state.purchaseOrderDetailRow!=null){
+                    BaseListItem(
+                        onClick = { },
+                        item1 = BaseListItemModel("Name",state.purchaseOrderDetailRow.productName?:"", R.drawable.vuesax_outline_3d_cube_scan),
+                        item2 = BaseListItemModel("Product Code",state.purchaseOrderDetailRow.productCode?:"",R.drawable.note),
+                        item3 = BaseListItemModel("Barcode",state.purchaseOrderDetailRow.barcodeNumber?:"",R.drawable.barcode),
+                        item4 = BaseListItemModel("PCB", state.purchaseOrderDetailRow.pcb?.toString()?:"",R.drawable.hashtag),
+                        item5 = BaseListItemModel(
+                            "Difference Pick with PO",
+                            state.purchaseOrderDetailRow.quantityDifferencePodandPIcks?.removeZeroDecimal()?:"0",
+                            R.drawable.vuesax_linear_card_remove,
+                            MaterialTheme.typography.bodyMedium.copy(
+                                color = if (state.purchaseOrderDetailRow.quantityDifferencePodandPIcks == 0.0) Green else Color.Red
+                            )
+                        ),
+                        quantity = state.purchaseOrderDetailRow.sumReceiptQuantity?.removeZeroDecimal()?:"",
+                        quantityTitle = "Total",
+                        scan = state.purchaseOrderDetailRow.sumPickingQty?.removeZeroDecimal() ?:"",
+                        scanTitle = "Quantity"
+                    )
+                }
+
                 Spacer(modifier = Modifier.size(15.mdp))
                 MyLazyColumn(
                     modifier=  Modifier.fillMaxSize(),
                     items = state.shippingOrderDetailList,
                     itemContent = {_,it->
-                        PickingItem(it) {
+                        PickingItem(
+                            it,
+                            hasWaste = state.hasWaste,
+                            hasModify = state.hasModify,
+                            onWasteClick = {
+                                onEvent(PickingListBDContract.Event.OnSelectForWaste(it))
+                            }
+                        ) {
                             onEvent(PickingListBDContract.Event.OnSelectShippingDetail(it))
                         }
                     },
@@ -213,19 +225,35 @@ fun PickingListBDContent(
         )
     }
     ModifySheet(state,onEvent)
+    WasteSheet(state,onEvent)
 }
 
 @Composable
-fun PickingItem(model: PickingListBDRow,onClick: ()-> Unit) {
+fun PickingItem(model: PickingListBDRow,hasWaste: Boolean,hasModify: Boolean,onWasteClick:()->Unit,onClick: ()-> Unit) {
     BaseListItem(
-        onClick = onClick,
-        quantity = "",
-        scan = "",
-        showFooter = false,
+        onClick = {},
+        quantity = null,
+        scan = model.splittedQuantity?.removeZeroDecimal(),
+        scanTitle = "Quantity",
+        scanContent = {
+            Row {
+                if (hasWaste)MyIcon(
+                    showBorder = true,
+                    onClick = onWasteClick,
+                    icon = R.drawable.trash
+                )
+                Spacer(Modifier.size(10.mdp))
+                if (hasModify)MyIcon(
+                    showBorder = true,
+                    onClick = onClick,
+                    icon = R.drawable.baseline_edit_24
+                )
+            }
+        },
+        showFooter = true,
         item1 = BaseListItemModel("Customer Name",model.customerName?:"",R.drawable.user_square),
         item2 = BaseListItemModel("Customer Code",model.customerCode?:"",R.drawable.note),
         item3 = BaseListItemModel("Reference Number",model.referenceNumber?:"",R.drawable.hashtag),
-        item4 = BaseListItemModel("Quantity",model.splittedQuantity?.removeZeroDecimal()?:"",R.drawable.box_search)
     )
 }
 
@@ -235,7 +263,7 @@ fun ModifySheet(
     state: PickingListBDContract.State,
     onEvent: (PickingListBDContract.Event) -> Unit
 ) {
-    val sheetState = rememberModalBottomSheetState()
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
 
     if (state.selectedPicking!=null){
@@ -296,6 +324,10 @@ fun ModifySheet(
                         modifier = Modifier.weight(1f)
                     )
                 }
+                Spacer(Modifier.size(10.mdp))
+                TitleView(
+                    title = "Quantity"
+                )
                 Spacer(Modifier.size(5.mdp))
                 InputTextField(
                     state.quantity,
@@ -331,6 +363,142 @@ fun ModifySheet(
                         },
                         title = "Save",
                         isLoading = state.isModifying,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun WasteSheet(
+    state: PickingListBDContract.State,
+    onEvent: (PickingListBDContract.Event) -> Unit
+) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val scope = rememberCoroutineScope()
+
+    if (state.selectedForWaste!=null){
+        val focusRequester = remember {
+            FocusRequester()
+        }
+        LaunchedEffect(Unit) {
+            focusRequester.requestFocus()
+        }
+
+        ModalBottomSheet(
+            sheetState = sheetState,
+            onDismissRequest = {
+                onEvent(PickingListBDContract.Event.OnSelectForWaste(null))
+            },
+            containerColor = Color.White
+        ) {
+            Column(
+                Modifier
+                    .padding(horizontal = 24.mdp)
+                    .padding(bottom = 24.mdp)
+            ) {
+                MyText(
+                    text = "Waste Picking",
+                    fontWeight = FontWeight.W500,
+                    style = MaterialTheme.typography.titleLarge
+                )
+                Spacer(Modifier.size(10.mdp))
+
+                DetailCard(
+                    title = "Customer Name",
+                    icon = R.drawable.vuesax_outline_3d_cube_scan,
+                    detail = state.selectedForWaste.customerName?:"",
+                )
+                Spacer(Modifier.size(10.mdp))
+                Row(Modifier.fillMaxWidth()) {
+                    DetailCard(
+                        title = "Customer Code",
+                        icon = R.drawable.note,
+                        detail = state.selectedForWaste.customerCode?:"",
+                        modifier = Modifier.weight(1f)
+                    )
+                    Spacer(Modifier.size(5.mdp))
+                    DetailCard(
+                        title = "Reference Number",
+                        icon = R.drawable.hashtag,
+                        detail = state.selectedForWaste.referenceNumber?:"",
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+                Spacer(Modifier.size(10.mdp))
+                Row(Modifier.fillMaxWidth()) {
+                    DetailCard(
+                        title = "Product Name",
+                        icon = R.drawable.notes,
+                        detail = state.purchaseOrderDetailRow?.productName?:"",
+                        modifier = Modifier.weight(1f)
+                    )
+                    Spacer(Modifier.size(5.mdp))
+                    DetailCard(
+                        title = "Product Code",
+                        icon = R.drawable.keyboard2,
+                        detail = state.purchaseOrderDetailRow?.productCode?:"",
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+                Spacer(Modifier.size(10.mdp))
+                Row(Modifier.fillMaxWidth()) {
+                    DetailCard(
+                        title = "Barcode",
+                        icon = R.drawable.barcode,
+                        detail = state.purchaseOrderDetailRow?.barcodeNumber?:"",
+                        modifier = Modifier.weight(1f)
+                    )
+                    Spacer(Modifier.size(5.mdp))
+                    DetailCard(
+                        title = "Quantity",
+                        icon = R.drawable.vuesax_linear_box,
+                        detail = state.selectedForWaste.splittedQuantity?.removeZeroDecimal()?.toString()?:"",
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+                Spacer(Modifier.size(10.mdp))
+                TitleView(
+                     title  ="Waste Quantity"
+                )
+                Spacer(Modifier.size(5.mdp))
+                InputTextField(
+                    state.quantity,
+                    onValueChange = {
+                        onEvent(PickingListBDContract.Event.OnQuantityChange(it))
+                    },
+                    onAny = {},
+                    leadingIcon = R.drawable.box_search,
+                    hideKeyboard = state.lockKeyboard,
+                    focusRequester = focusRequester,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
+                )
+                Spacer(Modifier.size(15.mdp))
+                Row(Modifier.fillMaxWidth()) {
+                    MyButton(
+                        onClick = {
+                            scope.launch { sheetState.hide() }.invokeOnCompletion {
+                                onEvent(PickingListBDContract.Event.OnSelectForWaste(null))
+                            }
+                        },
+                        title = "Cancel",
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Gray3,
+                            contentColor = Gray5
+                        ),
+                        modifier = Modifier.weight(1f)
+                    )
+                    Spacer(Modifier.size(10.mdp))
+                    MyButton(
+                        onClick = {
+
+                            onEvent(PickingListBDContract.Event.OnWaste(state.selectedForWaste))
+                        },
+                        title = "Save",
+                        isLoading = state.isWasting,
                         modifier = Modifier.weight(1f)
                     )
                 }

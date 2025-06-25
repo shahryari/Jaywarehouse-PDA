@@ -1,8 +1,10 @@
 package com.example.jaywarehouse.presentation.picking.viewModels
 
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.viewModelScope
 import com.example.jaywarehouse.data.common.utils.BaseResult
 import com.example.jaywarehouse.data.common.utils.Prefs
+import com.example.jaywarehouse.data.common.utils.ROW_COUNT
 import com.example.jaywarehouse.data.picking.PickingRepository
 import com.example.jaywarehouse.data.picking.models.PurchaseOrderDetailListBDRow
 import com.example.jaywarehouse.data.picking.models.PurchaseOrderListBDRow
@@ -24,7 +26,7 @@ class PickingListBDViewModel(
 
     init {
         setState {
-            copy(purchaseOrderRow = purchase, purchaseOrderDetailRow = purchaseDetail)
+            copy(purchaseOrderRow = purchase, purchaseOrderDetailRow = purchaseDetail, hasWaste = prefs.getHasWaste(), hasModify = prefs.getHasModifyPick())
         }
         val sort = state.sortList.find {
             it.sort == prefs.getShippingOrderDetailSort() && it.order == Order.getFromValue(prefs.getShippingOrderDetailOrder())
@@ -68,7 +70,10 @@ class PickingListBDViewModel(
                 finishPurchaseOrderDetail()
             }
             PickingListBDContract.Event.OnReachedEnd -> {
-                getShippingOrderList(emptyList = false)
+                if (state.page* ROW_COUNT<=state.shippingOrderDetailList.size){
+
+                    getShippingOrderList(emptyList = false)
+                }
             }
             PickingListBDContract.Event.OnRefresh -> {
                 getShippingOrderList(loading = Loading.REFRESHING)
@@ -97,7 +102,7 @@ class PickingListBDViewModel(
             }
             is PickingListBDContract.Event.OnSelectShippingDetail -> {
                 setState {
-                    copy(selectedPicking = event.picking)
+                    copy(selectedPicking = event.picking, quantity = TextFieldValue())
                 }
             }
             PickingListBDContract.Event.HideToast -> {
@@ -106,7 +111,20 @@ class PickingListBDViewModel(
                 }
             }
 
-            is PickingListBDContract.Event.OnQuantityChange -> TODO()
+            is PickingListBDContract.Event.OnSelectForWaste -> {
+                setState {
+                    copy(selectedForWaste = event.picking, quantity = TextFieldValue())
+                }
+            }
+            is PickingListBDContract.Event.OnWaste -> {
+                wasteOfPicking(event.picking)
+            }
+
+            is PickingListBDContract.Event.OnQuantityChange -> {
+                setState {
+                    copy(quantity = event.quantity)
+                }
+            }
         }
     }
 
@@ -219,6 +237,7 @@ class PickingListBDViewModel(
                 viewModelScope.launch(Dispatchers.IO) {
                     repository.modifyPickQuantityBD(
                         state.selectedPicking!!.pickingID,
+                        purchaseOrderDetailID = state.selectedPicking!!.purchaseOrderDetailID,
                         quantity = quantity
                     ).catch {
                         setSuspendedState {
@@ -239,6 +258,7 @@ class PickingListBDViewModel(
                                     setSuspendedState {
                                         copy(selectedPicking = null, toast = it.data.messages.firstOrNull()?:"Modified successfully")
                                     }
+                                    getShippingOrderList()
                                 } else {
                                     setSuspendedState {
                                         copy(error = it.data?.messages?.firstOrNull()?:"")
@@ -252,6 +272,60 @@ class PickingListBDViewModel(
                     }
                 }
             }
+        }
+    }
+
+
+    private fun wasteOfPicking(
+        row: PickingListBDRow
+    ) {
+        val quantity = state.quantity.text.toDoubleOrNull()
+        if (state.quantity.text.isEmpty() || quantity == null){
+            setState {
+                copy(error = "please fill waste quantity")
+            }
+            return
+        }
+        if (quantity>(row.splittedQuantity?:0.0)){
+            setState {
+                copy(error = "Waste quantity can't be greater then picked quantity")
+            }
+            return
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.wasteOnPicking(
+                row.pickingID,
+                quantity
+            ).catch {
+                setSuspendedState {
+                    copy(isWasting = false, error = it.message?:"")
+                }
+            }.collect {
+                setSuspendedState {
+                    copy(isWasting = false)
+                }
+                when(it){
+                    is BaseResult.Error -> {
+                        setSuspendedState {
+                            copy(error = it.message)
+                        }
+                    }
+                    is BaseResult.Success ->{
+                        if (it.data?.isSucceed == true){
+                            setSuspendedState {
+                                copy(toast = it.data.messages.firstOrNull()?:"Saved successfully", selectedForWaste = null)
+                            }
+                            getShippingOrderList()
+                        } else {
+                            setSuspendedState {
+                                copy(error = it.data?.messages?.firstOrNull()?:"")
+                            }
+                        }
+                    }
+                    BaseResult.UnAuthorized ->{}
+                }
+            }
+
         }
     }
 

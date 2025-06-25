@@ -39,6 +39,7 @@ import com.example.jaywarehouse.presentation.picking.viewModels.PickingListBDVie
 import com.example.jaywarehouse.presentation.picking.viewModels.PurchaseOrderDetailViewModel
 import com.example.jaywarehouse.presentation.picking.viewModels.PurchaseOrderViewModel
 import com.example.jaywarehouse.presentation.rs.RSIntegrationViewModel
+import com.example.jaywarehouse.presentation.shipping.viewmodels.ShippingDetailViewModel
 import com.example.jaywarehouse.presentation.shipping.viewmodels.ShippingViewModel
 import com.example.jaywarehouse.presentation.transfer.viewmodels.TransferViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -156,5 +157,9 @@ val mainModule = module {
 
     viewModel {
         PickingListBDViewModel(get(),get(),it.get<PurchaseOrderListBDRow>(),it.get<PurchaseOrderDetailListBDRow>())
+    }
+
+    viewModel {
+        ShippingDetailViewModel(get(),it.get(),get())
     }
 }

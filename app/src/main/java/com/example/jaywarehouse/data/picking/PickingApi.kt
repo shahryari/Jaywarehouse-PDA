@@ -78,4 +78,10 @@ interface PickingApi {
     suspend fun modifyPickQuantityBD(
         @Body jsonObject: JsonObject
     ) : Response<ResultMessageModel>
+
+
+    @POST("WasteOnPicking")
+    suspend fun wasteOnPicking(
+        @Body jsonObject: JsonObject
+    ) : Response<ResultMessageModel>
 }

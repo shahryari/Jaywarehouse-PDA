@@ -97,7 +97,7 @@ fun PurchaseOrderDetailContent(
             ) {
                 TopBar(
                     title = state.purchaseOrderRow?.supplierName?.trim()?:"",
-                    subTitle = "PickingBD",
+                    subTitle = "Picking",
                     onBack = {
                         onEvent(PurchaseOrderDetailContract.Event.OnBackPressed)
                     }
@@ -159,9 +159,9 @@ fun PurchaseDetailItem(
         item2 = BaseListItemModel("Product Code",model.productCode?:"",R.drawable.note),
         item3 = BaseListItemModel("Barcode",model.barcodeNumber?:"",R.drawable.barcode),
         item4 = BaseListItemModel("PCB", model.pcb?.toString()?:"",R.drawable.hashtag),
-        quantity = model.quantity?.removeZeroDecimal()?:"",
+        quantity = model.sumReceiptQuantity?.removeZeroDecimal()?:"",
         quantityTitle = "Quantity",
-        scan = model.sumReceiptQuantity?.removeZeroDecimal()?.toString()?:"",
+        scan = model.sumPickingQty?.removeZeroDecimal()?.toString()?:"",
         scanTitle = "Scan",
     )
 }

@@ -28,7 +28,8 @@ class DashboardViewModel(
                 openDetail = prefs.getIsNavToDetail(),
                 addExtraCycle = prefs.getAddExtraCycleCount(),
                 validatePallet = prefs.getValidatePallet(),
-                accessPermissions = prefs.getAccessPermission()
+                accessPermissions = prefs.getAccessPermission(),
+                selectedWarehouse = prefs.getWarehouse()
             )
         }
         visibleDashboardItems()
@@ -111,12 +112,20 @@ class DashboardViewModel(
 
             DashboardContract.Event.FetchData -> {
                 getDashboard()
+                getWarehouses()
             }
 
             is DashboardContract.Event.OnValidatePalletChange -> {
                 prefs.setValidatePallet(event.validate)
                 setState {
                     copy(validatePallet = event.validate)
+                }
+            }
+
+            is DashboardContract.Event.OnSelectWarehouse -> {
+                prefs.setWarehouse(warehouse = event.warehouse)
+                setState {
+                    copy(selectedWarehouse = event.warehouse)
                 }
             }
         }
@@ -179,6 +188,24 @@ class DashboardViewModel(
                                 DashboardContract.Effect.RestartActivity
                             }
                         }
+                    }
+                }
+        }
+    }
+
+    private fun getWarehouses() {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.getWarehouses()
+                .catch{}
+                .collect {
+                    when(it){
+                        is BaseResult.Error -> {}
+                        is BaseResult.Success -> {
+                            setSuspendedState {
+                                copy(warehouseList = it.data?:emptyList())
+                            }
+                        }
+                        BaseResult.UnAuthorized -> {}
                     }
                 }
         }

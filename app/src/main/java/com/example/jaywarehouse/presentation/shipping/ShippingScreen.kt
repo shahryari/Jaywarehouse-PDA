@@ -8,8 +8,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -22,16 +24,18 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material3.Button
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.pullrefresh.PullRefreshIndicator
-import androidx.compose.material.pullrefresh.pullRefresh
-import androidx.compose.material.pullrefresh.rememberPullRefreshState
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SwipeToDismissBox
@@ -48,20 +52,30 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.jaywarehouse.data.common.utils.mdp
 import com.example.jaywarehouse.R
-import com.example.jaywarehouse.data.pallet.model.PalletConfirmRow
+import com.example.jaywarehouse.data.common.utils.removeZeroDecimal
+import com.example.jaywarehouse.data.pallet.model.PalletManifestProductRow
 import com.example.jaywarehouse.data.shipping.models.PalletInShippingRow
+import com.example.jaywarehouse.data.shipping.models.ShippingDetailListOfPalletRow
+import com.example.jaywarehouse.data.shipping.models.ShippingPalletManifestRow
 import com.example.jaywarehouse.data.shipping.models.ShippingRow
 import com.example.jaywarehouse.presentation.common.composables.AutoDropDownTextField
+import com.example.jaywarehouse.presentation.common.composables.BaseListItem
+import com.example.jaywarehouse.presentation.common.composables.BaseListItemModel
+import com.example.jaywarehouse.presentation.common.composables.ComboBox
 import com.example.jaywarehouse.presentation.common.composables.DetailCard
 import com.example.jaywarehouse.presentation.common.composables.InputTextField
 import com.example.jaywarehouse.presentation.common.composables.MyButton
@@ -76,11 +90,14 @@ import com.example.jaywarehouse.presentation.common.utils.Loading
 import com.example.jaywarehouse.presentation.common.utils.SIDE_EFFECT_KEY
 import com.example.jaywarehouse.presentation.common.utils.ScreenTransition
 import com.example.jaywarehouse.presentation.counting.ConfirmDialog
+import com.example.jaywarehouse.presentation.destinations.ShippingDetailScreenDestination
 import com.example.jaywarehouse.presentation.shipping.contracts.ShippingContract
+import com.example.jaywarehouse.presentation.shipping.contracts.ShippingDetailContract
 import com.example.jaywarehouse.presentation.shipping.viewmodels.ShippingViewModel
 import com.example.jaywarehouse.ui.theme.ErrorRed
 import com.example.jaywarehouse.ui.theme.Gray1
 import com.example.jaywarehouse.ui.theme.Gray3
+import com.example.jaywarehouse.ui.theme.Gray4
 import com.example.jaywarehouse.ui.theme.Gray5
 import com.example.jaywarehouse.ui.theme.Orange
 import com.example.jaywarehouse.ui.theme.Primary
@@ -104,6 +121,10 @@ fun ShippingScreen(
 
                 ShippingContract.Effect.NavBack -> {
                     navigator.popBackStack()
+                }
+
+                is ShippingContract.Effect.NavToShippingDetail -> {
+                    navigator.navigate(ShippingDetailScreenDestination(it.shipping))
                 }
             }
         }
@@ -172,6 +193,9 @@ fun ShippingContent(
                     itemContent = {_,it->
                         ShippingItem(
                             it,
+                            onClick = {
+                                onEvent(ShippingContract.Event.OnSelectShipping(it))
+                            },
                             onPallet = {
                                 onEvent(ShippingContract.Event.OnShowPalletQuantitySheet(it))
                             },
@@ -181,8 +205,8 @@ fun ShippingContent(
                             onInvoice = {
                                 onEvent(ShippingContract.Event.OnShowInvoice(it))
                             },
-                            onRs = {
-                                onEvent(ShippingContract.Event.OnShowRs(it))
+                            onRollback = {
+                                onEvent(ShippingContract.Event.OnShowRollbackConfirm(it))
 
                             }
                         )
@@ -256,31 +280,33 @@ fun ShippingContent(
             onEvent(ShippingContract.Event.OnCreateInvoice(state.invoiceShipping))
         }
     }
-    if (state.rsShipping!=null){
+    if (state.showRollbackConfirm!=null){
         ConfirmDialog(
             onDismiss = {
                 onEvent(ShippingContract.Event.OnShowConfirm(null))
             },
-            message = "Are you sure to create RS for shipping ${state.rsShipping.shippingNumber}",
+            message = "Are you sure to unconfirm this shipping ${state.showRollbackConfirm.shippingNumber}",
             tint = Orange,
             isLoading = state.isCreatingRs,
             title = "Confirm",
         ) {
-            onEvent(ShippingContract.Event.OnCreateRS(state.rsShipping))
+            onEvent(ShippingContract.Event.OnRollbackShipping(state.showRollbackConfirm))
         }
     }
     AddShippingBottomSheet(state,onEvent)
     PalletQuantityBottomSheet(state,onEvent)
+    PalletProductSheet(state,onEvent)
 }
 
 
 @Composable
 fun ShippingItem(
     model: ShippingRow,
+    onClick: ()->Unit,
     onPallet: ()->Unit,
     onConfirm: ()->Unit,
     onInvoice: ()->Unit,
-    onRs: ()->Unit
+    onRollback: ()->Unit
 ) {
 
     var expend by remember {
@@ -291,12 +317,13 @@ fun ShippingItem(
         Modifier
             .shadow(1.mdp, RoundedCornerShape(6.mdp))
             .fillMaxWidth()
-            .animateContentSize()
             .clip(RoundedCornerShape(6.mdp))
             .clickable {
-                expend = !expend
+                onClick()
             }
             .background(Color.White)
+            .animateContentSize()
+
 
     ) {
         Column(
@@ -307,19 +334,24 @@ fun ShippingItem(
         ) {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
 //
-//                Box(
-//                    modifier = Modifier
-//                        .clip(RoundedCornerShape(4.mdp))
-//                        .background(Primary.copy(0.2f))
-//                        .padding(vertical = 4.mdp, horizontal = 10.mdp)
-//                ) {
-//                    MyText(
-//                        text = model.shippingNumber,
-//                        style = MaterialTheme.typography.labelSmall,
-//                        fontWeight = FontWeight.SemiBold,
-//                        color = Primary
-//                    )
-//                }
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(4.mdp))
+                        .background(Primary.copy(0.2f))
+                        .padding(vertical = 4.mdp, horizontal = 10.mdp)
+                ) {
+                    MyText(
+                        text = when(model.shippingStatus){
+                            0->"confirm"
+                            1->"wait for invoice"
+                            2->"wait for confirm pallet"
+                            else -> ""
+                        },
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Primary
+                    )
+                }
                 MyText(
                     text = "#${model.shippingNumber?:""}",
                     style = MaterialTheme.typography.bodyLarge,
@@ -329,25 +361,25 @@ fun ShippingItem(
             }
             Spacer(Modifier.size(10.mdp))
             DetailCard(
-                "Driver",
-                icon = R.drawable.user_square,
-                detail = model.driverFullName?:""
+                "Customer",
+                icon = R.drawable.profile_2user,
+                detail = model.customerName?:""
             )
             Spacer(Modifier.size(10.mdp))
             AnimatedVisibility(expend){
                 Column(Modifier.fillMaxWidth()) {
                     Row(Modifier.fillMaxWidth()) {
                         DetailCard(
-                            "Driver ID",
-                            icon = R.drawable.vuesax_linear_user_tag,
-                            detail = model.driverTin,
+                            "Driver",
+                            icon = R.drawable.user_square,
+                            detail = model.driverFullName?:"",
                             modifier = Modifier.weight(1f)
                         )
                         Spacer(Modifier.size(5.mdp))
                         DetailCard(
-                            "Status",
-                            icon = R.drawable.note,
-                            detail = model.currentStatusCode?:"",
+                            "Driver ID",
+                            icon = R.drawable.vuesax_linear_user_tag,
+                            detail = model.driverTin?:"",
                             modifier = Modifier.weight(1f)
                         )
                     }
@@ -367,8 +399,28 @@ fun ShippingItem(
                             modifier = Modifier.weight(1f)
                         )
                     }
+                    Spacer(Modifier.size(10.mdp))
+                    DetailCard(
+                        "Date",
+                        icon = R.drawable.vuesax_linear_calendar_2,
+                        detail = (model.date?:"") +if (model.date!=null && model.time!=null) "-" else "" + (model.time?:"")
+                    )
                     Spacer(modifier = Modifier.size(15.mdp))
                 }
+            }
+            Spacer(Modifier.size(5.mdp))
+            IconButton(
+                onClick = {
+                    expend = !expend
+                },
+                modifier = Modifier.align(Alignment.Start),
+            ) {
+                Icon(
+                    Icons.Default.MoreVert,
+                    contentDescription = "",
+                    modifier = Modifier.rotate(90f),
+                    tint = Color.Black
+                )
             }
 
         }
@@ -376,42 +428,45 @@ fun ShippingItem(
             Modifier
                 .fillMaxWidth()
         ) {
-            ShipButton(
-                Modifier.weight(1f),
-                title = "Pallet",
-                icon = R.drawable.pallet,
-                background = Color(0xFF416741),
-                onClick = onPallet
-            )
-            AnimatedContent(model.currentStatusCode,label = "") {
+
+            AnimatedContent(model.shippingStatus,label = "",modifier = Modifier.fillMaxWidth()) {
 
 
                 when(it){
-                    "Initial"->{
+                    0->{
                         ShipButton(
                             Modifier.weight(1f),
                             title = "Confirm",
                             icon = R.drawable.tick,
-                            background = Color(0xFF578956),
+                            background = Gray4,
                             onClick = onConfirm
                         )
                     }
-                    "Confirmation"->{
-                        ShipButton(
-                            Modifier.weight(1f),
-                            title = "Invoice",
-                            icon = R.drawable.receipt_2,
-                            background = Color(0xFF6DAB6C),
-                            onClick = onInvoice
-                        )
+                    1->{
+                        Row(Modifier.fillMaxWidth()) {
+                            ShipButton(
+                                Modifier.weight(1f),
+                                title = "Invoice",
+                                icon = R.drawable.receipt_2,
+                                background = Gray4,
+                                onClick = onInvoice
+                            )
+                            ShipButton(
+                                Modifier.weight(1f),
+                                title = "UnConfirm",
+                                icon = R.drawable.tick,
+                                background = Gray3,
+                                onClick = onRollback
+                            )
+                        }
                     }
-                    "Invoice"->{
+                    2->{
                         ShipButton(
                             Modifier.weight(1f),
-                            title = "Send RS",
-                            icon = R.drawable.rs,
-                            background = Color(0xFF8ABC89),
-                            onClick = onRs
+                            title = "Confirm Pallet",
+                            icon = R.drawable.pallet,
+                            background = Gray4,
+                            onClick = onPallet
                         )
                     }
                 }
@@ -473,10 +528,9 @@ fun AddShippingBottomSheet(
                     onTrailingClick = {
                         onEvent(ShippingContract.Event.OnScanDriverId)
                     },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Done)
                 )
                 Spacer(Modifier.size(10.mdp))
-                val editDriver = state.selectedDriver == null && state.isDriverIdScanned
                 TitleView(title = "Driver")
                 Spacer(Modifier.size(5.mdp))
                 InputTextField(
@@ -489,37 +543,45 @@ fun AddShippingBottomSheet(
                     },
                     leadingIcon = R.drawable.user_square,
 //                    hideKeyboard = state.lockKeyboard,
-                    enabled = editDriver,
+                    enabled = state.isDriverIdScanned,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
                 )
                 Spacer(Modifier.size(10.mdp))
-                TitleView(title = "Car No.")
-                Spacer(Modifier.size(5.mdp))
-                InputTextField(
-                    state.carNumber,
-                    onValueChange = {
-                        onEvent(ShippingContract.Event.OnCarNumberChange(it))
-                    },
-                    onAny = {},
-                    leadingIcon = R.drawable.vuesax_linear_box,
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
+                    Column(Modifier.weight(1f)) {
+                        TitleView(title = "Car No.")
+                        Spacer(Modifier.size(5.mdp))
+                        InputTextField(
+                            state.carNumber,
+                            onValueChange = {
+                                onEvent(ShippingContract.Event.OnCarNumberChange(it))
+                            },
+                            onAny = {},
+                            leadingIcon = R.drawable.vuesax_linear_box,
 //                    hideKeyboard = state.lockKeyboard,
-                    enabled = editDriver,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
-                )
-                Spacer(Modifier.size(10.mdp))
-                TitleView(title = "Trailer No.")
-                Spacer(Modifier.size(5.mdp))
-                InputTextField(
-                    state.trailerNumber,
-                    onValueChange = {
-                        onEvent(ShippingContract.Event.OnTrailerNumberChange(it))
-                    },
-                    onAny = {},
-                    leadingIcon = R.drawable.vuesax_linear_box,
+                            enabled = state.isDriverIdScanned,
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
+                        )
+                    }
+                    Spacer(Modifier.size(10.mdp))
+                    Column(Modifier.weight(1f)) {
+                        TitleView(title = "Trailer No.")
+                        Spacer(Modifier.size(5.mdp))
+                        InputTextField(
+                            state.trailerNumber,
+                            onValueChange = {
+                                onEvent(ShippingContract.Event.OnTrailerNumberChange(it))
+                            },
+                            onAny = {},
+                            leadingIcon = R.drawable.vuesax_linear_box,
 //                    hideKeyboard = state.lockKeyboard,
-                    enabled = editDriver,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
-                )
+                            enabled = state.isDriverIdScanned,
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
+                        )
+
+                    }
+                }
+                
                 Spacer(Modifier.size(10.mdp))
                 TitleView(title = "Pallet No.")
                 Spacer(Modifier.size(5.mdp))
@@ -536,14 +598,19 @@ fun AddShippingBottomSheet(
                     trailingIcon = R.drawable.fluent_barcode_scanner_20_regular,
                     loading = state.isChecking,
                     onTrailingClick = {
-                        onEvent(ShippingContract.Event.OnScanPalletQuantity)
+                        onEvent(ShippingContract.Event.OnScanPalletBarcode)
                     },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
                 )
                 Spacer(Modifier.size(15.mdp))
                 LazyColumn(modifier = Modifier.height(140.mdp)) {
                     items(state.createPallets){
-                        PalletBarcode(it) {
+                        PalletBarcode(
+                            it,
+                            onClick = {
+                                onEvent(ShippingContract.Event.OnSelectPallet(it))
+                            }
+                        ) {
                             onEvent(ShippingContract.Event.OnRemovePallet(it))
                         }
                         Spacer(Modifier.size(5.mdp))
@@ -579,23 +646,99 @@ fun AddShippingBottomSheet(
     }
 }
 
+
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PalletQuantityBottomSheet(
+private fun PalletProductSheet(
     state: ShippingContract.State,
     onEvent: (ShippingContract.Event) -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
 
+    if (state.selectedPallet!=null){
+        LaunchedEffect(Unit) {
+            onEvent(ShippingContract.Event.FetchPalletProducts(state.selectedPallet))
+        }
+        ModalBottomSheet(
+            sheetState = sheetState,
+            onDismissRequest = {
+                onEvent(ShippingContract.Event.OnSelectPallet(null))
+            },
+            containerColor = Color.White
+        ) {
+            Box {
 
-    if (state.shippingForPallet!=null){
+                Column (
+                    Modifier
+                        .padding(horizontal = 24.mdp)
+                        .padding(bottom = 24.mdp)
+                ) {
+                    MyText(
+                        text = "Pallet Products",
+                        fontWeight = FontWeight.W500,
+                        style = MaterialTheme.typography.titleLarge
+                    )
+
+                    Spacer(Modifier.size(12.mdp))
+                    MyLazyColumn(
+                        items = state.palletProducts,
+                        itemContent = { _, it ->
+                            PalletProduct(it)
+                        },
+                        onReachEnd = {
+                        }
+                    )
+                    Spacer(Modifier.size(15.mdp))
+                }
+                if (state.isProductLoading) CircularProgressIndicator(
+                    modifier = Modifier.align(Alignment.Center)
+                )
+            }
+        }
+    }
+}
+
+
+
+@Composable
+private fun PalletProduct(
+    model: PalletManifestProductRow
+) {
+    var expended by remember {
+        mutableStateOf(false)
+    }
+    BaseListItem(
+        onClick = {
+            expended = !expended
+        },
+        scan = null,
+        quantity = model.quantity?.removeZeroDecimal()?:"",
+        scanTitle = "Check Quantity",
+        quantityTitle = "Quantity",
+        item1 = BaseListItemModel("Product Name",model.productName?:"",R.drawable.vuesax_outline_3d_cube_scan),
+        item2 = if (expended)BaseListItemModel("Product Code",model.productCode?:"",R.drawable.note) else null,
+        item3 = if (expended)BaseListItemModel("Barcode",model.barcode?:"",R.drawable.barcode) else null
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun UpdatePalletQuantity(
+    state: ShippingContract.State,
+    onEvent: (ShippingContract.Event) -> Unit
+) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val scope = rememberCoroutineScope()
+
+    if (state.showUpdatePallet!=null){
 
 
         ModalBottomSheet(
             sheetState = sheetState,
             onDismissRequest = {
-                onEvent(ShippingContract.Event.OnShowPalletQuantitySheet(null))
+                onEvent(ShippingContract.Event.OnShowUpdatePallet(null))
             },
             containerColor = Color.White
         ) {
@@ -606,7 +749,115 @@ fun PalletQuantityBottomSheet(
                     .padding(bottom = 24.mdp)
             ){
                 MyText(
-                    text = "Create Shipping",
+                    text = "Update Pallet Quantity",
+                    fontWeight = FontWeight.W500,
+                    style = MaterialTheme.typography.titleLarge
+                )
+
+                Spacer(Modifier.size(12.mdp))
+                DetailCard(
+                    "Customer Name",
+                    state.showUpdatePallet.customerName?:"",
+                    icon = R.drawable.user_square,
+                    modifier = Modifier.weight(1f)
+                )
+                Spacer(Modifier.size(10.mdp))
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
+                    DetailCard(
+                        "Pallet Type",
+                        state.showUpdatePallet.palletTypeTitle?:"",
+                        icon =R.drawable.box_search,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Spacer(Modifier.size(10.mdp))
+                    DetailCard(
+                        "Pallet Status",
+                        state.showUpdatePallet.palletStatusTitle?:"",
+                        icon =R.drawable.vuesax_outline_box_tick,
+                        modifier = Modifier.weight(1f)
+                    )
+
+                }
+                Spacer(Modifier.size(10.mdp))
+                DetailCard(
+                    "Quantity",
+                    state.showUpdatePallet.palletQuantity.toString(),
+                    icon = R.drawable.vuesax_linear_box,
+                    modifier = Modifier.weight(1f)
+                )
+                Spacer(Modifier.size(10.mdp))
+                TitleView(title = "Quantity")
+                Spacer(Modifier.size(5.mdp))
+                InputTextField(
+                    state.quantity,
+                    onValueChange = {
+                        onEvent(ShippingContract.Event.OnQuantityChange(it))
+                    },
+                    onAny = {
+                    },
+                    leadingIcon = R.drawable.vuesax_linear_box,
+//                    hideKeyboard = state.lockKeyboard,
+//                    enabled = editDriver,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                )
+                Spacer(Modifier.size(15.mdp))
+                Row(Modifier.fillMaxWidth()) {
+                    MyButton(
+                        onClick = {
+                            scope.launch { sheetState.hide() }.invokeOnCompletion {
+                                onEvent(ShippingContract.Event.OnShowUpdatePallet(null))
+                            }
+                        },
+                        title = "Cancel",
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Gray3,
+                            contentColor = Gray5
+                        ),
+                        modifier = Modifier.weight(1f)
+                    )
+                    Spacer(Modifier.size(10.mdp))
+                    MyButton(
+                        onClick = {
+                            onEvent(ShippingContract.Event.OnUpdatePallet(state.showUpdatePallet))
+                        },
+                        title = "Save",
+                        isLoading = state.isUpdatingPallet,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+        }
+    }
+
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AddPalletQuantity(
+    state: ShippingContract.State,
+    onEvent: (ShippingContract.Event) -> Unit
+) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val scope = rememberCoroutineScope()
+
+    if (state.showAddPallet){
+
+
+        ModalBottomSheet(
+            sheetState = sheetState,
+            onDismissRequest = {
+                onEvent(ShippingContract.Event.OnShowAddPallet(false))
+            },
+            containerColor = Color.White
+        ) {
+            Column (
+                Modifier
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 24.mdp)
+                    .padding(bottom = 24.mdp)
+            ){
+                MyText(
+                    text = "Add Pallet",
                     fontWeight = FontWeight.W500,
                     style = MaterialTheme.typography.titleLarge
                 )
@@ -632,32 +883,28 @@ fun PalletQuantityBottomSheet(
 //                val editDriver = state.selectedDriver == null && state.isDriverIdScanned
                 TitleView(title = "Pallet Type")
                 Spacer(Modifier.size(5.mdp))
-                AutoDropDownTextField(
-                    state.palletType,
-                    onValueChange = {
-                        onEvent(ShippingContract.Event.OnPalletTypeChange(it))
-                    },
-                    suggestions = state.palletTypes,
-                    icon = R.drawable.user_square,
-                    onSuggestionClick = {
+                ComboBox(
+                    modifier = Modifier,
+                    items = state.palletTypes,
+                    selectedItem = state.selectedPalletType,
+                    icon = R.drawable.box_search,
+                    listPadding = PaddingValues(horizontal = 24.mdp),
+                    onSelectItem = {
                         onEvent(ShippingContract.Event.OnSelectPalletType(it))
-                    },
-//                    hideKeyboard = state.lockKeyboard,
+                    }
                 )
                 Spacer(Modifier.size(10.mdp))
                 TitleView(title = "Pallet Status")
                 Spacer(Modifier.size(5.mdp))
-                AutoDropDownTextField(
-                    state.palletType,
-                    onValueChange = {
-                        onEvent(ShippingContract.Event.OnPalletTypeChange(it))
-                    },
-                    suggestions = state.palletTypes,
-                    icon = R.drawable.user_square,
-                    onSuggestionClick = {
-                        onEvent(ShippingContract.Event.OnSelectPalletType(it))
-                    },
-//                    hideKeyboard = state.lockKeyboard,
+                ComboBox(
+                    modifier = Modifier,
+                    items = state.palletStatusList,
+                    icon = R.drawable.vuesax_outline_box_tick,
+                    selectedItem = state.selectedPalletStatus,
+                    listPadding = PaddingValues(horizontal = 24.mdp),
+                    onSelectItem = {
+                        onEvent(ShippingContract.Event.OnSelectPalletStatus(it))
+                    }
                 )
                 Spacer(Modifier.size(10.mdp))
                 TitleView(title = "Quantity")
@@ -674,18 +921,107 @@ fun PalletQuantityBottomSheet(
 //                    hideKeyboard = state.lockKeyboard,
 //                    enabled = editDriver,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    trailingIcon = R.drawable.fluent_barcode_scanner_20_regular,
-                    onTrailingClick = {
-                        onEvent(ShippingContract.Event.OnScanPalletQuantity)
-                    }
+//                    trailingIcon = R.drawable.fluent_barcode_scanner_20_regular,
+//                    onTrailingClick = {
+//                        onEvent(ShippingContract.Event.OnScanPalletQuantity)
+//                    }
                 )
                 Spacer(Modifier.size(15.mdp))
-                LazyColumn(modifier = Modifier.height(140.mdp)) {
-                    items(state.quantityPallets.filterNot { it.entityState == "Removed" }){
-                        PalletQuantity(it) {
-                            onEvent(ShippingContract.Event.OnRemovePalletQuantity(it))
+                Row(Modifier.fillMaxWidth()) {
+                    MyButton(
+                        onClick = {
+                            scope.launch { sheetState.hide() }.invokeOnCompletion {
+                                onEvent(ShippingContract.Event.OnShowAddPallet(false))
+                            }
+                        },
+                        title = "Cancel",
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Gray3,
+                            contentColor = Gray5
+                        ),
+                        modifier = Modifier.weight(1f)
+                    )
+                    Spacer(Modifier.size(10.mdp))
+                    MyButton(
+                        onClick = {
+                            onEvent(ShippingContract.Event.OnScanPalletQuantity)
+                        },
+                        title = "Save",
+                        isLoading = state.isCreatingPallet,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+        }
+    }
+
+}
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun PalletQuantityBottomSheet(
+    state: ShippingContract.State,
+    onEvent: (ShippingContract.Event) -> Unit
+) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val scope = rememberCoroutineScope()
+
+
+    if (state.shippingForPallet!=null){
+
+
+        ModalBottomSheet(
+            sheetState = sheetState,
+            onDismissRequest = {
+                onEvent(ShippingContract.Event.OnShowPalletQuantitySheet(null))
+            },
+            containerColor = Color.White
+        ) {
+            Column (
+                Modifier
+                    .fillMaxHeight(0.7f)
+                    .padding(horizontal = 24.mdp)
+                    .padding(bottom = 24.mdp)
+            ){
+                MyText(
+                    text = "Pallet Confirm",
+                    fontWeight = FontWeight.W500,
+                    style = MaterialTheme.typography.titleLarge
+                )
+
+                Spacer(Modifier.size(12.mdp))
+                LazyColumn(modifier = Modifier.fillMaxWidth()) {
+                    items(state.quantityPallets){
+                        PalletQuantity(
+                            it,
+                            onClick = {
+                                onEvent(ShippingContract.Event.OnShowUpdatePallet(it))
+                            }
+                        ) {
+                            onEvent(ShippingContract.Event.OnShowConfirmDeletePallet(it))
                         }
                         Spacer(Modifier.size(5.mdp))
+                    }
+                }
+                Spacer(Modifier.size(10.mdp))
+                Row(Modifier
+                    .align(Alignment.End)
+                    .weight(1f)) {
+                    Button(
+                        onClick = {
+                            onEvent(ShippingContract.Event.OnShowAddPallet(true))
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Primary,
+                            contentColor = Color.White
+                        ),
+                        shape = RoundedCornerShape(6.mdp),
+                        modifier = Modifier
+                            .padding( horizontal = 15.mdp)
+                    ) {
+                        Icon(
+                            Icons.Default.Add,
+                            contentDescription = ""
+                        )
                     }
                 }
                 Spacer(Modifier.size(10.mdp))
@@ -706,14 +1042,29 @@ fun PalletQuantityBottomSheet(
                     Spacer(Modifier.size(10.mdp))
                     MyButton(
                         onClick = {
-                            onEvent(ShippingContract.Event.OnAddPallet)
+                            onEvent(ShippingContract.Event.OnConfirmPallet(state.shippingForPallet))
                         },
-                        title = "Save",
+                        title = "Confirm",
                         isLoading = state.isCreatingPallet,
                         modifier = Modifier.weight(1f)
                     )
                 }
             }
+        }
+        AddPalletQuantity(state,onEvent)
+        UpdatePalletQuantity(state,onEvent)
+        if (state.showConfirmDeletePallet!=null){
+            ConfirmDialog(
+                onDismiss = {
+                    onEvent(ShippingContract.Event.OnShowConfirmDeletePallet(null))
+                },
+                onConfirm = {
+                    onEvent(ShippingContract.Event.OnRemovePalletQuantity(state.showConfirmDeletePallet))
+                },
+                title = "Delete Pallet",
+                isLoading = state.isDeletingPallet,
+                message = "Are you sure you want to delete this pallet?"
+            )
         }
     }
 }
@@ -721,6 +1072,7 @@ fun PalletQuantityBottomSheet(
 @Composable
 fun PalletQuantity(
     model: PalletInShippingRow,
+    onClick: ()-> Unit,
     onRemove: () -> Unit
 ) {
     val swipeState = rememberSwipeToDismissBoxState(
@@ -730,17 +1082,21 @@ fun PalletQuantity(
                 SwipeToDismissBoxValue.StartToEnd,
                 SwipeToDismissBoxValue.EndToStart -> {
                     onRemove()
+                    false
                 }
-                SwipeToDismissBoxValue.Settled -> {}
+                SwipeToDismissBoxValue.Settled -> {
+                    true
+                }
             }
-            true
         }
     )
     SwipeToDismissBox(
         state = swipeState,
+        enableDismissFromEndToStart = false,
         backgroundContent = {
             Row(
                 Modifier
+                    .shadow(1.mdp, RoundedCornerShape(6.mdp))
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(6.mdp))
                     .background(ErrorRed)
@@ -770,9 +1126,12 @@ fun PalletQuantity(
     ) {
         Row(
             Modifier
+                .shadow(1.mdp, RoundedCornerShape(6.mdp))
                 .fillMaxWidth()
-                .shadow(1.mdp)
                 .clip(RoundedCornerShape(6.mdp))
+                .clickable {
+                    onClick()
+                }
                 .background(Gray1)
                 .padding(vertical = 6.mdp, horizontal = 8.mdp),
             verticalAlignment = Alignment.CenterVertically,
@@ -780,12 +1139,17 @@ fun PalletQuantity(
         ) {
             MyText(
                 text = model.customerName?:"",
-                style = MaterialTheme.typography.titleMedium,
+                fontSize = 13.sp,
                 fontWeight = FontWeight.W500,
             )
             MyText(
                 text = model.palletTypeTitle?:"",
-                style = MaterialTheme.typography.titleMedium,
+                fontSize = 13.sp,
+                fontWeight = FontWeight.W500,
+            )
+            MyText(
+                text = model.palletStatusTitle?:"",
+                fontSize = 13.sp,
                 fontWeight = FontWeight.W500,
             )
             Box(
@@ -807,7 +1171,8 @@ fun PalletQuantity(
 
 @Composable
 fun PalletBarcode(
-    model: PalletConfirmRow,
+    model: ShippingPalletManifestRow,
+    onClick: ()-> Unit,
     onRemove: ()->Unit
 ) {
     val swipeState = rememberSwipeToDismissBoxState(
@@ -817,18 +1182,22 @@ fun PalletBarcode(
                 SwipeToDismissBoxValue.StartToEnd,
                 SwipeToDismissBoxValue.EndToStart -> {
                     onRemove()
+                    false
                 }
-                SwipeToDismissBoxValue.Settled -> {}
+                SwipeToDismissBoxValue.Settled -> {
+                    true
+                }
             }
-            true
         }
     )
     SwipeToDismissBox(
         state = swipeState,
+        enableDismissFromEndToStart = false,
         backgroundContent = {
             Row(
                 Modifier
-                    .fillMaxWidth()
+                    .shadow(1.mdp, RoundedCornerShape(6.mdp))
+                    .fillMaxSize()
                     .clip(RoundedCornerShape(6.mdp))
                     .background(ErrorRed)
                     .padding(10.mdp),
@@ -857,36 +1226,52 @@ fun PalletBarcode(
     ) {
         Row(
             Modifier
+                .shadow(1.mdp, RoundedCornerShape(6.mdp))
                 .fillMaxWidth()
-                .shadow(1.mdp)
                 .clip(RoundedCornerShape(6.mdp))
+                .clickable {
+                    onClick()
+                }
                 .background(Gray1)
                 .padding(vertical = 6.mdp, horizontal = 8.mdp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            MyText(
-                text = "#${model.palletBarcode}",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.W500,
-            )
-//            Box(
-//                modifier = Modifier
-//                    .clip(RoundedCornerShape(4.mdp))
-//                    .background(Primary.copy(0.2f))
-//                    .padding(vertical = 4.mdp, horizontal = 10.mdp)
-//            ) {
-//                MyText(
-//                    text = model.total?.toString() ?: "0",
-//                    style = MaterialTheme.typography.labelSmall,
-//                    fontWeight = FontWeight.W500,
-//                    color = Primary
-//                )
-//            }
+            Column {
+                MyText(
+                    text = "#${model.palletBarcode}",
+                    fontSize = 13.sp,
+                    lineHeight = 13.sp,
+                    fontWeight = FontWeight.W500,
+                )
+                Spacer(Modifier.size(3.mdp))
+                MyText(
+                    text = model.customerName?:"",
+                    fontSize = 11.sp,
+                    lineHeight = 11.sp,
+                    fontWeight = FontWeight.W500,
+                    color = Color.Black.copy(0.8f)
+                )
+
+            }
+            if (model.total !=null){
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(4.mdp))
+                        .background(Primary.copy(0.2f))
+                        .padding(vertical = 4.mdp, horizontal = 10.mdp)
+                ) {
+                    MyText(
+                        text = model.total?.toString() ?: "0",
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.W500,
+                        color = Primary
+                    )
+                }
+            }
         }
     }
 }
-
 @Composable
 private fun ShipButton(
     modifier: Modifier = Modifier,
@@ -906,14 +1291,14 @@ private fun ShipButton(
             painter = painterResource(icon),
             contentDescription = "",
             modifier = Modifier.size(16.mdp),
-            tint = Color.White
+            tint = Color.Black
         )
         Spacer(modifier = Modifier.size(7.mdp))
         MyText(
             text = title,
-            color = Color.White,
-            style = MaterialTheme.typography.labelMedium,
-            fontWeight = FontWeight.W500
+            color = Color.Black,
+            fontSize = 15.sp,
+            fontWeight = FontWeight.Medium
         )
     }
 }

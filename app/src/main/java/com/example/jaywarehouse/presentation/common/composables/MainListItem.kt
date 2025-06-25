@@ -94,14 +94,14 @@ fun MainListItem(
                 item1.title,
                 icon = item1.icon,
                 detail = item1.value,
-                textStyle = item1.style?:MaterialTheme.typography.titleMedium
+                textStyle = item1.style
             )
             if (item2!=null)Spacer(modifier = Modifier.size(8.mdp))
             if (item2!=null)DetailCard(
                 item2.title,
                 icon = item2.icon,
                 detail = item2.value,
-                textStyle = item2.style?:MaterialTheme.typography.titleMedium
+                textStyle = item2.style
             )
             if (showFooter)Spacer(modifier = Modifier.size(15.mdp))
 

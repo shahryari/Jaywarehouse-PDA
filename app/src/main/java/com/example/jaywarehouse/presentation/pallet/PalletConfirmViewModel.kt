@@ -119,6 +119,21 @@ class PalletConfirmViewModel(
                     copy(toast = "")
                 }
             }
+
+            is PalletConfirmContract.Event.OnShowPalletProduct -> {
+                setState {
+                    copy(showPalletProducts = event.show)
+                }
+            }
+
+            is PalletConfirmContract.Event.FetchProducts -> {
+                getPalletProducts(event.pallet.palletManifestID)
+            }
+            is PalletConfirmContract.Event.OnProductsReachEnd -> {
+                if (state.productPage*ROW_COUNT <=state.palletProducts.size){
+                    getPalletProducts(event.pallet.palletManifestID,loadNext = true)
+                }
+            }
         }
     }
 
@@ -202,6 +217,55 @@ class PalletConfirmViewModel(
                         }
                     }
                 }
+        }
+    }
+
+
+    private fun getPalletProducts(palletManifestID: Int,loadNext: Boolean = false,) {
+        if (state.productLoading == Loading.NONE){
+            if (loadNext){
+                setState {
+                    copy(productPage = productPage  + 1)
+                }
+            } else {
+                setState {
+                    copy(productPage = 1, palletProducts = emptyList())
+                }
+            }
+            viewModelScope.launch(Dispatchers.IO) {
+                repository.getPalletProductList(
+                    state.productKeyword,
+                    palletManifestId = palletManifestID.toString(),
+                    state.page,
+                    "",
+                    ""
+                ).catch {
+                    setSuspendedState {
+                        copy(error = it.message?:"", productLoading = Loading.NONE)
+                    }
+                }.collect {
+                    setSuspendedState {
+                        copy(productLoading = Loading.NONE)
+                    }
+                    when(it){
+                        is BaseResult.Error -> {
+                            setSuspendedState {
+                                copy(error = it.message)
+                            }
+                        }
+                        is BaseResult.Success -> {
+                            setSuspendedState {
+                                copy(
+                                    palletProducts = if (loadNext) palletProducts + (it.data?.rows?:emptyList()) else it.data?.rows?:emptyList()
+                                )
+                            }
+                        }
+                        BaseResult.UnAuthorized -> {
+
+                        }
+                    }
+                }
+            }
         }
     }
 

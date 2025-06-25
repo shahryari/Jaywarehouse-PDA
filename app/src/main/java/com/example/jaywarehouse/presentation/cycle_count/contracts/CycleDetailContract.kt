@@ -73,7 +73,7 @@ class CycleDetailContract {
         data class OnChangeQuantity(val quantity: TextFieldValue) : Event()
         data class OnChangeQuantityInPacket(val quantityInPacket: TextFieldValue) : Event()
         data class OnChangeBarcode(val barcode: TextFieldValue) : Event()
-        data class OnSelectStatus(val status: ProductStatusRow) : Event()
+        data class OnSelectStatus(val status: ProductStatusRow?) : Event()
         data object OnEndTaskClick : Event()
         data class OnShowSubmit(val show: Boolean) : Event()
     }

@@ -35,7 +35,7 @@ fun <T>AutoDropDownTextField(
     value: TextFieldValue,
     onValueChange: (TextFieldValue)->Unit,
     suggestions: List<T>,
-    onSuggestionClick: (T)->Unit,
+    onSuggestionClick: (T?)->Unit,
     modifier: Modifier = Modifier,
     showSuggestion: Boolean = true,
     clickable: Boolean = false,
@@ -60,6 +60,9 @@ fun <T>AutoDropDownTextField(
         InputTextField(
             value = value,
             onValueChange = {
+                if (it.text.isEmpty()){
+                    onSuggestionClick(null)
+                }
                 onValueChange(it)
                     isExpanded = it.text.isNotEmpty()
             },

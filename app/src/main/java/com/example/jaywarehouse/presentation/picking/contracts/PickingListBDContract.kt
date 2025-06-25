@@ -37,6 +37,10 @@ class PickingListBDContract {
         val isModifying: Boolean = false,
         val toast: String = "",
         val quantity: TextFieldValue = TextFieldValue(),
+        val selectedForWaste: PickingListBDRow? = null,
+        val isWasting: Boolean = false,
+        val hasModify: Boolean = true,
+        val hasWaste: Boolean = true,
     ) : UiState
 
     sealed class Event : UiEvent {
@@ -55,7 +59,8 @@ class PickingListBDContract {
         data class OnSelectShippingDetail(val picking: PickingListBDRow?) : Event()
         data object OnModify : Event()
         data class OnQuantityChange(val quantity: TextFieldValue) : Event()
-
+        data class OnSelectForWaste(val picking: PickingListBDRow?) : Event()
+        data class OnWaste(val picking: PickingListBDRow) : Event()
     }
 
     sealed class Effect: UiSideEffect {

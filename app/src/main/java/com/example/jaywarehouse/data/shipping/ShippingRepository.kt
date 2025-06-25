@@ -1,6 +1,7 @@
 package com.example.jaywarehouse.data.shipping
 
 import com.example.jaywarehouse.data.common.utils.BaseResult
+import com.example.jaywarehouse.data.common.utils.ROW_COUNT
 import com.example.jaywarehouse.data.common.utils.ResultMessageModel
 import com.example.jaywarehouse.data.common.utils.getResult
 import com.example.jaywarehouse.data.pallet.model.PalletConfirmRow
@@ -8,6 +9,8 @@ import com.example.jaywarehouse.data.shipping.models.DriverModel
 import com.example.jaywarehouse.data.shipping.models.PalletInShippingModel
 import com.example.jaywarehouse.data.shipping.models.PalletInShippingRow
 import com.example.jaywarehouse.data.shipping.models.ShippingModel
+import com.example.jaywarehouse.data.shipping.models.ShippingPalletManifestRow
+import com.google.gson.Gson
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import kotlinx.coroutines.flow.Flow
@@ -26,7 +29,7 @@ class ShippingRepository(private val api: ShippingApi) {
         jsonObject.addProperty("Keyword",keyword)
         return getResult(
             request = {
-                api.getShipping(jsonObject, page, row, sort, order)
+                api.getShippings(jsonObject, page, row, sort, order)
             }
         )
     }
@@ -106,7 +109,7 @@ class ShippingRepository(private val api: ShippingApi) {
     }
 
     fun createShipping(
-        pallets: List<PalletConfirmRow>,
+        pallets: List<ShippingPalletManifestRow>,
         driverFullName: String,
         driverTin: String,
         carNumber: String,
@@ -117,8 +120,7 @@ class ShippingRepository(private val api: ShippingApi) {
         val palletArray = JsonArray()
         pallets.map {
             val palletObject = JsonObject()
-            palletObject.addProperty("PalletManifestID",it.palletManifestID)
-            palletObject.addProperty("PalletBarcode",it.palletBarcode)
+            palletObject.addProperty("PalletManifestID",it.palletManifestId)
             palletObject
         }.forEach {
             palletArray.add(it)
@@ -128,10 +130,10 @@ class ShippingRepository(private val api: ShippingApi) {
         jsonObject.addProperty("DriverTin",driverTin)
         jsonObject.addProperty("CarNumber",carNumber)
         jsonObject.addProperty("TrailerNumber",trailerNumber)
-        jsonObject.add("PalletInShippingSubmitList",palletArray)
+        jsonObject.addProperty("PalletManifestEntities", Gson().toJson(palletArray))
         return getResult(
             request = {
-                api.submitShipping(jsonObject)
+                api.createShipping(jsonObject)
             }
         )
     }
@@ -164,9 +166,15 @@ class ShippingRepository(private val api: ShippingApi) {
         }
     )
 
+    fun getShippingPalletStatus() = getResult(
+        request = {
+            api.getPalletStatuses()
+        }
+    )
+
+
     fun submitPalletShipping(
         pallets: List<PalletInShippingRow>,
-        warehouseId: Int,
     ) : Flow<BaseResult<ResultMessageModel>> {
 
         val jsonArray = JsonArray()
@@ -177,16 +185,188 @@ class ShippingRepository(private val api: ShippingApi) {
             palletObject.addProperty("CustomerID",it.customerID)
             palletObject.addProperty("PalletTypeID",it.palletTypeID)
             palletObject.addProperty("PalletQuantity",it.palletQuantity)
-            palletObject.addProperty("WarehouseID",warehouseId)
-            palletObject.addProperty("EntityState",it.entityState)
+            palletObject.addProperty("EntityState","Updated")
             palletObject
         }.forEach {
             jsonArray.add(it)
         }
         return getResult(
             request = {
-                api.submitShippingPallet(jsonArray)
+                api.    submitShippingPallet(jsonArray)
             }
         )
     }
+
+    fun getShippingPalletManifestList() = getResult(
+        request = {
+            api.getShippingPalletManifestList(
+                jsonObject = JsonObject().apply {
+                    addProperty("Keyword", "")
+                },
+                1,
+                100,
+                "CreatedOn",
+                "desc"
+            )
+        }
+    )
+
+    fun addPalletToShipping(
+        barcode: String
+    ) = getResult(
+        request = {
+            api.addPalletToShipping(
+                jsonObject = JsonObject().apply {
+                    addProperty("PalletBarcode", barcode)
+                }
+            )
+        }
+    )
+
+//    fun createShipping(
+//        entities: List<ShippingPalletManifestRow>
+//    ) = getResult(
+//        request = {
+//            val jsonArray = JsonArray()
+//            entities.map {
+//                val jsonObject = JsonObject()
+//                jsonObject.addProperty("PalletManifestID", it.palletManifestId)
+//                jsonObject
+//            }.forEach {
+//                jsonArray.add(it)
+//            }
+//            api.createShipping(
+//                JsonObject().apply {
+//                    add("PalletManifestEntities", jsonArray)
+//                }
+//            )
+//        }
+//    )
+
+    fun getShippingDetailListOfPallet(
+        palletManifestID: Int
+    ) = getResult(
+        request = {
+            api.getShippingDetailListOfPallet(
+                jsonObject = JsonObject().apply {
+                    addProperty("PalletManifestID", palletManifestID)
+                },
+                1,
+                100,
+                "CreatedOn",
+                "desc"
+            )
+        }
+    )
+
+    fun createShippingPallet(
+        shippingID: Int,
+        customerID: Int,
+        palletTypeID: Int,
+        palletStatusID: Int,
+        palletQuantity: Double
+    ) = getResult(
+        request = {
+            api.createShippingPallet(
+                jsonObject = JsonObject().apply {
+                    addProperty("ShippingID", shippingID)
+                    addProperty("CustomerID", customerID)
+                    addProperty("PalletTypeID", palletTypeID)
+                    addProperty("PalletStatusID", palletStatusID)
+                    addProperty("PalletQuantity", palletQuantity.toInt())
+                }
+            )
+        }
+    )
+
+    fun updateShippingPallet(
+        shippingPalletID: Int,
+        quantity: Double
+    ) = getResult(
+        request = {
+            api.updateShippingPallet(
+                jsonObject = JsonObject().apply {
+                    addProperty("ShippingPalletID", shippingPalletID)
+                    addProperty("PalletQuantity", quantity.toInt())
+                }
+            )
+        }
+    )
+
+    fun deleteShippingPallet(
+        shippingPalletID: Int
+    ) = getResult(
+        request = {
+            api.deleteShippingPallet(
+                jsonObject = JsonObject().apply {
+                    addProperty("ShippingPalletID", shippingPalletID)
+                }
+            )
+        }
+    )
+
+    fun rollbackShipping(
+        shippingId: Int
+    ) = getResult(
+        request = {
+            val jsonObject = JsonObject()
+            jsonObject.addProperty("ShippingID",shippingId)
+            api.shippingRollback(jsonObject)
+        }
+    )
+
+
+    fun shippingPalletConfirm(
+        shippingId: Int
+    ) = getResult(
+        request = {
+            val jsonObject = JsonObject()
+            jsonObject.addProperty("ShippingID",shippingId)
+            api.shippingPalletConfirm(jsonObject)
+        }
+    )
+
+    fun getShipping(
+        shippingId: Int
+    ) = getResult(
+        request = {
+            val jsonObject = JsonObject()
+            jsonObject.addProperty("ShippingID",shippingId)
+            api.getShipping(jsonObject)
+        }
+    )
+
+    fun addPalletManifestToShipping(
+        shippingId: Int,
+        barcode: String
+    ) = getResult(
+        request = {
+            val jsonObject = JsonObject()
+            jsonObject.addProperty("ShippingID",shippingId)
+            jsonObject.addProperty("PalletBarcode",barcode)
+            api.addPalletManifestToShipping(jsonObject)
+        }
+    )
+
+    fun removePalletManifestToShipping(
+        shippingId: Int,
+        barcode: String
+    ) = getResult(
+        request = {
+            val jsonObject = JsonObject()
+            jsonObject.addProperty("ShippingID",shippingId)
+            jsonObject.addProperty("PalletBarcode",barcode)
+            api.removePalletManifestFromShipping(jsonObject)
+        }
+    )
+    fun getPalletProductList(
+        palletManifestId: String,
+    ) = getResult(
+        request = {
+            val jsonObject = JsonObject()
+            jsonObject.addProperty("Keyword","")
+            jsonObject.addProperty("PalletManifestID",palletManifestId)
+            api.getPalletManifestProduct(jsonObject,1,100,"","")
+        }
+    )
 }

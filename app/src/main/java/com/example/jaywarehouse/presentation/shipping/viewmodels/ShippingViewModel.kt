@@ -1,18 +1,22 @@
 package com.example.jaywarehouse.presentation.shipping.viewmodels
 
+import android.util.Log
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.viewModelScope
 import com.example.jaywarehouse.data.common.utils.BaseResult
 import com.example.jaywarehouse.data.common.utils.Prefs
 import com.example.jaywarehouse.data.common.utils.ROW_COUNT
 import com.example.jaywarehouse.data.common.utils.validatePallet
+import com.example.jaywarehouse.data.picking.models.PalletManifest
 import com.example.jaywarehouse.data.shipping.ShippingRepository
-import com.example.jaywarehouse.data.shipping.models.PalletInShippingRow
+import com.example.jaywarehouse.data.shipping.models.ShippingPalletManifestRow
 import com.example.jaywarehouse.presentation.common.utils.BaseViewModel
 import com.example.jaywarehouse.presentation.common.utils.Loading
 import com.example.jaywarehouse.presentation.common.utils.Order
 import com.example.jaywarehouse.presentation.common.utils.SortItem
 import com.example.jaywarehouse.presentation.shipping.contracts.ShippingContract
+import com.example.jaywarehouse.presentation.shipping.contracts.ShippingContract.Effect.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
@@ -70,9 +74,11 @@ class ShippingViewModel(
                         trailerNumber = TextFieldValue(),
                         palletNumber = TextFieldValue(),
                         selectedDriver = null,
-                        isDriverIdScanned = false
+                        isDriverIdScanned = false,
+                        createPallets = emptyList()
                     )
                 }
+                getShippingPalletManifestList()
             }
 
             is ShippingContract.Event.OnShowFilterList -> {
@@ -138,19 +144,8 @@ class ShippingViewModel(
                 }
             }
 
-            ShippingContract.Event.OnAddPallet -> {
-                if (state.quantityPallets.isNotEmpty()){
-                    createPallet(
-                        18
-                    )
-                } else {
-                    setState {
-                        copy(
-                            error = "list can not be empty."
-                        )
-                    }
-                }
-
+            is ShippingContract.Event.OnConfirmPallet -> {
+                createPallet(event.shipping.shippingID)
             }
             ShippingContract.Event.OnAddShipping -> {
                 createShipping()
@@ -166,8 +161,8 @@ class ShippingViewModel(
             is ShippingContract.Event.OnCreateInvoice -> {
                 createInvoice(event.shipping.shippingID)
             }
-            is ShippingContract.Event.OnCreateRS -> {
-                createRSInterface(event.shipping.shippingID,event.shipping.shippingNumber)
+            is ShippingContract.Event.OnRollbackShipping -> {
+                rollbackShipping(event.shipping.shippingID)
             }
             is ShippingContract.Event.OnCustomerChange -> {
                 setState {
@@ -206,45 +201,17 @@ class ShippingViewModel(
                 }
             }
             is ShippingContract.Event.OnRemovePalletQuantity -> {
-                setState {
-                    copy(quantityPallets = quantityPallets.map {
-                        if (it == event.pallet){
-                            it.copy(entityState = "Removed")
-                        } else {
-                            it
-                        }
-                    })
-                }
+                deleteShippingPallet(event.pallet.shippingID,event.pallet.shippingPalletID)
             }
             ShippingContract.Event.OnScanDriverId -> {
                 scanDriverId(state.driverId.text)
             }
             ShippingContract.Event.OnScanPalletBarcode -> {
-                if (state.palletNumber.text.isNotEmpty()){
-                    checkPalletBarcode(state.palletNumber.text)
-                }
+                addPalletBarcode(state.palletNumber.text)
             }
             ShippingContract.Event.OnScanPalletQuantity -> {
-                if (state.selectedPalletType!=null && state.selectedCustomer!=null){
-                    val type = state.quantityPallets.find {
-                        it.palletTypeID == state.selectedPalletType?.palletTypeID && it.customerID == state.selectedCustomer?.customerID.toString()
-                    }
-                    if (type==null){
-                        setState {
-                            copy(
-                                quantityPallets = quantityPallets + PalletInShippingRow(
-                                    customerID = state.selectedCustomer!!.customerID.toString(),
-                                    palletTypeID = state.selectedPalletType!!.palletTypeID,
-                                    palletQuantity = state.quantity.text.toIntOrNull()?:0,
-                                    palletTypeTitle = state.selectedPalletType!!.palletTypeTitle,
-                                    customerName = state.selectedCustomer!!.customerName,
-                                    shippingID = state.shippingForPallet!!.shippingID,
-                                    entityState = "Added"
-                                )
-                            )
-                        }
-                    }
-
+                if(state.shippingForPallet!=null){
+                    addShippingPallet(state.shippingForPallet!!.shippingID)
                 }
             }
             is ShippingContract.Event.OnTrailerNumberChange -> {
@@ -270,16 +237,21 @@ class ShippingViewModel(
                         shippingForPallet = event.shipping,
                         customers = emptyList(),
                         palletTypes = emptyList(),
+                        palletStatusList = emptyList(),
                         quantityPallets = emptyList(),
                         customer = TextFieldValue(),
                         palletType = TextFieldValue(),
-                        quantity = TextFieldValue()
+                        palletStatus = TextFieldValue(),
+                        quantity = TextFieldValue(),
+                        selectedPalletType = null,
+                        selectedPalletStatus = null
                     )
                 }
                 if (event.shipping!=null){
                     getPalletList(event.shipping.shippingID)
                     getCustomers(event.shipping.shippingID)
                     getPalletTypes()
+                    getPalletStatuses()
                 }
             }
             is ShippingContract.Event.OnShowConfirm -> {
@@ -292,26 +264,95 @@ class ShippingViewModel(
                     copy(invoiceShipping = event.shipping)
                 }
             }
-            is ShippingContract.Event.OnShowRs -> {
+            is ShippingContract.Event.OnShowRollbackConfirm -> {
                 setState {
-                    copy(rsShipping = event.shipping)
+                    copy(showRollbackConfirm = event.shipping)
                 }
+            }
+
+            is ShippingContract.Event.OnPalletStatusChange -> {
+                setState {
+                    copy(
+                        palletStatus = event.status
+                    )
+                }
+            }
+            is ShippingContract.Event.OnSelectPalletStatus -> {
+                setState {
+                    copy(selectedPalletStatus = event.status)
+                }
+            }
+
+            is ShippingContract.Event.OnSelectPallet -> {
+                setState {
+                    copy(selectedPallet = event.pallet)
+                }
+            }
+
+            is ShippingContract.Event.OnShowAddPallet -> {
+                setState {
+                    copy(
+                        showAddPallet = event.show,
+                        selectedCustomer = null,
+                        customer = TextFieldValue(),
+                        quantity = TextFieldValue(),
+                    )
+                }
+                if (event.show && state.shippingForPallet!=null){
+                    getCustomers(state.shippingForPallet!!.shippingID)
+                    getPalletTypes()
+                    getPalletStatuses()
+                }
+            }
+            is ShippingContract.Event.OnShowUpdatePallet -> {
+                val quantity = event.show?.palletQuantity?.toString()?:""
+                setState {
+                    copy(
+                        showUpdatePallet = event.show,
+                        quantity = TextFieldValue(quantity,TextRange(0,quantity.length))
+                    )
+                }
+            }
+            is ShippingContract.Event.OnUpdatePallet -> {
+                updateShippingPallet(event.pallet.shippingID,event.pallet.shippingPalletID)
+            }
+
+            is ShippingContract.Event.OnShowConfirmDeletePallet -> {
+                setState {
+                    copy(showConfirmDeletePallet = event.show)
+                }
+            }
+
+            is ShippingContract.Event.OnSelectShipping -> {
+                setEffect {
+                    NavToShippingDetail(event.shipping)
+                }
+            }
+
+            is ShippingContract.Event.FetchPalletProducts -> {
+                getPalletProducts(event.palletManifest)
             }
         }
     }
 
     private fun scanDriverId(driverId: String) {
-        setState {
-            copy(isDriverIdScanned = true)
+        if (driverId.isEmpty()) {
+            setState {
+                copy(error = "Driver Id can not be empty")
+            }
+            return
         }
         viewModelScope.launch(Dispatchers.IO) {
             repository.getDriverInfo(driverId.trim())
                 .catch {
                     setSuspendedState {
-                        copy(error = it.message?:"")
+                        copy(error = it.message?:"", isDriverIdScanned = true)
                     }
                 }
                 .collect {
+                    setSuspendedState {
+                        copy(isDriverIdScanned = true)
+                    }
                     when(it){
                         is BaseResult.Error -> {
                             setSuspendedState {
@@ -364,7 +405,8 @@ class ShippingViewModel(
                             copy(
                                 shippingModel = it.data,
                                 shippingList = shippingList + (it.data?.rows ?: emptyList()),
-                                loadingState = Loading.NONE
+                                loadingState = Loading.NONE,
+                                warehouseID = it.data?.warehouseID?:""
                             )
                         }
                     }
@@ -391,13 +433,7 @@ class ShippingViewModel(
                         }
                     }
                     is BaseResult.Success -> {
-                        val list = result.data?.rows?.map {
-                            if (it.entityState==null){
-                                it.copy(entityState = "Added")
-                            } else {
-                                it
-                            }
-                        }
+                        val list = result.data?.rows
                         setSuspendedState {
                             copy(quantityPallets = list ?: emptyList())
                         }
@@ -408,13 +444,84 @@ class ShippingViewModel(
         }
     }
 
-    private fun checkPalletBarcode(
+
+    private fun getShippingPalletManifestList(){
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.getShippingPalletManifestList()
+                .catch {
+                    setSuspendedState {
+                        copy(error = it.message?:"")
+                    }
+                }
+                .collect {
+                    when(it){
+                        is BaseResult.Error -> {
+                            setSuspendedState {
+                                copy(error = it.message)
+                            }
+                        }
+                        is BaseResult.Success -> {
+                            setSuspendedState {
+                                copy(shippingPalletManifestList = it.data?.rows ?: emptyList())
+                            }
+                        }
+                        BaseResult.UnAuthorized -> {}
+                    }
+                }
+        }
+    }
+
+    private fun getPalletProducts(palletManifest: ShippingPalletManifestRow) {
+        if (!state.isProductLoading) {
+            setState {
+                copy(isProductLoading = true)
+            }
+            viewModelScope.launch(Dispatchers.IO) {
+                repository.getPalletProductList(palletManifest.palletManifestId.toString())
+                    .catch {
+                        setSuspendedState {
+                            copy(error = it.message?:"", isProductLoading = false)
+                        }
+                    }
+                    .collect {
+                        setSuspendedState {
+                            copy(isProductLoading = false)
+                        }
+                        when(it){
+                            is BaseResult.Error -> {
+                                setSuspendedState {
+                                    copy(error = it.message)
+                                }
+                            }
+                            is BaseResult.Success -> {
+                                setSuspendedState {
+                                    copy(palletProducts = it.data?.rows?:emptyList())
+                                }
+                            }
+                            BaseResult.UnAuthorized -> {
+
+                            }
+                        }
+                    }
+            }
+        }
+    }
+
+
+
+    private fun addPalletBarcode(
         barcode: String
     ) {
+        if (barcode.isEmpty()) {
+            setState {
+                copy(error = "Pallet Barcode can not be empty")
+            }
+            return
+        }
         if (prefs.getValidatePallet()){
-            if (!validatePallet(barcode,"BD")) {
+            if (!validatePallet(barcode,"")) {
                 setState {
-                    copy(error = "Invalid Pallet")
+                    copy(error = "Invalid Pallet Barcode")
                 }
                 return
             }
@@ -424,24 +531,43 @@ class ShippingViewModel(
                 copy(isChecking = true)
             }
             viewModelScope.launch(Dispatchers.IO) {
-                repository.palletBarcodeCheck(barcode)
+                repository.addPalletToShipping(barcode)
                     .catch { setSuspendedState {
                         copy(error = it.message?:"", isChecking = false)
                     } }
-                    .collect {
+                    .collect { result ->
                         setSuspendedState {
-                            copy(palletNumber = TextFieldValue(), isChecking = false)
+                            copy(isChecking = false)
                         }
-                        when(it){
-
+                        when(result){
                             is BaseResult.Error -> {
                                 setSuspendedState {
-                                    copy(error = it.message)
+                                    copy(error = result.message)
                                 }
                             }
                             is BaseResult.Success -> {
-                                if (it.data!=null)setSuspendedState {
-                                    copy(createPallets = createPallets+it.data)
+                                if (result.data?.isSucceed == true){
+                                    try {
+                                        val pallet = result.data.returnValue as ShippingPalletManifestRow
+
+                                        if (pallet!=null){
+                                            setSuspendedState {
+                                                copy(createPallets =createPallets + pallet, palletNumber = TextFieldValue() )
+                                            }
+
+                                        } else {
+                                            setSuspendedState {
+                                                copy(error = "something is wrong")
+                                            }
+                                        }
+                                    }catch (e: Exception) {
+                                        Log.e("jaywarehouse","add pallet error",e)
+                                    }
+
+                                } else {
+                                    setSuspendedState {
+                                        copy(error = result.data?.messages?.firstOrNull()?:"")
+                                    }
                                 }
                             }
                             BaseResult.UnAuthorized -> {}
@@ -509,16 +635,15 @@ class ShippingViewModel(
     }
 
     private fun createPallet(
-        warehouseId: Int
+        shippingId: Int
     ) {
         if (!state.isCreatingPallet){
             setState {
                 copy(isCreatingPallet = true)
             }
             viewModelScope.launch(Dispatchers.IO) {
-                repository.submitPalletShipping(
-                    state.quantityPallets,
-                    warehouseId
+                repository.shippingPalletConfirm(
+                    shippingId
                 ).catch {
                     setSuspendedState {
                         copy(error = it.message?:"", isCreatingPallet = false)
@@ -538,7 +663,7 @@ class ShippingViewModel(
                                 setSuspendedState {
                                     copy(
                                         shippingForPallet = null,
-                                        toast = it.data?.messages?.firstOrNull()?:"Added Successfully",
+                                        toast = it.data.messages.firstOrNull()?:"Added Successfully",
                                         shippingList = emptyList(),
                                         page = 1,
                                         loadingState = Loading.LOADING
@@ -748,7 +873,40 @@ class ShippingViewModel(
                         }
                         is BaseResult.Success -> {
                             setSuspendedState {
-                                copy(palletTypes = it.data?.rows?: emptyList())
+                                copy(
+                                    palletTypes = it.data?.rows?: emptyList(),
+                                    selectedPalletType = it.data?.rows?.find { type -> type.palletTypeID == 1 }
+                                )
+                            }
+                        }
+
+                        BaseResult.UnAuthorized -> {}
+                    }
+                }
+        }
+    }
+
+    private fun getPalletStatuses() {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.getShippingPalletStatus()
+                .catch {
+                    setSuspendedState {
+                        copy(error = it.message?:"")
+                    }
+                }
+                .collect {
+                    when(it){
+                        is BaseResult.Error -> {
+                            setSuspendedState {
+                                copy(error = it.message)
+                            }
+                        }
+                        is BaseResult.Success -> {
+                            setSuspendedState {
+                                copy(
+                                    palletStatusList = it.data?.rows?: emptyList(),
+                                    selectedPalletStatus = it.data?.rows?.find { status -> status.palletStatusID == 1 }
+                                )
                             }
                         }
                         BaseResult.UnAuthorized -> {}
@@ -758,5 +916,223 @@ class ShippingViewModel(
     }
 
 
+    private fun addShippingPallet(shippingId: Int){
 
+        if (state.selectedCustomer == null) {
+            setState {
+                copy(
+                    error = "Customer not selected."
+                )
+            }
+            return
+        }
+        if (state.selectedPalletType == null){
+            setState {
+                copy(
+                    error = "Pallet Type not selected."
+                )
+            }
+            return
+        }
+        if (state.selectedPalletStatus == null){
+            setState {
+                copy(
+                    error = "Pallet Status not selected."
+                )
+            }
+            return
+        }
+        val quantity = state.quantity.text.toDoubleOrNull()
+        if (state.quantity.text.isEmpty() || quantity == null){
+            setState {
+                copy(
+                    error = "Quantity not entered."
+                )
+            }
+            return
+        }
+
+        if (!state.isAddingPallet){
+            setState {
+                copy(isAddingPallet = true)
+            }
+            viewModelScope.launch(Dispatchers.IO) {
+                repository.createShippingPallet(
+                    shippingID = shippingId,
+                    customerID = state.selectedCustomer!!.customerID,
+                    palletTypeID = state.selectedPalletType!!.palletTypeID,
+                    palletStatusID = state.selectedPalletStatus!!.palletStatusID,
+                    palletQuantity = quantity
+                ).catch {
+                    setSuspendedState {
+                        copy(isAddingPallet = false,error = it.message?:"")
+                    }
+                }.collect {
+                    setSuspendedState {
+                        copy(isAddingPallet = false)
+                    }
+                    when(it){
+                        is BaseResult.Error -> {
+                            setSuspendedState {
+                                copy(error = it.message)
+                            }
+                        }
+                        is BaseResult.Success -> {
+                            if (it.data?.isSucceed == true){
+                                setSuspendedState {
+                                    copy(
+                                        toast = "Added Successfully",
+                                        showAddPallet = false
+                                    )
+                                }
+                                getPalletList(shippingId)
+                            } else {
+                                setSuspendedState {
+                                    copy(error = it.data?.messages?.firstOrNull()?:"")
+                                }
+                            }
+                        }
+                        BaseResult.UnAuthorized -> {
+
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun updateShippingPallet(shippingId: Int,shippingPalletID: Int){
+        val quantity = state.quantity.text.toDoubleOrNull()
+        if (quantity == null){
+            setState {
+                copy(
+                    error = "Quantity not entered."
+                )
+            }
+            return
+        }
+        if (!state.isUpdatingPallet){
+            setState {
+                copy(isUpdatingPallet = true)
+            }
+            viewModelScope.launch(Dispatchers.IO) {
+                repository.updateShippingPallet(
+                    shippingPalletID = shippingPalletID,
+                    quantity = quantity
+                ).catch {
+                    setSuspendedState {
+                        copy(isUpdatingPallet = false,error = it.message?:"")
+                    }
+                }.collect {
+                    setSuspendedState {
+                        copy(isUpdatingPallet = false)
+                    }
+                    when(it){
+                        is BaseResult.Error -> {
+                            setSuspendedState {
+                                copy(error = it.message)
+                            }
+                        }
+                        is BaseResult.Success -> {
+                            if (it.data?.isSucceed == true){
+                                setSuspendedState {
+                                    copy(showUpdatePallet = null)
+                                }
+                                getPalletList(shippingId)
+                            } else {
+                                setSuspendedState {
+                                    copy(error = it.data?.messages?.firstOrNull()?:"")
+                                }
+                            }
+                        }
+                        BaseResult.UnAuthorized -> {
+
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun deleteShippingPallet(shippingId: Int,shippingPalletID: Int){
+        if (!state.isDeletingPallet){
+            setState {
+                copy(isDeletingPallet = true)
+            }
+            viewModelScope.launch(Dispatchers.IO) {
+                repository.deleteShippingPallet(
+                    shippingPalletID = shippingPalletID
+                ).catch {
+                    setSuspendedState {
+                        copy(isDeletingPallet = false,error = it.message?:"", showConfirmDeletePallet = null)
+                    }
+                }.collect {
+                    setSuspendedState {
+                        copy(isDeletingPallet = false, showConfirmDeletePallet = null)
+                    }
+                    when(it){
+                        is BaseResult.Error -> {
+                            setSuspendedState {
+                                copy(error = it.message)
+                            }
+                        }
+                        is BaseResult.Success -> {
+                            if (it.data?.isSucceed == true){
+                                getPalletList(shippingId)
+                            } else {
+                                setSuspendedState {
+                                    copy(error = it.data?.messages?.firstOrNull()?:"")
+                                }
+                            }
+                        }
+                        BaseResult.UnAuthorized -> {
+
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun rollbackShipping(shippingId: Int) {
+        if (!state.isRollingBack){
+            setState {
+                copy(isRollingBack = true)
+            }
+            viewModelScope.launch(Dispatchers.IO) {
+                repository.rollbackShipping(
+                    shippingId = shippingId
+                ).catch {
+                    setSuspendedState {
+                        copy(error = it.message?:"", isRollingBack = false, showRollbackConfirm = null)
+                    }
+                }.collect {
+                    setSuspendedState {
+                        copy(isRollingBack = false, showRollbackConfirm = null)
+                    }
+                    when(it){
+                        is BaseResult.Error -> {
+                            setSuspendedState {
+                                copy(error = it.message)
+                            }
+                        }
+                        is BaseResult.Success -> {
+                            if (it.data?.isSucceed == true){
+                                setSuspendedState {
+                                    copy(toast = it.data.messages.firstOrNull()?:"UnConfirm completed successfully.", shippingList = emptyList(),page = 1, loadingState = Loading.LOADING)
+                                }
+                                getShipping(state.keyword,state.page,state.sort)
+                            } else{
+                                setSuspendedState {
+                                    copy(error = it.data?.messages?.firstOrNull()?:"")
+                                }
+                            }
+                        }
+                        BaseResult.UnAuthorized -> {}
+                    }
+                }
+            }
+        }
+    }
+    
 }

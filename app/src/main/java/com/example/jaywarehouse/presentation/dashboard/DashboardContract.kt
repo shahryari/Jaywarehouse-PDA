@@ -2,6 +2,7 @@ package com.example.jaywarehouse.presentation.dashboard
 
 import com.example.jaywarehouse.data.auth.models.AccessPermissionModel
 import com.example.jaywarehouse.data.auth.models.DashboardModel
+import com.example.jaywarehouse.data.auth.models.WarehouseModel
 import com.example.jaywarehouse.presentation.common.utils.MainItems
 import com.example.jaywarehouse.presentation.common.utils.UiEvent
 import com.example.jaywarehouse.presentation.common.utils.UiSideEffect
@@ -47,6 +48,8 @@ class DashboardContract {
         val showChangPasswordDialog: Boolean = false,
         val selectedTab: DashboardTab = DashboardTab.Picking,
         val addExtraCycle: Boolean = false,
+        val selectedWarehouse: WarehouseModel? = null,
+        val warehouseList: List<WarehouseModel> = emptyList(),
         val validatePallet: Boolean = true,
     ) : UiState
 
@@ -63,6 +66,7 @@ class DashboardContract {
         data class OnShowChangePasswordDialog(val show: Boolean) : Event()
         data class OnAddExtraCycleChange(val add: Boolean): Event()
         data class OnValidatePalletChange(val validate: Boolean): Event()
+        data class OnSelectWarehouse(val warehouse: WarehouseModel) : Event()
     }
 
     sealed class Effect : UiSideEffect {

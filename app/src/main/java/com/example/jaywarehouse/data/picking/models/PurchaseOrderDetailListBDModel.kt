@@ -28,6 +28,8 @@ data class PurchaseOrderDetailListBDRow(
     val productID: Int?,
     @SerializedName("SumReceiptQuantity")
     val sumReceiptQuantity: Double?,
+    @SerializedName("SumPickingQty")
+    val sumPickingQty: Double?,
     @SerializedName("QuantityDifferencePodandPicks")
     val quantityDifferencePodandPIcks: Double?
 ) : Animatable, Serializable {

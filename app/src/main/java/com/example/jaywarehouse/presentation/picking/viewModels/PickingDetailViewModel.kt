@@ -6,6 +6,7 @@ import com.example.jaywarehouse.data.common.utils.BaseResult
 import com.example.jaywarehouse.data.common.utils.Prefs
 import com.example.jaywarehouse.data.common.utils.ROW_COUNT
 import com.example.jaywarehouse.data.picking.PickingRepository
+import com.example.jaywarehouse.data.picking.models.PickingListBDRow
 import com.example.jaywarehouse.data.picking.models.PickingListGroupedRow
 import com.example.jaywarehouse.data.picking.models.PickingListRow
 import com.example.jaywarehouse.presentation.common.utils.BaseViewModel
@@ -34,8 +35,8 @@ class PickingDetailViewModel(
         setState {
             copy(
                 pickRow = row,
-//                boxNumber = TextFieldValue(putRow.boxNumber?:""),
-//                enableBoxNumber = putRow.boxNumber?.isEmpty() ?: true
+                hasModify = prefs.getHasModifyPick(),
+                hasWaste = prefs.getHasWaste(),
             )
         }
         viewModelScope.launch(Dispatchers.IO) {
@@ -127,6 +128,29 @@ class PickingDetailViewModel(
                     copy(sort = event.sortItem, page = 1, pickingList = emptyList())
                 }
                 getPickings()
+            }
+
+            is PickingDetailContract.Event.OnModifyPick -> {
+                modifyPicking(event.pick)
+            }
+            is PickingDetailContract.Event.OnShowModify -> {
+                setState {
+                    copy(showModify = event.pick, quantity = TextFieldValue())
+                }
+            }
+            is PickingDetailContract.Event.OnShowWaste -> {
+                setState {
+                    copy(showWaste = event.pick, quantity = TextFieldValue())
+                }
+            }
+            is PickingDetailContract.Event.OnWastePick -> {
+                wasteOfPicking(event.pick)
+            }
+
+            is PickingDetailContract.Event.ChangeQuantity -> {
+                setState {
+                    copy(quantity = event.quantity)
+                }
             }
         }
     }
@@ -286,4 +310,112 @@ class PickingDetailViewModel(
             }
         }
     }
+
+    private fun modifyPicking(pick: PickingListRow){
+        val quantity = state.quantity.text.toDoubleOrNull()
+
+        if (quantity==null){
+            setState {
+                copy(error = "Please fill quantity")
+            }
+            return
+        }
+        if (!state.isModifying){
+            setState {
+                copy(isModifying = true)
+            }
+            viewModelScope.launch(Dispatchers.IO) {
+                repository.modifyPickQuantityBD(
+                    pick.pickingID,
+                    purchaseOrderDetailID = pick.purchaseOrderDetailID,
+                    quantity = quantity
+                ).catch {
+                    setSuspendedState {
+                        copy(error = it.message?:"", isModifying = false)
+                    }
+                }.collect {
+                    setSuspendedState {
+                        copy(isModifying = false)
+                    }
+                    when(it){
+                        is BaseResult.Error -> {
+                            setSuspendedState {
+                                copy(error = it.message)
+                            }
+                        }
+                        is BaseResult.Success -> {
+                            if (it.data?.isSucceed == true) {
+                                setSuspendedState {
+                                    copy(showModify = null, toast = it.data.messages.firstOrNull()?:"Modified successfully", pickingList = emptyList(),page = 1)
+                                }
+                                getPickings()
+                            } else {
+                                setSuspendedState {
+                                    copy(error = it.data?.messages?.firstOrNull()?:"")
+                                }
+                            }
+                        }
+                        BaseResult.UnAuthorized -> {
+
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+    private fun wasteOfPicking(
+        row: PickingListRow
+    ) {
+        val quantity = state.quantity.text.toDoubleOrNull()
+        if (state.quantity.text.isEmpty() || quantity == null){
+            setState {
+                copy(error = "please fill waste quantity")
+            }
+            return
+        }
+        if (quantity>row.quantity){
+            setState {
+                copy(error = "Waste quantity can't be greater then picked quantity")
+            }
+            return
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.wasteOnPicking(
+                row.pickingID,
+                quantity
+            ).catch {
+                setSuspendedState {
+                    copy(isWasting = false, error = it.message?:"")
+                }
+            }.collect {
+                setSuspendedState {
+                    copy(isWasting = false)
+                }
+                when(it){
+                    is BaseResult.Error -> {
+                        setSuspendedState {
+                            copy(error = it.message)
+                        }
+                    }
+                    is BaseResult.Success ->{
+                        if (it.data?.isSucceed == true){
+                            setSuspendedState {
+                                copy(toast = it.data.messages.firstOrNull()?:"Saved successfully", showWaste = null, pickingList = emptyList(),page = 1)
+                            }
+                            getPickings()
+                        } else {
+                            setSuspendedState {
+                                copy(error = it.data?.messages?.firstOrNull()?:"")
+                            }
+                        }
+                    }
+                    BaseResult.UnAuthorized ->{}
+                }
+            }
+
+        }
+    }
+
 }

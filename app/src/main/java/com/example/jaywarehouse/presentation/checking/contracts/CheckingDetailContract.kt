@@ -47,6 +47,7 @@ class CheckingDetailContract {
         val palletType: TextFieldValue = TextFieldValue(),
         val palletStatus: TextFieldValue = TextFieldValue(),
         val onSaving: Boolean = false,
+        val palletMask: String = ""
     ) : UiState
 
     sealed class Event : UiEvent {

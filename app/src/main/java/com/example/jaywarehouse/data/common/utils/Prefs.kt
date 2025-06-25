@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import com.example.jaywarehouse.data.auth.models.AccessPermissionModel
+import com.example.jaywarehouse.data.auth.models.WarehouseModel
 import com.example.jaywarehouse.data.common.modules.dataStore
 import com.example.jaywarehouse.presentation.common.utils.Order
 import com.google.gson.Gson
@@ -41,6 +42,44 @@ class Prefs(private val context: Context) {
         return try {
             Gson().fromJson(preferences.getString("access",""), AccessPermissionModel::class.java)
         } catch (e: Exception){
+            null
+        }
+    }
+
+    //modify and waste
+    fun setHasModifyPick(has: Boolean){
+        with(preferences.edit()) {
+            putBoolean("hasModify",has)
+            apply()
+        }
+    }
+
+    fun getHasModifyPick() : Boolean {
+        return preferences.getBoolean("hasModify",true)
+    }
+
+    fun setHasWaste(has: Boolean) {
+        with(preferences.edit()) {
+            putBoolean("hasWaste",has)
+            apply()
+        }
+    }
+
+    fun getHasWaste() : Boolean {
+        return preferences.getBoolean("hasWaste",true)
+    }
+    //warehouse
+    fun setWarehouse(warehouse: WarehouseModel?) {
+        with(preferences.edit()){
+            putString("warehouse", Gson().toJson(warehouse?:""))
+            apply()
+        }
+    }
+
+    fun getWarehouse() : WarehouseModel? {
+        return try {
+            Gson().fromJson(preferences.getString("warehouse","")?:"", WarehouseModel::class.java)
+        }catch (e: Exception) {
             null
         }
     }
@@ -97,7 +136,7 @@ class Prefs(private val context: Context) {
     //address
     fun setAddress(address: String) {
         with(preferences.edit()){
-            putString("address",address)
+            putString("address",if (address.endsWith('/')) address else "$address/")
             apply()
         }
     }
@@ -621,6 +660,29 @@ class Prefs(private val context: Context) {
 
 
 
+    //shipping detail
+    fun setShippingDetailSort(sort: String) {
+        with(preferences.edit()){
+            putString("shippingDetailSort",sort)
+            apply()
+
+        }
+    }
+
+    fun getShippingDetailSort() : String {
+        return preferences.getString("shippingDetailSort","PalletBarcode") ?: "PalletBarcode"
+    }
+
+    fun setShippingDetailOrder(order: String) {
+        with(preferences.edit()) {
+            putString("shippingDetailOrder",order)
+            apply()
+        }
+    }
+
+    fun getShippingDetailOrder() : String {
+        return preferences.getString("shippingDetailOrder", Order.Asc.value) ?: Order.Asc.value
+    }
 
     //lock keyboard
     suspend fun setLockKeyboard(lock: Boolean) {

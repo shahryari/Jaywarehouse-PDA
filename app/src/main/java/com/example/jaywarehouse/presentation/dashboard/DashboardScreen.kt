@@ -17,6 +17,7 @@ import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -62,6 +63,7 @@ import com.example.jaywarehouse.R
 import com.example.jaywarehouse.data.auth.models.AccessPermissionModel
 import com.example.jaywarehouse.data.auth.models.DashboardModel
 import com.example.jaywarehouse.data.common.utils.restartActivity
+import com.example.jaywarehouse.presentation.common.composables.ComboBox
 import com.example.jaywarehouse.presentation.common.composables.MyScaffold
 import com.example.jaywarehouse.presentation.common.composables.MySwitch
 import com.example.jaywarehouse.presentation.common.composables.MyText
@@ -147,41 +149,18 @@ private fun DashboardContent(
                                 color = Primary
                             )
                         }
+                        Spacer(modifier = Modifier.size(15.mdp))
+                        ComboBox(
+                            items = state.warehouseList,
+                            selectedItem = state.selectedWarehouse,
+                            fillMaxWith = true,
+                            modifier = Modifier.fillMaxWidth(),
+                            widthFraction = 0.65f,
+                            listPadding = PaddingValues(1.mdp)
+                        ) {
+                            onEvent(DashboardContract.Event.OnSelectWarehouse(it))
+                        }
                         Spacer(modifier = Modifier.size(12.mdp))
-//                        Row(
-//                            Modifier
-//                                .fillMaxWidth()
-//                                .shadow(5.mdp, RoundedCornerShape(8.mdp))
-//                                .clip(RoundedCornerShape(8.mdp))
-//                                .background(Color.White)
-//                                .padding(5.mdp)
-//                        ) {
-//                            DashboardTab.entries.forEach {
-//                                Box(
-//                                    Modifier
-//                                        .weight(1f)
-//                                        .clip(RoundedCornerShape(6.mdp))
-//                                        .background(if (state.selectedTab == it) Primary else Color.Transparent)
-//                                        .clickable {
-//                                            onEvent(DashboardContract.Event.OnSelectTab(it))
-////                                            scope.launch {
-////                                                drawerState.close()
-////                                            }
-//                                        }
-//                                        .padding(8.mdp),
-//                                    contentAlignment = Alignment.Center
-//
-//                                ) {
-//                                    MyText(
-//                                        text = it.title,
-//                                        style = MaterialTheme.typography.bodyMedium,
-//                                        fontWeight = FontWeight.W500,
-//                                        color = if (state.selectedTab == it) Color.White else Primary
-//                                    )
-//                                }
-//                            }
-//                        }
-//                        Spacer(modifier = Modifier.size(15.mdp))
                         Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.SpaceBetween) {
                             AnimatedContent(state.subDrawerState, label = "drawer Animation") { subState ->
                                 when(subState){
@@ -199,7 +178,7 @@ private fun DashboardContent(
                                                     }
                                                 )
                                             }
-                                            items(state.dashboards.toList(),key = {it.first}){
+                                            items(state.dashboards.toList()){
                                                 val details = it.second.filter {item->
                                                     state.accessPermissions?.checkAccess(item) == true
                                                 }
@@ -257,8 +236,6 @@ private fun DashboardContent(
                                             }
                                             items(state.subDrawers.filter {
                                                 state.accessPermissions?.checkAccess(it) == true
-                                            }, key = {
-                                                it.title
                                             }){
                                                 DrawerItem(
                                                     title = it.title.replace('\n',' '),
@@ -439,19 +416,19 @@ private fun DashboardContent(
                             tint = Black
                         )
                     }
-//                    Box(
-//                        modifier = Modifier
-//                            .shadow(1.mdp, RoundedCornerShape(6.mdp))
-//                            .clip(RoundedCornerShape(6.mdp))
-//                            .background(Color.White)
-//                            .padding(13.mdp)
-//                    ) {
-//                        MyText(
-//                            text = state.selectedTab.title,
-//                            fontWeight = FontWeight.W500,
-//                            fontSize = 14.sp
-//                        )
-//                    }
+                    if (state.selectedWarehouse!=null) Box(
+                        modifier = Modifier
+                            .shadow(1.mdp, RoundedCornerShape(6.mdp))
+                            .clip(RoundedCornerShape(6.mdp))
+                            .background(Color.White)
+                            .padding(13.mdp)
+                    ) {
+                        MyText(
+                            text = state.selectedWarehouse.name,
+                            fontWeight = FontWeight.W500,
+                            fontSize = 14.sp
+                        )
+                    }
                 }
 
                 Spacer(Modifier.size(10.mdp))
