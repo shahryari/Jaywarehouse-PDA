@@ -1,6 +1,7 @@
 package com.linari.presentation.counting.contracts
 
 import androidx.compose.ui.text.input.TextFieldValue
+import com.linari.data.receiving.model.ReceivingDetailRow
 import com.linari.data.receiving.model.ReceivingModel
 import com.linari.data.receiving.model.ReceivingRow
 import com.linari.presentation.common.utils.Loading
@@ -28,6 +29,7 @@ class CountingContract {
         val page: Int = 1,
         val error: String = "",
         val lockKeyboard: Boolean = false,
+        val rowCount: Int = 0
     ) : UiState
 
     sealed class Event : UiEvent {

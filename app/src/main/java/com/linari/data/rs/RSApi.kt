@@ -10,6 +10,7 @@ import com.linari.data.shipping.models.DriverModel
 import com.linari.presentation.common.utils.Order
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
+import com.linari.data.rs.models.WaybillInfoModel
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.Header
@@ -40,6 +41,20 @@ interface RSApi {
 
     @POST("RSInterface")
     suspend fun rsInterface(
+        @Body jsonObject: JsonObject
+    ) : Response<ResultMessageModel>
+
+    @POST("WaybillInfoes")
+    suspend fun waybillInfoes(
+        @Body jsonObject: JsonObject,
+        @Header(PAGE) page: Int,
+        @Header(ROWS) rows: Int,
+        @Header(SORT) sort: String,
+        @Header(ORDER) order: String
+    ) : Response<WaybillInfoModel>
+
+    @POST("IntegerateWithRS")
+    suspend fun integerateWithRS(
         @Body jsonObject: JsonObject
     ) : Response<ResultMessageModel>
 }

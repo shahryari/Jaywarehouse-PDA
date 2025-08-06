@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <!-- Grant access to files in the cache directory -->
+    <cache-path name="my_images" path="." />
+    <!-- Grant access to files in the files directory -->
+    <files-path name="my_files" path="." />
+    <!-- Or grant access to the external storage directory -->
+    <external-path name="external_files" path="." />
+</paths>

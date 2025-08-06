@@ -6,9 +6,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import com.linari.R
@@ -20,6 +23,7 @@ import com.linari.presentation.common.composables.BaseListItem
 import com.linari.presentation.common.composables.BaseListItemModel
 import com.linari.presentation.common.composables.MyLazyColumn
 import com.linari.presentation.common.composables.MyScaffold
+import com.linari.presentation.common.composables.RowCountView
 import com.linari.presentation.common.composables.SearchInput
 import com.linari.presentation.common.composables.SortBottomSheet
 import com.linari.presentation.common.composables.TopBar
@@ -72,6 +76,13 @@ fun PurchaseOrderDetailContent(
 ){
     val focusRequester = remember {
         FocusRequester()
+    }
+    val listState = rememberLazyListState()
+
+    val lastItem = remember {
+        derivedStateOf {
+            listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+        }
     }
 
     LaunchedEffect(Unit) {
@@ -126,9 +137,16 @@ fun PurchaseOrderDetailContent(
                     },
                     onReachEnd = {
                         onEvent(PurchaseOrderDetailContract.Event.OnReachedEnd)
-                    }
+                    },
+                    state = listState
                 )
             }
+            RowCountView(
+                Modifier.align(Alignment.BottomCenter),
+                current = lastItem.value,
+                group = state.purchaseOrderDetailList.size,
+                total = state.rowCount
+            )
         }
 
     }
@@ -156,12 +174,12 @@ fun PurchaseDetailItem(
     BaseListItem(
         onClick = onClick,
         item1 = BaseListItemModel("Name",model.productName?:"", R.drawable.vuesax_outline_3d_cube_scan),
-        item2 = BaseListItemModel("Product Code",model.productCode?:"",R.drawable.note),
+        item2 = BaseListItemModel("Product Code",model.productCode?:"",R.drawable.keyboard2),
         item3 = BaseListItemModel("Barcode",model.barcodeNumber?:"",R.drawable.barcode),
         item4 = BaseListItemModel("PCB", model.pcb?.toString()?:"",R.drawable.hashtag),
-        quantity = model.sumReceiptQuantity?.removeZeroDecimal()?:"",
-        quantityTitle = "Quantity",
-        scan = model.sumPickingQty?.removeZeroDecimal()?.toString()?:"",
-        scanTitle = "Scan",
+        quantity = (model.sumReceiptQuantity?.removeZeroDecimal()?:"") + if (model.isWeight == true) " kg" else "",
+        quantityTitle = "Total",
+        scan = (model.sumPickingQty?.removeZeroDecimal() ?:"") + if (model.isWeight == true) " kg" else "",
+        scanTitle = "Qty",
     )
 }

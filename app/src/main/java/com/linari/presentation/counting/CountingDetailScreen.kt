@@ -7,26 +7,41 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.sp
 import com.linari.R
 import com.linari.data.common.utils.mdp
 import com.linari.data.common.utils.removeZeroDecimal
@@ -35,9 +50,11 @@ import com.linari.data.receiving.model.ReceivingRow
 import com.linari.presentation.common.composables.BaseListItem
 import com.linari.presentation.common.composables.BaseListItemModel
 import com.linari.presentation.common.composables.BasicDialog
+import com.linari.presentation.common.composables.MyIcon
 import com.linari.presentation.common.composables.MyLazyColumn
 import com.linari.presentation.common.composables.MyScaffold
 import com.linari.presentation.common.composables.MyText
+import com.linari.presentation.common.composables.RowCountView
 import com.linari.presentation.common.composables.SearchInput
 import com.linari.presentation.common.composables.SortBottomSheet
 import com.linari.presentation.common.composables.TopBar
@@ -51,6 +68,7 @@ import com.linari.ui.theme.Black
 import com.linari.ui.theme.Border
 import com.linari.ui.theme.Gray3
 import com.linari.ui.theme.Gray4
+import com.linari.ui.theme.Green
 import com.linari.ui.theme.Orange
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -93,6 +111,14 @@ fun CountingDetailContent(
 ) {
     val focusRequester = FocusRequester()
 
+    val listState = rememberLazyListState()
+
+    val lastItem = remember {
+        derivedStateOf {
+            listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+        }
+    }
+
     LaunchedEffect(key1 = Unit) {
         focusRequester.requestFocus()
         onEvent(CountingDetailContract.Event.FetchData)
@@ -123,7 +149,7 @@ fun CountingDetailContent(
             ) {
                 TopBar(
                     title = state.countingRow?.referenceNumber?:"",
-                    subTitle = "Counting",
+                    subTitle = stringResource(id = R.string.counting),
                     onBack = {
                         onEvent(CountingDetailContract.Event.OnNavBack)
                     }
@@ -146,18 +172,28 @@ fun CountingDetailContent(
                 MyLazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     items = state.countingDetailRow,
+                    state = listState,
+
                     itemContent = {_,it->
-                        CountingDetailItem(it) {
-                            onEvent(CountingDetailContract.Event.OnDetailClick(it))
-                        }
+                        CountingDetailItem(
+                            it,
+                            onClick = {
+                                onEvent(CountingDetailContract.Event.OnDetailClick(it))
+                            },
+                            confirmable = it.countQuantity == null,
+                            onConfirm = {
+                                onEvent(CountingDetailContract.Event.OnSelectDetail(it))
+                            }
+                        )
                     },
                     spacerSize = 7.mdp,
+                    endSpace = 100.mdp,
                     onReachEnd = {
                         onEvent(CountingDetailContract.Event.OnReachedEnd)
                     }
                 )
             }
-            if (state.countingDetailRow.isNotEmpty())Column(Modifier.align(Alignment.BottomCenter)) {
+            if (state.countingDetailRow.isNotEmpty()) Column(Modifier.align(Alignment.BottomCenter)) {
                 HorizontalDivider(thickness = 1.mdp,color = Border)
                 Row(
                     Modifier
@@ -180,7 +216,7 @@ fun CountingDetailContent(
                         )
                         Spacer(modifier = Modifier.size(10.mdp))
                         MyText(
-                            "Total: "+state.total.removeZeroDecimal().toString(),
+                            "${stringResource(id = R.string.total)}: "+state.total.removeZeroDecimal().toString(),
                             color = Color.Black,
                             style = MaterialTheme.typography.bodyLarge,
                             fontWeight = FontWeight.W500,
@@ -202,13 +238,19 @@ fun CountingDetailContent(
                         )
                         Spacer(modifier = Modifier.size(10.mdp))
                         MyText(
-                            "Count: "+state.scan.removeZeroDecimal().toString(),
+                            "${stringResource(id = R.string.count)}: "+state.scan.removeZeroDecimal().toString(),
                             style = MaterialTheme.typography.bodyLarge,
                             fontWeight = FontWeight.W500
                         )
 
                     }
                 }
+                HorizontalDivider(thickness = 1.mdp,color = Border)
+                RowCountView(
+                    current = lastItem.value,
+                    group = state.countingDetailRow.size,
+                    total = state.rowCount
+                )
             }
         }
     }
@@ -225,6 +267,17 @@ fun CountingDetailContent(
             },
         )
     }
+    if (state.selectedDetail != null){
+        ConfirmDialog(
+            onDismiss = {
+                onEvent(CountingDetailContract.Event.OnSelectDetail(null))
+            },
+            message = stringResource(id=R.string.counting_complete_confirm),
+            isLoading = state.isCompleting
+        ) {
+            onEvent(CountingDetailContract.Event.OnConfirm(state.selectedDetail))
+        }
+    }
 
 }
 
@@ -232,16 +285,16 @@ fun CountingDetailContent(
 fun ConfirmDialog(
     onDismiss: ()->Unit,
     title: String = "",
-    message: String = "Are you sure to remove this item?",
+    message: String = stringResource(R.string.remove_confirm),
     tint: Color = Orange,
     isLoading: Boolean = false,
     onConfirm: ()->Unit
 ) {
     BasicDialog(
         onDismiss = onDismiss,
-        positiveButton = "Yes",
+        positiveButton = stringResource(id = R.string.yes),
         positiveButtonTint = tint,
-        negativeButton = "Cancel",
+        negativeButton = stringResource(id = R.string.cancel),
         isLoading = isLoading,
         onPositiveClick = {
             onConfirm()
@@ -252,9 +305,10 @@ fun ConfirmDialog(
     ) {
         if (message.isNotEmpty())MyText(
             text = message,
-            style = MaterialTheme.typography.titleLarge,
+            fontSize = 17.sp,
             color = Color.Black,
-            fontWeight = FontWeight.W400
+            fontWeight = FontWeight.W400,
+            textAlign = TextAlign.Start
         )
 //        if (description.isNotEmpty() && message.isNotEmpty())Spacer(modifier = Modifier.size(5.mdp))
 //        if (description.isNotEmpty())MyText(
@@ -273,15 +327,25 @@ fun CountingDetailItem(
     model: ReceivingDetailRow,
     showDetail: Boolean = true,
     onClick: () -> Unit,
+    confirmable: Boolean = true,
+    onConfirm: () -> Unit = {}
 ) {
     BaseListItem(
         onClick = onClick,
-        item1 = BaseListItemModel("Name",model.productName,R.drawable.vuesax_outline_3d_cube_scan),
-        item2 = if (showDetail) BaseListItemModel("Product Code",model.productCode,R.drawable.note) else null,
-        item3 = if (showDetail) BaseListItemModel("Barcode",model.productBarcodeNumber?:"",R.drawable.barcode) else null,
-        item4 = if (showDetail) BaseListItemModel("Product Type",model.quiddityTypeTitle?:"",R.drawable.vuesax_linear_box) else null,
+        item1 = BaseListItemModel(stringResource(id = R.string.product_name),model.productName,R.drawable.vuesax_outline_3d_cube_scan),
+        item2 = if (showDetail) BaseListItemModel(stringResource(id = R.string.product_code),model.productCode,R.drawable.keyboard2) else null,
+        item3 = if (showDetail) BaseListItemModel(stringResource(id = R.string.barcode),model.productBarcodeNumber?:"",R.drawable.barcode) else null,
+        item4 = if (showDetail) BaseListItemModel(stringResource(id = R.string.product_type),model.quiddityTypeTitle?:"",R.drawable.vuesax_linear_box) else null,
         scan = (model.countQuantity?.removeZeroDecimal()?.toString() ?: "") + if (model.isWeight == true && model.countQuantity != null) " kg" else "",
-        scanTitle = "Count",
+        scanTitle = stringResource(id = R.string.count),
+        scanContent = {
+//           if (confirmable) MyIcon(
+//                icon = R.drawable.tick,
+//                onClick = {
+//                    onConfirm()
+//                }
+//            )
+        },
         quantity = model.quantity.removeZeroDecimal().toString() + if (model.isWeight == true) " kg" else "",
     )
 }

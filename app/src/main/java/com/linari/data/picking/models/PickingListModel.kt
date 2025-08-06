@@ -26,12 +26,16 @@ data class PickingListRow(
     val expDate: String?,
     @SerializedName("PickingID")
     val pickingID: Int,
+    @SerializedName("ShippingOrderID")
+    val shippingOrderID: Int,
     @SerializedName("ProductCode")
     val productCode: String?,
     @SerializedName("ProductName")
     val productName: String?,
     @SerializedName("Quantity")
     val quantity: Double,
+    @SerializedName("IsWeight")
+    val isWeight: Boolean?,
     @SerializedName("PurchaseOrderDetailID")
     val purchaseOrderDetailID: Int,
     @SerializedName("ReferenceNumber")

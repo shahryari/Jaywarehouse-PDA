@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
@@ -24,6 +25,8 @@ import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,6 +44,7 @@ import com.linari.data.pallet.model.PalletConfirmRow
 import com.linari.presentation.common.composables.MyLazyColumn
 import com.linari.presentation.common.composables.MyScaffold
 import com.linari.presentation.common.composables.MyText
+import com.linari.presentation.common.composables.RowCountView
 import com.linari.presentation.common.composables.SearchInput
 import com.linari.presentation.common.composables.SortBottomSheet
 import com.linari.presentation.common.composables.TopBar
@@ -96,6 +100,13 @@ fun LoadingDetailContent(
     onEvent: (LoadingDetailContract.Event)->Unit = {}
 ) {
     val focusRequester = FocusRequester()
+    val listState = rememberLazyListState()
+
+    val lastItem = remember {
+        derivedStateOf {
+            listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+        }
+    }
     LaunchedEffect(key1 = Unit) {
         focusRequester.requestFocus()
     }
@@ -117,6 +128,7 @@ fun LoadingDetailContent(
         Box(
             Modifier
                 .fillMaxSize()) {
+
             Column(
                 Modifier
                     .fillMaxSize()
@@ -157,9 +169,16 @@ fun LoadingDetailContent(
                         onEvent(LoadingDetailContract.Event.OnReachEnd)
 
                     },
+                    state = listState,
                     spacerSize = 7.mdp
                 )
             }
+            RowCountView(
+                modifier = Modifier.align(Alignment.BottomCenter),
+                current = lastItem.value,
+                group = state.details.size,
+                total = state.rowCount
+            )
         }
     }
     if (state.showSortList){
@@ -221,7 +240,7 @@ fun LoadingDetailItem(
                 Modifier.fillMaxSize()
                     .shadow(1.mdp, RoundedCornerShape(6.mdp))
                     .clip(RoundedCornerShape(6.mdp))
-                    .background(Green)
+                    .background(Primary)
                     .padding(vertical = 6.mdp, horizontal = 8.mdp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Start
@@ -233,9 +252,10 @@ fun LoadingDetailItem(
                 )
                 Spacer(Modifier.size(10.mdp))
                 MyText(
-                    text = "",
+                    text = "Confirm",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.W500,
+                    color = Color.White
                 )
             }
         }

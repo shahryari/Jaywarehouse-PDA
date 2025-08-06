@@ -17,15 +17,16 @@ class PutawayContract {
         val loadingState: Loading = Loading.NONE,
         val error: String = "",
         val sortList: List<SortItem> = listOf(
-            SortItem("Barcode Ascending", "Barcode",Order.Desc),
-            SortItem("Barcode Descending", "Barcode",Order.Asc),
-            SortItem("Reference Number Descending", "ReferenceNumber",Order.Desc),
-            SortItem("Reference Number Ascending", "ReferenceNumber",Order.Asc)
+            SortItem("Supplier A-Z", "SupplierName",Order.Asc),
+            SortItem("Supplier Z-A", "SupplierName",Order.Desc),
+            SortItem("Reference Number Ascending", "ReferenceNumber",Order.Asc),
+            SortItem("Reference Number Descending", "ReferenceNumber",Order.Desc)
         ),
         val sort: SortItem = sortList.first(),
         val page: Int = 1,
         val showSortList: Boolean = false,
-        val lockKeyboard: Boolean = false
+        val lockKeyboard: Boolean = false,
+        val rowCount: Int = 0
     ) : UiState
 
     sealed class Event : UiEvent {

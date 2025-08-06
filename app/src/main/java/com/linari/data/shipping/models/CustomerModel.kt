@@ -14,6 +14,6 @@ data class CustomerRow(
     @SerializedName("CustomerCode") val customerCode: String
 ) {
     override fun toString(): String {
-        return customerName
+        return "${customerName.trim().trimIndent()}($customerCode)"
     }
 }

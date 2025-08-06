@@ -15,12 +15,14 @@ class PutawayRepository(
 ) {
     fun getPutawayListGrouped(
         keyword: String,
+        warehouseID: Int,
         page: Int,
         sort: String,
         order: String
     ) : Flow<BaseResult<PutawayListGroupedModel>> {
         val jsonObject = JsonObject()
         jsonObject.addProperty("Keyword",keyword)
+        jsonObject.addProperty("WarehouseID",warehouseID)
         return getResult(
             request = {
                 api.getPutawayListGrouped(

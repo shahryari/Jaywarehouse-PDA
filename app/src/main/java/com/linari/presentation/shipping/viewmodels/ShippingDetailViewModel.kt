@@ -129,7 +129,7 @@ class ShippingDetailViewModel(
                 }
             }
             viewModelScope.launch(Dispatchers.IO) {
-                repository.getShipping(shipping.shippingID)
+                repository.getShipping(shipping.shippingID, warehouseID = prefs.getWarehouse()!!.id)
                     .catch {
                         setSuspendedState {
                             copy(error = it.message?:"", loadingState = Loading.NONE)
@@ -162,7 +162,7 @@ class ShippingDetailViewModel(
                                     ))
                                 }
                             }
-                            BaseResult.UnAuthorized -> TODO()
+                            BaseResult.UnAuthorized -> {}
                         }
                     }
             }
@@ -181,7 +181,7 @@ class ShippingDetailViewModel(
                 }
             }
             viewModelScope.launch(Dispatchers.IO) {
-                repository.getPalletProductList(palletManifest.palletManifestID.toString())
+                repository.getShippingDetailListOfPallet(palletManifest.palletManifestID)
                     .catch {
                         setSuspendedState {
                             copy(error = it.message?:"", isProductLoading = false)

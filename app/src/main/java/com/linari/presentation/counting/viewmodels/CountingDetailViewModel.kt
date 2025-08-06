@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.linari.data.common.utils.BaseResult
 import com.linari.data.common.utils.Prefs
 import com.linari.data.common.utils.ROW_COUNT
+import com.linari.data.receiving.model.ReceivingDetailRow
 import com.linari.data.receiving.model.ReceivingRow
 import com.linari.data.receiving.repository.ReceivingRepository
 import com.linari.presentation.common.utils.BaseViewModel
@@ -12,6 +13,7 @@ import com.linari.presentation.common.utils.Loading
 import com.linari.presentation.common.utils.Order
 import com.linari.presentation.counting.contracts.CountingDetailContract
 import com.linari.presentation.counting.contracts.CountingDetailContract.Effect.OnNavToInception
+import com.linari.presentation.counting.contracts.CountingInceptionContract
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
@@ -72,7 +74,7 @@ class CountingDetailViewModel(
 
             is CountingDetailContract.Event.OnSelectDetail -> {
                 setState {
-                    copy(selectedDetail = event.barcode)
+                    copy(selectedDetail = event.detail)
                 }
             }
 
@@ -139,6 +141,10 @@ class CountingDetailViewModel(
                 }
                 getReceivingDetailList()
             }
+
+            is CountingDetailContract.Event.OnConfirm -> {
+                done(event.detail)
+            }
         }
     }
 
@@ -156,25 +162,27 @@ class CountingDetailViewModel(
                             copy(error = it.message?:"", loadingState = Loading.NONE)
                         }
                     }
-                    .collect {
+                    .collect {result->
                         setSuspendedState {
                             copy(loadingState = Loading.NONE)
                         }
-                        when(it){
+                        when(result){
                             is BaseResult.Error -> {
                                 setSuspendedState {
-                                    copy(error = it.message)
+                                    copy(error = result.message)
                                 }
                             }
                             is BaseResult.Success -> {
 
-                                val list = state.countingDetailRow + (it.data?.rows?: emptyList())
+                                val list = state.countingDetailRow + (result.data?.rows?: emptyList())
                                 setSuspendedState {
                                     copy(
-                                        countingDetailModel = it.data,
+                                        countingDetailModel = result.data,
                                         countingDetailRow = list,
-                                        total = it.data?.rows?.sumOf { it.quantity } ?:0.0,
-                                        scan = it.data?.rows?.sumOf { it.countQuantity?:0.0 }?:0.0
+                                        total = result.data?.receiving?.total ?: list.sumOf { it.quantity },
+                                        scan = result.data?.receiving?.count ?:list.sumOf { it.countQuantity?:0.0 },
+                                        rowCount = result.data?.total?:0,
+
                                     )
                                 }
                                 if (loading != Loading.SEARCHING && list.isEmpty()){
@@ -186,6 +194,48 @@ class CountingDetailViewModel(
                             else ->{}
                         }
                     }
+            }
+        }
+    }
+
+    fun done(detail: ReceivingDetailRow) {
+        if (!state.isCompleting) {
+            setState {
+                copy(isCompleting = true)
+            }
+            viewModelScope.launch(Dispatchers.IO){
+                repository.receivingWorkerTaskDone(
+                    detail.receivingWorkerTaskID,
+                    isCrossDock
+                ).catch {
+                    setSuspendedState {
+                        copy(error = it.message?:"", isCompleting = false, selectedDetail = null)
+                    }
+                }.collect {
+                    setSuspendedState {
+                        copy(isCompleting = false, selectedDetail = null)
+                    }
+                    when(it){
+                        is BaseResult.Error -> {
+                            setSuspendedState {
+                                copy(error = it.message)
+                            }
+                        }
+                        is BaseResult.Success -> {
+                            if (it.data?.isSucceed == true){
+                                setSuspendedState {
+                                    copy(toast = it.data.messages.firstOrNull()?:"Finished successfully", page = 1, countingDetailRow = emptyList())
+                                }
+                                getReceivingDetailList()
+                            } else {
+                                setSuspendedState {
+                                    copy(error = it.data?.messages?.firstOrNull()?:"Failed")
+                                }
+                            }
+                        }
+                        BaseResult.UnAuthorized -> {}
+                    }
+                }
             }
         }
     }

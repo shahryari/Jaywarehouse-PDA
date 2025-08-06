@@ -141,7 +141,8 @@ class ManualPutawayViewModel(
                     is BaseResult.Success -> {
                         setSuspendedState {
                             copy(
-                                putaways = putaways + (it.data?.rows?: emptyList())
+                                putaways = putaways + (it.data?.rows?: emptyList()),
+                                rowCount = it.data?.total?:0
                             )
                         }
                     }

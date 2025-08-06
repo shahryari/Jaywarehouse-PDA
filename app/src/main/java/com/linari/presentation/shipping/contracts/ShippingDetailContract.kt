@@ -26,7 +26,7 @@ class ShippingDetailContract {
         val sort: SortItem = sortList.first(),
         val keyword: String = "",
         val selectedPallet: PalletManifest? = null,
-        val productList: List<PalletManifestProductRow> = emptyList(),
+        val productList: List<ShippingDetailListOfPalletRow> = emptyList(),
         val loadingState: Loading = Loading.NONE,
         val page: Int = 1,
         val productPage: Int = 1,

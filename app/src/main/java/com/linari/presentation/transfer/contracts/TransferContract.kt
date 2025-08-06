@@ -19,20 +19,24 @@ class TransferContract {
         val transferList: List<TransferRow> = emptyList(),
         val keyword: String = "",
         val loadingState: Loading = Loading.NONE,
+        val locationKeyword: TextFieldValue = TextFieldValue(),
+        val productCodeKeyword: TextFieldValue = TextFieldValue(),
+        val barcodeKeyword: TextFieldValue = TextFieldValue(),
         val error: String = "",
         val toast: String = "",
         val sortList: List<SortItem> = listOf(
-            SortItem("Created On closed to now", "CreatedOn",Order.Desc),
-            SortItem("Created On farthest from now", "CreatedOn",Order.Asc),
-            SortItem("Receiving Number Descending", "Receiving",Order.Desc),
-            SortItem("Receiving Number Ascending", "Receiving",Order.Asc),
-            SortItem("Most Progress", "Progress",Order.Desc),
-            SortItem("Least Progress", "Progress",Order.Asc)
+            SortItem("Barcode Ascending","ProductBarcodeNumber",Order.Asc),
+            SortItem("Barcode Descending","ProductBarcodeNumber",Order.Desc),
+            SortItem("Product Code Ascending","ProductCode",Order.Asc),
+            SortItem("Product Code Descending","ProductCode",Order.Desc),
+            SortItem("Location A-Z","LocationCode",Order.Asc),
+            SortItem("Location Z-A","LocationCode",Order.Desc)
         ),
         val sort: SortItem = sortList.first(),
         val page: Int = 1,
         val selectedTransfer: TransferRow? = null,
         val showSortList: Boolean = false,
+        val hasTransfer: Boolean = false,
         val lockKeyboard: Boolean = false,
         //transfer
         val destination: TextFieldValue = TextFieldValue(),
@@ -45,6 +49,8 @@ class TransferContract {
         val selectedLocation: WarehouseLocationRow? = null,
         val locationList: List<WarehouseLocationRow> = emptyList(),
         val isSaving: Boolean = false,
+        val rowCount: Int = 0,
+        val showStatusList: Boolean = false,
     ) : UiState
 
     sealed class Event : UiEvent {
@@ -57,6 +63,9 @@ class TransferContract {
         data class OnSearch(val keyword: String): Event()
         data object OnRefresh: Event()
         data object OnBackPressed: Event()
+        data class ChangeLocationKeyword(val keyword: TextFieldValue) : Event()
+        data class ChangeProductCodeKeyword(val keyword: TextFieldValue) : Event()
+        data class ChangeBarcodeKeyword(val keyword: TextFieldValue) : Event()
         data class OnSelectTransfer(val transferRow: TransferRow?) : Event()
         //transfer
         data class OnChangeDestination(val destination: TextFieldValue) : Event()
@@ -67,6 +76,7 @@ class TransferContract {
         data class OnShowDatePicker(val show: Boolean) : Event()
         data class OnSelectProductStatus(val productStatus: ProductStatusRow?) : Event()
         data class OnSelectWarehouseLocation(val location: WarehouseLocationRow?) : Event()
+        data class OnShowStatusList(val show: Boolean) : Event()
 
     }
 

@@ -26,10 +26,10 @@ fun <T : Animatable>MyLazyColumn(
     itemContent: @Composable (Int,T) -> Unit,
     state: LazyListState = rememberLazyListState(),
     header: @Composable ()->Unit = {},
+    endSpace: Dp = 60.mdp,
     onReachEnd: ()->Unit,
     spacerSize: Dp = 10.mdp
 ) {
-
     LazyColumn(modifier,state = state) {
         stickyHeader { header() }
         itemsIndexed(items, key = {i,it->it.key()+i}){i,it->
@@ -41,10 +41,11 @@ fun <T : Animatable>MyLazyColumn(
             }
         }
         item {
-            Spacer(Modifier.size(60.mdp))
+            Spacer(Modifier.size(endSpace))
         }
         item {
             onReachEnd()
         }
     }
+
 }

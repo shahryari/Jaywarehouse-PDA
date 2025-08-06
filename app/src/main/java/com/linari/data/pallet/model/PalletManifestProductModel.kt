@@ -15,6 +15,7 @@ data class PalletManifestProductRow(
     @SerializedName("ProductBarcodeNumber") val barcode: String?,
     @SerializedName("CheckQuantity") val checkQuantity: Double?,
     @SerializedName("CheckingID") val checkingID: Int,
+    @SerializedName("IsWeight") val isWeight: Boolean?,
     @SerializedName("ReferenceNumberLPO") val referenceNumberLPO : String?,
     @SerializedName("ReferenceNumberPO") val referenceNumberPO: String?
 ) : Animatable {

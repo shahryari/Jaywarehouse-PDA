@@ -19,6 +19,7 @@ class ReceivingRepository(
     suspend fun getReceivingList(
         keyword: String,
         isCrossDock: Boolean,
+        warehouseID: Int,
         page: Int,
         rows: Int,
         order: String,
@@ -26,6 +27,7 @@ class ReceivingRepository(
     ) : Flow<BaseResult<ReceivingModel>> {
         val jsonObject = JsonObject()
         jsonObject.addProperty("Keyword",keyword)
+        jsonObject.addProperty("WarehouseID",warehouseID)
 //        jsonObject.addProperty("ReceivingType",if (isCrossDock) 2 else 1)
         return getResult(
             request = {

@@ -28,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
@@ -139,7 +140,7 @@ fun CountingInceptionContent(
                 .padding(15.mdp)) {
             TopBar(
                 title = state.countingDetailRow?.referenceNumber?:"",
-                subTitle = "Counting/Inception",
+                subTitle = stringResource(R.string.counting_inception),
                 onBack = {
                     onEvent(CountingInceptionContract.Event.OnBack)
                 },
@@ -161,25 +162,29 @@ fun CountingInceptionContent(
                     },
                     header = {
                         Column {
-                            CountingDetailItem(state.countingDetailRow, showDetail = showDetail){
-                                showDetail = !showDetail
-                            }
+                            CountingDetailItem(state.countingDetailRow,
+                                showDetail = showDetail,
+                                onClick = {
+                                    showDetail = !showDetail
+                                },
+                                confirmable = false
+                            )
                             Spacer(Modifier.size(10.mdp))
 
+                            InputTextField(
+                                state.quantityInPacket,
+                                onValueChange = {
+                                    onEvent(CountingInceptionContract.Event.OnChangeQuantityInPacket(it))
+                                },
+                                modifier = Modifier.fillMaxWidth(),
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
+                                leadingIcon = R.drawable.vuesax_outline_box_tick,
+                                required = true,
+                                enabled = state.pcbEnabled,
+                                label = stringResource(R.string.pcb),
+                            )
+                            Spacer(Modifier.size(7.mdp))
                             Row(Modifier.fillMaxWidth()) {
-                                InputTextField(
-                                    state.quantityInPacket,
-                                    onValueChange = {
-                                        onEvent(CountingInceptionContract.Event.OnChangeQuantityInPacket(it))
-                                    },
-                                    modifier = Modifier.weight(1f),
-                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
-                                    leadingIcon = R.drawable.barcode,
-                                    required = true,
-                                    enabled = state.pcbEnabled,
-                                    label = "Pcb",
-                                )
-                                Spacer(Modifier.size(7.mdp))
                                 InputTextField(
                                     state.quantity,
                                     onValueChange = {
@@ -191,21 +196,22 @@ fun CountingInceptionContent(
                                     required = state.details.isEmpty(),
                                     modifier = Modifier.weight(1f),
                                     suffix = "Kg",
-                                    label = "Weight",
+                                    label = stringResource(R.string.weight),
+                                )
+                                Spacer(Modifier.size(7.mdp))
+                                InputTextField(
+                                    state.boxQuantity,
+                                    onValueChange = {
+                                        onEvent(CountingInceptionContract.Event.OnChangeBoxQuantity(it))
+                                    },
+                                    modifier = Modifier.weight(1f),
+                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
+                                    leadingIcon = R.drawable.vuesax_linear_box,
+                                    required = state.details.isEmpty(),
+                                    label = stringResource(R.string.pack),
                                 )
                             }
-                            Spacer(Modifier.size(7.mdp))
-                            InputTextField(
-                                state.boxQuantity,
-                                onValueChange = {
-                                    onEvent(CountingInceptionContract.Event.OnChangeBoxQuantity(it))
-                                },
-                                modifier = Modifier.fillMaxWidth(),
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
-                                leadingIcon = R.drawable.vuesax_linear_box,
-                                required = state.details.isEmpty(),
-                                label = "Pack",
-                            )
+
                             if (state.locationBase){
                                 Spacer(Modifier.size(7.mdp))
 
@@ -228,7 +234,7 @@ fun CountingInceptionContent(
                                         onClick = {
                                             onEvent(CountingInceptionContract.Event.OnShowDatePicker(true))
                                         },
-                                        label = "Exp Date",
+                                        label = stringResource(R.string.exp_date),
                                     )
                                     if (state.expEnabled && state.batchNumberEnabled)Spacer(Modifier.size(7.mdp))
                                     if (state.batchNumberEnabled) InputTextField(
@@ -239,7 +245,7 @@ fun CountingInceptionContent(
                                         modifier = Modifier.weight(1f),
                                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                                         leadingIcon = R.drawable.keyboard,
-                                        label = "Batch No.",
+                                        label = stringResource(R.string.batch_number),
                                     )
                                 }
                             }
@@ -275,10 +281,11 @@ fun CountingInceptionContent(
 
                             AnimatedVisibility(state.details.isNotEmpty()) {
                                 DetailHeader(
-                                    "Weight",
-                                    "Pack",
-                                    if (state.batchNumberEnabled && state.locationBase)"Batch No." else "",
-                                    if (state.expEnabled && state.locationBase)"Exp Date" else ""
+                                    stringResource(R.string.weight),
+                                    stringResource(R.string.pack),
+                                    stringResource(R.string.pcb),
+                                    if (state.batchNumberEnabled && state.locationBase)stringResource(R.string.batch_number) else "",
+                                    if (state.expEnabled && state.locationBase)stringResource(R.string.exp_date) else ""
                                 )
                             }
 
@@ -302,9 +309,13 @@ fun CountingInceptionContent(
                     header = {
                         Column(Modifier.background(Background)) {
                             if (state.countingDetailRow!=null){
-                                CountingDetailItem(state.countingDetailRow, showDetail = showDetail){
-                                    showDetail = !showDetail
-                                }                            }
+                                CountingDetailItem(state.countingDetailRow,
+                                    showDetail = showDetail,
+                                    onClick = {
+                                        showDetail = !showDetail
+                                    },
+                                    confirmable = false
+                                )                            }
                             Spacer(Modifier.size(10.mdp))
                             Row(Modifier.fillMaxWidth()) {
                                 InputTextField(
@@ -314,12 +325,15 @@ fun CountingInceptionContent(
                                     },
                                     modifier = Modifier.weight(1f),
                                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
-                                    leadingIcon = R.drawable.barcode,
+                                    leadingIcon = R.drawable.vuesax_outline_box_tick,
                                     required = state.pcbEnabled && (!state.locationBase || (!state.batchNumberEnabled || !state.expEnabled)),
                                     enabled = state.pcbEnabled,
-                                    label = "Pcb",
+                                    label = stringResource(R.string.pcb),
                                 )
-                                Spacer(Modifier.size(7.mdp))
+
+                            }
+                            Spacer(Modifier.size(7.mdp))
+                            Row(Modifier.fillMaxWidth()) {
                                 InputTextField(
                                     state.quantity,
                                     onValueChange = {
@@ -329,11 +343,9 @@ fun CountingInceptionContent(
                                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
                                     leadingIcon = R.drawable.box_search,
                                     required = true,
-                                    label = "Quantity",
+                                    label = stringResource(R.string.quantity),
                                 )
-                            }
-                            Spacer(Modifier.size(7.mdp))
-                            Row(Modifier.fillMaxWidth()) {
+                                Spacer(Modifier.size(7.mdp))
                                 InputTextField(
                                     state.boxQuantity,
                                     onValueChange = {
@@ -342,9 +354,10 @@ fun CountingInceptionContent(
                                     modifier = Modifier.weight(1f),
                                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
                                     leadingIcon = R.drawable.vuesax_linear_box,
-                                    required = true,
-                                    enabled = boxVisibility,
-                                    label = "Pack",
+//                                    required = true,
+                                    enabled = false,
+//                                    enabled = boxVisibility,
+                                    label = stringResource(R.string.pack),
                                 )
 //                                Spacer(Modifier.weight(1f))
                             }
@@ -370,7 +383,7 @@ fun CountingInceptionContent(
                                         onClick = {
                                             onEvent(CountingInceptionContract.Event.OnShowDatePicker(true))
                                         },
-                                        label = "Exp Date",
+                                        label = stringResource(R.string.exp_date),
                                     )
                                     if (state.expEnabled && state.batchNumberEnabled)Spacer(Modifier.size(7.mdp))
                                     if (state.batchNumberEnabled)InputTextField(
@@ -381,7 +394,7 @@ fun CountingInceptionContent(
                                         modifier = Modifier.weight(1f),
                                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                                         leadingIcon = R.drawable.keyboard,
-                                        label = "Batch No.",
+                                        label = stringResource(R.string.batch_number),
                                     )
                                 }
                             }
@@ -414,10 +427,11 @@ fun CountingInceptionContent(
                             Spacer(Modifier.size(20.mdp))
                             AnimatedVisibility(state.details.isNotEmpty()) {
                                 DetailHeader(
-                                    "Qty",
-                                    "Pack",
-                                    if (state.batchNumberEnabled && state.locationBase)"Batch No." else "",
-                                    if (state.expEnabled && state.locationBase)"Exp Date" else ""
+                                    stringResource(R.string.qty),
+                                    stringResource(R.string.pack),
+                                    stringResource(R.string.pcb),
+                                    if (state.batchNumberEnabled && state.locationBase)stringResource(R.string.batch_number) else "",
+                                    if (state.expEnabled && state.locationBase) stringResource(R.string.exp_date) else ""
                                 )
                             }
 
@@ -487,8 +501,9 @@ fun CountingInceptionDetailItem(
         i,
         first = model.countQuantity.removeZeroDecimal() + if (isWeight) " kg" else "",
         second = model.pack?.toString()?:"",
-        third = model.batchNumber?:"",
-        forth = model.expireDate?:"",
+        third = model.pCB.removeZeroDecimal(),
+        forth = model.batchNumber?:"",
+        fifth = model.expireDate?:"",
         onRemove = onRemove,
         selected = selected
     )

@@ -19,6 +19,7 @@ class CheckingContract {
         val keyword: String = "",
         val loadingState: Loading = Loading.NONE,
         val error: String = "",
+
         val sortList: List<SortItem> = listOf(
             SortItem("Customer Name A-Z","CustomerName",Order.Asc) ,
             SortItem("Customer Name Z-A","CustomerName",Order.Desc),
@@ -28,7 +29,8 @@ class CheckingContract {
         val sort: SortItem = sortList.first(),
         val page: Int = 1,
         val showSortList: Boolean = false,
-        val lockKeyboard: Boolean = false
+        val lockKeyboard: Boolean = false,
+        val rowCount: Int = 0,
     ) : UiState
 
     sealed class Event : UiEvent {

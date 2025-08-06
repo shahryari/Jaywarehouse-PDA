@@ -23,8 +23,10 @@ data class CheckingListGroupedRow(
     val customerName: String,
     @SerializedName("CustomerTypeTitle")
     val customerTypeTitle: String?,
-    @SerializedName("GroupedProductCount")
-    val groupedProductCount: Int
+    @SerializedName("Count")
+    val count: Double,
+    @SerializedName("SumQuantity")
+    val sumQuantity: Double?
 ) : Serializable, Animatable {
     override fun key(): String {
         return customerID.toString()

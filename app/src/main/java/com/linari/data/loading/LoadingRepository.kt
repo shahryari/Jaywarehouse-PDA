@@ -14,13 +14,14 @@ class LoadingRepository(private val api: LoadingApi) {
 
     fun getLoadingListGrouped(
         keyword: String,
+        warehouseID: Int,
         page: Int,
         sort: String,
         order: String
     ) : Flow<BaseResult<LoadingListGroupedModel>> {
         val jsonObject = JsonObject()
         jsonObject.addProperty("Keyword",keyword)
-
+        jsonObject.addProperty("WarehouseID",warehouseID)
         return getResult(
             request = {
                 api.getLoadingListGrouped(jsonObject,page,ROW_COUNT,sort,order)
@@ -32,6 +33,7 @@ class LoadingRepository(private val api: LoadingApi) {
     fun getLoadingList(
         keyword: String,
         customerCode: String,
+        warehouseID: Int,
         page: Int,
         sort: String,
         order: String
@@ -39,6 +41,7 @@ class LoadingRepository(private val api: LoadingApi) {
         val jsonObject = JsonObject()
         jsonObject.addProperty("Keyword",keyword)
         jsonObject.addProperty("CustomerCode",customerCode)
+        jsonObject.addProperty("WarehouseID",warehouseID)
 
         return getResult(
             request = {

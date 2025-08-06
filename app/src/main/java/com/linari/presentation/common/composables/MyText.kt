@@ -1,10 +1,12 @@
 package com.linari.presentation.common.composables
 
+import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -56,6 +58,51 @@ fun MyText(
         softWrap,
         maxLines,
         minLines,
+        onTextLayout,
+        if (style == LocalTextStyle.current || style == TextStyle.Default) style else style.copy(fontSize = style.fontSize.times(factor))
+    )
+}
+
+
+@Composable
+fun MyText(
+    text: AnnotatedString,
+    modifier: Modifier = Modifier,
+    color: Color = Black,
+    fontSize: TextUnit = TextUnit.Unspecified,
+    fontStyle: FontStyle? = null,
+    fontWeight: FontWeight? = FontWeight.W500,
+    fontFamily: FontFamily = roboto,
+    letterSpacing: TextUnit = TextUnit.Unspecified,
+    textDecoration: TextDecoration? = null,
+    textAlign: TextAlign? = null,
+    lineHeight: TextUnit = TextUnit.Unspecified,
+    overflow: TextOverflow = TextOverflow.Clip,
+    softWrap: Boolean = true,
+    maxLines: Int = Int.MAX_VALUE,
+    minLines: Int = 1,
+    inlineContent: Map<String, InlineTextContent> = mapOf(),
+    onTextLayout: (TextLayoutResult) -> Unit = { },
+    style: TextStyle = LocalTextStyle.current
+) {
+    val factor = localWindowFactor.current
+    Text(
+        text,
+        modifier,
+        color,
+        if(fontSize != TextUnit.Unspecified)fontSize.times(factor) else fontSize,
+        fontStyle,
+        fontWeight,
+        fontFamily,
+        letterSpacing,
+        textDecoration,
+        textAlign,
+        lineHeight,
+        overflow,
+        softWrap,
+        maxLines,
+        minLines,
+        inlineContent,
         onTextLayout,
         if (style == LocalTextStyle.current || style == TextStyle.Default) style else style.copy(fontSize = style.fontSize.times(factor))
     )

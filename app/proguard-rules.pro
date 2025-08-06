@@ -20,4 +20,4 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 #-printusage /home/mohyeddin/AndroidStudioProjects/JayWarehouse2/app/release/usage.txt
--keep class com.example.jaywarehouse.** {*;}
+-keep class com.linari.** {*;}

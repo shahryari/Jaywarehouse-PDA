@@ -2,6 +2,7 @@ package com.linari.presentation.common.composables
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -30,6 +32,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -38,6 +41,7 @@ import com.linari.R
 import com.linari.data.common.utils.mdp
 import com.linari.data.common.utils.removeZeroDecimal
 import com.linari.ui.theme.Black
+import com.linari.ui.theme.Border
 import com.linari.ui.theme.Gray3
 import com.linari.ui.theme.Gray4
 import com.linari.ui.theme.Primary
@@ -66,11 +70,14 @@ fun BaseListItem(
     showDeleteButton: Boolean = false,
     onRemove: ()->Unit = {},
     quantity: Double?,
-    quantityTitle: String = "Total",
+    onQuantityClick: (()-> Unit)? = null,
+    quantityTitle: String = stringResource(id = R.string.total),
     quantityIcon: Int? = null,
+    showInCard: Boolean = true,
     scan: Double?,
     enableShowDetail: Boolean = false,
-    scanTitle: String = "Scan",
+    scanTitle: String = stringResource(R.string.scan),
+    onScanClick: (()->Unit)? = null,
     showFooter: Boolean = true,
     expandable: Boolean = false,
     scanContent: (@Composable ()->Unit)? = null,
@@ -88,12 +95,15 @@ fun BaseListItem(
     item8 = item8,
     item9 = item9,
     showDeleteButton = showDeleteButton,
+    showInCard = showInCard,
     onRemove = onRemove,
     quantity = quantity?.removeZeroDecimal()?.toString(),
+    onQuantityClick = onQuantityClick,
     enableShowDetail = enableShowDetail,
     quantityTitle = quantityTitle,
     quantityIcon = quantityIcon,
     scan = scan?.removeZeroDecimal()?.toString(),
+    onScanClick = onScanClick,
     scanTitle = scanTitle,
     showFooter = showFooter,
     expandable = expandable,
@@ -115,12 +125,15 @@ fun BaseListItem(
     item8: BaseListItemModel? = null,
     item9: BaseListItemModel? = null,
     showDeleteButton: Boolean = false,
+    showInCard: Boolean = true,
     onRemove: ()->Unit = {},
     quantity: String?,
+    onQuantityClick: (() -> Unit)? = null,
     primary: Boolean = false,
     quantityTitle: String = "Total",
     quantityIcon: Int? = null,
     scan: String?,
+    onScanClick: (() -> Unit)? = null,
     enableShowDetail: Boolean = false,
     expandable: Boolean = false,
     scanTitle: String = "Scan",
@@ -143,9 +156,14 @@ fun BaseListItem(
     }
     Column(
         modifier = modifier
-            .shadow(3.mdp, RoundedCornerShape(10.mdp))
             .fillMaxWidth()
-            .clip(RoundedCornerShape(10.mdp))
+            .then(
+                if (showInCard) Modifier
+                            .shadow(3.mdp, RoundedCornerShape(10.mdp))
+                            .clip(RoundedCornerShape(10.mdp))
+                else Modifier
+
+            )
             .clickable {
                 onClick()
             }
@@ -315,37 +333,64 @@ fun BaseListItem(
             ) {
                 if (quantity != null)Row(
                     Modifier
+                        .then(if (onQuantityClick!=null) Modifier.shadow(2.mdp,RoundedCornerShape(bottomStart = 10.mdp)) else Modifier)
                         .weight(1f)
+                        .height(45.mdp)
                         .background(
                             if (primary) Primary else Gray3
                         )
-                        .padding(12.mdp),
+                        .then(
+                            if (onQuantityClick!=null) Modifier
+                                .border(1.mdp, Border,RoundedCornerShape(bottomStart = 10.mdp))
+                                .clickable {
+                                onQuantityClick()
+                            } else Modifier
+                        )
+                        .padding(horizontal = 9.mdp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     if (quantityIcon!=null){
                         Icon(
                             painter = painterResource(id = quantityIcon),
                             contentDescription = "",
-                            modifier = Modifier.size(28.mdp),
+                            modifier = Modifier.size(26.mdp),
                             tint = Color.Black
                         )
                         Spacer(modifier = Modifier.size(7.mdp))
                     }
                     MyText(
-                        text = "$quantityTitle${if (quantityTitle.isNotEmpty()) ": " else ""}$quantity",
-                        color = if (primary) Color.White else Black,
+                        text = "$quantityTitle${if (quantityTitle.isNotEmpty()) ": " else ""}",
+                        color = if (primary) Primary else Black,
                         style = MaterialTheme.typography.bodyLarge,
-                        fontSize = 16.sp,
+                        fontSize = 14.sp,
+                        lineHeight = 15.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                    MyText(
+                        text = quantity,
+                        color = if (primary) Primary else Black,
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontSize = 15.sp,
+                        lineHeight = 15.sp,
                         fontWeight = FontWeight.Medium
                     )
                 }
                 if (scan!=null)Row(
                     Modifier
+                        .then(if (onScanClick!=null) Modifier.shadow(2.mdp,RoundedCornerShape(bottomEnd = 10.mdp)) else Modifier)
                         .weight(1f)
+                        .height(45.mdp)
                         .background(
                             if (primary) Primary.copy(0.2f) else Gray4
                         )
-                        .padding(12.mdp),
+                        .then(
+                            if (onScanClick!=null) Modifier
+                                .border(1.mdp, Border,RoundedCornerShape(bottomEnd = 10.mdp))
+                                .clickable {
+                                onScanClick()
+                            } else Modifier
+                        )
+                        .padding(horizontal = 9.mdp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
@@ -354,18 +399,30 @@ fun BaseListItem(
                             Icon(
                                 painter = painterResource(id = scanIcon),
                                 contentDescription = "",
-                                modifier = Modifier.size(28.mdp),
+                                modifier = Modifier.size(26.mdp),
                                 tint = Color.Black
                             )
                             Spacer(modifier = Modifier.size(7.mdp))
                         }
-                        MyText(
-                            text = "$scanTitle${if (scanTitle.isNotEmpty()) ": " else ""}$scan",
-                            color = if (primary) Primary else Black,
-                            style = MaterialTheme.typography.bodyLarge,
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Medium
-                        )
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+
+                            MyText(
+                                text = "$scanTitle${if (scanTitle.isNotEmpty() && scan.isNotEmpty()) ": " else ""}",
+                                color = if (primary) Primary else Black,
+                                style = MaterialTheme.typography.bodyLarge,
+                                fontSize = 14.sp,
+                                lineHeight = 15.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+                            MyText(
+                                text = scan,
+                                color = if (primary) Primary else Black,
+                                style = MaterialTheme.typography.bodyLarge,
+                                fontSize = 15.sp,
+                                lineHeight = 15.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
                     }
                     if (scanContent!=null){
                         scanContent()
@@ -380,7 +437,7 @@ fun BaseListItem(
 @Composable
 private fun BaseListItemPreview() {
     BaseListItem(
-        onClick = { /*TODO*/ },
+        onClick = {  },
         item1 = BaseListItemModel("Model", "Model", R.drawable.vuesax_outline_3d_cube_scan),
         item2 = BaseListItemModel("Item Code", "Item Code", R.drawable.fluent_barcode_scanner_20_regular),
         item3 = BaseListItemModel("Location Code", "Location Code test test test test", R.drawable.location),

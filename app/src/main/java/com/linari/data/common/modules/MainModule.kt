@@ -30,15 +30,17 @@ import com.linari.presentation.loading.viewmodels.LoadingDetailViewModel
 import com.linari.presentation.loading.viewmodels.LoadingViewModel
 import com.linari.presentation.manual_putaway.viewmodels.ManualPutawayDetailViewModel
 import com.linari.presentation.manual_putaway.viewmodels.ManualPutawayViewModel
-import com.linari.presentation.pallet.PalletConfirmViewModel
+import com.linari.presentation.pallet.viewmodels.PalletConfirmViewModel
 import com.linari.presentation.picking.viewModels.PickingDetailViewModel
 import com.linari.presentation.picking.viewModels.PickingViewModel
 import com.linari.presentation.putaway.viewmodels.PutawayDetailViewModel
 import com.linari.presentation.manual_putaway.viewmodels.PutawayViewModel
+import com.linari.presentation.pallet.viewmodels.PalletProductViewModel
 import com.linari.presentation.picking.viewModels.PickingListBDViewModel
 import com.linari.presentation.picking.viewModels.PurchaseOrderDetailViewModel
 import com.linari.presentation.picking.viewModels.PurchaseOrderViewModel
-import com.linari.presentation.rs.RSIntegrationViewModel
+import com.linari.presentation.rs.viewmodels.RSIntegrationViewModel
+import com.linari.presentation.rs.viewmodels.WaybillViewModel
 import com.linari.presentation.shipping.viewmodels.ShippingDetailViewModel
 import com.linari.presentation.shipping.viewmodels.ShippingViewModel
 import com.linari.presentation.transfer.viewmodels.TransferViewModel
@@ -161,5 +163,13 @@ val mainModule = module {
 
     viewModel {
         ShippingDetailViewModel(get(),it.get(),get())
+    }
+
+    viewModel {
+        PalletProductViewModel(get(),get(),get())
+    }
+
+    viewModel {
+        WaybillViewModel(get(),get())
     }
 }

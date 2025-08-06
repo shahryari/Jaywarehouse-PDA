@@ -8,9 +8,10 @@ import com.linari.data.common.utils.BaseResult
 import com.linari.data.common.utils.Prefs
 import com.linari.data.common.utils.ROW_COUNT
 import com.linari.data.common.utils.validatePallet
-import com.linari.data.picking.models.PalletManifest
 import com.linari.data.shipping.ShippingRepository
+import com.linari.data.shipping.models.ShippingDetailListOfPalletRow
 import com.linari.data.shipping.models.ShippingPalletManifestRow
+import com.linari.data.shipping.models.ShippingRow
 import com.linari.presentation.common.utils.BaseViewModel
 import com.linari.presentation.common.utils.Loading
 import com.linari.presentation.common.utils.Order
@@ -173,10 +174,20 @@ class ShippingViewModel(
                 setState {
                     copy(driverId = event.id)
                 }
+                if (event.id.text.isEmpty()){
+                    setState {
+                        copy(
+                            driverName = TextFieldValue(),
+                            carNumber = TextFieldValue(),
+                            trailerNumber = TextFieldValue(),
+                            selectedDriver = null,
+                        )
+                    }
+                }
             }
             ShippingContract.Event.OnNavBack -> {
                 setEffect {
-                    ShippingContract.Effect.NavBack
+                    NavBack
                 }
             }
             is ShippingContract.Event.OnPalletNumberChange -> {
@@ -332,6 +343,27 @@ class ShippingViewModel(
             is ShippingContract.Event.FetchPalletProducts -> {
                 getPalletProducts(event.palletManifest)
             }
+
+            is ShippingContract.Event.OnShowStatusList -> {
+                setState {
+                    copy(showStatusList = event.show)
+                }
+            }
+            is ShippingContract.Event.OnShowTypeList -> {
+                setState {
+                    copy(showTypeList = event.show)
+                }
+            }
+
+            is ShippingContract.Event.CheckHasPallet -> {
+                getCustomerPalletIsNotInShipping(shipping = event.shipping)
+            }
+
+            is ShippingContract.Event.ShowConfirmOfPalletConfirm -> {
+                setState {
+                    copy(showConfirmOfPalletConfirm = event.shipping)
+                }
+            }
         }
     }
 
@@ -383,8 +415,8 @@ class ShippingViewModel(
     ) {
         viewModelScope.launch(Dispatchers.IO) {
 
-            repository.getShipping(
-                keyword, page, ROW_COUNT, sort.sort,sort.order.value
+            repository.getShippings(
+                keyword, warehouseID = prefs.getWarehouse()!!.id,page, ROW_COUNT, sort.sort,sort.order.value
             ).catch {
                 setSuspendedState {
                     copy(error = it.message.toString(), loadingState = Loading.NONE)
@@ -405,8 +437,8 @@ class ShippingViewModel(
                             copy(
                                 shippingModel = it.data,
                                 shippingList = shippingList + (it.data?.rows ?: emptyList()),
-                                loadingState = Loading.NONE,
-                                warehouseID = it.data?.warehouseID?:""
+                                warehouseID = it.data?.warehouseID?:"",
+                                rowCount = it.data?.total?:0
                             )
                         }
                     }
@@ -447,7 +479,9 @@ class ShippingViewModel(
 
     private fun getShippingPalletManifestList(){
         viewModelScope.launch(Dispatchers.IO) {
-            repository.getShippingPalletManifestList()
+            repository.getShippingPalletManifestList(
+                prefs.getWarehouse()!!.id
+            )
                 .catch {
                     setSuspendedState {
                         copy(error = it.message?:"")
@@ -495,7 +529,18 @@ class ShippingViewModel(
                             }
                             is BaseResult.Success -> {
                                 setSuspendedState {
-                                    copy(palletProducts = it.data?.rows?:emptyList())
+                                    copy(palletProducts = it.data?.rows?.map { p->
+                                        ShippingDetailListOfPalletRow(
+                                            isWeight = p.isWeight,
+                                            quantity = p.quantity,
+                                            productName = p.productName,
+                                            productCode = p.productCode,
+                                            productBarcodeNumber = p.barcode,
+                                            referenceNumberPO = p.referenceNumberPO,
+                                            referenceNumberLPO = p.referenceNumberLPO,
+                                            shippingDetailID = 0
+                                        )
+                                    }?:emptyList())
                                 }
                             }
                             BaseResult.UnAuthorized -> {
@@ -551,6 +596,12 @@ class ShippingViewModel(
                                         val pallet = result.data.returnValue as ShippingPalletManifestRow
 
                                         if (pallet!=null){
+                                            if (state.createPallets.any { it.palletManifestId == pallet.palletManifestId }){
+                                                setState {
+                                                    copy(error = "pallet already added to the list")
+                                                }
+                                                return@collect
+                                            }
                                             setSuspendedState {
                                                 copy(createPallets =createPallets + pallet, palletNumber = TextFieldValue() )
                                             }
@@ -646,11 +697,11 @@ class ShippingViewModel(
                     shippingId
                 ).catch {
                     setSuspendedState {
-                        copy(error = it.message?:"", isCreatingPallet = false)
+                        copy(error = it.message?:"", isCreatingPallet = false, showConfirmOfPalletConfirm = null)
                     }
                 }.collect {
                     setSuspendedState {
-                        copy(isCreatingPallet = false)
+                        copy(isCreatingPallet = false, showConfirmOfPalletConfirm = null)
                     }
                     when(it){
                         is BaseResult.Error -> {
@@ -951,6 +1002,14 @@ class ShippingViewModel(
             }
             return
         }
+        if (quantity<=0){
+            setState {
+                copy(
+                    error = "Quantity must be greater then zero"
+                )
+            }
+            return
+        }
 
         if (!state.isAddingPallet){
             setState {
@@ -1008,6 +1067,15 @@ class ShippingViewModel(
                 copy(
                     error = "Quantity not entered."
                 )
+            }
+            return
+        }
+        if (quantity<=0){
+            setState {
+                copy(
+                    error = "Quantity must be greater then zero"
+                )
+
             }
             return
         }
@@ -1132,6 +1200,38 @@ class ShippingViewModel(
                     }
                 }
             }
+        }
+    }
+
+
+
+    private fun getCustomerPalletIsNotInShipping(shipping: ShippingRow){
+        setState {
+            copy(palletNotInShipping = emptyList())
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.getCustomerPalletIsNotInShipping(shipping.shippingID)
+                .catch {
+                    setSuspendedState {
+                        copy(error = it.message?:"")
+                    }
+                }.collect {
+                    when(it){
+                        is BaseResult.Error<*> -> {
+                            setSuspendedState {
+                                copy(error = it.message)
+                            }
+                        }
+                        is BaseResult.Success -> {
+                            setSuspendedState {
+                                copy(palletNotInShipping = it.data?.rows?:emptyList(), invoiceShipping = shipping)
+                            }
+                        }
+                        BaseResult.UnAuthorized -> {
+
+                        }
+                    }
+                }
         }
     }
     

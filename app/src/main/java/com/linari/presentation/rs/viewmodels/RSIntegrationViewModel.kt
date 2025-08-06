@@ -1,16 +1,16 @@
-package com.linari.presentation.rs
+package com.linari.presentation.rs.viewmodels
 
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.viewModelScope
 import com.linari.data.common.utils.BaseResult
 import com.linari.data.common.utils.Prefs
 import com.linari.data.common.utils.ROW_COUNT
-import com.linari.data.rs.RSApi
 import com.linari.data.rs.RSRepository
 import com.linari.data.rs.models.PODInvoiceRow
 import com.linari.presentation.common.utils.BaseViewModel
 import com.linari.presentation.common.utils.Loading
 import com.linari.presentation.common.utils.Order
+import com.linari.presentation.rs.contracts.RSIntegrationContract
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
@@ -18,11 +18,11 @@ import kotlinx.coroutines.launch
 class RSIntegrationViewModel(
     private val repository: RSRepository,
     private val prefs: Prefs
-) : BaseViewModel<RSIntegrationContract.Event,RSIntegrationContract.State,RSIntegrationContract.Effect>(){
+) : BaseViewModel<RSIntegrationContract.Event, RSIntegrationContract.State, RSIntegrationContract.Effect>(){
 
     init {
         val sortItem = state.sortList.find {
-            it.sort == prefs.getRSSort() && it.order == Order.getFromValue(prefs.getRSOrder())
+            it.sort == prefs.getRSSort() && it.order == Order.Companion.getFromValue(prefs.getRSOrder())
         }
         if (sortItem!=null) setState {
             copy(sort = sortItem)
@@ -78,7 +78,7 @@ class RSIntegrationViewModel(
                 }
             }
             RSIntegrationContract.Event.OnReachEnd -> {
-                if (ROW_COUNT*state.page<=state.rsList.size) {
+                if (ROW_COUNT *state.page<=state.rsList.size) {
                     setState {
                         copy(page = state.page + 1, loadingState = Loading.LOADING)
                     }
@@ -156,7 +156,10 @@ class RSIntegrationViewModel(
                         }
                         is BaseResult.Success -> {
                             setSuspendedState {
-                                copy(rsList = rsList + (it.data?.rows ?: emptyList()))
+                                copy(
+                                    rsList = rsList + (it.data?.rows ?: emptyList()),
+                                    rowCount = it.data?.total?:0
+                                )
                             }
                         }
                         BaseResult.UnAuthorized -> {}

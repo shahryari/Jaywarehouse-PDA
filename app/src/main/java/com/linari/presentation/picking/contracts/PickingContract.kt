@@ -28,7 +28,8 @@ class PickingContract {
         val sort: SortItem = sortList.first(),
         val page: Int = 1,
         val showSortList: Boolean = false,
-        val lockKeyboard: Boolean = false
+        val lockKeyboard: Boolean = false,
+        val rowCount: Int = 0
     ) : UiState
 
     sealed class Event : UiEvent {

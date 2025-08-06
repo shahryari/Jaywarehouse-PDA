@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
@@ -25,6 +26,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -48,6 +50,7 @@ import com.linari.presentation.common.composables.DetailCard
 import com.linari.presentation.common.composables.MyLazyColumn
 import com.linari.presentation.common.composables.MyScaffold
 import com.linari.presentation.common.composables.MyText
+import com.linari.presentation.common.composables.RowCountView
 import com.linari.presentation.common.composables.SearchInput
 import com.linari.presentation.common.composables.SortBottomSheet
 import com.linari.presentation.common.composables.TopBar
@@ -110,6 +113,17 @@ private fun CountingContent(
     val searchFocusRequester = remember {
         FocusRequester()
     }
+    val listState = rememberLazyListState()
+
+    val lastItem = remember {
+        derivedStateOf {
+            try{
+                listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+            }catch (e: Exception) {
+                0
+            }
+        }
+    }
 
 
     LaunchedEffect(key1 = Unit) {
@@ -128,42 +142,50 @@ private fun CountingContent(
     ) {
 
         Box(modifier = Modifier.fillMaxSize()) {
-            Column(
-                Modifier
-                    .fillMaxSize()
-                    .padding(15.mdp)
-            ) {
-                TopBar(
-                    stringResource(R.string.counting),
-                    onBack = {
-                        onEvent(CountingContract.Event.OnBackPressed)
-                    }
-                )
-                Spacer(modifier = Modifier.size(10.mdp))
-                SearchInput(
-                    onSearch = {
-                        onEvent(CountingContract.Event.OnSearch(it.text))
-                    },
-                    value = state.keyword,
-                    isLoading = state.loadingState == Loading.SEARCHING,
-                    onSortClick = {
-                        onEvent(CountingContract.Event.OnShowSortList(true))
-                    },
-                    hideKeyboard = state.lockKeyboard,
-                    focusRequester = searchFocusRequester
-                )
-                Spacer(modifier = Modifier.size(15.mdp))
-                MyLazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    items = state.countingList,
-                    itemContent = {_,it->
-                        CountListItem(it) {
-                            onEvent(CountingContract.Event.OnNavToReceivingDetail(it))
+            Column(Modifier.fillMaxSize()) {
+                Column(
+                    Modifier
+                        .weight(1f)
+                        .padding(15.mdp)
+                ) {
+                    TopBar(
+                        stringResource(R.string.counting),
+                        onBack = {
+                            onEvent(CountingContract.Event.OnBackPressed)
                         }
-                    },
-                    onReachEnd = {
-                        onEvent(CountingContract.Event.OnListEndReached)
-                    }
+                    )
+                    Spacer(modifier = Modifier.size(10.mdp))
+                    SearchInput(
+                        onSearch = {
+                            onEvent(CountingContract.Event.OnSearch(it.text))
+                        },
+                        value = state.keyword,
+                        isLoading = state.loadingState == Loading.SEARCHING,
+                        onSortClick = {
+                            onEvent(CountingContract.Event.OnShowSortList(true))
+                        },
+                        hideKeyboard = state.lockKeyboard,
+                        focusRequester = searchFocusRequester
+                    )
+                    Spacer(modifier = Modifier.size(15.mdp))
+                    MyLazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        items = state.countingList,
+                        state = listState,
+                        itemContent = {_,it->
+                            CountListItem(it) {
+                                onEvent(CountingContract.Event.OnNavToReceivingDetail(it))
+                            }
+                        },
+                        onReachEnd = {
+                            onEvent(CountingContract.Event.OnListEndReached)
+                        }
+                    )
+                }
+                RowCountView(
+                    current = lastItem.value,
+                    group = state.countingList.size,
+                    total = state.rowCount
                 )
             }
 
@@ -244,13 +266,13 @@ fun CountListItem(
                 }
                 if (receivingRow.receivingTypeID == 2){
                     DetailCard(
-                        "Customer",
+                        stringResource(R.string.customer),
                         icon = R.drawable.user_square,
                         detail = receivingRow.customerFullName?:""
                     )
                 } else {
                     DetailCard(
-                        "Supplier",
+                        stringResource(R.string.supplier),
                         icon = R.drawable.user_square,
                         detail = receivingRow.supplierFullName?:""
                     )
@@ -258,14 +280,14 @@ fun CountListItem(
                 Spacer(Modifier.size(10.mdp))
                 Row(Modifier.fillMaxWidth()) {
                     DetailCard(
-                        "Warehouse Name",
+                        stringResource(R.string.warehouse_name),
                         icon = R.drawable.building,
                         detail = receivingRow.warehouseName?:"",
                         modifier = Modifier.weight(1f)
                     )
                     Spacer(Modifier.size(5.mdp))
                     DetailCard(
-                        "Receiving Date",
+                        stringResource(R.string.receiving_date),
                         icon = R.drawable.vuesax_linear_calendar_2,
                         detail =
                         try {
@@ -309,7 +331,7 @@ fun CountListItem(
                 )
                 Spacer(modifier = Modifier.size(7.mdp))
                 MyText(
-                    text = "Total: "+receivingRow.total.removeZeroDecimal().toString(),
+                    text = "${stringResource(R.string.total)}: "+receivingRow.total.removeZeroDecimal().toString(),
                     color = Color.White,
                     style = MaterialTheme.typography.bodyLarge,
                     fontSize = 16.sp,
@@ -331,7 +353,7 @@ fun CountListItem(
                 )
                 Spacer(modifier = Modifier.size(7.mdp))
                 MyText(
-                    text = "Count: " + (receivingRow.count?.removeZeroDecimal()?.toString()?:""),
+                    text = "${stringResource(R.string.count)}: " + (receivingRow.count?.removeZeroDecimal()?.toString()?:""),
                     color = Primary,
                     style = MaterialTheme.typography.bodyLarge,
                     fontSize = 16.sp,

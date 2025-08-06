@@ -17,19 +17,18 @@ class PurchaseOrderContract {
         val loadingState: Loading = Loading.NONE,
         val error: String = "",
         val sortList: List<SortItem> = listOf(
-            SortItem("Supplier Name A-Z","SupplierName", Order.Asc),
-            SortItem("Supplier Name Z-A","SupplierName", Order.Desc),
-            SortItem("Supplier Code A-Z","SupplierCode", Order.Asc),
-            SortItem("Supplier Code Z-A","SupplierCode", Order.Desc),
+//            SortItem("Supplier Name A-Z","SupplierName", Order.Asc),
+
             SortItem("Reference Number Ascending","ReferenceNumber",Order.Asc),
             SortItem("Reference Number Descending","ReferenceNumber",Order.Desc),
-            SortItem("Purchase Order Date furthest from now","PurchaseOrderDate",Order.Asc),
-            SortItem("Purchase Order Date closed to now","PurchaseOrderDate",Order.Desc)
+//            SortItem("Purchase Order Date furthest from now","PurchaseOrderDate",Order.Asc),
+//            SortItem("Purchase Order Date closed to now","PurchaseOrderDate",Order.Desc)
         ),
         val sort: SortItem = sortList.first(),
         val page: Int = 1,
         val showSortList: Boolean = false,
-        val lockKeyboard: Boolean = false
+        val lockKeyboard: Boolean = false,
+        val rowCount: Int = 0
     ) : UiState
 
     sealed class Event : UiEvent {

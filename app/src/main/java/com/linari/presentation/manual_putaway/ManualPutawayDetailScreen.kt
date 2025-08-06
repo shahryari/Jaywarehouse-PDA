@@ -127,23 +127,12 @@ private fun ManualPutawayDetailContent(
                     onEvent(ManualPutawayDetailContract.Event.OnNavBack)
                 },
                 endIcon = R.drawable.tick,
+                endIconEnabled = state.putaway?.let { it.total == it.quantity } ?: false,
                 onEndClick = {
                     onEvent(ManualPutawayDetailContract.Event.OnShowConfirmFinish(true))
                 }
             )
             Spacer(Modifier.size(20.mdp))
-//            SearchInput(
-//                onSearch = {
-//                    onEvent(ManualPutawayDetailContract.Event.OnSearch(it.text))
-//                },
-//                value = state.keyword,
-//                onSortClick = {
-//                    onEvent(ManualPutawayDetailContract.Event.OnShowSortList(true))
-//                },
-//                hideKeyboard = state.lockKeyboard,
-//                isLoading = state.loadingState == Loading.SEARCHING
-//            )
-//            Spacer(Modifier.size(10.mdp))
             MyLazyColumn(
                 items = state.details,
                 itemContent = {i,it->
@@ -183,21 +172,8 @@ private fun ManualPutawayDetailContent(
                                     decimalInput = state.putaway?.isWeight == true,
                                     required = true,
                                     suffix = if (state.putaway?.isWeight == true)"kg" else "",
-//                                hideKeyboard = state.lockKeyboard,
                                     label = if (state.putaway?.isWeight == true) "Weight" else "Quantity",
                                 )
-//                            Spacer(Modifier.size(5.mdp))
-//                            InputTextField(
-//                                state.quantityInPacket,
-//                                onValueChange = {
-//                                    onEvent(ManualPutawayDetailContract.Event.OnQuantityInPacketChange(it))
-//                                },
-//                                modifier = Modifier.weight(1f),
-//                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-//                                leadingIcon = R.drawable.barcode,
-//                                hideKeyboard = state.lockKeyboard,
-//                                label = "Quantity In Packet",
-//                            )
                             }
                             Spacer(Modifier.size(10.mdp))
                             InputTextField(
@@ -383,7 +359,7 @@ fun PutawayBottomSheet(
                 Row(Modifier.fillMaxWidth()) {
                     DetailCard(
                         title = "Product Code",
-                        icon = R.drawable.note,
+                        icon = R.drawable.keyboard2,
                         detail = state.putaway?.productCode?:"",
                         modifier = Modifier.weight(1f)
                     )

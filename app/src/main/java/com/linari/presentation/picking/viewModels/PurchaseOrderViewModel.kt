@@ -106,6 +106,7 @@ class PurchaseOrderViewModel(
             viewModelScope.launch(Dispatchers.IO) {
                 repository.getPurchaseOrderListBD(
                     state.keyword,
+                    warehouseID = prefs.getWarehouse()!!.id,
                     state.page,
                     state.sort.sort,
                     state.sort.order.value
@@ -127,7 +128,8 @@ class PurchaseOrderViewModel(
                             val list = state.purchaseOrderList + (it.data?.rows?:emptyList())
                             setSuspendedState {
                                 copy(
-                                    purchaseOrderList = list
+                                    purchaseOrderList = list,
+                                    rowCount = it.data?.total ?: 0
                                 )
                             }
                         }

@@ -1,4 +1,4 @@
-package com.linari.presentation.rs
+package com.linari.presentation.rs.contracts
 
 import androidx.compose.ui.text.input.TextFieldValue
 import com.linari.data.rs.models.PODInvoiceRow
@@ -39,6 +39,7 @@ class RSIntegrationContract {
         val isDriverScanned: Boolean = false,
         val selectedDriver: DriverModel? = null,
         val isSubmitting: Boolean = false,
+        val rowCount: Int = 0
     ) : UiState
 
     sealed class Event : UiEvent {

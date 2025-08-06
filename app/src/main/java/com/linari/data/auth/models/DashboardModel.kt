@@ -27,6 +27,8 @@ data class DashboardModel(
     val cycleCount: Int?,
     @SerializedName("TransferCount")
     val transferCount: Int?,
+    @SerializedName("PickingCountBD")
+    val pickingCountBD: Int?
 ) {
     fun getCount(item: MainItems): Int? {
         return when(item){
@@ -40,7 +42,8 @@ data class DashboardModel(
             MainItems.ShippingTruck -> shippingTruckCount
             MainItems.PalletConfirm -> palletConfirmCount
             MainItems.CycleCount -> cycleCount
-            MainItems.Transfer -> transferCount
+            MainItems.Inventory -> transferCount
+            MainItems.PickingBD -> pickingCountBD
             else -> null
         }
     }

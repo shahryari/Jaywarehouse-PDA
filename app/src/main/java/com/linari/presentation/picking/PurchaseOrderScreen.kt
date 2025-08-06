@@ -6,19 +6,24 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.res.stringResource
 import com.linari.R
 import com.linari.data.common.utils.mdp
+import com.linari.data.common.utils.removeZeroDecimal
 import com.linari.data.picking.models.PurchaseOrderListBDRow
 import com.linari.presentation.common.composables.BaseListItemModel
 import com.linari.presentation.common.composables.MainListItem
 import com.linari.presentation.common.composables.MyLazyColumn
 import com.linari.presentation.common.composables.MyScaffold
+import com.linari.presentation.common.composables.RowCountView
 import com.linari.presentation.common.composables.SearchInput
 import com.linari.presentation.common.composables.SortBottomSheet
 import com.linari.presentation.common.composables.TopBar
@@ -65,6 +70,13 @@ fun PurchaseOrderContent(
 
     val focusRequester = remember {
         FocusRequester()
+    }
+    val listState = rememberLazyListState()
+
+    val lastItem = remember {
+        derivedStateOf {
+            listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+        }
     }
 
     LaunchedEffect(Unit) {
@@ -118,9 +130,16 @@ fun PurchaseOrderContent(
                     },
                     onReachEnd = {
                         onEvent(PurchaseOrderContract.Event.OnReachedEnd)
-                    }
+                    },
+                    state = listState
                 )
             }
+            RowCountView(
+                Modifier.align(Alignment.BottomCenter),
+                current = lastItem.value,
+                group = state.purchaseOrderList.size,
+                total = state.rowCount
+            )
         }
 
     }
@@ -147,10 +166,13 @@ fun PurchaseItem(
 ) {
     MainListItem(
         onClick = onClick,
-        typeTitle = model.purchaseOrderDate?.take(10),
+        typeTitle = model.purchaseOrderDate,
         modelNumber = model.referenceNumber,
         item1 = BaseListItemModel("Supplier Name",model.supplierName?:"",R.drawable.user_square),
         item2 = BaseListItemModel("Supplier Code",model.supplierCode?:"",R.drawable.vuesax_linear_box),
-        showFooter = false
+        total = model.count?.removeZeroDecimal()?:"",
+        totalTitle = "Total",
+        count = model.total?.removeZeroDecimal()?:"",
+        countTitle = "Qty"
     )
 }

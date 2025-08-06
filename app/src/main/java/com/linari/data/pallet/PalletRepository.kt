@@ -13,12 +13,14 @@ class PalletRepository(
 ) {
     fun getPalletList(
         keyword: String,
+        warehousID: Int,
         page: Int,
         sort: String,
         order: String
     ) : Flow<BaseResult<PalletConfirmModel>>{
         val jsonObject = JsonObject()
         jsonObject.addProperty("Keyword",keyword)
+        jsonObject.addProperty("WarehouseID",warehousID)
         return getResult(
             request = {
                 api.getPalletManifestList(
@@ -56,6 +58,20 @@ class PalletRepository(
             jsonObject.addProperty("Keyword",keyword)
             jsonObject.addProperty("PalletManifestID",palletManifestId)
             api.getPalletManifestProduct(jsonObject,page,ROW_COUNT,sort,order)
+        }
+    )
+
+    fun palletManifestBox(
+        palletManifestId: Int,
+        bigQty: Int?,
+        smallQty: Int?
+    ) = getResult(
+        request = {
+            val jsonObject = JsonObject()
+            jsonObject.addProperty("PalletManifestID",palletManifestId)
+            if (bigQty != null)jsonObject.addProperty("BigBoxQty",bigQty)
+            if (smallQty != null)jsonObject.addProperty("SmallBoxQty",smallQty)
+            api.palletManifestBox(jsonObject)
         }
     )
 }

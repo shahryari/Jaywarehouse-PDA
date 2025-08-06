@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -13,8 +14,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.Dp
 import com.linari.R
 import com.linari.data.common.utils.mdp
 import com.linari.ui.theme.Black
@@ -26,33 +29,36 @@ fun MyIcon(
     modifier: Modifier = Modifier,
     icon: Int,
     showBorder: Boolean = true,
+    background: Color = Color.White,
+    tint: Color = Color.Black,
     clickable: Boolean = true,
+    paddingValues: PaddingValues = PaddingValues(5.mdp),
+    size: Dp = 24.mdp,
+    shape: Shape = RoundedCornerShape(4.mdp),
     onClick: (()->Unit)? = null
 ) {
     Box(modifier = modifier
-        .clip(RoundedCornerShape(8.mdp))
-        .background(if (showBorder)Color.White else Color.Transparent)
+        .clip(shape)
+        .background(background)
         .then(
-            if (showBorder) Modifier.border(1.mdp, Border, RoundedCornerShape(8.mdp))
+            if (showBorder) Modifier.border(1.mdp, tint, shape)
             else Modifier
         )
         .then(
-            if(onClick!=null)
-                Modifier
-                    .clickable(clickable) {
-                        onClick()
-                    }
+            if(onClick != null) Modifier
+                .clickable(clickable) {
+                    onClick()
+                }
             else Modifier
         )
-
-        .padding(5.mdp), contentAlignment = Alignment.Center
+        .padding(paddingValues), contentAlignment = Alignment.Center
     ) {
         Icon(
-            painter = painterResource(id = icon),
+            painterResource(icon),
             contentDescription = "",
-            tint = Black,
+            tint = tint,
             modifier = Modifier
-                .size(24.mdp)
+                .size(size)
 
         )
     }
@@ -72,7 +78,7 @@ fun MyIcon(
         .clip(RoundedCornerShape(4.mdp))
         .background(background)
         .then(
-            if (showBorder) Modifier.border(1.mdp, Border, RoundedCornerShape(4.mdp))
+            if (showBorder) Modifier.border(1.mdp, tint, RoundedCornerShape(4.mdp))
             else Modifier
         )
         .then(

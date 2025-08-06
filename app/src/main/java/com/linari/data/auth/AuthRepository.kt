@@ -12,7 +12,11 @@ import com.linari.data.common.utils.Encryptor
 import com.linari.data.common.utils.Prefs
 import com.linari.data.common.utils.getResult
 import com.google.gson.JsonObject
+import com.linari.data.common.utils.ResultMessageModel
 import kotlinx.coroutines.flow.Flow
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import java.io.File
 
 class AuthRepository(
     private val api: AuthApi,
@@ -48,12 +52,15 @@ class AuthRepository(
                         hasCycleCount = it?.hasCycleCount == true,
                         hasPalletConfirm = it?.hasPalletConfirm == true,
                         hasReturnReceiving = it?.hasReturnReceiving == true,
-                        hasPickingBD = it?.hasPickingBD == true
+                        hasPickingBD = it?.hasPickingBD == true,
+                        hasWaybill = it?.hasWaybill == true
                     )
                 )
                 prefs.setWarehouse(it?.warehouse)
                 prefs.setHasModifyPick(it?.hasModifyPickQty == true)
                 prefs.setHasWaste(it?.hasWaste == true)
+                prefs.setProfile(it?.userID?:"")
+                prefs.setHasPickCancel(it?.hasPickCancel == true)
                 if (rememberMe){
                     val encryptor = Encryptor.getInstance()
                     prefs.setUserName(username)
@@ -75,11 +82,16 @@ class AuthRepository(
         )
     }
 
-    suspend fun  changePassword(
-        password: String
-    ) : Flow<BaseResult<ChangePasswordModel>> {
+    fun  changePassword(
+        oldPassword: String,
+        password: String,
+        confirmPassword: String
+    ) : Flow<BaseResult<ResultMessageModel>> {
         val jsonObject = JsonObject()
-        jsonObject.addProperty("Password",password)
+        jsonObject.addProperty("NewPassword",password)
+        jsonObject.addProperty("ReNewPassword",confirmPassword)
+        jsonObject.addProperty("CurrentPassword",oldPassword)
+        jsonObject.addProperty("Captcha","")
         return getResult(
             request = {
                 api.changePassword(jsonObject)
@@ -95,10 +107,12 @@ class AuthRepository(
         )
     }
 
-    suspend fun getDashboard() : Flow<BaseResult<DashboardModel>> {
+    suspend fun getDashboard(warehouseID:Int) : Flow<BaseResult<DashboardModel>> {
         return getResult(
             request = {
-                api.getDashboard()
+                val jsonObject = JsonObject()
+                jsonObject.addProperty("WarehouseID",warehouseID)
+                api.getDashboard(jsonObject)
             }
         )
     }
@@ -106,6 +120,33 @@ class AuthRepository(
     fun getWarehouses() = getResult(
         request = {
             api.getWarehouses()
+        }
+    )
+
+    fun uploadFile(
+        file: File
+    ) = getResult(
+        request = {
+            api.uploadFile(
+                prefs.getAddress()+"home/uploadfile",
+                MultipartBody.Part.createFormData("File",file.name,
+                    file.asRequestBody(MultipartBody.FORM)
+                )
+            )
+        }
+    )
+
+    fun createVehicleTracking(
+        latitude: Double,
+        longitude: Double,
+        speed: Float
+    ) = getResult(
+        request = {
+            val jsonObject = JsonObject()
+            jsonObject.addProperty("Latitude",latitude)
+            jsonObject.addProperty("Longitude",longitude)
+            jsonObject.addProperty("Speed",speed)
+            api.createVehicleTracking(jsonObject)
         }
     )
 }

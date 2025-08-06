@@ -33,6 +33,7 @@ fun DetailCard(
     textStyle : TextStyle? = MaterialTheme.typography.titleMedium.copy(color = Color.Black),
     enableDetail: Boolean = false,
     icon: Int?,
+    showFullDetail: Boolean = false,
 ) {
     var showAllDetail by remember { mutableStateOf(false) }
     Column(
@@ -71,7 +72,7 @@ fun DetailCard(
                 text = detail,
                 style = textStyle?: MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Normal,
-                maxLines = if (showAllDetail) 3 else 1,
+                maxLines = if (showFullDetail) Int.MAX_VALUE else if (showAllDetail) 3 else 1,
                 overflow = TextOverflow.Ellipsis,
                 color = textStyle?.color ?: Color.Black
             )

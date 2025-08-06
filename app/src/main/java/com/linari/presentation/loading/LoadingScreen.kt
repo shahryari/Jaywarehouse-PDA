@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
@@ -21,6 +22,7 @@ import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,6 +39,7 @@ import com.linari.presentation.common.composables.DetailCard
 import com.linari.presentation.common.composables.MyLazyColumn
 import com.linari.presentation.common.composables.MyScaffold
 import com.linari.presentation.common.composables.MyText
+import com.linari.presentation.common.composables.RowCountView
 import com.linari.presentation.common.composables.SearchInput
 import com.linari.presentation.common.composables.SortBottomSheet
 import com.linari.presentation.common.composables.TopBar
@@ -84,6 +87,13 @@ fun LoadingContent(
 ) {
     val searchFocusRequester = remember {
         FocusRequester()
+    }
+    val listState = rememberLazyListState()
+
+    val lastItem = remember {
+        derivedStateOf {
+            listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+        }
     }
 
 
@@ -138,11 +148,16 @@ fun LoadingContent(
                     },
                     onReachEnd = {
                         onEvent(LoadingContract.Event.OnReachedEnd)
-                    }
+                    },
+                    state = listState,
                 )
-                Spacer(modifier = Modifier.size(70.mdp))
             }
-
+            RowCountView(
+                modifier = Modifier.align(Alignment.BottomCenter),
+                current = lastItem.value,
+                group = state.loadingList.size,
+                total = state.rowCount
+            )
         }
     }
     if (state.showSortList){

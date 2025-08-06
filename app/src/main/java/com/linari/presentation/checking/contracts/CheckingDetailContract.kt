@@ -28,6 +28,8 @@ class CheckingDetailContract {
         val page: Int = 1,
         val toast: String = "",
         val lockKeyboard: Boolean = false,
+        val statusLock: Boolean = false,
+        val typeLock: Boolean = false,
         val keyword: String = "",
         val sortList: List<SortItem> = listOf(
             SortItem("Reference Number Ascending","ReferenceNumber", Order.Asc),
@@ -44,10 +46,20 @@ class CheckingDetailContract {
         val palletStatusList: List<PalletStatusRow> = emptyList(),
         val selectedPalletType: PalletTypeRow? = null,
         val selectedPalletStatus: PalletStatusRow? = null,
-        val palletType: TextFieldValue = TextFieldValue(),
-        val palletStatus: TextFieldValue = TextFieldValue(),
+        val showTypeList: Boolean = false,
+        val showStatusList: Boolean = false,
         val onSaving: Boolean = false,
-        val palletMask: String = ""
+        val palletMask: String = "",
+        val isDamaged: Boolean = false,
+        val cancelQuantity: TextFieldValue = TextFieldValue(),
+        val cancelLocation: TextFieldValue = TextFieldValue(),
+        val selectedForCancel: CheckingListRow? = null,
+        val isCanceling: Boolean = false,
+        val rowCount: Int = 0,
+        val locationBase: Boolean = true,
+        val hasPickCancel: Boolean = false,
+        val enableTransferOnPickCancel: Boolean = false,
+        val onPickCancelLocationCode: String = ""
     ) : UiState
 
     sealed class Event : UiEvent {
@@ -65,8 +77,14 @@ class CheckingDetailContract {
         data class OnSortChange(val sortItem: SortItem): Event()
         data class OnSelectPalletType(val palletType: PalletTypeRow?) : Event()
         data class OnSelectPalletStatus(val palletStatus: PalletStatusRow?) : Event()
-        data class OnPalletTypeChange(val palletType: TextFieldValue) : Event()
-        data class OnPalletStatusChange(val palletStatus: TextFieldValue) : Event()
+
+        data class ShowTypeList(val show: Boolean) : Event()
+        data class ShowStatusList(val show: Boolean) : Event()
+        data class SelectForCancel(val checking: CheckingListRow?) : Event()
+        data class OnChangeCancelQuantity(val value: TextFieldValue) : Event()
+        data class OnChangeCancelLocation(val value: TextFieldValue) : Event()
+        data class OnCancelChecking(val checking: CheckingListRow) : Event()
+        data class OnChangeIsDamaged(val isDamaged: Boolean) : Event()
     }
 
     sealed class Effect: UiSideEffect {

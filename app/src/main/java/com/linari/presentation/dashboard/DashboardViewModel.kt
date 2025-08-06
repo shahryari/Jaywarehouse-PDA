@@ -1,11 +1,16 @@
 package com.linari.presentation.dashboard
 
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.viewModelScope
 import com.linari.BuildConfig
 import com.linari.data.auth.AuthRepository
+import com.linari.data.common.utils.BASE_PROFILE_URL
 import com.linari.data.common.utils.BaseResult
+import com.linari.data.common.utils.PROFILE_URL
 import com.linari.data.common.utils.Prefs
+import com.linari.data.common.utils.compressImageFileToMaxSize
 import com.linari.presentation.common.utils.BaseViewModel
+import com.linari.presentation.common.utils.Loading
 import com.linari.presentation.dashboard.DashboardContract.Effect.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -29,7 +34,10 @@ class DashboardViewModel(
                 addExtraCycle = prefs.getAddExtraCycleCount(),
                 validatePallet = prefs.getValidatePallet(),
                 accessPermissions = prefs.getAccessPermission(),
-                selectedWarehouse = prefs.getWarehouse()
+                selectedWarehouse = prefs.getWarehouse(),
+                savedProfile = prefs.getAddress()+ BASE_PROFILE_URL +prefs.getProfile(),
+                cookie = prefs.getToken(),
+                enableAutoOpenChecking = prefs.getEnableAutoOpenChecking()
             )
         }
         visibleDashboardItems()
@@ -37,6 +45,13 @@ class DashboardViewModel(
             prefs.getLockKeyboard().collect {
                 setSuspendedState {
                     copy(lockKeyboard = it)
+                }
+            }
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            prefs.getTracking().collect {
+                setSuspendedState {
+                    copy(enableTracking = it)
                 }
             }
         }
@@ -99,7 +114,7 @@ class DashboardViewModel(
             }
             is DashboardContract.Event.OnShowChangePasswordDialog -> {
                 setState {
-                    copy(showChangPasswordDialog = event.show)
+                    copy(showChangePasswordDialog = event.show, password = TextFieldValue(), confirmPassword = TextFieldValue(), oldPassword = TextFieldValue())
                 }
             }
 
@@ -110,9 +125,10 @@ class DashboardViewModel(
                 }
             }
 
-            DashboardContract.Event.FetchData -> {
-                getDashboard()
+            is DashboardContract.Event.FetchData -> {
+                getDashboard(event.loading)
                 getWarehouses()
+                getVersionInfo()
             }
 
             is DashboardContract.Event.OnValidatePalletChange -> {
@@ -126,6 +142,114 @@ class DashboardViewModel(
                 prefs.setWarehouse(warehouse = event.warehouse)
                 setState {
                     copy(selectedWarehouse = event.warehouse)
+                }
+                getDashboard()
+            }
+
+            is DashboardContract.Event.OnShowWarehouseList -> {
+                setState {
+                    copy(showWarehouseList =event.show)
+                }
+            }
+
+            DashboardContract.Event.DownloadUpdate -> {
+                setEffect {
+                    DownloadUpdate(state.updateUrl)
+                }
+            }
+            is DashboardContract.Event.OnChangeConfirmPassword ->{
+                setState {
+                    copy(confirmPassword = event.password)
+                }
+            }
+            is DashboardContract.Event.OnChangePassword -> {
+                setState {
+                    copy(password = event.password)
+                }
+            }
+            DashboardContract.Event.OnCloseApp -> {
+                setEffect {
+                    CloseApp
+                }
+            }
+            is DashboardContract.Event.OnShowConfirmPassword -> {
+                setState {
+                    copy(showConfirmPassword = event.show)
+                }
+            }
+            is DashboardContract.Event.OnShowPassword -> {
+                setState {
+                    copy(showPassword = event.show)
+                }
+            }
+
+            DashboardContract.Event.ChangePassword -> {
+                changePassword()
+            }
+            DashboardContract.Event.CloseError -> {
+                setState {
+                    copy(error = "")
+                }
+            }
+            DashboardContract.Event.CloseToast -> {
+                setState {
+                    copy(toast = "")
+                }
+            }
+
+            is DashboardContract.Event.ChangeProfile -> {
+                setState {
+                    copy(profile = event.profile)
+                }
+            }
+            is DashboardContract.Event.OnChangeOldPassword -> {
+                setState {
+                    copy(oldPassword = event.password)
+                }
+            }
+            DashboardContract.Event.OnOpenCamera -> {
+                setEffect {
+                    OpenCamera
+                }
+            }
+            DashboardContract.Event.OnOpenGallery -> {
+                setEffect {
+                    OpenGallery
+                }
+            }
+            is DashboardContract.Event.OnShowOldPassword -> {
+                setState {
+                    copy(showOldPassword = event.show)
+                }
+            }
+            is DashboardContract.Event.ShowChangeProfileDialog -> {
+                setState {
+                    copy(showChangeProfileDialog = event.show, profile = null)
+                }
+            }
+            DashboardContract.Event.SaveProfile -> {
+                saveProfile()
+            }
+
+            is DashboardContract.Event.ShowDownloadUpdate -> {
+                setState {
+                    copy(showUpdateDialog = event.show)
+                }
+            }
+
+            is DashboardContract.Event.EnableTracking -> {
+                viewModelScope.launch(Dispatchers.IO) {
+                    prefs.setTracking(event.enable)
+                }
+                setState {
+                    copy(enableTracking = event.enable)
+                }
+            }
+
+            is DashboardContract.Event.OnEnableAutoOpenChecking -> {
+                prefs.setEnableAutoOpenChecking(event.enable)
+                setState {
+                    copy(enableAutoOpenChecking = event.enable)
                 }
             }
         }
@@ -168,13 +292,23 @@ class DashboardViewModel(
         }
     }
 
-    private fun getDashboard(){
+    private fun getDashboard(loading: Loading = Loading.LOADING) {
+        setState {
+            copy(loadingState = loading)
+        }
         viewModelScope.launch(Dispatchers.IO) {
-            repository.getDashboard()
+            repository.getDashboard(
+                prefs.getWarehouse()!!.id
+            )
                 .catch {
-
+                    setSuspendedState {
+                        copy(loadingState = Loading.NONE)
+                    }
                 }
                 .collect {
+                    setSuspendedState {
+                        copy(loadingState = Loading.NONE)
+                    }
                     when(it){
                         is BaseResult.Success -> {
                             setSuspendedState {
@@ -254,6 +388,114 @@ class DashboardViewModel(
                         }
                     }
                 }
+        }
+    }
+
+    private fun changePassword() {
+
+        if (!state.isChangingPassword){
+            setState {
+                copy(isChangingPassword = true)
+            }
+            viewModelScope.launch(Dispatchers.IO) {
+                repository.changePassword(
+                    oldPassword = state.oldPassword.text,
+                    password = state.password.text,
+                    confirmPassword = state.confirmPassword.text
+                ).catch {
+                        setSuspendedState {
+                            copy(error = it.message.toString(), isChangingPassword = false)
+                        }
+                    }
+                    .collect {
+                        setSuspendedState {
+                            copy(isChangingPassword = false)
+                        }
+                        when(it){
+                            is BaseResult.Success -> {
+                                if (it.data?.isSucceed == true){
+                                    setSuspendedState {
+                                        copy(toast = "Password changed successfully", showChangePasswordDialog = false)
+                                    }
+                                    prefs.setToken("")
+                                    setEffect {
+                                        RestartActivity
+                                    }
+                                }
+                            }
+                            is BaseResult.Error -> {
+                                setSuspendedState {
+                                    copy(error = it.message)
+                                }
+                            }
+                            is BaseResult.UnAuthorized -> {
+                                prefs.setToken("")
+                                setEffect {
+                                    DashboardContract.Effect.RestartActivity
+                                }
+                            }
+                        }
+                    }
+            }
+        }
+    }
+
+    private fun saveProfile() {
+        val file = state.profile
+        if(file == null){
+            setState {
+                copy(error = "Please select profile image")
+            }
+            return
+        }
+        if (!state.isSavingProfile){
+            setState {
+                copy(isSavingProfile = true)
+            }
+            viewModelScope.launch(Dispatchers.IO) {
+                val out = compressImageFileToMaxSize(file,200)
+                repository.uploadFile(
+                    out
+                ).catch {
+                    setSuspendedState {
+                        copy(error = it.message.toString(), isSavingProfile = false)
+                    }
+                }.collect {
+                    setSuspendedState {
+                        copy(isSavingProfile = false)
+                    }
+                    when(it){
+                        is BaseResult.Success -> {
+                            if (it.data?.isSucceed == false){
+                                setSuspendedState {
+                                    copy(error = it.data.messages.firstOrNull()?:"")
+                                }
+                                return@collect
+                            }
+                            setSuspendedState {
+                                copy(toast = "Profile saved successfully", showChangeProfileDialog = false, savedProfile = "")
+                            }
+                            delay(50)
+                            setState {
+                                copy(
+                                    savedProfile = prefs.getAddress()+BASE_PROFILE_URL+prefs.getProfile()
+                                )
+                            }
+                        }
+                        is BaseResult.Error -> {
+                            setSuspendedState {
+                                copy(error = it.message)
+                            }
+                        }
+                        is BaseResult.UnAuthorized -> {
+                            prefs.setToken("")
+                            setEffect {
+                                DashboardContract.Effect.RestartActivity
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }

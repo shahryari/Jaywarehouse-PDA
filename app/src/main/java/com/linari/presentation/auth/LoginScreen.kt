@@ -1,5 +1,6 @@
 package com.linari.presentation.auth
 
+import android.content.Intent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -17,10 +18,16 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.ModalBottomSheetProperties
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -35,7 +42,10 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
 import com.linari.MainActivity
 import com.linari.R
 import com.linari.data.common.utils.mdp
@@ -51,9 +61,14 @@ import com.linari.presentation.common.composables.MyTextField
 import com.linari.presentation.common.composables.SuccessToast
 import com.linari.presentation.common.composables.TitleView
 import com.linari.presentation.common.utils.SIDE_EFFECT_KEY
+import com.linari.presentation.dashboard.DashboardContract
 import com.linari.presentation.destinations.DashboardScreenDestination
 import com.linari.presentation.destinations.LoginScreenDestination
+import com.linari.BuildConfig
+import com.linari.presentation.common.utils.getLabelOf
 import com.linari.ui.theme.Black
+import com.linari.ui.theme.Gray3
+import com.linari.ui.theme.Gray5
 import com.linari.ui.theme.Primary
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
@@ -76,15 +91,26 @@ fun LoginScreen(
     LaunchedEffect(key1 = SIDE_EFFECT_KEY) {
         viewModel.effect.collect {
             when(it){
-                LoginContract.Effect.NavToMain -> navigator.navigate(DashboardScreenDestination,onlyIfResumed = true){
-                    popUpTo(LoginScreenDestination){
-                        inclusive = true
+                LoginContract.Effect.NavToMain -> {
+                    navigator.navigate(DashboardScreenDestination) {
+                        popUpTo(LoginScreenDestination){
+                            inclusive = true
+                        }
                     }
                 }
 
                 LoginContract.Effect.RestartActivity -> {
                     activity.restartActivity()
                 }
+                is LoginContract.Effect.DownloadUpdate -> {
+                    val intent = Intent(Intent.ACTION_VIEW, it.url.toUri())
+                    activity.startActivity(intent)
+                }
+
+                LoginContract.Effect.CloseApp -> {
+                    activity.finish()
+                }
+
             }
         }
         
@@ -100,7 +126,7 @@ private fun LoginContent(
     onEvent: (LoginContract.Event)->Unit = {}
 ) {
     LaunchedEffect(key1 = state.toast) {
-        if(state.toast.isNotEmpty()){
+        if(state.toast!=null){
             delay(3000)
             onEvent(LoginContract.Event.HideToast)
         }
@@ -126,7 +152,7 @@ private fun LoginContent(
                     .padding(15.mdp)
             ) {
                 MyText(
-                    text = stringResource(id = R.string.login),
+                    text = getLabelOf("login","Sign In"),
                     style = MaterialTheme.typography.headlineLarge,
                     fontWeight = FontWeight.W400,
                     modifier = Modifier.padding(start = 7.mdp)
@@ -140,62 +166,30 @@ private fun LoginContent(
                 Spacer(modifier = Modifier.size(40.mdp))
                 TitleView(title = stringResource(id = R.string.username))
                 Spacer(modifier = Modifier.size(7.mdp))
-                MyTextField(
+                InputTextField(
                     value = state.userName,
                     onValueChange = {
                         onEvent(LoginContract.Event.OnUserNameChange(it))
                     },
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                     modifier = Modifier.fillMaxWidth(),
-                    maxLines = 1,
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Filled.Person,
-                            contentDescription = "",
-                            tint = Color.Gray
-                        )
-                    },
-                    trailingIcon = {
-                        if (state.userName.text.isNotEmpty()) {
-                            Icon(
-                                painterResource(id = R.drawable.vuesax_bulk_broom),
-                                contentDescription = "",
-                                tint = Black,
-                                modifier = Modifier
-                                    .clickable {
-                                        onEvent(LoginContract.Event.OnUserNameChange(TextFieldValue()))
-                                    }
-                            )
-                        }
-                    }
+                    leadingIcon = R.drawable.user_svgrepo_com
                 )
                 Spacer(modifier = Modifier.size(20.mdp))
                 TitleView(title = stringResource(id = R.string.password))
                 Spacer(modifier = Modifier.size(7.mdp))
-                MyTextField(
+                InputTextField(
                     value = state.password,
                     onValueChange = {
                         onEvent(LoginContract.Event.OnPasswordChange(it))
                     },
                     modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
-                    maxLines = 1,
-                    leadingIcon = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.lock),
-                            contentDescription = "",
-                            tint = Black
-                        )
-                    },
-                    trailingIcon = {
-                        Icon(
-                            painter = painterResource(id = if(!state.showPassword) R.drawable.vuesax_bulk_eye_slash else  R.drawable.vuesax_bulk_frame),
-                            contentDescription = "",
-                            tint = Black,
-                            modifier = Modifier.clickable {
-                                onEvent(LoginContract.Event.OnShowPassword(!state.showPassword))
-                            }
-                        )
+                    leadingIcon = R.drawable.lock,
+                    trailingIcon = if(!state.showPassword) R.drawable.vuesax_bulk_eye_slash else  R.drawable.vuesax_bulk_frame,
+                    showTrailingBorder = false,
+                    onTrailingClick = {
+                        onEvent(LoginContract.Event.OnShowPassword(!state.showPassword))
                     },
                     visualTransformation = if (state.showPassword) VisualTransformation.None else PasswordVisualTransformation()
                 )
@@ -210,7 +204,7 @@ private fun LoginContent(
                     }){
 
                         MyText(
-                            text = "Change Domain",
+                            text = stringResource(R.string.change_domain),
                             color = Primary,
                             fontWeight = FontWeight.Bold
                         )
@@ -240,18 +234,19 @@ private fun LoginContent(
                     modifier = Modifier.fillMaxWidth()
                 )
             }
-            SuccessToast(message = state.toast, modifier = Modifier.align(Alignment.TopCenter))
+            SuccessToast(message = state.toast?.let { stringResource(it) }?:"", modifier = Modifier.align(Alignment.TopCenter))
 
         }
     }
-    if (state.error.isNotEmpty()){
+    if (state.error != null || state.serverError.isNotEmpty()){
         ErrorDialog(onDismiss = {
             onEvent(LoginContract.Event.CloseError)
-        }, message = state.error)
+        }, message = state.error?.let { stringResource(it) } ?: state.serverError)
     }
     if (state.showDomain){
         ChangeAddressDialog(state = state,onEvent)
     }
+    DownloadVersionDialog(state = state, onEvent = onEvent)
 }
 
 @Composable
@@ -263,9 +258,9 @@ fun ChangeAddressDialog(
         onDismiss = {
             onEvent(LoginContract.Event.OnShowDomain(false))
         },
-        title = "Change Address",
-        positiveButton = "Save",
-        negativeButton = "Cancel",
+        title = stringResource(R.string.change_domain),
+        positiveButton = stringResource(R.string.save),
+        negativeButton = stringResource(R.string.cancel),
         onNegativeClick = {
             onEvent(LoginContract.Event.OnShowDomain(false))
         },
@@ -277,10 +272,111 @@ fun ChangeAddressDialog(
             onValueChange = {
                 onEvent(LoginContract.Event.OnAddressChange(it))
             },
+            leadingContent = {
+                Row {
+                    Box(
+                        Modifier.clip(RoundedCornerShape(6.mdp))
+                            .background(if (state.domainPrefix == "https://") Primary else Color.White)
+                            .clickable {
+                                onEvent(LoginContract.Event.OnChangePrefix("https://"))
+                            }
+                            .padding(horizontal = 5.mdp, vertical = 3.mdp)
+                    ) {
+                        MyText(
+                            text = "https://",
+                            color = if (state.domainPrefix == "https://") Color.White else Primary,
+                            fontSize = 12.sp
+                        )
+                    }
+                    Box(
+                        Modifier.clip(RoundedCornerShape(6.mdp))
+                            .background(if (state.domainPrefix == "http://") Primary else Color.White)
+                            .clickable {
+                                onEvent(LoginContract.Event.OnChangePrefix("http://"))
+                            }
+                            .padding(horizontal = 5.mdp, vertical = 3.mdp)
+                    ) {
+                        MyText(
+                            text = "http://",
+                            color = if (state.domainPrefix == "http://") Color.White else Primary,
+                            fontSize = 12.sp
+                        )
+                    }
+                }
+            },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri)
         )
     }
 }
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DownloadVersionDialog(
+    state: LoginContract.State = LoginContract.State(),
+    onEvent: (LoginContract.Event)->Unit = {}
+) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true, confirmValueChange  = { false })
+    val scope = rememberCoroutineScope()
+    if (state.showUpdateDialog){
+        ModalBottomSheet(
+            onDismissRequest = { },
+            sheetState = sheetState,
+            properties = ModalBottomSheetProperties(false),
+            containerColor = Color.White
+        ) {
+            Column(
+                Modifier
+                    .padding(horizontal = 24.mdp)
+                    .padding(bottom = 24.mdp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                MyText(
+                    stringResource(R.string.update_app_notice),
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.W500,
+                    textAlign = TextAlign.Center,
+                    color = Color.Black
+                )
+                Spacer(Modifier.size(10.mdp))
+                MyText(
+                    "${stringResource(R.string.current_version)}: ${BuildConfig.VERSION_NAME}",
+                    fontSize = 14.sp
+                )
+                Spacer(Modifier.size(5.mdp))
+                MyText(
+                    "${stringResource(R.string.new_version)}: ${state.newVersion}",
+                    fontSize = 14.sp
+                )
+                Spacer(Modifier.size(20.mdp))
+
+                Row(Modifier.fillMaxWidth()) {
+                    MyButton(
+                        onClick = {
+                            onEvent(LoginContract.Event.OnCloseApp)
+                        },
+                        title = stringResource(R.string.close_app),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Gray3,
+                            contentColor = Gray5
+                        ),
+                        modifier = Modifier.weight(1f)
+                    )
+                    Spacer(Modifier.size(10.mdp))
+                    MyButton(
+                        onClick = {
+
+                            onEvent(LoginContract.Event.DownloadUpdate)
+                        },
+                        title = stringResource(R.string.update),
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+        }
+    }
+}
+
 
 
 @Preview

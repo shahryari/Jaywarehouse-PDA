@@ -48,6 +48,7 @@ class PickingDetailContract {
         val isModifying: Boolean = false,
         val hasModify: Boolean = true,
         val hasWaste: Boolean = true,
+        val rowCount: Int = 0,
     ) : UiState
 
     sealed class Event : UiEvent {

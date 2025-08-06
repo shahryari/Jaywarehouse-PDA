@@ -32,7 +32,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
@@ -43,6 +45,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.VisualTransformation
 import com.linari.R
 import com.linari.data.common.utils.mdp
 import com.linari.ui.theme.Border
@@ -65,15 +68,19 @@ fun InputTextField(
     suffix: String = "",
     prefix: String = "",
     leadingIcon: Int? = null,
+    leadingContent: (@Composable ()->Unit)? = null,
     trailingIcon: Int? = null,
     decimalInput: Boolean = false,
     onLeadingClick: (() -> Unit)? = null,
     onTrailingClick: (() -> Unit)? = null,
+    showTrailingBorder : Boolean = true,
     enabled: Boolean = true,
     readOnly: Boolean = false,
     required: Boolean = false,
     hideKeyboard: Boolean = false,
+
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
     focusRequester: FocusRequester = remember { FocusRequester() },
     loading: Boolean = false
 ) {
@@ -86,28 +93,23 @@ fun InputTextField(
     var keyword by remember { mutableStateOf(value) }
 
     // Sync internal state if external value changes
+    var debounceJob by remember { mutableStateOf<Job?>(null) }
     LaunchedEffect(value) {
-        if (value.text != keyword.text) {
-            keyword = value
+        if (debounceJob?.isActive == false){
+            if (value.text != keyword.text) {
+                keyword = value
+            }
         }
     }
 
     // Debounce input change to avoid frequent recomposition
-    var debounceJob by remember { mutableStateOf<Job?>(null) }
     LaunchedEffect(keyword.text) {
         debounceJob?.cancel()
         debounceJob = coroutineScope.launch {
-            delay(300)
+            delay(50)
             onValueChange(keyword)
         }
     }
-
-    // Auto-focus to receive PDA scanner input
-    LaunchedEffect(Unit) {
-        delay(100) // Give time for composition
-        focusRequester.requestFocus()
-    }
-
     LaunchedEffect(isFocused, isKeyboardOpen, hideKeyboard) {
         if ((isFocused || isKeyboardOpen) && hideKeyboard) {
             keyboard?.hide()
@@ -133,6 +135,7 @@ fun InputTextField(
                     }
                 }
             },
+            visualTransformation = visualTransformation,
             modifier = Modifier
                 .focusRequester(focusRequester)
                 .onFocusChanged {
@@ -151,6 +154,8 @@ fun InputTextField(
             readOnly = readOnly,
             keyboardOptions = keyboardOptions,
             maxLines = 1,
+            cursorBrush = Brush.linearGradient(listOf(Color.Black,Color.Black)),
+            singleLine = true,
             decorationBox = {
                 Row(
                     modifier
@@ -173,7 +178,16 @@ fun InputTextField(
                 ) {
                     Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
                         if (leadingIcon != null) {
-                            MyIcon(icon = leadingIcon, showBorder = false, onClick = onLeadingClick)
+                            MyIcon(
+                                icon = leadingIcon,
+                                showBorder = false,
+                                onClick = onLeadingClick,
+                                background = Color.Transparent,
+                            )
+                            Spacer(modifier = Modifier.size(7.mdp))
+                        }
+                        if (leadingContent != null) {
+                            leadingContent()
                             Spacer(modifier = Modifier.size(7.mdp))
                         }
                         Box(contentAlignment = Alignment.CenterStart) {
@@ -225,7 +239,7 @@ fun InputTextField(
                         if (loading) {
                             RefreshIcon(isRefreshing = true)
                         } else if (trailingIcon != null) {
-                            MyIcon(icon = trailingIcon, onClick = onTrailingClick)
+                            MyIcon(icon = trailingIcon, showBorder = showTrailingBorder, onClick = onTrailingClick)
                         }
                     }
                 }

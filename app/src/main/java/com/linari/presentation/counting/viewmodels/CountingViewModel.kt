@@ -46,7 +46,7 @@ class CountingViewModel(
 
     private fun getCountingList(keyword: String = "",page: Int = 1, sort: SortItem) {
         viewModelScope.launch(Dispatchers.IO) {
-            repository.getReceivingList(keyword,isCrossDock,page,ROW_COUNT,order = sort.order.value,sort = sort.sort)
+            repository.getReceivingList(keyword,isCrossDock, warehouseID = prefs.getWarehouse()!!.id,page,ROW_COUNT,order = sort.order.value,sort = sort.sort)
                 .catch {
                     setSuspendedState {
                         copy(error = it.message?:"", loadingState = Loading.NONE)
@@ -64,7 +64,10 @@ class CountingViewModel(
                         }
                         is BaseResult.Success -> {
                             setSuspendedState {
-                                copy(receivingModel = it.data,countingList = countingList+(it.data?.rows?: emptyList()))
+                                copy(
+                                    receivingModel = it.data,countingList = countingList+(it.data?.rows?: emptyList()),
+                                    rowCount = it.data?.total?:0
+                                )
                             }
 
                         }

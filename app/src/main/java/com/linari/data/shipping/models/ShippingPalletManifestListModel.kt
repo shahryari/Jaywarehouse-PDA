@@ -11,8 +11,8 @@ data class ShippingPalletManifestListModel(
 data class ShippingPalletManifestRow(
     @SerializedName("PalletBarcode") val palletBarcode: String?,
     @SerializedName("PalletManifestID") val palletManifestId: Int,
-    @SerializedName("CustomerName") val customerName: String?,
-    @SerializedName("CustomerCode") val customerCode: String?,
+    @SerializedName("PartnerName") val customerName: String?,
+    @SerializedName("PartnerCode") val customerCode: String?,
     @SerializedName("Total") val total: Double?
 ) : Animatable {
     override fun key(): String {

@@ -30,6 +30,7 @@ class LoadingDetailContract {
         ),
         val sort: SortItem = sortList.first(),
         val onSaving: Boolean = false,
+        val rowCount: Int = 0
     ) : UiState
 
     sealed class Event : UiEvent {

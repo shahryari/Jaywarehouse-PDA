@@ -119,7 +119,7 @@ class PickingViewModel(
     ) {
         viewModelScope.launch {
             repository.getPickingListGrouped(
-                keyword = keyword,page,ROW_COUNT,sort.sort,sort.order.value
+                keyword = keyword, warehouseID = prefs.getWarehouse()!!.id,page,ROW_COUNT,sort.sort,sort.order.value
             )
                 .catch {
                     setSuspendedState {
@@ -138,7 +138,10 @@ class PickingViewModel(
                         }
                         is BaseResult.Success -> {
                             setSuspendedState {
-                                copy(pickings = pickings + (it.data?.rows?: emptyList()), loadingState = Loading.NONE)
+                                copy(
+                                    pickings = pickings + (it.data?.rows?: emptyList()),
+                                    rowCount = it.data?.total?:0
+                                )
                             }
                         }
                         BaseResult.UnAuthorized -> {

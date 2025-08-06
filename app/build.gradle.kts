@@ -13,8 +13,8 @@ android {
         applicationId = "com.linari"
         minSdk = 25
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 3
+        versionName = "1.1.3"
 
         setProperty("archivesBaseName","linari")
 
@@ -69,9 +69,13 @@ dependencies {
     implementation(libs.koin.core)
     implementation(libs.retrofit.retroift)
     implementation(libs.retrofit.converter.gson)
-//    implementation(libs.coil.compose)
+    implementation(libs.coil.compose)
+//    implementation(libs.coil.okhttp)
+    implementation(libs.glide.glide)
+    implementation("com.github.bumptech.glide:compose:1.0.0-beta01")
     implementation(libs.compose.destinations.core)
     ksp(libs.compose.destinations.ksp)
 
     implementation(libs.threetenabp)
+    implementation(libs.google.location)
 }

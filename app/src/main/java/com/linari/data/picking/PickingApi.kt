@@ -84,4 +84,5 @@ interface PickingApi {
     suspend fun wasteOnPicking(
         @Body jsonObject: JsonObject
     ) : Response<ResultMessageModel>
+
 }

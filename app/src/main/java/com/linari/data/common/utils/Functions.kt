@@ -3,10 +3,14 @@ package com.linari.data.common.utils
 import android.app.Activity
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Picture
+import android.net.Uri
+import android.os.Environment
 import android.util.Log
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import androidx.core.content.FileProvider
 import com.linari.data.auth.models.LoginModel
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
@@ -14,6 +18,11 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import retrofit2.Response
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
+import androidx.core.graphics.scale
 
 fun <T:Any> getResult(
     isLogin: Boolean = false,
@@ -25,7 +34,7 @@ fun <T:Any> getResult(
         try {
             val response =  request()
 
-            Log.i("jaywarehouse_req", "getResult: ${response.raw().request().url()} -> ${response.code()}")
+            Log.i("jaywarehouse_req", "getResult: ${response.raw().request.url} -> ${response.code()}")
             if (response.isSuccessful) {
                 onSuccess(response.body())
                 emit(BaseResult.Success(response.body()))
@@ -96,4 +105,73 @@ fun validatePallet(pallet: String,startString: String = "") : Boolean {
     if (palletFields[2].length != 3) return false
     if (palletFields[2].any { !it.isDigit()}) return false
     return true
+}
+
+fun createImageUri(context: Context,imageName: String): Uri {
+    val imageFile = File(
+        context.getExternalFilesDir(Environment.DIRECTORY_PICTURES),
+        "$imageName.jpeg"
+    )
+    return FileProvider.getUriForFile(
+        context,
+        "${context.packageName}.fileprovider",
+        imageFile
+    )
+}
+
+fun getFileFromUri(context: Context,uri: Uri): File? {
+    try {
+        val inputStream = context.contentResolver.openInputStream(uri)
+        val file = File(context.cacheDir,"profile.jpeg")
+        file.createNewFile()
+        val outputStream = FileOutputStream(file)
+        if (inputStream!=null){
+            val buffer = ByteArray(4*1024)
+            var bytesRead : Int
+            while (inputStream.read(buffer).also { bytesRead = it } > 0){
+                outputStream.write(buffer,0,bytesRead)
+            }
+        }
+        inputStream?.close()
+        outputStream.close()
+        return file
+    }catch (e: IOException){
+        Log.e("jaywarehouse", "getFileFromUri: ", e)
+        return null
+    }
+
+}
+
+fun compressImageFileToMaxSize(
+    inputFile: File,
+    maxSizeKB: Int = 200
+): File {
+    val maxSizeBytes = maxSizeKB * 1024
+
+    var bitmap = BitmapFactory.decodeFile(inputFile.absolutePath)
+
+    // Optional: Resize if very large
+    if (bitmap.width > 1280 || bitmap.height > 1280) {
+        val aspectRatio = bitmap.width.toFloat() / bitmap.height
+        val newWidth = if (aspectRatio > 1) 1280 else (1280 * aspectRatio).toInt()
+        val newHeight = if (aspectRatio > 1) (1280 / aspectRatio).toInt() else 1280
+        bitmap = bitmap.scale(newWidth, newHeight)
+    }
+
+    var quality = 100
+    val stream = ByteArrayOutputStream()
+    var compressedBytes: ByteArray
+
+    do {
+        stream.reset()
+        bitmap.compress(Bitmap.CompressFormat.JPEG, quality, stream)
+        compressedBytes = stream.toByteArray()
+        quality -= 10
+    } while (compressedBytes.size > maxSizeBytes && quality > 10)
+
+    inputFile.outputStream().use {
+        it.write(compressedBytes)
+    }
+
+    return inputFile
 }

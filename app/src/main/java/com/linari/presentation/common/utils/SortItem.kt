@@ -8,6 +8,12 @@ data class SortItem(
     val order: Order
 )
 
+data class SortItemRes(
+    val title: Int,
+    val sort: String,
+    val order: Order
+)
+
 data class SortItemDto(
     @SerializedName("index")
     val index: Int,

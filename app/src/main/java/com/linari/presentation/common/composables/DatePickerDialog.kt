@@ -17,8 +17,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.linari.BuildConfig
+import com.linari.R
 import com.linari.data.common.utils.mdp
 import com.linari.presentation.common.utils.DayOfMonth
 import com.linari.presentation.common.utils.Month
@@ -100,8 +102,8 @@ fun DatePickerDialog(
 
     BasicDialog(
         onDismiss,
-        positiveButton = "Save",
-        negativeButton = "Cancel",
+        positiveButton = stringResource(R.string.save),
+        negativeButton = stringResource(R.string.cancel),
         onPositiveClick = {
 
             onSave(

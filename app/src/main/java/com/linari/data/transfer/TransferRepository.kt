@@ -10,13 +10,19 @@ import kotlinx.coroutines.flow.Flow
 
 class TransferRepository(private val api: TransferApi) {
     fun getTransfers(
-        keyword: String,
+        productCode: String,
+        barcode: String,
+        locationCode: String,
+        warehouseID: Int,
         page: Int,
         sort: String,
         order: String
     ) : Flow<BaseResult<TransferModel>> {
         val jsonObject = JsonObject()
-        jsonObject.addProperty("Keyword",keyword)
+        jsonObject.addProperty("LocationCode",locationCode)
+        jsonObject.addProperty("ProductCode",productCode)
+        jsonObject.addProperty("ProductBarcodeNumber",barcode)
+        jsonObject.addProperty("WarehouseID",warehouseID)
         return getResult(
             request = {
                 api.getTransferList(jsonObject, page, ROW_COUNT, sort, order)

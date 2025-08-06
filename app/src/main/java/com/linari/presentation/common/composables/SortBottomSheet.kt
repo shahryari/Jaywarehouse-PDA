@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import com.linari.R
 import com.linari.data.common.utils.mdp
@@ -127,7 +128,7 @@ fun SortBottomSheet(
         ) {
             Box(Modifier.padding(horizontal = 24.mdp)){
                 MyText(
-                    "Sort By",
+                    stringResource(R.string.sort_by),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.W500,
                     color = Color.Black

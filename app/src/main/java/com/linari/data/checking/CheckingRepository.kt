@@ -16,12 +16,14 @@ class CheckingRepository(
 
     fun getCheckingListGroupedModel(
         keyword: String,
+        warehouseID: Int,
         page: Int,
         sort: String,
         order: String
     ) : Flow<BaseResult<CheckingListGroupedModel>> {
         val jsonObject = JsonObject()
         jsonObject.addProperty("Keyword",keyword)
+        jsonObject.addProperty("WarehouseID",warehouseID)
         return getResult(
             request = {
                 api.getCheckingListGrouped(jsonObject, page, ROW_COUNT, sort, order)
@@ -32,6 +34,7 @@ class CheckingRepository(
     fun getCheckingList(
         keyword: String,
         customerId: String,
+        warehouseID: Int,
         page: Int,
         sort: String,
         order: String
@@ -39,6 +42,7 @@ class CheckingRepository(
         val jsonObject = JsonObject()
         jsonObject.addProperty("Keyword",keyword)
         jsonObject.addProperty("CustomerID",customerId)
+        jsonObject.addProperty("WarehouseID",warehouseID)
         return getResult(
             request = {
                 api.getCheckingList(jsonObject, page, ROW_COUNT, sort, order)
@@ -72,7 +76,9 @@ class CheckingRepository(
 
     fun getPalletTypes() = getResult(
         request = {
-            api.getPalletTypes()
+            val jsonObject = JsonObject()
+            jsonObject.addProperty("IsBox",false)
+            api.getPalletTypes(jsonObject)
         }
     )
 
@@ -89,6 +95,32 @@ class CheckingRepository(
             val jsonObject = JsonObject()
             jsonObject.addProperty("WarehouseID",warehouseID)
             api.getPalletMask(jsonObject)
+        }
+    )
+
+    fun getPalletManifestInfo(
+        palletBarcode: String
+    ) = getResult(
+        request = {
+            val jsonObject = JsonObject()
+            jsonObject.addProperty("PalletBarcode",palletBarcode)
+            api.getPalletManifestInfo(jsonObject)
+        }
+    )
+
+    fun cancelPicking(
+        checkingID: Int,
+        quantity: Double,
+        warehouseLocationCode: String,
+        isDamaged: Boolean
+    ) = getResult(
+        request = {
+            val jsonObject = JsonObject()
+            jsonObject.addProperty("CheckingID",checkingID)
+            jsonObject.addProperty("Quantity",quantity)
+            jsonObject.addProperty("WarehouseLocationCode",warehouseLocationCode)
+            jsonObject.addProperty("IsDamaged",isDamaged)
+            api.cancelPick(jsonObject)
         }
     )
 }

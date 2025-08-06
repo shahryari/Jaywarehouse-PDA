@@ -9,7 +9,15 @@ data class WarehouseModel(
     @SerializedName("Id")
     val id: Int,
     @SerializedName("Name")
-    val name: String
+    val name: String,
+    @SerializedName("HasBoxOnShipping")
+    val hasBoxOnShipping: Boolean,
+    @SerializedName("LocationBase")
+    val locationBase: Boolean,
+    @SerializedName("OnPickCancelLocationCode")
+    val onPickCancelLocationCode: String,
+    @SerializedName("EnableTransferOnPickCancel")
+    val enableTransferOnPickCancel: Boolean
 ) : Selectable {
     override fun string(): String {
         return name

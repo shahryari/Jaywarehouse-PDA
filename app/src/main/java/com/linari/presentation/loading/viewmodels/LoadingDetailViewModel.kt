@@ -187,6 +187,7 @@ class LoadingDetailViewModel(
                 repository.getLoadingList(
                     customerCode = row.customerCode?:"",
                     keyword = state.keyword,
+                    warehouseID = prefs.getWarehouse()?.id?:0,
                     sort = state.sort.sort,
                     page = state.page,
                     order = state.sort.order.value
@@ -209,6 +210,7 @@ class LoadingDetailViewModel(
                                 setState {
                                     copy(
                                         details = list,
+                                        rowCount = it.data?.total?:0
                                     )
                                 }
                                 if (loading != Loading.SEARCHING && list.isEmpty()){

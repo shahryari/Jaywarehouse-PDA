@@ -37,6 +37,10 @@ class CheckingDetailViewModel(
         setState {
             copy(
                 checkRow = row,
+                locationBase = prefs.getWarehouse()?.locationBase == true,
+                hasPickCancel = prefs.getHasPickCancel(),
+                enableTransferOnPickCancel = prefs.getWarehouse()?.enableTransferOnPickCancel == true,
+                onPickCancelLocationCode = prefs.getWarehouse()?.onPickCancelLocationCode ?:"",
             )
         }
         viewModelScope.launch(Dispatchers.IO) {
@@ -46,7 +50,7 @@ class CheckingDetailViewModel(
                 }
             }
         }
-        getCheckings(row.customerID,sort = state.sort)
+        getCheckings()
     }
 
     override fun setInitState(): CheckingDetailContract.State {
@@ -59,6 +63,7 @@ class CheckingDetailViewModel(
                 setState {
                     copy(barcode = event.barcode)
                 }
+                getPalletInfo(event.barcode.text)
             }
             CheckingDetailContract.Event.OnNavBack -> {
                 setEffect {
@@ -76,8 +81,6 @@ class CheckingDetailViewModel(
                         selectedChecking = event.checking,
                         count = TextFieldValue(),
                         barcode = TextFieldValue(),
-                        palletType = TextFieldValue(),
-                        palletStatus = TextFieldValue(),
                         selectedPalletType = null,
                         selectedPalletStatus = null
                     )
@@ -98,17 +101,17 @@ class CheckingDetailViewModel(
             CheckingDetailContract.Event.OnReachEnd -> {
                 if (ROW_COUNT *state.page<=state.checkingList.size){
                     setState {
-                        copy(page = state.page+1, loadingState = Loading.LOADING)
+                        copy(page = state.page+1)
                     }
-                    getCheckings(row.customerID,keyword = state.keyword,page = state.page,sort = state.sort)
+                    getCheckings()
                 }
             }
 
             CheckingDetailContract.Event.OnRefresh -> {
                 setState {
-                    copy(page = 1, checkingList = emptyList(), loadingState = Loading.REFRESHING)
+                    copy(page = 1, checkingList = emptyList())
                 }
-                getCheckings(row.customerID,keyword = state.keyword,page = state.page,sort = state.sort)
+                getCheckings(loading = Loading.REFRESHING)
             }
             is CheckingDetailContract.Event.OnChangeLocation -> {
                 setState {
@@ -125,9 +128,9 @@ class CheckingDetailViewModel(
 //            }
             is CheckingDetailContract.Event.OnSearch -> {
                 setState {
-                    copy(loadingState = Loading.SEARCHING, checkingList = emptyList(), page = 1, keyword = event.keyword)
+                    copy(checkingList = emptyList(), page = 1, keyword = event.keyword)
                 }
-                getCheckings(row.customerID,keyword = state.keyword,page = state.page,sort = state.sort)
+                getCheckings(loading = Loading.SEARCHING)
             }
             is CheckingDetailContract.Event.OnShowSortList -> {
                 setState {
@@ -138,9 +141,9 @@ class CheckingDetailViewModel(
                 prefs.setCheckingDetailSort(event.sortItem.sort)
                 prefs.setCheckingDetailOrder(event.sortItem.order.value)
                 setState {
-                    copy(sort = event.sortItem, page = 1, checkingList = emptyList(), loadingState = Loading.LOADING)
+                    copy(sort = event.sortItem, page = 1, checkingList = emptyList())
                 }
-                getCheckings(row.customerID,keyword = state.keyword,page = state.page,sort = event.sortItem)
+                getCheckings()
             }
 
             is CheckingDetailContract.Event.OnSelectPalletStatus -> {
@@ -153,16 +156,81 @@ class CheckingDetailViewModel(
                     copy(selectedPalletType = event.palletType)
                 }
             }
-
-            is CheckingDetailContract.Event.OnPalletStatusChange -> {
+            is CheckingDetailContract.Event.ShowStatusList -> {
                 setState {
-                    copy(palletStatus = event.palletStatus)
+                    copy(showStatusList = event.show)
                 }
             }
-            is CheckingDetailContract.Event.OnPalletTypeChange -> {
+            is CheckingDetailContract.Event.ShowTypeList -> {
                 setState {
-                    copy(palletType = event.palletType)
+                    copy(showTypeList = event.show)
                 }
+            }
+
+            is CheckingDetailContract.Event.OnCancelChecking -> {
+                cancelPicking(event.checking)
+            }
+            is CheckingDetailContract.Event.OnChangeCancelLocation -> {
+                setState {
+                    copy(cancelLocation = event.value)
+                }
+            }
+            is CheckingDetailContract.Event.OnChangeCancelQuantity -> {
+                setState {
+                    copy(cancelQuantity = event.value)
+                }
+            }
+            is CheckingDetailContract.Event.OnChangeIsDamaged -> {
+                setState {
+                    copy(isDamaged = event.isDamaged)
+                }
+            }
+            is CheckingDetailContract.Event.SelectForCancel -> {
+                setState {
+                    copy(
+                        selectedForCancel = event.checking,
+                        cancelQuantity = TextFieldValue(),
+                        cancelLocation = TextFieldValue(event.checking?.locationCode?:""),
+                        isDamaged = false
+                    )
+                }
+            }
+        }
+    }
+
+    private fun getPalletInfo(barcode: String){
+        val pallet = "${state.palletMask}-$barcode"
+        if (validatePallet(pallet,state.palletMask)){
+            viewModelScope.launch(Dispatchers.IO) {
+                repository.getPalletManifestInfo(pallet)
+                    .catch {
+                        setSuspendedState {
+                            copy(statusLock = false, typeLock = false)
+                        }
+                    }
+                    .collect {result->
+                        if (result is BaseResult.Success && result.data?.hasPallet == true){
+                            setSuspendedState {
+                                copy(
+                                    selectedPalletStatus = palletStatusList.find { it.palletStatusID == result.data.palletStatusID},
+                                    statusLock = result.data.palletStatusID !=null,
+                                    selectedPalletType = palletTypeList.find { it.palletTypeID == result.data.palletTypeID },
+                                    typeLock = result.data.palletTypeID !=null,
+                                )
+                            }
+                        } else {
+                            setSuspendedState {
+                                copy(statusLock = false, typeLock = false)
+                            }
+                        }
+                    }
+            }
+        } else {
+            setState {
+                copy(
+                    statusLock = false,
+                    typeLock =  false
+                )
             }
         }
     }
@@ -190,7 +258,7 @@ class CheckingDetailViewModel(
         if (prefs.getValidatePallet()) {
             if (!validatePallet(palletBarcode,state.palletMask)) {
                 setState {
-                    copy(error = "The Pallet Number must match ${state.palletMask}-yyyyMMdd-xxx")
+                    copy(error = "The Pallet Number must match ${state.palletMask}-yyMMdd-xxx")
                 }
                 return
             }
@@ -231,32 +299,86 @@ class CheckingDetailViewModel(
                             )
                         }
                     }
-                    .collect {
+                    .collect { result ->
                         setSuspendedState {
                             copy(onSaving = false)
                         }
-                        when(it){
+                        when(result){
                             is BaseResult.Success -> {
-                                if (it.data?.isSucceed == true) {
+                                if (result.data?.isSucceed == true) {
                                     setSuspendedState {
                                         copy(
                                             count = TextFieldValue(),
                                             barcode = TextFieldValue(),
-                                            selectedPalletType = null,
-                                            selectedPalletStatus = null,
-                                            palletType = TextFieldValue(),
-                                            palletStatus = TextFieldValue(),
+                                            selectedPalletType = palletTypeList.find { it.palletTypeID == 1 },
+                                            selectedPalletStatus = palletStatusList.find { it.palletStatusID == 1 },
                                             checkingList = emptyList(),
                                             page = 1,
                                             selectedChecking = null,
-                                            toast = it.data.messages.firstOrNull() ?: "Completed successfully",
-                                            loadingState = Loading.LOADING
+                                            toast = result.data.messages.firstOrNull() ?: "Completed successfully",
                                         )
                                     }
-                                    getCheckings(row.customerID,keyword = state.keyword,page = state.page,sort = state.sort)
+                                    getCheckings(checking = checking.copy(checkingID = result.data.entityID?.toIntOrNull()?:checking.checkingID))
                                 } else {
                                     setSuspendedState {
-                                        copy(error = it.data?.messages?.firstOrNull()?:"Failed")
+                                        copy(error = result.data?.messages?.firstOrNull()?:"Failed")
+                                    }
+                                }
+                            }
+                            is BaseResult.Error -> {
+                                setState {
+                                    copy(
+                                        error = result.message,
+                                    )
+                                }
+                            }
+                            else -> {}
+                        }
+                    }
+            }
+        }
+    }
+
+
+    private fun getCheckings(loading: Loading = Loading.LOADING,checking: CheckingListRow? = null) {
+        if (state.loadingState == Loading.NONE){
+            setState {
+                copy(loadingState = loading)
+            }
+            viewModelScope.launch(Dispatchers.IO) {
+                repository.getCheckingList(
+                    customerId = row.customerID.toString(),
+                    warehouseID = prefs.getWarehouse()!!.id,
+                    keyword = state.keyword,
+                    sort = state.sort.sort,
+                    page = state.page,
+                    order = state.sort.order.value
+                )
+                    .catch {
+                        setState {
+                            copy(
+                                error = it.message ?: "",
+                                loadingState = Loading.NONE
+                            )
+                        }
+                    }
+                    .collect {
+                        setSuspendedState {
+                            copy(loadingState = Loading.NONE)
+                        }
+                        when(it){
+                            is BaseResult.Success -> {
+                                val list = state.checkingList + (it.data?.rows ?: emptyList())
+                                setState {
+                                    copy(
+                                        checkingList = list,
+                                        rowCount = it.data?.total?:0
+                                    )
+                                }
+                                val selected = list.find { l -> l.checkingID == checking?.checkingID}
+                                if (checking!=null && selected != null && prefs.getEnableAutoOpenChecking()){
+                                    setState {
+                                        copy(selectedChecking = selected)
                                     }
                                 }
                             }
@@ -271,49 +393,6 @@ class CheckingDetailViewModel(
                         }
                     }
             }
-        }
-    }
-
-
-    private fun getCheckings(customerId: Int, keyword: String = "", page: Int = 1, sort: SortItem) {
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.getCheckingList(
-                customerId = customerId.toString(),
-                keyword = keyword,
-                sort = sort.sort,
-                page = page,
-                order = sort.order.value
-            )
-                .catch {
-                    setState {
-                        copy(
-                            error = it.message ?: "",
-                            loadingState = Loading.NONE
-                        )
-                    }
-                }
-                .collect {
-                    setSuspendedState {
-                        copy(loadingState = Loading.NONE)
-                    }
-                    when(it){
-                        is BaseResult.Success -> {
-                            setState {
-                                copy(
-                                    checkingList = checkingList + (it.data?.rows ?: emptyList()),
-                                )
-                            }
-                        }
-                        is BaseResult.Error -> {
-                            setState {
-                                copy(
-                                    error = it.message,
-                                )
-                            }
-                        }
-                        else -> {}
-                    }
-                }
         }
     }
 
@@ -338,7 +417,6 @@ class CheckingDetailViewModel(
                             setSuspendedState {
                                 copy(
                                     palletTypeList = list,
-                                    palletType = TextFieldValue(selected?.palletTypeTitle?:""),
                                     selectedPalletType = selected
                                 )
                             }
@@ -372,7 +450,6 @@ class CheckingDetailViewModel(
                             setSuspendedState {
                                 copy(
                                     palletStatusList = list,
-                                    palletStatus = TextFieldValue(selected?.palletStatusTitle?:""),
                                     selectedPalletStatus = selected
                                 )
                             }
@@ -402,6 +479,81 @@ class CheckingDetailViewModel(
                         BaseResult.UnAuthorized -> {}
                     }
                 }
+        }
+    }
+
+    private fun cancelPicking(checking: CheckingListRow) {
+        if (state.cancelQuantity.text.isEmpty()){
+            setState {
+                copy(error = "Please fill quantity")
+            }
+            return
+        }
+        val quantity = state.cancelQuantity.text.toDoubleOrNull()?:0.0
+        if (quantity<=0){
+            setState {
+                copy(error = "Quantity must be greater than 0")
+            }
+            return
+        }
+        if (state.locationBase) {
+            if (state.cancelLocation.text.isEmpty()) {
+                setState {
+                    copy(error = "Please fill location")
+                }
+                return
+            }
+        }
+        if (!state.isCanceling){
+            setState {
+                copy(isCanceling = true)
+            }
+            viewModelScope.launch(Dispatchers.IO) {
+                repository.cancelPicking(
+                    checking.checkingID,
+                    quantity,
+                    if (state.isDamaged && state.enableTransferOnPickCancel) state.onPickCancelLocationCode else state.cancelLocation.text,
+                    state.isDamaged
+                )
+                    .catch {
+                        setSuspendedState {
+                            copy(error = it.message?:"", isCanceling = false)
+                        }
+                    }
+                    .collect {
+                        setSuspendedState {
+                            copy(isCanceling = false)
+                        }
+                        when(it){
+                            is BaseResult.Success -> {
+                                if (it.data?.isSucceed == true){
+                                    setState {
+                                        copy(
+                                            cancelQuantity = TextFieldValue(),
+                                            cancelLocation = TextFieldValue(),
+                                            isDamaged = false,
+                                            selectedForCancel = null,
+                                            toast = it.data.message?:"Cancel completed successfully.",
+                                            checkingList = emptyList(),
+                                            page = 1
+                                        )
+                                    }
+                                    getCheckings()
+                                } else {
+                                    setState {
+                                        copy(error = it.data?.message?:"something went wrong")
+                                    }
+                                }
+                            }
+                            is BaseResult.Error -> {
+                                setState {
+                                    copy(error = it.message)
+                                }
+                            }
+                            else -> {}
+                        }
+                    }
+            }
         }
     }
 }

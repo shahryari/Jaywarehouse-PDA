@@ -119,7 +119,7 @@ class LoadingViewModel(
     ) {
         viewModelScope.launch {
             repository.getLoadingListGrouped(
-                keyword = keyword,page,sort.sort,sort.order.value
+                keyword = keyword, warehouseID = prefs.getWarehouse()!!.id,page,sort.sort,sort.order.value
             )
                 .catch {
                     setSuspendedState {
@@ -138,7 +138,10 @@ class LoadingViewModel(
                         }
                         is BaseResult.Success -> {
                             setSuspendedState {
-                                copy(loadingList = loadingList + (it.data?.rows?: emptyList()), loadingState = Loading.NONE)
+                                copy(
+                                    loadingList = loadingList + (it.data?.rows?: emptyList()),
+                                    rowCount = it.data?.total?:0
+                                )
                             }
                         }
                         BaseResult.UnAuthorized -> {

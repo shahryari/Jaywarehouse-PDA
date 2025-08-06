@@ -1,8 +1,7 @@
-package com.linari.presentation.pallet
+package com.linari.presentation.pallet.viewmodels
 
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.viewModelScope
-import com.linari.data.checking.CheckingRepository
 import com.linari.data.common.utils.BaseResult
 import com.linari.data.common.utils.Prefs
 import com.linari.data.common.utils.ROW_COUNT
@@ -11,6 +10,8 @@ import com.linari.presentation.common.utils.BaseViewModel
 import com.linari.presentation.common.utils.Loading
 import com.linari.presentation.common.utils.Order
 import com.linari.presentation.common.utils.SortItem
+import com.linari.presentation.pallet.contracts.PalletConfirmContract
+import com.linari.presentation.pallet.contracts.PalletConfirmContract.Effect.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
@@ -18,11 +19,14 @@ import kotlinx.coroutines.launch
 class PalletConfirmViewModel(
     private val repository: PalletRepository,
     private val prefs: Prefs
-) : BaseViewModel<PalletConfirmContract.Event,PalletConfirmContract.State,PalletConfirmContract.Effect>(){
+) : BaseViewModel<PalletConfirmContract.Event, PalletConfirmContract.State, PalletConfirmContract.Effect>(){
 
     init {
         val sortValue = state.sortList.find {
-            it.sort == prefs.getPalletSort() && it.order == Order.getFromValue(prefs.getPalletOrder())
+            it.sort == prefs.getPalletSort() && it.order == Order.Companion.getFromValue(prefs.getPalletOrder())
+        }
+        setState {
+            copy(hasBoxOnShipping = prefs.getWarehouse()?.hasBoxOnShipping == true)
         }
         if (sortValue!=null) setState {
             copy(sort = sortValue)
@@ -77,9 +81,9 @@ class PalletConfirmViewModel(
             }
 
             PalletConfirmContract.Event.OnReachedEnd -> {
-                if (ROW_COUNT*state.page<=state.palletList.size) {
+                if (ROW_COUNT *state.page<=state.palletList.size) {
                     setState {
-                        copy(page = state.page+1, loadingState = Loading.LOADING)
+                        copy(page = page+1, loadingState = Loading.LOADING)
                     }
                     getPalletList(state.keyword,state.page,state.sort)
                 }
@@ -110,7 +114,7 @@ class PalletConfirmViewModel(
             }
             is PalletConfirmContract.Event.OnSelectPallet -> {
                 setState {
-                    copy(selectedPallet = event.pallet)
+                    copy(selectedPallet = event.pallet, bigQuantity = TextFieldValue(), smallQuantity = TextFieldValue())
                 }
             }
 
@@ -120,19 +124,24 @@ class PalletConfirmViewModel(
                 }
             }
 
-            is PalletConfirmContract.Event.OnShowPalletProduct -> {
-                setState {
-                    copy(showPalletProducts = event.show)
+            is PalletConfirmContract.Event.OnNavToDetail -> {
+                setEffect {
+                    NavToDetail(event.pallet)
                 }
             }
 
-            is PalletConfirmContract.Event.FetchProducts -> {
-                getPalletProducts(event.pallet.palletManifestID)
-            }
-            is PalletConfirmContract.Event.OnProductsReachEnd -> {
-                if (state.productPage*ROW_COUNT <=state.palletProducts.size){
-                    getPalletProducts(event.pallet.palletManifestID,loadNext = true)
+            is PalletConfirmContract.Event.ChangeBigQuantity -> {
+                setState {
+                    copy(bigQuantity = event.quantity)
                 }
+            }
+            is PalletConfirmContract.Event.ChangeSmallQuantity -> {
+                setState {
+                    copy(smallQuantity = event.quantity)
+                }
+            }
+            is PalletConfirmContract.Event.OnConfirmBox -> {
+                palletManifestBox(event.pallet.palletManifestID)
             }
         }
     }
@@ -168,12 +177,73 @@ class PalletConfirmViewModel(
                                         page = 1
                                     )
                                 }
+                                getPalletList(state.keyword,state.page,state.sort)
                             } else {
                                 setSuspendedState {
                                     copy(error = it.data?.messages?.firstOrNull()?:"Failed")
                                 }
                             }
-                            getPalletList(state.keyword,state.page,state.sort)
+                        }
+                        BaseResult.UnAuthorized -> {}
+                    }
+                }
+            }
+        }
+    }
+
+    fun palletManifestBox(palletManifestId: Int) {
+        val bigQuantity = state.bigQuantity.text.toIntOrNull()
+        val smallQuantity = state.smallQuantity.text.toIntOrNull()
+        if ((bigQuantity?:0)<0){
+            setState {
+                copy(error = "Big box quantity can't be less then zero")
+            }
+            return
+        }
+        if ((smallQuantity?:0)<0){
+            setState {
+                copy(error = "Small box quantity can't be less then zero")
+            }
+            return
+        }
+        if (!state.isConfirming){
+            setState {
+                copy(isConfirming = true)
+            }
+            viewModelScope.launch(Dispatchers.IO) {
+                repository.palletManifestBox(
+                    palletManifestId,
+                    bigQuantity,
+                    smallQuantity
+                ).catch {
+                    setSuspendedState {
+                        copy(error = it.message?:"", isConfirming = false, selectedPallet = null)
+                    }
+                }.collect {
+                    setSuspendedState {
+                        copy(isConfirming = false,selectedPallet = null)
+                    }
+                    when(it) {
+                        is BaseResult.Error -> {
+                            setSuspendedState {
+                                copy(error = it.message)
+                            }
+                        }
+                        is BaseResult.Success -> {
+                            if (it.data?.isSucceed == true) {
+                                setSuspendedState {
+                                    copy(
+                                        toast = it.data?.messages?.firstOrNull()?:"Confirmed Successfully",
+                                        palletList = emptyList(),
+                                        page = 1
+                                    )
+                                }
+                                getPalletList(state.keyword,state.page,state.sort)
+                            } else {
+                                setSuspendedState {
+                                    copy(error = it.data?.messages?.firstOrNull()?:"Failed")
+                                }
+                            }
                         }
                         BaseResult.UnAuthorized -> {}
                     }
@@ -190,7 +260,7 @@ class PalletConfirmViewModel(
     ) {
         viewModelScope.launch {
             repository.getPalletList(
-                keyword = keyword,page,sort.sort,sort.order.value
+                keyword = keyword, warehousID = prefs.getWarehouse()!!.id,page,sort.sort,sort.order.value
             )
                 .catch {
                     setSuspendedState {
@@ -209,7 +279,7 @@ class PalletConfirmViewModel(
                         }
                         is BaseResult.Success -> {
                             setSuspendedState {
-                                copy(palletList = palletList + (it.data?.rows?: emptyList()), loadingState = Loading.NONE)
+                                copy(palletList = palletList + (it.data?.rows?: emptyList()), loadingState = Loading.NONE, rowCount = it.data?.total?:0)
                             }
                         }
                         BaseResult.UnAuthorized -> {
@@ -221,52 +291,6 @@ class PalletConfirmViewModel(
     }
 
 
-    private fun getPalletProducts(palletManifestID: Int,loadNext: Boolean = false,) {
-        if (state.productLoading == Loading.NONE){
-            if (loadNext){
-                setState {
-                    copy(productPage = productPage  + 1)
-                }
-            } else {
-                setState {
-                    copy(productPage = 1, palletProducts = emptyList())
-                }
-            }
-            viewModelScope.launch(Dispatchers.IO) {
-                repository.getPalletProductList(
-                    state.productKeyword,
-                    palletManifestId = palletManifestID.toString(),
-                    state.page,
-                    "",
-                    ""
-                ).catch {
-                    setSuspendedState {
-                        copy(error = it.message?:"", productLoading = Loading.NONE)
-                    }
-                }.collect {
-                    setSuspendedState {
-                        copy(productLoading = Loading.NONE)
-                    }
-                    when(it){
-                        is BaseResult.Error -> {
-                            setSuspendedState {
-                                copy(error = it.message)
-                            }
-                        }
-                        is BaseResult.Success -> {
-                            setSuspendedState {
-                                copy(
-                                    palletProducts = if (loadNext) palletProducts + (it.data?.rows?:emptyList()) else it.data?.rows?:emptyList()
-                                )
-                            }
-                        }
-                        BaseResult.UnAuthorized -> {
 
-                        }
-                    }
-                }
-            }
-        }
-    }
 
 }

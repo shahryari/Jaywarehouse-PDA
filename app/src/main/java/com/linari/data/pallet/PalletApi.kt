@@ -38,4 +38,10 @@ interface PalletApi {
         @Header(SORT) sort: String,
         @Header(ORDER) order: String
     ) : Response<PalletManifestProductModel>
+
+
+    @POST("PalletManifestBox")
+    suspend fun palletManifestBox(
+        @Body jsonObject: JsonObject
+    ) : Response<ResultMessageModel>
 }

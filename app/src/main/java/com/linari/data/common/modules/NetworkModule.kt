@@ -1,13 +1,10 @@
 package com.linari.data.common.modules
 
-import com.linari.data.common.utils.API_DOMAIN
-import com.linari.data.common.utils.NoJsonException
-import com.linari.data.common.utils.Prefs
-import com.linari.data.common.utils.StringConverterFactory
-import com.linari.data.common.utils.StringOrObjectDeserializer
-import com.linari.data.common.utils.restartActivity
 import com.google.gson.Gson
-import okhttp3.ConnectionPool
+import com.linari.data.common.utils.API_DOMAIN
+import com.linari.data.common.utils.Prefs
+import com.linari.data.common.utils.restartActivity
+import okhttp3.Dns
 import okhttp3.OkHttpClient
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
@@ -22,31 +19,34 @@ val networkModule = module {
         try {
             val prefs: Prefs = get()
             OkHttpClient.Builder()
-//                .connectionPool(ConnectionPool(100,60,TimeUnit.SECONDS))
-                .readTimeout(30,TimeUnit.SECONDS)
-                .connectTimeout(30,TimeUnit.SECONDS)
-                .callTimeout(30,TimeUnit.SECONDS)
-                .writeTimeout(30,TimeUnit.SECONDS)
+                .readTimeout(45,TimeUnit.SECONDS)
+                .connectTimeout(45,TimeUnit.SECONDS)
+                .callTimeout(60,TimeUnit.SECONDS)
+                .writeTimeout(45,TimeUnit.SECONDS)
+                .retryOnConnectionFailure(true)
                 .addInterceptor {
-                    var request = it.request()
-                    request = request
+
+                    var originalReuest = it.request()
+                    val request = originalReuest
                         .newBuilder()
-                        .addHeader("Content-Type","application/json")
-                        .addHeader("Accept","application/json")
-//                        .addHeader("App","Mobile")
-                        .addHeader("Cookie",prefs.getToken())
+                        .addHeader("Content-Type", "application/json")
+                        .addHeader("Accept", "application/json")
+                        .addHeader("App", "Mobile")
+                        .addHeader("User-Agent", "Mobile")
+                        .addHeader("Cookie", prefs.getToken().orEmpty())
                         .build()
+
                     val response = it.proceed(request).apply {
 
-                        if (body()?.contentType()?.toString()?.contains("text/html") == true) {
+                        if (body?.contentType()?.toString()?.contains("text/html") == true) {
                             prefs.setToken("")
                             androidContext().restartActivity()
                         }
                     }
-                    val body = response.body().toString()
-                    body
                     response
+
                 }
+                .dns(Dns.SYSTEM)
                 .build()
         } catch (e: Exception) {
             OkHttpClient()

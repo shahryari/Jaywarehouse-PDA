@@ -12,7 +12,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.CircularProgressIndicator
@@ -51,6 +54,7 @@ import com.linari.data.common.utils.removeZeroDecimal
 import com.linari.data.pallet.model.PalletManifestProductRow
 import com.linari.data.picking.models.PalletManifest
 import com.linari.data.shipping.models.PalletMaskModel
+import com.linari.data.shipping.models.ShippingDetailListOfPalletRow
 import com.linari.data.shipping.models.ShippingPalletManifestRow
 import com.linari.data.shipping.models.ShippingRow
 import com.linari.presentation.common.composables.BaseListItem
@@ -65,9 +69,11 @@ import com.linari.presentation.common.utils.Loading
 import com.linari.presentation.common.utils.SIDE_EFFECT_KEY
 import com.linari.presentation.common.utils.ScreenTransition
 import com.linari.presentation.counting.ConfirmDialog
-import com.linari.presentation.pallet.PalletConfirmContract
+import com.linari.presentation.pallet.contracts.PalletConfirmContract
+import com.linari.presentation.shipping.contracts.PalletCustomerGroup
 import com.linari.presentation.shipping.contracts.ShippingDetailContract
 import com.linari.presentation.shipping.viewmodels.ShippingDetailViewModel
+import com.linari.ui.theme.Background
 import com.linari.ui.theme.ErrorRed
 import com.linari.ui.theme.Gray1
 import com.linari.ui.theme.Gray3
@@ -77,6 +83,7 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
+import kotlin.math.exp
 
 
 @Destination(style = ScreenTransition::class)
@@ -132,7 +139,9 @@ fun ShippingDetailContent(
             onEvent(ShippingDetailContract.Event.OnRefresh)
         }
     ) {
-        Column(Modifier.fillMaxSize().padding(15.mdp)) {
+        Column(Modifier
+            .fillMaxSize()
+            .padding(15.mdp)) {
             TopBar(
                 title = state.shipping?.shippingNumber?:"",
                 subTitle = "Shipping",
@@ -142,16 +151,22 @@ fun ShippingDetailContent(
             )
             Spacer(modifier = Modifier.size(10.mdp))
             MyLazyColumn(
-                items = state.palletList,
+                items = state.palletList.groupBy { it.customerName }.mapNotNull { it.key?.let { key->
+                    PalletCustomerGroup(key,it.value)
+                } },
                 itemContent = {_,it->
-                    PalletBarcode(it, onClick = {
-                        onEvent(ShippingDetailContract.Event.OnSelectPallet(it))
-                    }) {
+                    CustomerGroupView(
+                        it.customer,
+                        it.items,
+                        onClick = {
+                            onEvent(ShippingDetailContract.Event.OnSelectPallet(it))
+                        }
+                    ) {
                         onEvent(ShippingDetailContract.Event.OnSelectForDelete(it))
                     }
                 },
                 header = {
-                    Column {
+                    Column(Modifier.background(Background)) {
                         if (state.shipping!=null){
                             ShippingItem(state.shipping)
                         }
@@ -195,6 +210,56 @@ fun ShippingDetailContent(
 }
 
 @Composable
+private fun CustomerGroupView(
+    customer: String,
+    items: List<PalletManifest>,
+    onClick: (PalletManifest) -> Unit,
+    onRemove: (PalletManifest) -> Unit
+) {
+    var expended by remember {
+        mutableStateOf(true)
+    }
+    Column(
+        Modifier
+            .shadow(1.mdp, RoundedCornerShape(8.mdp))
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(8.mdp))
+            .clickable {
+                expended = !expended
+            }
+            .background(Color.White)
+            .animateContentSize()
+            .padding(10.mdp)
+    ) {
+        Row(Modifier.fillMaxWidth()) {
+            MyText(
+                "${customer.trim().trimIndent()}(${items.first().customerCode})",
+                fontSize = 15.sp,
+                modifier = Modifier.weight(1f)
+            )
+            MyText(
+                "Pallet Qty = ${items.size}",
+                fontSize = 15.sp
+            )
+        }
+        AnimatedVisibility(expended) {
+            Column {
+                Spacer(Modifier.size(10.mdp))
+
+                items.forEach {
+                    PalletBarcode(
+                        it,
+                        onClick = {onClick(it)},
+                        onRemove = {onRemove(it)}
+                    )
+                    Spacer(Modifier.size(5.mdp))
+                }
+            }
+        }
+    }
+}
+
+@Composable
 fun PalletBarcode(
     model: PalletManifest,
     onClick: ()-> Unit,
@@ -225,26 +290,46 @@ fun PalletBarcode(
                     .fillMaxSize()
                     .clip(RoundedCornerShape(6.mdp))
                     .background(ErrorRed)
-                    .padding(10.mdp),
+                    .padding(horizontal = 10.mdp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 if(swipeState.dismissDirection == SwipeToDismissBoxValue.EndToStart) Spacer(Modifier.size(5.mdp))
                 AnimatedVisibility(swipeState.dismissDirection == SwipeToDismissBoxValue.StartToEnd) {
-                    Icon(
-                        Icons.Default.Delete,
-                        contentDescription = "",
-                        modifier = Modifier.size(20.mdp),
-                        tint = Color.White
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            Icons.Default.Delete,
+                            contentDescription = "",
+                            modifier = Modifier.size(20.mdp),
+                            tint = Color.White
+                        )
+                        Spacer(Modifier.size(10.mdp))
+                        MyText(
+                            "Remove",
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Medium,
+                            lineHeight = 13.sp,
+                            color = Color.White
+                        )
+                    }
                 }
                 AnimatedVisibility(swipeState.dismissDirection == SwipeToDismissBoxValue.EndToStart) {
-                    Icon(
-                        Icons.Default.Delete,
-                        contentDescription = "",
-                        modifier = Modifier.size(20.mdp),
-                        tint = Color.White
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        MyText(
+                            "Remove",
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Medium,
+                            lineHeight = 13.sp,
+                            color = Color.White
+                        )
+                        Spacer(Modifier.size(10.mdp))
+                        Icon(
+                            Icons.Default.Delete,
+                            contentDescription = "",
+                            modifier = Modifier.size(20.mdp),
+                            tint = Color.White
+                        )
+                    }
                 }
             }
         }
@@ -257,7 +342,7 @@ fun PalletBarcode(
                 .clickable {
                     onClick()
                 }
-                .background(Color.White)
+                .background(Gray1)
                 .padding(vertical = 6.mdp, horizontal = 8.mdp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
@@ -269,14 +354,6 @@ fun PalletBarcode(
                     lineHeight = 13.sp,
                     fontWeight = FontWeight.W500,
                 )
-                Spacer(Modifier.size(3.mdp))
-                MyText(
-                    text = (model.customerName?.trim()?.trimIndent()?:"")+"-"+(model.customerCode?:""),
-                    fontSize = 11.sp,
-                    lineHeight = 11.sp,
-                    fontWeight = FontWeight.W500,
-                    color = Color.Black.copy(0.8f)
-                )
 
             }
             if (model.total!=null){
@@ -287,7 +364,7 @@ fun PalletBarcode(
                         .padding(vertical = 4.mdp, horizontal = 10.mdp)
                 ) {
                     MyText(
-                        text = model.total?.toString() ?: "0",
+                        text = model.total.removeZeroDecimal(),
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.W500,
                         color = Primary
@@ -357,7 +434,8 @@ private fun ShippingItem(
             DetailCard(
                 "Customer",
                 icon = R.drawable.profile_2user,
-                detail = model.customerName?:""
+                detail = model.customerName?.replace(",","\n")?:"",
+                showFullDetail = true
             )
             Spacer(Modifier.size(10.mdp))
             AnimatedVisibility(expend){
@@ -397,7 +475,7 @@ private fun ShippingItem(
                     DetailCard(
                         "Date",
                         icon = R.drawable.vuesax_linear_calendar_2,
-                        detail = (model.date?:"") +if (model.date!=null && model.time!=null) "-" else "" + (model.time?:"")
+                        detail = (model.date?:"") +(if (model.date!=null && model.time!=null) "," else "") + (model.time?:"")
                     )
                     Spacer(modifier = Modifier.size(15.mdp))
                 }
@@ -431,7 +509,7 @@ private fun PalletProductSheet(
             },
             containerColor = Color.White
         ) {
-            Box {
+            Box(Modifier.fillMaxWidth().heightIn(min = 400.mdp)) {
 
                 Column (
                     Modifier
@@ -439,7 +517,7 @@ private fun PalletProductSheet(
                         .padding(bottom = 24.mdp)
                 ) {
                     MyText(
-                        text = "Pallet Products",
+                        text = "Pallet Details",
                         fontWeight = FontWeight.W500,
                         style = MaterialTheme.typography.titleLarge
                     )
@@ -466,8 +544,8 @@ private fun PalletProductSheet(
 
 
 @Composable
-private fun PalletProduct(
-    model: PalletManifestProductRow
+fun PalletProduct(
+    model: ShippingDetailListOfPalletRow
 ) {
     var expended by remember {
         mutableStateOf(false)
@@ -477,11 +555,12 @@ private fun PalletProduct(
             expended = !expended
         },
         scan = null,
-        quantity = model.quantity?.removeZeroDecimal()?:"",
-        scanTitle = "Check Quantity",
+        quantity = (model.quantity?.removeZeroDecimal()?:"")+if(model.isWeight == true) " kg" else "",
         quantityTitle = "Quantity",
         item1 = BaseListItemModel("Product Name",model.productName?:"",R.drawable.vuesax_outline_3d_cube_scan),
-        item2 = if (expended)BaseListItemModel("Product Code",model.productCode?:"",R.drawable.note) else null,
-        item3 = if (expended)BaseListItemModel("Barcode",model.barcode?:"",R.drawable.barcode) else null
+        item2 = if (expended)BaseListItemModel("Product Code",model.productCode?:"",R.drawable.keyboard2) else null,
+        item3 = if (expended)BaseListItemModel("Barcode",model.productBarcodeNumber?:"",R.drawable.barcode) else null,
+        item4 = if (expended)BaseListItemModel("Reference No. PO",model.referenceNumberPO?:"",R.drawable.hashtag) else null,
+        item5 = if (expended) BaseListItemModel("Reference No. LPO", model.referenceNumberLPO?:"",R.drawable.hashtag) else null
     )
 }

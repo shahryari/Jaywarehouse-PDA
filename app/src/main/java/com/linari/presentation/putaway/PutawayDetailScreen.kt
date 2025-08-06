@@ -188,8 +188,8 @@ fun PutawayDetailItem(
     BaseListItem(
         onClick = onClick,
         item1 = BaseListItemModel("Name",model.productName, R.drawable.vuesax_outline_3d_cube_scan),
-        item2 = BaseListItemModel("Product Code",model.productCode,R.drawable.barcode),
-        item3 = BaseListItemModel("Barcode",model.productBarcodeNumber,R.drawable.note),
+        item2 = BaseListItemModel("Product Code",model.productCode,R.drawable.keyboard2),
+        item3 = BaseListItemModel("Barcode",model.productBarcodeNumber,R.drawable.barcode),
         item4 = BaseListItemModel("Batch No..",model.batchNumber?:"",R.drawable.vuesax_linear_box),
         item5 = BaseListItemModel("Exp Date",model.expireDateString?:"",R.drawable.calendar_add),
         quantity = model.warehouseLocationCode,
@@ -250,7 +250,7 @@ fun PutawayBottomSheet(
                 Row(Modifier.fillMaxWidth()) {
                     DetailCard(
                         title = "Product Code",
-                        icon = R.drawable.note,
+                        icon = R.drawable.keyboard2,
                         detail = state.selectedPutaway.productCode,
                         modifier = Modifier.weight(1f)
                     )

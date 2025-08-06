@@ -20,12 +20,12 @@ class PickingListBDContract {
         val loadingState: Loading = Loading.NONE,
         val error: String = "",
         val sortList: List<SortItem> = listOf(
-            SortItem("Product Name A-Z", "ProductName",Order.Asc),
-            SortItem("Product Name Z-A", "ProductName",Order.Desc),
-            SortItem("Product Code Ascending", "ProductCode",Order.Asc),
-            SortItem("Product Code Descending", "ProductCode",Order.Desc),
-            SortItem("Barcode Ascending", "Barcode",Order.Asc),
-            SortItem("Barcode Descending", "Barcode",Order.Desc)
+            SortItem("Customer Name A-Z", "CustomerName",Order.Asc),
+            SortItem("Customer Name Z-A", "CustomerName",Order.Desc),
+            SortItem("Customer Code Ascending", "CustomerCode",Order.Asc),
+            SortItem("Customer Code Descending", "CustomerCode",Order.Desc),
+            SortItem("Reference Number Ascending", "ReferenceNumber",Order.Asc),
+            SortItem("Reference Number Descending", "ReferenceNumber",Order.Desc)
         ),
         val sort: SortItem = sortList.first(),
         val page: Int = 1,
@@ -41,6 +41,7 @@ class PickingListBDContract {
         val isWasting: Boolean = false,
         val hasModify: Boolean = true,
         val hasWaste: Boolean = true,
+        val rowCount: Int = 0
     ) : UiState
 
     sealed class Event : UiEvent {

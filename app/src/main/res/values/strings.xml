@@ -1,12 +1,89 @@
 <resources>
     <string name="app_name">Linari</string>
+
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="remove_confirm">Are you sure to remove this item?</string>
+    <string name="search_keyword">Search Keyword …</string>
+    <string name="complete_success">Completed Successfully</string>
+    <string name="failed">Failed</string>
+
+
+<!-- sorts-->
+    <string name="sort_by">Sort By</string>
+    <string name="customer_name_asc">Customer Name A-Z</string>
+    <string name="customer_name_desc">Customer Name Z-A</string>
+    <string name="customer_code_asc">Customer Code A-Z</string>
+    <string name="customer_code_desc">Customer Code Z-A</string>
+    <string name="product_name_asc">Product Name A-Z</string>
+    <string name="product_name_desc">Product Name Z-A</string>
+    <string name="product_code_asc">Product Code Ascending</string>
+    <string name="product_code_desc">Product Code Descending</string>
+    <string name="barcode_asc">Barcode Ascending</string>
+    <string name="barcode_desc">Barcode Descending</string>
+    <string name="reference_no_asc">Reference No. Ascending</string>
+    <string name="reference_no_desc">Reference No. Descending</string>
+
+<!-- login screen-->
     <string name="login">Sign in</string>
     <string name="login_notice">Login to your account to start a journey</string>
     <string name="username">Username</string>
     <string name="password">Password</string>
     <string name="remember_me">Remember me</string>
+    <string name="change_domain">Change domain</string>
+    <string name="update_app_notice">Please Update your app, a newer version is available</string>
+    <string name="current_version">Current Version</string>
+    <string name="new_version">New Version</string>
+    <string name="close_app">Close App</string>
+    <string name="update">Update</string>
+    <string name="address_change_notice">Address changed successfully</string>
+    <string name="invalid_address">Invalid address</string>
+<!-- checking screen-->
+    <string name="checking">Checking</string>
+    <string name="customer">Customer</string>
+    <string name="qty">Qty</string>
+    <string name="total">Total</string>
+    <string name="pallet_type_list">Pallet Type List</string>
+    <string name="pallet_status_list">Pallet Status List</string>
+    <string name="product_name">Product Name</string>
+    <string name="product_code">Product Code</string>
+    <string name="barcode">Barcode</string>
+    <string name="reference_no">Reference No.</string>
+    <string name="quantity">Quantity</string>
+    <string name="location">Location</string>
+    <string name="pallet">Pallet</string>
+    <string name="pallet_type">Pallet Type</string>
+    <string name="pallet_status">Pallet Status</string>
+    <string name="empty_pallet_barcode_error">Please fill pallet barcode</string>
+    <string name="empty_quantity_error">Quantity cannot be empty</string>
+    <string name="match_pallet_error">The pallet number must match</string>
+    <string name="select_pallet_status_error">Pallet status not selected</string>
+    <string name="select_pallet_type_error">Pallet type not selected</string>
+<!--counting-->
     <string name="counting">Counting</string>
     <string name="counting_notice">scan and count item</string>
+    <string name="supplier">Supplier</string>
+    <string name="warehouse_name">Warehouse Name</string>
+    <string name="receiving_date">Receiving Date</string>
+    <string name="count">Count</string>
+    <string name="of">of</string>
+    <string name="from">from</string>
+    <string name="counting_complete_confirm">Are you sure to complete this product?</string>
+    <string name="product_type">Product Type</string>
+    <string name="scan">Scan</string>
+    <string name="counting_inception">Counting/Inception</string>
+    <string name="pcb">Pcb</string>
+    <string name="weight">Weight</string>
+    <string name="pack">Pack</string>
+    <string name="exp_date">Exp Date</string>
+    <string name="batch_number">Batch No.</string>
+
+<!--waybill screen-->
+    <string name="waybill">Waybill</string>
+    <string name="customer_code">Customer Code</string>
+
     <string name="putaway">Put away</string>
     <string name="putaway_notice">put item on location</string>
     <string name="picking">Picking</string>

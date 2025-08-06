@@ -28,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -80,6 +81,51 @@ fun ErrorDialog(
        }
    }
 }
+
+
+@Composable
+fun ErrorDialog(
+    onDismiss: ()->Unit,
+    message: AnnotatedString
+) {
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(dismissOnBackPress = false,dismissOnClickOutside = false)
+    ) {
+
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(12  .mdp))
+                .background(Gray4)
+                .padding(vertical = 20.mdp, horizontal = 18.mdp),
+        ) {
+            MyText(
+                text = "Error",
+                color = ErrorRed,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold
+            )
+            Spacer(modifier = Modifier.size(5.mdp))
+            MyText(
+                text = message,
+                color = Color.Black.copy(0.7f),
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Normal,
+            )
+            Spacer(modifier = Modifier.size(15.mdp))
+            MyText(
+                text = "Dismiss",
+                color = Black,
+                style = MaterialTheme.typography.titleSmall,
+                modifier = Modifier.clickable{onDismiss()}.align(Alignment.End),
+                fontWeight = FontWeight.SemiBold,
+            )
+        }
+    }
+}
+
+
 
 
 @Preview

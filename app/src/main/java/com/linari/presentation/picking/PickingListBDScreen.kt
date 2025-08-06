@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ButtonDefaults
@@ -17,8 +18,13 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
@@ -40,6 +46,7 @@ import com.linari.presentation.common.composables.MyIcon
 import com.linari.presentation.common.composables.MyLazyColumn
 import com.linari.presentation.common.composables.MyScaffold
 import com.linari.presentation.common.composables.MyText
+import com.linari.presentation.common.composables.RowCountView
 import com.linari.presentation.common.composables.SearchInput
 import com.linari.presentation.common.composables.SortBottomSheet
 import com.linari.presentation.common.composables.TitleView
@@ -99,6 +106,13 @@ fun PickingListBDContent(
     val focusRequester = remember {
         FocusRequester()
     }
+    val listState = rememberLazyListState()
+
+    val lastItem = remember {
+        derivedStateOf {
+            listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+        }
+    }
 
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
@@ -155,21 +169,22 @@ fun PickingListBDContent(
                     BaseListItem(
                         onClick = { },
                         item1 = BaseListItemModel("Name",state.purchaseOrderDetailRow.productName?:"", R.drawable.vuesax_outline_3d_cube_scan),
-                        item2 = BaseListItemModel("Product Code",state.purchaseOrderDetailRow.productCode?:"",R.drawable.note),
+                        item2 = BaseListItemModel("Product Code",state.purchaseOrderDetailRow.productCode?:"",R.drawable.keyboard2),
                         item3 = BaseListItemModel("Barcode",state.purchaseOrderDetailRow.barcodeNumber?:"",R.drawable.barcode),
                         item4 = BaseListItemModel("PCB", state.purchaseOrderDetailRow.pcb?.toString()?:"",R.drawable.hashtag),
-                        item5 = BaseListItemModel(
+                        item5 = BaseListItemModel("Waste Quantity",state.purchaseOrderDetailRow.wasteQuantity?.removeZeroDecimal()?:"0",R.drawable.broom_outlined),
+                        item6 = BaseListItemModel(
                             "Difference Pick with PO",
-                            state.purchaseOrderDetailRow.quantityDifferencePodandPIcks?.removeZeroDecimal()?:"0",
+                            state.purchaseOrderDetailRow.quantityDifferencePodandPIcks?.removeZeroDecimal()?:"_",
                             R.drawable.vuesax_linear_card_remove,
                             MaterialTheme.typography.bodyMedium.copy(
                                 color = if (state.purchaseOrderDetailRow.quantityDifferencePodandPIcks == 0.0) Green else Color.Red
                             )
                         ),
-                        quantity = state.purchaseOrderDetailRow.sumReceiptQuantity?.removeZeroDecimal()?:"",
+                        quantity = (state.purchaseOrderDetailRow.sumReceiptQuantity?.removeZeroDecimal()?:"") + if (state.purchaseOrderDetailRow.isWeight==true) " kg" else "",
                         quantityTitle = "Total",
-                        scan = state.purchaseOrderDetailRow.sumPickingQty?.removeZeroDecimal() ?:"",
-                        scanTitle = "Quantity"
+                        scan = (state.purchaseOrderDetailRow.sumPickingQty?.removeZeroDecimal() ?:"") + if (state.purchaseOrderDetailRow.isWeight == true) " kg" else "",
+                        scanTitle = "Qty"
                     )
                 }
 
@@ -180,6 +195,7 @@ fun PickingListBDContent(
                     itemContent = {_,it->
                         PickingItem(
                             it,
+                            isWeight = state.purchaseOrderDetailRow?.isWeight == true,
                             hasWaste = state.hasWaste,
                             hasModify = state.hasModify,
                             onWasteClick = {
@@ -191,9 +207,16 @@ fun PickingListBDContent(
                     },
                     onReachEnd = {
                         onEvent(PickingListBDContract.Event.OnReachedEnd)
-                    }
+                    },
+                    state = listState
                 )
             }
+            RowCountView(
+                Modifier.align(Alignment.BottomCenter),
+                current = lastItem.value,
+                group = state.shippingOrderDetailList.size,
+                total = state.rowCount
+            )
         }
 
     }
@@ -229,31 +252,30 @@ fun PickingListBDContent(
 }
 
 @Composable
-fun PickingItem(model: PickingListBDRow,hasWaste: Boolean,hasModify: Boolean,onWasteClick:()->Unit,onClick: ()-> Unit) {
+fun PickingItem(model: PickingListBDRow,isWeight: Boolean,hasWaste: Boolean,hasModify: Boolean,onWasteClick:()->Unit,onClick: ()-> Unit) {
+    var expended by remember {
+        mutableStateOf(false)
+    }
     BaseListItem(
-        onClick = {},
-        quantity = null,
-        scan = model.splittedQuantity?.removeZeroDecimal(),
-        scanTitle = "Quantity",
-        scanContent = {
-            Row {
-                if (hasWaste)MyIcon(
-                    showBorder = true,
-                    onClick = onWasteClick,
-                    icon = R.drawable.trash
-                )
-                Spacer(Modifier.size(10.mdp))
-                if (hasModify)MyIcon(
-                    showBorder = true,
-                    onClick = onClick,
-                    icon = R.drawable.baseline_edit_24
-                )
-            }
+        onClick = {
+            expended=!expended
         },
+        quantity = (model.splittedQuantity?.removeZeroDecimal()?:"0")+if (isWeight) " kg" else "",
+        quantityTitle = if (hasModify) "Modify" else "Qty",
+        quantityIcon = if(hasModify)R.drawable.edit else R.drawable.box_search,
+        onQuantityClick = if (hasModify){{
+            onClick()
+        }} else null,
+        scan = if (hasWaste) "" else null,
+        scanTitle = "Waste",
+        scanIcon = R.drawable.broom_outlined,
+        onScanClick = if(hasWaste) {{
+            onWasteClick()
+        }} else null,
         showFooter = true,
-        item1 = BaseListItemModel("Customer Name",model.customerName?:"",R.drawable.user_square),
-        item2 = BaseListItemModel("Customer Code",model.customerCode?:"",R.drawable.note),
-        item3 = BaseListItemModel("Reference Number",model.referenceNumber?:"",R.drawable.hashtag),
+        item1 = BaseListItemModel("Customer Name",model.customerName?:"",R.drawable.vuesax_linear_user),
+        item2 = if (expended)BaseListItemModel("Customer Code",model.customerCode?:"",R.drawable.user_square) else null,
+        item3 = if (expended)BaseListItemModel("Reference No.",model.referenceNumber?:"",R.drawable.hashtag) else null,
     )
 }
 
@@ -295,20 +317,20 @@ fun ModifySheet(
 
                 DetailCard(
                     title = "Customer Name",
-                    icon = R.drawable.vuesax_outline_3d_cube_scan,
+                    icon = R.drawable.vuesax_linear_user,
                     detail = state.selectedPicking.customerName?:"",
                 )
                 Spacer(Modifier.size(10.mdp))
                 Row(Modifier.fillMaxWidth()) {
                     DetailCard(
                         title = "Customer Code",
-                        icon = R.drawable.note,
+                        icon = R.drawable.user_square,
                         detail = state.selectedPicking.customerCode?:"",
                         modifier = Modifier.weight(1f)
                     )
                     Spacer(Modifier.size(5.mdp))
                     DetailCard(
-                        title = "Reference Number",
+                        title = "Reference No.",
                         icon = R.drawable.hashtag,
                         detail = state.selectedPicking.referenceNumber?:"",
                         modifier = Modifier.weight(1f)
@@ -320,7 +342,7 @@ fun ModifySheet(
                     DetailCard(
                         title = "Quantity",
                         icon = R.drawable.vuesax_linear_box,
-                        detail = state.selectedPicking.splittedQuantity?.removeZeroDecimal()?.toString()?:"",
+                        detail = (state.selectedPicking.splittedQuantity?.removeZeroDecimal() ?:"") + if (state.purchaseOrderDetailRow?.isWeight == true) " kg" else "",
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -336,9 +358,10 @@ fun ModifySheet(
                     },
                     onAny = {},
                     leadingIcon = R.drawable.box_search,
-                    hideKeyboard = state.lockKeyboard,
+                    suffix = if (state.purchaseOrderDetailRow?.isWeight == true) "kg" else "",
+                    decimalInput = state.purchaseOrderDetailRow?.isWeight == true ,
                     focusRequester = focusRequester,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                 )
                 Spacer(Modifier.size(15.mdp))
                 Row(Modifier.fillMaxWidth()) {
@@ -408,55 +431,56 @@ fun WasteSheet(
                 Spacer(Modifier.size(10.mdp))
 
                 DetailCard(
-                    title = "Customer Name",
+                    title = "Product Name",
                     icon = R.drawable.vuesax_outline_3d_cube_scan,
-                    detail = state.selectedForWaste.customerName?:"",
+                    detail = state.purchaseOrderDetailRow?.productName?:"",
                 )
                 Spacer(Modifier.size(10.mdp))
                 Row(Modifier.fillMaxWidth()) {
-                    DetailCard(
-                        title = "Customer Code",
-                        icon = R.drawable.note,
-                        detail = state.selectedForWaste.customerCode?:"",
-                        modifier = Modifier.weight(1f)
-                    )
-                    Spacer(Modifier.size(5.mdp))
-                    DetailCard(
-                        title = "Reference Number",
-                        icon = R.drawable.hashtag,
-                        detail = state.selectedForWaste.referenceNumber?:"",
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-                Spacer(Modifier.size(10.mdp))
-                Row(Modifier.fillMaxWidth()) {
-                    DetailCard(
-                        title = "Product Name",
-                        icon = R.drawable.notes,
-                        detail = state.purchaseOrderDetailRow?.productName?:"",
-                        modifier = Modifier.weight(1f)
-                    )
-                    Spacer(Modifier.size(5.mdp))
                     DetailCard(
                         title = "Product Code",
                         icon = R.drawable.keyboard2,
                         detail = state.purchaseOrderDetailRow?.productCode?:"",
                         modifier = Modifier.weight(1f)
                     )
-                }
-                Spacer(Modifier.size(10.mdp))
-                Row(Modifier.fillMaxWidth()) {
+                    Spacer(Modifier.size(5.mdp))
                     DetailCard(
                         title = "Barcode",
                         icon = R.drawable.barcode,
                         detail = state.purchaseOrderDetailRow?.barcodeNumber?:"",
                         modifier = Modifier.weight(1f)
                     )
+                }
+                Spacer(Modifier.size(10.mdp))
+                Row(Modifier.fillMaxWidth()) {
+                    DetailCard(
+                        title = "Customer Name",
+                        icon = R.drawable.vuesax_linear_user,
+                        detail = state.selectedForWaste.customerName?:"",
+                        modifier = Modifier.weight(1f)
+                    )
+                    Spacer(Modifier.size(5.mdp))
+
+                    DetailCard(
+                        title = "Customer Code",
+                        icon = R.drawable.user_square,
+                        detail = state.selectedForWaste.customerCode?:"",
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+                Spacer(Modifier.size(10.mdp))
+                Row(Modifier.fillMaxWidth()) {
+                    DetailCard(
+                        title = "Reference No.",
+                        icon = R.drawable.hashtag,
+                        detail = state.selectedForWaste.referenceNumber?:"",
+                        modifier = Modifier.weight(1f)
+                    )
                     Spacer(Modifier.size(5.mdp))
                     DetailCard(
                         title = "Quantity",
                         icon = R.drawable.vuesax_linear_box,
-                        detail = state.selectedForWaste.splittedQuantity?.removeZeroDecimal()?.toString()?:"",
+                        detail =(state.selectedForWaste.splittedQuantity?.removeZeroDecimal() ?:"") + if(state.purchaseOrderDetailRow?.isWeight == true) " kg" else "",
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -472,9 +496,10 @@ fun WasteSheet(
                     },
                     onAny = {},
                     leadingIcon = R.drawable.box_search,
-                    hideKeyboard = state.lockKeyboard,
+                    suffix =if (state.purchaseOrderDetailRow?.isWeight == true) "kg" else "",
+                    decimalInput = state.purchaseOrderDetailRow?.isWeight == true,
                     focusRequester = focusRequester,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                 )
                 Spacer(Modifier.size(15.mdp))
                 Row(Modifier.fillMaxWidth()) {

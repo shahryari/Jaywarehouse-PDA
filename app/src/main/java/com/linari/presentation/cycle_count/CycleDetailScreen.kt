@@ -344,7 +344,7 @@ fun CycleDetailItem(
     BaseListItem(
         onClick = onClick,
         item1 = BaseListItemModel("Name",model.productTitle,R.drawable.vuesax_outline_3d_cube_scan),
-        item2 = BaseListItemModel("Product Code",model.productCode,R.drawable.note),
+        item2 = BaseListItemModel("Product Code",model.productCode,R.drawable.keyboard2),
         item3 = BaseListItemModel("Barcode",model.productBarcodeNumber,R.drawable.barcode),
         item4 = BaseListItemModel("Status", model.quiddityTypeTitle?:"",R.drawable.box_search),
         item5 = model.expireDate?.let { BaseListItemModel("Exp Date",it,R.drawable.calendar_add) },
@@ -404,7 +404,7 @@ fun CountBottomSheet(
                     DetailCard(
                         "Product Code",
                         state.selectedCycle.productCode,
-                        icon = R.drawable.note,
+                        icon = R.drawable.keyboard2,
                         modifier = Modifier.weight(1f)
                     )
                     Spacer(Modifier.size(5.mdp))

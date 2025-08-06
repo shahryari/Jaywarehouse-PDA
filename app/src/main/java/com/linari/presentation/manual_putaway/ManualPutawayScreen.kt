@@ -6,13 +6,16 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.tooling.preview.Preview
@@ -25,6 +28,7 @@ import com.linari.presentation.common.composables.BaseListItem
 import com.linari.presentation.common.composables.BaseListItemModel
 import com.linari.presentation.common.composables.MyLazyColumn
 import com.linari.presentation.common.composables.MyScaffold
+import com.linari.presentation.common.composables.RowCountView
 import com.linari.presentation.common.composables.SearchInput
 import com.linari.presentation.common.composables.SortBottomSheet
 import com.linari.presentation.common.composables.TopBar
@@ -76,6 +80,13 @@ fun ManualPutawayContent(
     onEvent: (ManualPutawayContract.Event) -> Unit = {}
 ) {
     val focusRequester = FocusRequester()
+    val listState = rememberLazyListState()
+
+    val lastItem = remember {
+        derivedStateOf {
+            listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+        }
+    }
 
     LaunchedEffect(key1 = Unit) {
         focusRequester.requestFocus()
@@ -133,10 +144,17 @@ fun ManualPutawayContent(
                     onReachEnd = {
                         onEvent(ManualPutawayContract.Event.OnReachEnd)
                     },
+                    state = listState,
                     spacerSize = 7.mdp
                 )
 
             }
+            RowCountView(
+                Modifier.align(Alignment.BottomCenter),
+                current = lastItem.value,
+                group = state.putaways.size,
+                total = state.rowCount
+            )
         }
     }
     if (state.showSortList){
@@ -170,12 +188,12 @@ fun ManualPutawayItem(
             else onClickExpand = !onClickExpand
         },
         item1 = BaseListItemModel("Name",model.productName, R.drawable.vuesax_outline_3d_cube_scan),
-        item2 = BaseListItemModel("Product Code",model.productCode, R.drawable.barcode),
-        item3 = BaseListItemModel("Barcode",model.productBarcodeNumber?:"", R.drawable.note),
+        item2 = BaseListItemModel("Product Code",model.productCode, R.drawable.keyboard2),
+        item3 = BaseListItemModel("Barcode",model.productBarcodeNumber?:"", R.drawable.barcode),
         item4 = BaseListItemModel("Batch No.",model.batchNumber?:"", R.drawable.vuesax_linear_box),
         item5 = BaseListItemModel("Exp Date",model.expireDate?:"", R.drawable.calendar_add),
         item6 = if (onClickExpand)BaseListItemModel("Reference Number",model.referenceNumber?:"",R.drawable.hashtag) else null,
-        item7 = if (onClickExpand)BaseListItemModel("Receiving Type",model.receivingTypeTitle?:"",R.drawable.notes) else null,
+        item7 = if (onClickExpand)BaseListItemModel("Receiving Type",model.receivingTypeTitle?:"",R.drawable.packaging_arrow_down) else null,
         item8 = if (onClickExpand)BaseListItemModel("Warehouse Name",model.warehouseName?:"",R.drawable.building) else null,
         quantity = model.total.removeZeroDecimal().toString() + if (model.isWeight) " kg" else "",
         expandable = expandable,

@@ -35,7 +35,8 @@ class CountingInceptionContract {
         val pcbEnabled: Boolean = true,
         val locationBase: Boolean = true,
         val expEnabled: Boolean = true,
-        val batchNumberEnabled: Boolean = true
+        val batchNumberEnabled: Boolean = true,
+        val rowCount: Int = 0,
     ) : UiState
 
     sealed class Event : UiEvent {

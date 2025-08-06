@@ -2,6 +2,7 @@ package com.linari.data.pallet.model
 
 import com.linari.presentation.common.composables.Animatable
 import com.google.gson.annotations.SerializedName
+import java.io.Serializable
 
 data class PalletConfirmModel(
     @SerializedName("rows")
@@ -23,8 +24,8 @@ data class PalletConfirmRow(
     @SerializedName("PalletManifestID")
     val palletManifestID: Int,
     @SerializedName("Total")
-    val total: Int?
-) : Animatable {
+    val total: Double?
+) : Animatable , Serializable{
     override fun key(): String {
         return palletManifestID.toString()
     }

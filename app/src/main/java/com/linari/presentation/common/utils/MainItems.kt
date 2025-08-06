@@ -15,6 +15,7 @@ import com.linari.presentation.destinations.RSScreenDestination
 import com.linari.presentation.destinations.ShippingScreenDestination
 import com.linari.presentation.destinations.TransferScreenDestination
 import com.linari.presentation.destinations.TypedDestination
+import com.linari.presentation.destinations.WaybillScreenDestination
 import com.linari.ui.theme.Blue
 import com.linari.ui.theme.Primary
 import com.linari.ui.theme.SkyBlue
@@ -101,15 +102,16 @@ enum class MainItems(
         "Inventory",
         R.drawable.warehouse,
         "Stock",
-        Yellow
-    ),
-    Transfer(
-        "Transfer",
-        R.drawable.parcel_stock,
-        "Stock",
         Yellow,
-        TransferScreenDestination
+        TransferScreenDestination,
     ),
+//    Transfer(
+//        "Transfer",
+//        R.drawable.parcel_stock,
+//        "Stock",
+//        Yellow,
+//        TransferScreenDestination
+//    ),
     CycleCount(
         "Cycle Count",
         R.drawable.task,
@@ -117,11 +119,18 @@ enum class MainItems(
         Yellow,
         CycleScreenDestination
     ),
-    RS(
-        "RS",
+//    RS(
+//        "RS",
+//        R.drawable.rs,
+//        "Integration",
+//        SkyBlue,
+//        RSScreenDestination
+//    ),
+    Waybill(
+        "Waybill",
         R.drawable.rs,
         "Integration",
         SkyBlue,
-        RSScreenDestination
+        WaybillScreenDestination
     )
 }

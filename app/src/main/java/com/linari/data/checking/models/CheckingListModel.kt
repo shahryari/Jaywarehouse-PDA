@@ -21,6 +21,8 @@ data class CheckingListRow(
     val checkingID: Int,
     @SerializedName("CustomerCode")
     val customerCode: String,
+    @SerializedName("LocationCode")
+    val locationCode: String?,
     @SerializedName("CustomerID")
     val customerID: Int,
     @SerializedName("CustomerName")
@@ -39,6 +41,8 @@ data class CheckingListRow(
     val quantity: Double,
     @SerializedName("ReferenceNumber")
     val referenceNumber: String?,
+    @SerializedName("LocationBase")
+    val locationBase: Boolean?,
     @SerializedName("WarehouseID")
     val warehouseID: Int
 ) : Animatable {

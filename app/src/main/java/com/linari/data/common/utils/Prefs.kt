@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
 import com.linari.data.auth.models.AccessPermissionModel
 import com.linari.data.auth.models.WarehouseModel
 import com.linari.data.common.modules.dataStore
@@ -17,6 +18,20 @@ class Prefs(private val context: Context) {
     private val preferences: SharedPreferences = context.getSharedPreferences("prefs",Context.MODE_PRIVATE)
 
     val lockKeyboardKey = booleanPreferencesKey("lockKeyboardKey")
+    val trackingKey = booleanPreferencesKey("trackingKey")
+    val labelsKey = stringPreferencesKey("labels")
+    //
+    suspend fun setLabels(labels: String) {
+        context.dataStore.edit {
+            it[labelsKey] = labels.ifEmpty { "{}" }
+        }
+    }
+
+    fun getLabels() : Flow<String> {
+        return context.dataStore.data.map {
+            it[labelsKey] ?: "{}"
+        }
+    }
 
     //token
     fun setToken(token: String) {
@@ -46,6 +61,17 @@ class Prefs(private val context: Context) {
         }
     }
 
+    //profile
+    fun setProfile(profile: String) {
+        with(preferences.edit()){
+            putString("profile",profile)
+            apply()
+        }
+    }
+
+    fun getProfile() : String {
+        return preferences.getString("profile","")?:""
+    }
     //modify and waste
     fun setHasModifyPick(has: Boolean){
         with(preferences.edit()) {
@@ -67,6 +93,17 @@ class Prefs(private val context: Context) {
 
     fun getHasWaste() : Boolean {
         return preferences.getBoolean("hasWaste",true)
+    }
+    //pick cancel
+    fun setHasPickCancel(has: Boolean) {
+        with(preferences.edit()){
+            putBoolean("hasPickCancel",has)
+            apply()
+        }
+    }
+
+    fun getHasPickCancel() : Boolean {
+        return preferences.getBoolean("hasPickCancel",false)
     }
     //warehouse
     fun setWarehouse(warehouse: WarehouseModel?) {
@@ -659,6 +696,28 @@ class Prefs(private val context: Context) {
     }
 
 
+    //waybill
+    fun setWaybillSort(sort: String) {
+        with(preferences.edit()){
+            putString("waybillSort",sort)
+            apply()
+        }
+    }
+
+    fun getWaybillSort() : String {
+        return preferences.getString("waybillSort", DEFAULT_SORT) ?: DEFAULT_SORT
+    }
+
+    fun setWaybillOrder(order: String) {
+        with(preferences.edit()){
+            putString("waybillOrder",order)
+            apply()
+        }
+    }
+
+    fun getWaybillOrder() : String {
+        return preferences.getString("waybillOrder", Order.Desc.value) ?: Order.Desc.value
+    }
 
     //shipping detail
     fun setShippingDetailSort(sort: String) {
@@ -713,5 +772,53 @@ class Prefs(private val context: Context) {
         return preferences.getBoolean("validatePallet", true)
     }
 
+
+
+    //lat and long
+    fun setLatitude(latitude: String) {
+        with(preferences.edit()){
+            putString("lat",latitude)
+            apply()
+        }
+    }
+
+    fun getLatitude() : String {
+        return preferences.getString("lat","") ?:""
+    }
+
+    fun setLongitude(longitude: String) {
+        with(preferences.edit()){
+            putString("long",longitude)
+            apply()
+        }
+    }
+
+    fun getLongitude() : String {
+        return preferences.getString("long","") ?: ""
+    }
+    // tracking
+    suspend fun setTracking(tracking: Boolean) {
+        context.dataStore.edit {
+            it[trackingKey] = tracking
+        }
+    }
+
+    fun getTracking() : Flow<Boolean> {
+        return context.dataStore.data.map {
+            it[trackingKey] ?: true
+        }
+    }
+
+    //enable auto open checking for none completed checking
+    fun setEnableAutoOpenChecking(enable: Boolean) {
+        with(preferences.edit()){
+            putBoolean("enableAutoOpenChecking",enable)
+            apply()
+        }
+    }
+
+    fun getEnableAutoOpenChecking() : Boolean {
+        return preferences.getBoolean("enableAutoOpenChecking", true)
+    }
 
 }

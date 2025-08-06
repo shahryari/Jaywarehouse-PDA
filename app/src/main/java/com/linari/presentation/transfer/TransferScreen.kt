@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.ExperimentalMaterialApi
@@ -27,6 +29,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -37,6 +40,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
@@ -51,9 +55,12 @@ import com.linari.presentation.common.composables.DetailCard
 import com.linari.presentation.common.composables.InputTextField
 import com.linari.presentation.common.composables.MainListItem
 import com.linari.presentation.common.composables.MyButton
+import com.linari.presentation.common.composables.MyIcon
 import com.linari.presentation.common.composables.MyLazyColumn
 import com.linari.presentation.common.composables.MyScaffold
 import com.linari.presentation.common.composables.MyText
+import com.linari.presentation.common.composables.RefreshIcon
+import com.linari.presentation.common.composables.RowCountView
 import com.linari.presentation.common.composables.SearchInput
 import com.linari.presentation.common.composables.SortBottomSheet
 import com.linari.presentation.common.composables.TitleView
@@ -102,13 +109,21 @@ fun PutawayContent(
     state: TransferContract.State = TransferContract.State(),
     onEvent: (TransferContract.Event)->Unit = {}
 ) {
-    val searchFocusRequester = remember {
-        FocusRequester()
+//    val searchFocusRequester = remember {
+//        FocusRequester()
+//    }
+
+    val listState = rememberLazyListState()
+
+    val lastItem = remember {
+        derivedStateOf {
+            listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+        }
     }
 
 
     LaunchedEffect(key1 = Unit) {
-        searchFocusRequester.requestFocus()
+//        searchFocusRequester.requestFocus()
         onEvent(TransferContract.Event.ReloadScreen)
     }
     MyScaffold(
@@ -122,7 +137,7 @@ fun PutawayContent(
             onEvent(TransferContract.Event.HideToast)
         },
         onRefresh = {
-            onEvent(TransferContract.Event.ReloadScreen)
+            onEvent(TransferContract.Event.OnRefresh)
         }
     ) {
 
@@ -133,38 +148,99 @@ fun PutawayContent(
                     .padding(15.mdp)
             ) {
                 TopBar(
-                    "Transfer",
+                    "Inventory",
                     onBack = {
                         onEvent(TransferContract.Event.OnBackPressed)
                     }
                 )
                 Spacer(modifier = Modifier.size(10.mdp))
-                SearchInput(
-                    onSearch = {
-                        onEvent(TransferContract.Event.OnSearch(it.text))
-                    },
-                    value = state.keyword,
-                    isLoading = state.loadingState == Loading.SEARCHING,
-                    onSortClick = {
-                        onEvent(TransferContract.Event.OnShowSortList(true))
-                    },
+                InputTextField(
+                    state.barcodeKeyword,
+                    {onEvent(TransferContract.Event.ChangeBarcodeKeyword(it))},
+                    label = "Barcode",
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                     hideKeyboard = state.lockKeyboard,
-                    focusRequester = searchFocusRequester
+                    leadingIcon = R.drawable.barcode
                 )
+                Spacer(Modifier.size(7.mdp))
+                InputTextField(
+                    state.productCodeKeyword,
+                    {onEvent(TransferContract.Event.ChangeProductCodeKeyword(it))},
+                    label = "Product Code",
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                    hideKeyboard = state.lockKeyboard,
+                    leadingIcon = R.drawable.keyboard2
+                )
+                Spacer(Modifier.size(7.mdp))
+                InputTextField(
+                    state.locationKeyword,
+                    {onEvent(TransferContract.Event.ChangeLocationKeyword(it))},
+                    label = "Location",
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                    hideKeyboard = state.lockKeyboard,
+                    leadingIcon = R.drawable.location
+                )
+                Spacer(Modifier.size(7.mdp))
+                Row(Modifier.align(Alignment.End), verticalAlignment = Alignment.CenterVertically) {
+                    if (state.loadingState == Loading.SEARCHING){
+                        RefreshIcon(
+                            isRefreshing = true,
+                            paddingValues = PaddingValues(vertical = 8.mdp, horizontal = 15.mdp)
+                        )
+                    } else {
+
+                        MyIcon(
+                            icon = R.drawable.vuesax_linear_search_normal,
+                            onClick = {
+                                onEvent(TransferContract.Event.OnSearch(""))
+                            },
+                            background = Primary,
+                            tint = Color.White,
+                            showBorder = false,
+                            modifier = Modifier.shadow(1.mdp, RoundedCornerShape(6.mdp)),
+                            shape = RoundedCornerShape(6.mdp),
+                            paddingValues = PaddingValues(vertical = 8.mdp, horizontal = 15.mdp),
+                            size = 24.mdp
+                        )
+                    }
+                    Spacer(Modifier.size(7.mdp))
+                    MyIcon(
+                        icon = R.drawable.vuesax_linear_sort,
+                        onClick = {
+                            onEvent(TransferContract.Event.OnShowSortList(true))
+                        },
+                        background = Primary,
+                        tint = Color.White,
+                        shape = RoundedCornerShape(6.mdp),
+                        showBorder = false,
+                        modifier = Modifier.shadow(1.mdp, RoundedCornerShape(6.mdp)),
+                        paddingValues = PaddingValues(vertical = 8.mdp, horizontal = 15.mdp),
+                        size = 24.mdp
+                    )
+
+                }
                 Spacer(modifier = Modifier.size(15.mdp))
                 MyLazyColumn(
                     Modifier.fillMaxSize(),
                     items = state.transferList,
                     itemContent = {_,it->
-                        TransferItem(it) {
+                        TransferItem(it,state.hasTransfer) {
                             onEvent(TransferContract.Event.OnSelectTransfer(it))
                         }
                     },
                     onReachEnd = {
                         onEvent(TransferContract.Event.OnReachedEnd)
-                    }
+                    },
+
+                    state = listState
                 )
             }
+            RowCountView(
+                Modifier.align(Alignment.BottomCenter),
+                current = lastItem.value,
+                group = state.transferList.size,
+                total = state.rowCount
+            )
         }
     }
     if (state.showSortList){
@@ -186,14 +262,17 @@ fun PutawayContent(
 @Composable
 fun TransferItem(
     model: TransferRow,
+    clickable: Boolean,
     onClick:()->Unit
 ) {
     MainListItem(
         onClick = onClick,
+        clickable = clickable,
         typeTitle = model.expireDate,
         modelNumber = model.productBarcodeNumber,
         item1 = BaseListItemModel("Product Name",model.productName, R.drawable.barcode),
-        item2 = BaseListItemModel("Location",model.warehouseLocationCode?:"", R.drawable.location),
+        item2 = BaseListItemModel("Product Code",model.productCode,R.drawable.keyboard2),
+        item3 = BaseListItemModel("Location",model.warehouseLocationCode?:"", R.drawable.location),
         totalTitle = "Real",
         total = model.realInventory.toString(),
         countTitle = "Available",

@@ -166,7 +166,12 @@ class PickingListBDViewModel(
                         is BaseResult.Success -> {
                             val list = state.shippingOrderDetailList + (it.data?.rows?:emptyList())
                             setSuspendedState {
-                                copy(shippingOrderDetailList = list,purchaseOrderDetailRow = it.data?.purchaseOrderDetail)
+                                copy(
+                                    shippingOrderDetailList = list,
+                                    purchaseOrderDetailRow = it.data?.purchaseOrderDetail,
+                                    rowCount = it.data?.total ?: 0,
+                                    hasModify = if (list.size == 1) false else prefs.getHasModifyPick()
+                                )
                             }
                         }
                         BaseResult.UnAuthorized -> {
@@ -184,7 +189,10 @@ class PickingListBDViewModel(
                 copy(isFinishing = true)
             }
             viewModelScope.launch(Dispatchers.IO) {
-                repository.finishPurchaseOrderDetailBD(purchaseDetail.purchaseOrderDetailID)
+                repository.finishPurchaseOrderDetailBD(
+                    purchaseDetail.purchaseOrderDetailID,
+                    prefs.getWarehouse()!!.id
+                )
                     .catch {
                         setSuspendedState {
                             copy(error = it.message ?: "", isFinishing = false, showConfirmFinish = false)
@@ -225,6 +233,12 @@ class PickingListBDViewModel(
         if (quantity==null){
             setState {
                 copy(error = "Please fill quantity")
+            }
+            return
+        }
+        if (quantity<0.0){
+            setState {
+                copy(error = "Modified quantity can't be less then zero")
             }
             return
         }
@@ -292,40 +306,54 @@ class PickingListBDViewModel(
             }
             return
         }
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.wasteOnPicking(
-                row.pickingID,
-                quantity
-            ).catch {
-                setSuspendedState {
-                    copy(isWasting = false, error = it.message?:"")
-                }
-            }.collect {
-                setSuspendedState {
-                    copy(isWasting = false)
-                }
-                when(it){
-                    is BaseResult.Error -> {
-                        setSuspendedState {
-                            copy(error = it.message)
-                        }
-                    }
-                    is BaseResult.Success ->{
-                        if (it.data?.isSucceed == true){
-                            setSuspendedState {
-                                copy(toast = it.data.messages.firstOrNull()?:"Saved successfully", selectedForWaste = null)
-                            }
-                            getShippingOrderList()
-                        } else {
-                            setSuspendedState {
-                                copy(error = it.data?.messages?.firstOrNull()?:"")
-                            }
-                        }
-                    }
-                    BaseResult.UnAuthorized ->{}
-                }
-            }
 
+        if (quantity<0){
+            setState {
+                copy(error = "Waste quantity can't be less then zero")
+            }
+            return
+        }
+
+        if (!state.isWasting){
+            setState {
+                copy(isWasting = true)
+            }
+            viewModelScope.launch(Dispatchers.IO) {
+                repository.wasteOnPicking(
+                    row.pickingID,
+                    row.purchaseOrderDetailID,
+                    quantity
+                ).catch {
+                    setSuspendedState {
+                        copy(isWasting = false, error = it.message?:"")
+                    }
+                }.collect {
+                    setSuspendedState {
+                        copy(isWasting = false)
+                    }
+                    when(it){
+                        is BaseResult.Error -> {
+                            setSuspendedState {
+                                copy(error = it.message)
+                            }
+                        }
+                        is BaseResult.Success ->{
+                            if (it.data?.isSucceed == true){
+                                setSuspendedState {
+                                    copy(toast = it.data.messages.firstOrNull()?:"Saved successfully", selectedForWaste = null)
+                                }
+                                getShippingOrderList()
+                            } else {
+                                setSuspendedState {
+                                    copy(error = it.data?.messages?.firstOrNull()?:"")
+                                }
+                            }
+                        }
+                        BaseResult.UnAuthorized ->{}
+                    }
+                }
+
+            }
         }
     }
 

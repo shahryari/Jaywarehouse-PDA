@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -33,16 +34,19 @@ import com.linari.ui.theme.PrimaryDark
 @Composable
 fun MainListItem(
     onClick: ()->Unit,
+    clickable: Boolean = true,
     typeTitle: String? = null,
     modelNumber: String? = null,
     item1 : BaseListItemModel? = null,
     item2 : BaseListItemModel? = null,
+    item3 : BaseListItemModel? = null,
     totalTitle: String = "Total",
     totalIcon: Int = R.drawable.vuesax_outline_box_tick,
-    total: String = "",
+    total: String? = "",
     countTitle: String = "Scan",
-    countIcon: Int = R.drawable.scanner,
-    count: String = "",
+    countIcon: Int? = R.drawable.scanner,
+    count: String? = "",
+    countContent: (@Composable ()-> Unit)? = null,
     showFooter: Boolean = true,
 ) {
     Column(
@@ -51,7 +55,7 @@ fun MainListItem(
             .fillMaxWidth()
             .clip(RoundedCornerShape(6.mdp))
             .background(Color.White)
-            .clickable {
+            .clickable(clickable) {
                 onClick()
             }
     ) {
@@ -96,13 +100,24 @@ fun MainListItem(
                 detail = item1.value,
                 textStyle = item1.style
             )
-            if (item2!=null)Spacer(modifier = Modifier.size(8.mdp))
-            if (item2!=null)DetailCard(
-                item2.title,
-                icon = item2.icon,
-                detail = item2.value,
-                textStyle = item2.style
-            )
+            if (item2!=null || item3 !=null)Spacer(modifier = Modifier.size(8.mdp))
+            Row(Modifier.fillMaxWidth(),) {
+                if (item2!=null)DetailCard(
+                    item2.title,
+                    icon = item2.icon,
+                    detail = item2.value,
+                    textStyle = item2.style,
+                    modifier = Modifier.weight(1f)
+                )
+                if (item2!=null && item3!=null) Spacer(Modifier.size(5.mdp))
+                if (item3!=null)DetailCard(
+                    item3.title,
+                    icon = item3.icon,
+                    detail = item3.value,
+                    textStyle = item3.style,
+                    modifier = Modifier.weight(1f)
+                )
+            }
             if (showFooter)Spacer(modifier = Modifier.size(15.mdp))
 
         }
@@ -111,49 +126,63 @@ fun MainListItem(
                 Modifier
                     .fillMaxWidth()
             ) {
-                Row(
+                if (total!=null)Row(
                     Modifier
+                        .height(45.mdp)
                         .weight(1f)
                         .background(Primary)
                         .padding(vertical = 7.mdp, horizontal = 10.mdp),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Icon(
-                        painter = painterResource(totalIcon),
-                        contentDescription = "",
-                        modifier = Modifier.size(28.mdp),
-                        tint = Color.White
-                    )
-                    Spacer(modifier = Modifier.size(7.mdp))
-                    MyText(
-                        text = "$totalTitle: ${total.toDoubleOrNull()?.removeZeroDecimal()?:total}",
-                        color = Color.White,
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Medium
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            painter = painterResource(totalIcon),
+                            contentDescription = "",
+                            modifier = Modifier.size(28.mdp),
+                            tint = Color.White
+                        )
+                        Spacer(modifier = Modifier.size(7.mdp))
+
+                        MyText(
+                            text = "$totalTitle: ${total.toDoubleOrNull()?.removeZeroDecimal()?:total}",
+                            color = Color.White,
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
                 }
-                Row(
+                if (count!=null)Row(
                     Modifier
+                        .height(45.mdp)
                         .weight(1f)
                         .background(PrimaryContainer)
                         .padding(vertical = 7.mdp, horizontal = 10.mdp),
                     verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Icon(
-                        painter = painterResource(countIcon),
-                        contentDescription = "",
-                        modifier = Modifier.size(28.mdp),
-                        tint = PrimaryDark
-                    )
-                    Spacer(modifier = Modifier.size(7.mdp))
-                    MyText(
-                        text = "$countTitle: ${count.toDoubleOrNull()?.removeZeroDecimal()?:count}",
-                        color = PrimaryDark,
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Medium
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        if(countIcon!=null)Icon(
+                            painter = painterResource(countIcon),
+                            contentDescription = "",
+                            modifier = Modifier.size(28.mdp),
+                            tint = PrimaryDark
+                        )
+                        Spacer(modifier = Modifier.size(7.mdp))
+                        MyText(
+                            text = "$countTitle${if(countTitle.isNotEmpty())":" else ""} ${count.toDoubleOrNull()?.removeZeroDecimal()?:count}",
+                            color = PrimaryDark,
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+
+                    if(countContent!=null) {
+                        countContent()
+                    }
+
                 }
             }
         }

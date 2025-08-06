@@ -1,7 +1,6 @@
 package com.linari.data.shipping
 
 import com.linari.data.common.utils.BaseResult
-import com.linari.data.common.utils.ROW_COUNT
 import com.linari.data.common.utils.ResultMessageModel
 import com.linari.data.common.utils.getResult
 import com.linari.data.pallet.model.PalletConfirmRow
@@ -18,8 +17,9 @@ import kotlinx.coroutines.flow.Flow
 class ShippingRepository(private val api: ShippingApi) {
 
 
-    fun getShipping(
+    fun getShippings(
         keyword: String,
+        warehouseID: Int,
         page: Int,
         row: Int,
         sort: String,
@@ -27,6 +27,7 @@ class ShippingRepository(private val api: ShippingApi) {
     ) : Flow<BaseResult<ShippingModel>> {
         val jsonObject = JsonObject()
         jsonObject.addProperty("Keyword",keyword)
+        jsonObject.addProperty("WarehouseID",warehouseID)
         return getResult(
             request = {
                 api.getShippings(jsonObject, page, row, sort, order)
@@ -155,13 +156,8 @@ class ShippingRepository(private val api: ShippingApi) {
     fun getShippingPalletTypes() = getResult(
         request = {
             api.getShippingPalletType(
-//                jsonObject = JsonObject().apply {
-//                    addProperty("ShippingID", shippingId)
-//                },
-//                1,
-//                100,
-//                "CreatedOn",
-//                "desc"
+                jsonObject = JsonObject().apply {
+                }
             )
         }
     )
@@ -197,11 +193,12 @@ class ShippingRepository(private val api: ShippingApi) {
         )
     }
 
-    fun getShippingPalletManifestList() = getResult(
+    fun getShippingPalletManifestList(warehouseID: Int) = getResult(
         request = {
             api.getShippingPalletManifestList(
                 jsonObject = JsonObject().apply {
                     addProperty("Keyword", "")
+                    addProperty("WarehouseID",warehouseID)
                 },
                 1,
                 100,
@@ -270,7 +267,7 @@ class ShippingRepository(private val api: ShippingApi) {
             api.createShippingPallet(
                 jsonObject = JsonObject().apply {
                     addProperty("ShippingID", shippingID)
-                    addProperty("CustomerID", customerID)
+                    addProperty("PartnerID", customerID)
                     addProperty("PalletTypeID", palletTypeID)
                     addProperty("PalletStatusID", palletStatusID)
                     addProperty("PalletQuantity", palletQuantity.toInt())
@@ -327,11 +324,13 @@ class ShippingRepository(private val api: ShippingApi) {
     )
 
     fun getShipping(
-        shippingId: Int
+        shippingId: Int,
+        warehouseID: Int,
     ) = getResult(
         request = {
             val jsonObject = JsonObject()
             jsonObject.addProperty("ShippingID",shippingId)
+            jsonObject.addProperty("WarehouseID",warehouseID)
             api.getShipping(jsonObject)
         }
     )
@@ -367,6 +366,16 @@ class ShippingRepository(private val api: ShippingApi) {
             jsonObject.addProperty("Keyword","")
             jsonObject.addProperty("PalletManifestID",palletManifestId)
             api.getPalletManifestProduct(jsonObject,1,100,"","")
+        }
+    )
+
+    fun getCustomerPalletIsNotInShipping(
+        shippingId: Int,
+    ) = getResult(
+        request = {
+            val jsonObject = JsonObject()
+            jsonObject.addProperty("ShippingID",shippingId)
+            api.getCustomerPalletIsNotInShipping(jsonObject)
         }
     )
 }

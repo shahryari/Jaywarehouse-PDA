@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -34,6 +35,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.sp
 import com.linari.R
 import com.linari.data.common.utils.mdp
 import com.linari.ui.theme.ErrorRed
@@ -88,20 +90,38 @@ fun DetailItem(
                     ) {
                         if(dismissState.dismissDirection == SwipeToDismissBoxValue.EndToStart) Spacer(Modifier.size(5.mdp))
                         AnimatedVisibility(dismissState.dismissDirection == SwipeToDismissBoxValue.StartToEnd) {
-                            Icon(
-                                Icons.Default.Delete,
-                                contentDescription = "",
-                                modifier = Modifier.size(20.mdp),
-                                tint = Color.White
-                            )
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    Icons.Default.Delete,
+                                    contentDescription = "",
+                                    modifier = Modifier.size(20.mdp),
+                                    tint = Color.White
+                                )
+                                Spacer(Modifier.size(10.mdp))
+                                MyText(
+                                    "Remove",
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    color = Color.White
+                                )
+                            }
                         }
                         AnimatedVisibility(dismissState.dismissDirection == SwipeToDismissBoxValue.EndToStart) {
-                            Icon(
-                                Icons.Default.Delete,
-                                contentDescription = "",
-                                modifier = Modifier.size(20.mdp),
-                                tint = Color.White
-                            )
+                            Row {
+                                MyText(
+                                    "Remove",
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    color = Color.White
+                                )
+                                Spacer(Modifier.size(10.mdp))
+                                Icon(
+                                    Icons.Default.Delete,
+                                    contentDescription = "",
+                                    modifier = Modifier.size(20.mdp),
+                                    tint = Color.White
+                                )
+                            }
                         }
                     }
                 },
@@ -185,6 +205,7 @@ fun DetailItem(
     second: String,
     third: String,
     forth: String,
+    fifth: String,
     removable: Boolean = true,
     selected: Boolean = false,
     onRemove: ()->Unit = {}
@@ -216,29 +237,49 @@ fun DetailItem(
                 backgroundContent = {
                     Row(
                         Modifier
-                            .fillMaxWidth()
+                            .fillMaxSize()
                             .clip(RoundedCornerShape(6.mdp))
                             .background(ErrorRed)
-                            .padding(10.mdp),
+                            .padding(horizontal = 10.mdp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         if(dismissState.dismissDirection == SwipeToDismissBoxValue.EndToStart) Spacer(Modifier.size(5.mdp))
                         AnimatedVisibility(dismissState.dismissDirection == SwipeToDismissBoxValue.StartToEnd) {
-                            Icon(
-                                Icons.Default.Delete,
-                                contentDescription = "",
-                                modifier = Modifier.size(20.mdp),
-                                tint = Color.White
-                            )
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    Icons.Default.Delete,
+                                    contentDescription = "",
+                                    modifier = Modifier.size(20.mdp),
+                                    tint = Color.White
+                                )
+                                Spacer(Modifier.size(10.mdp))
+                                MyText(
+                                    "Remove",
+                                    fontSize = 13.sp,
+                                    lineHeight = 13.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    color = Color.White
+                                )
+                            }
                         }
                         AnimatedVisibility(dismissState.dismissDirection == SwipeToDismissBoxValue.EndToStart) {
-                            Icon(
-                                Icons.Default.Delete,
-                                contentDescription = "",
-                                modifier = Modifier.size(20.mdp),
-                                tint = Color.White
-                            )
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                MyText(
+                                    "Remove",
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    lineHeight = 13.sp,
+                                    color = Color.White
+                                )
+                                Spacer(Modifier.size(10.mdp))
+                                Icon(
+                                    Icons.Default.Delete,
+                                    contentDescription = "",
+                                    modifier = Modifier.size(20.mdp),
+                                    tint = Color.White
+                                )
+                            }
                         }
                     }
                 },
@@ -294,7 +335,7 @@ fun DetailItem(
                     )
                 }
                 Spacer(Modifier.size(5.mdp))
-                Row(modifier = Modifier.weight(1f),verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
+                Row(modifier = Modifier.weight(0.5f),verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
                     MyText(
                         text = third,
                         style = MaterialTheme.typography.bodyMedium,
@@ -303,9 +344,18 @@ fun DetailItem(
                     )
                 }
                 Spacer(Modifier.size(5.mdp))
-                Row(modifier = Modifier.weight(1.2f),verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
+                Row(modifier = Modifier.weight(1f),verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
                     MyText(
                         text = forth,
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.W500,
+                        color = Color.Black
+                    )
+                }
+                Spacer(Modifier.size(5.mdp))
+                Row(modifier = Modifier.weight(1.2f),verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
+                    MyText(
+                        text = fifth,
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.W500,
                         color = Color.Black

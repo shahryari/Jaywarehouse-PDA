@@ -27,6 +27,9 @@ class TransferViewModel(
         if (sort!=null) setState {
             copy(sort = sort)
         }
+        setState {
+            copy(hasTransfer = prefs.getAccessPermission()?.hasTransfer == true)
+        }
         viewModelScope.launch(Dispatchers.IO) {
             prefs.getLockKeyboard().collect {
                 setSuspendedState {
@@ -51,7 +54,7 @@ class TransferViewModel(
                 prefs.setTransferSort(event.sort.sort)
                 prefs.setTransferOrder(event.sort.order.value)
                 setState {
-                    copy(sort = event.sort, transferList = emptyList(), page = 1, loadingState = Loading.LOADING)
+                    copy(sort = event.sort, transferList = emptyList(), page = 1)
                 }
                 getTransferList()
             }
@@ -64,7 +67,7 @@ class TransferViewModel(
             TransferContract.Event.ReloadScreen -> {
 
                 setState {
-                    copy(page = 1, transferList = emptyList(), loadingState = Loading.LOADING, keyword = "")
+                    copy(page = 1, transferList = emptyList(), keyword = "")
                 }
 
                 getTransferList()
@@ -73,7 +76,7 @@ class TransferViewModel(
             TransferContract.Event.OnReachedEnd -> {
                 if (ROW_COUNT*state.page<=state.transferList.size) {
                     setState {
-                        copy(page = state.page+1, loadingState = Loading.LOADING)
+                        copy(page = state.page+1)
                     }
                     getTransferList()
                 }
@@ -81,16 +84,16 @@ class TransferViewModel(
 
             is TransferContract.Event.OnSearch -> {
                 setState {
-                    copy(page = 1, transferList = emptyList(), loadingState = Loading.SEARCHING, keyword = event.keyword)
+                    copy(page = 1, transferList = emptyList(), keyword = event.keyword)
                 }
-                getTransferList()
+                getTransferList(Loading.SEARCHING)
             }
 
             TransferContract.Event.OnRefresh -> {
                 setState {
-                    copy(page = 1, transferList = emptyList(), loadingState = Loading.REFRESHING)
+                    copy(page = 1, transferList = emptyList())
                 }
-                getTransferList()
+                getTransferList(Loading.REFRESHING)
             }
 
             TransferContract.Event.OnBackPressed -> {
@@ -154,6 +157,28 @@ class TransferViewModel(
                     copy(selectedLocation = event.location)
                 }
             }
+
+            is TransferContract.Event.OnShowStatusList -> {
+                setState {
+                    copy(showStatusList = event.show)
+                }
+            }
+
+            is TransferContract.Event.ChangeBarcodeKeyword ->  {
+                setState {
+                    copy(barcodeKeyword = event.keyword)
+                }
+            }
+            is TransferContract.Event.ChangeLocationKeyword -> {
+                setState {
+                    copy(locationKeyword = event.keyword)
+                }
+            }
+            is TransferContract.Event.ChangeProductCodeKeyword -> {
+                setState {
+                    copy(productCodeKeyword = event.keyword)
+                }
+            }
         }
     }
 
@@ -213,39 +238,54 @@ class TransferViewModel(
         }
     }
     private fun getTransferList(
+        loading:Loading = Loading.LOADING
     ) {
 
+        if (state.loadingState== Loading.NONE){
+            setState {
+                copy(loadingState = loading)
+            }
+            viewModelScope.launch {
+                repository.getTransfers(
+                    productCode = state.productCodeKeyword.text,
+                    locationCode = state.locationKeyword.text,
+                    barcode = state.barcodeKeyword.text,
+                    warehouseID = prefs.getWarehouse()!!.id,
+                    page =state.page,
+                    sort =state.sort.sort,
+                    order = state.sort.order.value
+                )
+                    .catch {
+                        setSuspendedState {
+                            copy(error = it.message?:"", loadingState = Loading.NONE)
+                        }
+                    }
+                    .collect {
+                        setSuspendedState {
+                            copy(loadingState = Loading.NONE)
+                        }
+                        when(it){
+                            is BaseResult.Error ->  {
+                                setSuspendedState {
+                                    copy(error = it.message)
+                                }
+                            }
+                            is BaseResult.Success -> {
+                                setSuspendedState {
+                                    copy(
+                                        transferList = transferList + (it.data?.rows?: emptyList()),
+                                        rowCount = it.data?.total ?: 0
+                                    )
+                                }
+                            }
+                            BaseResult.UnAuthorized -> {
 
-        viewModelScope.launch {
-            repository.getTransfers(
-                keyword = state.keyword,state.page,state.sort.sort,state.sort.order.value
-            )
-                .catch {
-                    setSuspendedState {
-                        copy(error = it.message?:"", loadingState = Loading.NONE)
-                    }
-                }
-                .collect {
-                    setSuspendedState {
-                        copy(loadingState = Loading.NONE)
-                    }
-                    when(it){
-                        is BaseResult.Error ->  {
-                            setSuspendedState {
-                                copy(error = it.message)
                             }
                         }
-                        is BaseResult.Success -> {
-                            setSuspendedState {
-                                copy(transferList = transferList + (it.data?.rows?: emptyList()), loadingState = Loading.NONE)
-                            }
-                        }
-                        BaseResult.UnAuthorized -> {
-
-                        }
                     }
-                }
+            }
         }
+
     }
 
 
@@ -310,7 +350,6 @@ class TransferViewModel(
                                         selectedTransfer = null,
                                         transferList = emptyList(),
                                         page = 1,
-                                        loadingState = Loading.LOADING
                                     )
                                 }
                                 getTransferList()

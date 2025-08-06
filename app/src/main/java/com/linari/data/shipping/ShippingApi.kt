@@ -23,6 +23,7 @@ import com.linari.data.shipping.models.ShippingPalletManifestRow
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.gson.annotations.SerializedName
+import com.linari.data.shipping.models.CustomerPalletIsNotInShippingModel
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.Header
@@ -54,7 +55,7 @@ interface ShippingApi {
         @Body jsonObject: JsonObject
     ) : Response<ResultMessageModel>
 
-    @POST("CreteInvoice")
+    @POST("CreateInvoice")
     suspend fun createInvoice(
         @Body jsonObject: JsonObject
     ) : Response<ResultMessageModel>
@@ -81,7 +82,7 @@ interface ShippingApi {
     ): Response<ResultMessageModel>
 
 
-    @POST("ShippingCustomer")
+    @POST("ShippingPartner")
     suspend fun getShippingCustomers(
         @Body jsonObject: JsonObject,
         @Header(PAGE) page: Int,
@@ -92,11 +93,7 @@ interface ShippingApi {
 
     @POST("PalletType")
     suspend fun getShippingPalletType(
-//        @Body jsonObject: JsonObject,
-//        @Header(PAGE) page: Int,
-//        @Header(ROWS) rows: Int,
-//        @Header(SORT) sort: String,
-//        @Header(ORDER) order: String
+        @Body jsonObject: JsonObject,
     ) : Response<PalletTypeModel>
 
 
@@ -129,7 +126,7 @@ interface ShippingApi {
         @Body jsonObject: JsonObject
     ): Response<ResultMessageModel>
 
-    @POST("ShippingDetailListOfPallet")
+    @POST("PalletManifestDetailInShipping")
     suspend fun getShippingDetailListOfPallet(
         @Body jsonObject: JsonObject,
         @Header(PAGE) page: Int,
@@ -193,4 +190,10 @@ interface ShippingApi {
         @Header(SORT) sort: String,
         @Header(ORDER) order: String
     ) : Response<PalletManifestProductModel>
+
+
+    @POST("PartnerPalletIsNotInShipping")
+    suspend fun getCustomerPalletIsNotInShipping(
+        @Body jsonObject: JsonObject,
+    ) : Response<CustomerPalletIsNotInShippingModel>
 }

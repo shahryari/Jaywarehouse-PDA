@@ -28,7 +28,8 @@ fun DetailHeader(
     firstTitle: String,
     secondTitle: String,
     thirdTitle: String,
-    forthTitle: String
+    forthTitle: String,
+    fifthTitle: String
 ) {
     Column(
         modifier = Modifier
@@ -70,10 +71,20 @@ fun DetailHeader(
                 )
             }
             Spacer(Modifier.size(5.mdp))
+            Row(modifier = Modifier.weight(0.5f),verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
+                MyText(
+                    text = thirdTitle,
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.W500,
+                    color = Color.Black
+                )
+            }
+
+            Spacer(Modifier.size(5.mdp))
             Row(modifier = Modifier.weight(1f),verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
 
                 MyText(
-                    text = thirdTitle,
+                    text = forthTitle,
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.W500,
                     color = Color.Black
@@ -83,7 +94,7 @@ fun DetailHeader(
             Row(modifier = Modifier.weight(1.2f),verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
 
                 MyText(
-                    text = forthTitle,
+                    text = fifthTitle,
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.W500,
                     color = Color.Black

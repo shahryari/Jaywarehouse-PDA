@@ -55,7 +55,7 @@ fun <T>AutoDropDownTextField(
 
 
     Column(modifier) {
-        val filteredSuggestions = if(clickable) suggestions else  suggestions.filter { it.toString().lowercase().startsWith(value.text.lowercase()) }
+        val filteredSuggestions = if(clickable) suggestions else  suggestions.filter { it.toString().lowercase().contains(value.text.lowercase()) }
 
         InputTextField(
             value = value,

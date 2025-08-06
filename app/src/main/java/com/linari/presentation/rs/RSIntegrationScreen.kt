@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.ExperimentalMaterialApi
@@ -26,6 +27,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -48,6 +50,7 @@ import com.linari.presentation.common.composables.MyButton
 import com.linari.presentation.common.composables.MyLazyColumn
 import com.linari.presentation.common.composables.MyScaffold
 import com.linari.presentation.common.composables.MyText
+import com.linari.presentation.common.composables.RowCountView
 import com.linari.presentation.common.composables.SearchInput
 import com.linari.presentation.common.composables.SortBottomSheet
 import com.linari.presentation.common.composables.TitleView
@@ -55,6 +58,8 @@ import com.linari.presentation.common.composables.TopBar
 import com.linari.presentation.common.utils.Loading
 import com.linari.presentation.common.utils.SIDE_EFFECT_KEY
 import com.linari.presentation.common.utils.ScreenTransition
+import com.linari.presentation.rs.contracts.RSIntegrationContract
+import com.linari.presentation.rs.viewmodels.RSIntegrationViewModel
 import com.linari.presentation.shipping.PalletBarcode
 import com.linari.presentation.shipping.contracts.ShippingContract
 import com.linari.ui.theme.Gray3
@@ -95,6 +100,13 @@ fun RSContent(
 ) {
     val searchFocusRequester = remember {
         FocusRequester()
+    }
+    val listState = rememberLazyListState()
+
+    val lastItem = remember {
+        derivedStateOf {
+            listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+        }
     }
 
 
@@ -149,9 +161,16 @@ fun RSContent(
                     },
                     onReachEnd = {
                         onEvent(RSIntegrationContract.Event.OnReachEnd)
-                    }
+                    },
+                    state = listState
                 )
             }
+            RowCountView(
+                Modifier.align(Alignment.BottomCenter),
+                current = lastItem.value,
+                group = state.rsList.size,
+                total = state.rowCount
+            )
 
         }
     }
@@ -214,14 +233,14 @@ fun RsItem(
             verticalAlignment = Alignment.CenterVertically
         ) {
             DetailCard(
-                title = "Car Number",
+                title = "Car No.",
                 detail = model.carNumber?:"",
                 icon = R.drawable.barcode,
                 modifier = Modifier.weight(1f)
             )
             Spacer(Modifier.size(15.mdp))
             DetailCard(
-                title = "Trailer Number",
+                title = "Trailer No.",
                 detail = model.trailerNumber?:"",
                 icon = R.drawable.vuesax_linear_box,
                 modifier = Modifier.weight(1f)
@@ -318,7 +337,7 @@ fun UpdateDriverBottomSheet(
                     onAny = {},
                     leadingIcon = R.drawable.vuesax_linear_box,
 //                    hideKeyboard = state.lockKeyboard,
-                    label = "Car Number",
+                    label = "Car No.",
                     enabled = editDriver,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
                 )
@@ -330,7 +349,7 @@ fun UpdateDriverBottomSheet(
                     },
                     onAny = {},
                     leadingIcon = R.drawable.vuesax_linear_box,
-                    label = "Trailer Number",
+                    label = "Trailer No.",
 //                    hideKeyboard = state.lockKeyboard,
                     enabled = editDriver,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)

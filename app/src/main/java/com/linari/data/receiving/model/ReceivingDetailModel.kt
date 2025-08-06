@@ -7,6 +7,6 @@ data class ReceivingDetailModel(
     val rows: List<ReceivingDetailRow>,
     @SerializedName("total")
     val total: Int,
-    @SerializedName("Receiving")
+    @SerializedName("receiving")
     val receiving: ReceivingRow?
 )

@@ -14,9 +14,11 @@ koin = "3.5.3"
 retrofit = "2.11.0"
 datastore = "1.1.1"
 coil = "2.6.0"
+glide = "4.14.2"
 composeDestinations = "1.10.2"
 zxing = "4.3.0"
 threeTenAbp = "1.4.9"
+location = "21.3.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -40,11 +42,14 @@ koin-android = { group = "io.insert-koin", name = "koin-androidx-compose", versi
 koin-core = { group = "io.insert-koin", name = "koin-core", version.ref = "koin" }
 retrofit-retroift = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
 retrofit-converter-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit" }
-#coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
+coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
+glide-glide = {group = "com.github.bumptech.glide",name = "glide",version.ref ="glide"}
+glide-compiler = {group = "com.github.bumptech.glide",name = "compiler",version.ref = "glide"}
 compose-destinations-core = { group = "io.github.raamcosta.compose-destinations", name = "animations-core", version.ref = "composeDestinations" }
 compose-destinations-ksp = { group = "io.github.raamcosta.compose-destinations", name = "ksp", version.ref = "composeDestinations" }
 #zxing = {group = "com.journeyapps",name="zxing-android-embedded", version.ref="zxing"}
 threetenabp = {group = "com.jakewharton.threetenabp", name = "threetenabp", version.ref = "threeTenAbp"}
+google-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "location" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

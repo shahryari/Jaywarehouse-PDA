@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,12 +20,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Button
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.FloatingActionButton
@@ -44,6 +46,7 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -56,11 +59,18 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.ParagraphStyle
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -72,16 +82,20 @@ import com.linari.data.shipping.models.PalletInShippingRow
 import com.linari.data.shipping.models.ShippingDetailListOfPalletRow
 import com.linari.data.shipping.models.ShippingPalletManifestRow
 import com.linari.data.shipping.models.ShippingRow
+import com.linari.presentation.checking.contracts.CheckingDetailContract
 import com.linari.presentation.common.composables.AutoDropDownTextField
 import com.linari.presentation.common.composables.BaseListItem
 import com.linari.presentation.common.composables.BaseListItemModel
 import com.linari.presentation.common.composables.ComboBox
 import com.linari.presentation.common.composables.DetailCard
 import com.linari.presentation.common.composables.InputTextField
+import com.linari.presentation.common.composables.ListSheet
 import com.linari.presentation.common.composables.MyButton
+import com.linari.presentation.common.composables.MyIcon
 import com.linari.presentation.common.composables.MyLazyColumn
 import com.linari.presentation.common.composables.MyScaffold
 import com.linari.presentation.common.composables.MyText
+import com.linari.presentation.common.composables.RowCountView
 import com.linari.presentation.common.composables.SearchInput
 import com.linari.presentation.common.composables.SortBottomSheet
 import com.linari.presentation.common.composables.TitleView
@@ -93,7 +107,9 @@ import com.linari.presentation.counting.ConfirmDialog
 import com.linari.presentation.destinations.ShippingDetailScreenDestination
 import com.linari.presentation.shipping.contracts.ShippingContract
 import com.linari.presentation.shipping.contracts.ShippingDetailContract
+import com.linari.presentation.shipping.viewmodels.ShippingDetailViewModel
 import com.linari.presentation.shipping.viewmodels.ShippingViewModel
+import com.linari.ui.theme.Border
 import com.linari.ui.theme.ErrorRed
 import com.linari.ui.theme.Gray1
 import com.linari.ui.theme.Gray3
@@ -140,6 +156,13 @@ fun ShippingContent(
 ) {
     val searchFocusRequester = remember {
         FocusRequester()
+    }
+    val listState = rememberLazyListState()
+
+    val lastItem = remember {
+        derivedStateOf {
+            listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+        }
     }
 
     LaunchedEffect(key1 = Unit) {
@@ -203,7 +226,7 @@ fun ShippingContent(
                                 onEvent(ShippingContract.Event.OnShowConfirm(it))
                             },
                             onInvoice = {
-                                onEvent(ShippingContract.Event.OnShowInvoice(it))
+                                onEvent(ShippingContract.Event.CheckHasPallet(it))
                             },
                             onRollback = {
                                 onEvent(ShippingContract.Event.OnShowRollbackConfirm(it))
@@ -213,10 +236,16 @@ fun ShippingContent(
                     },
                     onReachEnd = {
                         onEvent(ShippingContract.Event.OnReachEnd)
-
-                    }
+                    },
+                    state = listState
                 )
             }
+            RowCountView(
+                Modifier.align(Alignment.BottomCenter),
+                current = lastItem.value,
+                group = state.shippingList.size,
+                total = state.rowCount
+            )
             Box(
                 Modifier
                     .align(Alignment.BottomEnd)
@@ -268,14 +297,36 @@ fun ShippingContent(
         }
     }
     if (state.invoiceShipping!=null){
-        ConfirmDialog(
+        com.linari.presentation.common.composables.ConfirmDialog(
             onDismiss = {
                 onEvent(ShippingContract.Event.OnShowInvoice(null))
             },
-            message = "Are you sure to create invoice for shipping ${state.invoiceShipping.shippingNumber}?",
+            message = buildAnnotatedString {
+
+                if (state.palletNotInShipping.isNotEmpty()){
+                    append("Some pallets for [")
+                    withStyle(SpanStyle(color = Primary, fontWeight = FontWeight.Bold)){
+                        append(
+                            state.palletNotInShipping.distinctBy { it.customerName }.joinToString(
+                                ","
+                            ) { it.customerName }
+                        )
+                    }
+                    append("] are still pending and haven’t been loaded onto a truck.\n")
+                    append("[")
+                    withStyle(SpanStyle(color = Primary, fontWeight = FontWeight.SemiBold)) {
+                        append(
+                            state.palletNotInShipping.joinToString(",") { it.palletBarcodes }
+                        )
+                    }
+                    append("]\n")
+                    append("Are you sure to dispatch this truck?")
+                } else{
+                    append("Are you sure to create invoice for shipping ${state.invoiceShipping.shippingNumber}?")
+                }
+            },
             tint = Orange,
             isLoading = state.isCreatingInvoice,
-            title = "Confirm",
         ) {
             onEvent(ShippingContract.Event.OnCreateInvoice(state.invoiceShipping))
         }
@@ -283,14 +334,25 @@ fun ShippingContent(
     if (state.showRollbackConfirm!=null){
         ConfirmDialog(
             onDismiss = {
-                onEvent(ShippingContract.Event.OnShowConfirm(null))
+                onEvent(ShippingContract.Event.OnShowRollbackConfirm(null))
             },
-            message = "Are you sure to unconfirm this shipping ${state.showRollbackConfirm.shippingNumber}",
+            message = "Are you sure to unconfirm this shipping ${state.showRollbackConfirm.shippingNumber}?",
             tint = Orange,
             isLoading = state.isCreatingRs,
             title = "Confirm",
         ) {
             onEvent(ShippingContract.Event.OnRollbackShipping(state.showRollbackConfirm))
+        }
+    }
+    if (state.showConfirmOfPalletConfirm!=null){
+        ConfirmDialog(
+            onDismiss = {
+                onEvent(ShippingContract.Event.ShowConfirmOfPalletConfirm(null))
+            },
+            message = "Are you sure to confirm this pallet?",
+            isLoading = state.isCreatingPallet
+        ) {
+            onEvent(ShippingContract.Event.OnConfirmPallet(state.showConfirmOfPalletConfirm))
         }
     }
     AddShippingBottomSheet(state,onEvent)
@@ -315,9 +377,9 @@ fun ShippingItem(
 
     Column(
         Modifier
-            .shadow(1.mdp, RoundedCornerShape(6.mdp))
+            .shadow(1.mdp, RoundedCornerShape(10.mdp))
             .fillMaxWidth()
-            .clip(RoundedCornerShape(6.mdp))
+            .clip(RoundedCornerShape(10.mdp))
             .clickable {
                 onClick()
             }
@@ -363,7 +425,8 @@ fun ShippingItem(
             DetailCard(
                 "Customer",
                 icon = R.drawable.profile_2user,
-                detail = model.customerName?:""
+                detail = model.customerName?.replace(Regex(","),"\n")?:"",
+                showFullDetail = true
             )
             Spacer(Modifier.size(10.mdp))
             AnimatedVisibility(expend){
@@ -403,7 +466,7 @@ fun ShippingItem(
                     DetailCard(
                         "Date",
                         icon = R.drawable.vuesax_linear_calendar_2,
-                        detail = (model.date?:"") +if (model.date!=null && model.time!=null) "-" else "" + (model.time?:"")
+                        detail = (model.date?:"") +(if (model.date!=null && model.time!=null) "," else "") + (model.time?:"")
                     )
                     Spacer(modifier = Modifier.size(15.mdp))
                 }
@@ -449,6 +512,7 @@ fun ShippingItem(
                                 title = "Invoice",
                                 icon = R.drawable.receipt_2,
                                 background = Gray4,
+                                shape = RoundedCornerShape(bottomStart = 10.mdp),
                                 onClick = onInvoice
                             )
                             ShipButton(
@@ -456,6 +520,7 @@ fun ShippingItem(
                                 title = "UnConfirm",
                                 icon = R.drawable.tick,
                                 background = Gray3,
+                                shape = RoundedCornerShape(bottomEnd = 10.mdp),
                                 onClick = onRollback
                             )
                         }
@@ -487,9 +552,6 @@ fun AddShippingBottomSheet(
 
 
     if (state.showAddDialog){
-
-
-
         ModalBottomSheet(
             sheetState = sheetState,
             onDismissRequest = {
@@ -522,13 +584,13 @@ fun AddShippingBottomSheet(
                     onAny = {
                         onEvent(ShippingContract.Event.OnScanDriverId)
                     },
-                    leadingIcon = R.drawable.note,
+                    leadingIcon = R.drawable.user_square,
 //                    hideKeyboard = state.lockKeyboard,
                     trailingIcon = R.drawable.tick,
                     onTrailingClick = {
                         onEvent(ShippingContract.Event.OnScanDriverId)
                     },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Done)
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.None)
                 )
                 Spacer(Modifier.size(10.mdp))
                 TitleView(title = "Driver")
@@ -560,7 +622,7 @@ fun AddShippingBottomSheet(
                             leadingIcon = R.drawable.vuesax_linear_box,
 //                    hideKeyboard = state.lockKeyboard,
                             enabled = state.isDriverIdScanned,
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                         )
                     }
                     Spacer(Modifier.size(10.mdp))
@@ -576,7 +638,7 @@ fun AddShippingBottomSheet(
                             leadingIcon = R.drawable.vuesax_linear_box,
 //                    hideKeyboard = state.lockKeyboard,
                             enabled = state.isDriverIdScanned,
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                         )
 
                     }
@@ -676,7 +738,7 @@ private fun PalletProductSheet(
                         .padding(bottom = 24.mdp)
                 ) {
                     MyText(
-                        text = "Pallet Products",
+                        text = "Pallet Details",
                         fontWeight = FontWeight.W500,
                         style = MaterialTheme.typography.titleLarge
                     )
@@ -702,26 +764,6 @@ private fun PalletProductSheet(
 
 
 
-@Composable
-private fun PalletProduct(
-    model: PalletManifestProductRow
-) {
-    var expended by remember {
-        mutableStateOf(false)
-    }
-    BaseListItem(
-        onClick = {
-            expended = !expended
-        },
-        scan = null,
-        quantity = model.quantity?.removeZeroDecimal()?:"",
-        scanTitle = "Check Quantity",
-        quantityTitle = "Quantity",
-        item1 = BaseListItemModel("Product Name",model.productName?:"",R.drawable.vuesax_outline_3d_cube_scan),
-        item2 = if (expended)BaseListItemModel("Product Code",model.productCode?:"",R.drawable.note) else null,
-        item3 = if (expended)BaseListItemModel("Barcode",model.barcode?:"",R.drawable.barcode) else null
-    )
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -883,29 +925,51 @@ fun AddPalletQuantity(
 //                val editDriver = state.selectedDriver == null && state.isDriverIdScanned
                 TitleView(title = "Pallet Type")
                 Spacer(Modifier.size(5.mdp))
-                ComboBox(
-                    modifier = Modifier,
-                    items = state.palletTypes,
-                    selectedItem = state.selectedPalletType,
-                    icon = R.drawable.box_search,
-                    listPadding = PaddingValues(horizontal = 24.mdp),
-                    onSelectItem = {
-                        onEvent(ShippingContract.Event.OnSelectPalletType(it))
-                    }
-                )
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(6.mdp))
+                        .clickable {
+                            onEvent(ShippingContract.Event.OnShowTypeList(true))
+                        }
+                        .background(color = Color.Transparent)
+                        .border(1.mdp, Border,RoundedCornerShape(6.mdp))
+                        .padding(vertical = 9.mdp, horizontal = 10.mdp),
+                    verticalAlignment = Alignment.CenterVertically
+                ){
+
+                    MyIcon(icon = R.drawable.vuesax_outline_box_tick, showBorder = false, clickable = false)
+                    Spacer(modifier = Modifier.size(7.mdp))
+                    MyText(
+                        state.selectedPalletType?.string()?:"",
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
                 Spacer(Modifier.size(10.mdp))
                 TitleView(title = "Pallet Status")
                 Spacer(Modifier.size(5.mdp))
-                ComboBox(
-                    modifier = Modifier,
-                    items = state.palletStatusList,
-                    icon = R.drawable.vuesax_outline_box_tick,
-                    selectedItem = state.selectedPalletStatus,
-                    listPadding = PaddingValues(horizontal = 24.mdp),
-                    onSelectItem = {
-                        onEvent(ShippingContract.Event.OnSelectPalletStatus(it))
-                    }
-                )
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(6.mdp))
+                        .clickable {
+                            onEvent(ShippingContract.Event.OnShowStatusList(true))
+                        }
+                        .background(color = Color.Transparent)
+                        .border(1.mdp, Border,RoundedCornerShape(6.mdp))
+                        .padding(vertical = 9.mdp, horizontal = 10.mdp),
+                    verticalAlignment = Alignment.CenterVertically
+                ){
+
+                    MyIcon(icon = R.drawable.vuesax_outline_box_tick, showBorder = false, clickable = false)
+                    Spacer(modifier = Modifier.size(7.mdp))
+                    MyText(
+                        state.selectedPalletStatus?.string()?:"",
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
                 Spacer(Modifier.size(10.mdp))
                 TitleView(title = "Quantity")
                 Spacer(Modifier.size(5.mdp))
@@ -947,7 +1011,7 @@ fun AddPalletQuantity(
                             onEvent(ShippingContract.Event.OnScanPalletQuantity)
                         },
                         title = "Save",
-                        isLoading = state.isCreatingPallet,
+                        isLoading = state.isAddingPallet,
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -1042,10 +1106,9 @@ fun PalletQuantityBottomSheet(
                     Spacer(Modifier.size(10.mdp))
                     MyButton(
                         onClick = {
-                            onEvent(ShippingContract.Event.OnConfirmPallet(state.shippingForPallet))
+                            onEvent(ShippingContract.Event.ShowConfirmOfPalletConfirm(state.shippingForPallet))
                         },
                         title = "Confirm",
-                        isLoading = state.isCreatingPallet,
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -1053,6 +1116,28 @@ fun PalletQuantityBottomSheet(
         }
         AddPalletQuantity(state,onEvent)
         UpdatePalletQuantity(state,onEvent)
+        ListSheet(
+            state.showTypeList,
+            title = "Pallet Type List",
+            onDismiss = {
+                onEvent(ShippingContract.Event.OnShowTypeList(false))
+            },
+            list = state.palletTypes,
+            selectedItem = state.selectedPalletType,
+        ) {
+            onEvent(ShippingContract.Event.OnSelectPalletType(it))
+        }
+        ListSheet(
+            state.showStatusList,
+            title = "Pallet Status List",
+            onDismiss = {
+                onEvent(ShippingContract.Event.OnShowStatusList(false))
+            },
+            list = state.palletStatusList,
+            selectedItem = state.selectedPalletStatus,
+        ) {
+            onEvent(ShippingContract.Event.OnSelectPalletStatus(it))
+        }
         if (state.showConfirmDeletePallet!=null){
             ConfirmDialog(
                 onDismiss = {
@@ -1097,29 +1182,50 @@ fun PalletQuantity(
             Row(
                 Modifier
                     .shadow(1.mdp, RoundedCornerShape(6.mdp))
-                    .fillMaxWidth()
+                    .fillMaxSize()
                     .clip(RoundedCornerShape(6.mdp))
                     .background(ErrorRed)
-                    .padding(10.mdp),
+                    .padding(horizontal = 10.mdp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 if(swipeState.dismissDirection == SwipeToDismissBoxValue.EndToStart) Spacer(Modifier.size(5.mdp))
                 AnimatedVisibility(swipeState.dismissDirection == SwipeToDismissBoxValue.StartToEnd) {
-                    Icon(
-                        Icons.Default.Delete,
-                        contentDescription = "",
-                        modifier = Modifier.size(20.mdp),
-                        tint = Color.White
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            Icons.Default.Delete,
+                            contentDescription = "",
+                            modifier = Modifier.size(20.mdp),
+                            tint = Color.White
+                        )
+                        Spacer(Modifier.size(10.mdp))
+                        MyText(
+                            "Remove",
+                            lineHeight = 13.sp,
+
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = Color.White
+                        )
+                    }
                 }
                 AnimatedVisibility(swipeState.dismissDirection == SwipeToDismissBoxValue.EndToStart) {
-                    Icon(
-                        Icons.Default.Delete,
-                        contentDescription = "",
-                        modifier = Modifier.size(20.mdp),
-                        tint = Color.White
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        MyText(
+                            "Remove",
+                            fontSize = 13.sp,
+                            lineHeight = 13.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = Color.White
+                        )
+                        Spacer(Modifier.size(10.mdp))
+                        Icon(
+                            Icons.Default.Delete,
+                            contentDescription = "",
+                            modifier = Modifier.size(20.mdp),
+                            tint = Color.White
+                        )
+                    }
                 }
             }
         }
@@ -1135,22 +1241,25 @@ fun PalletQuantity(
                 .background(Gray1)
                 .padding(vertical = 6.mdp, horizontal = 8.mdp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
         ) {
             MyText(
                 text = model.customerName?:"",
                 fontSize = 13.sp,
                 fontWeight = FontWeight.W500,
+                modifier = Modifier.weight(2.5f),
+                overflow = TextOverflow.Ellipsis
             )
             MyText(
                 text = model.palletTypeTitle?:"",
                 fontSize = 13.sp,
                 fontWeight = FontWeight.W500,
+                modifier = Modifier.weight(1f)
             )
             MyText(
                 text = model.palletStatusTitle?:"",
                 fontSize = 13.sp,
                 fontWeight = FontWeight.W500,
+                modifier = Modifier.weight(1f)
             )
             Box(
                 modifier = Modifier
@@ -1200,26 +1309,46 @@ fun PalletBarcode(
                     .fillMaxSize()
                     .clip(RoundedCornerShape(6.mdp))
                     .background(ErrorRed)
-                    .padding(10.mdp),
+                    .padding(horizontal = 10.mdp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 if(swipeState.dismissDirection == SwipeToDismissBoxValue.EndToStart) Spacer(Modifier.size(5.mdp))
                 AnimatedVisibility(swipeState.dismissDirection == SwipeToDismissBoxValue.StartToEnd) {
-                    Icon(
-                        Icons.Default.Delete,
-                        contentDescription = "",
-                        modifier = Modifier.size(20.mdp),
-                        tint = Color.White
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            Icons.Default.Delete,
+                            contentDescription = "",
+                            modifier = Modifier.size(20.mdp),
+                            tint = Color.White
+                        )
+                        Spacer(Modifier.size(10.mdp))
+                        MyText(
+                            "Remove",
+                            fontSize = 13.sp,
+                            lineHeight = 13.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = Color.White
+                        )
+                    }
                 }
                 AnimatedVisibility(swipeState.dismissDirection == SwipeToDismissBoxValue.EndToStart) {
-                    Icon(
-                        Icons.Default.Delete,
-                        contentDescription = "",
-                        modifier = Modifier.size(20.mdp),
-                        tint = Color.White
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        MyText(
+                            "Remove",
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Medium,
+                            lineHeight = 13.sp,
+                            color = Color.White
+                        )
+                        Spacer(Modifier.size(10.mdp))
+                        Icon(
+                            Icons.Default.Delete,
+                            contentDescription = "",
+                            modifier = Modifier.size(20.mdp),
+                            tint = Color.White
+                        )
+                    }
                 }
             }
         }
@@ -1246,7 +1375,7 @@ fun PalletBarcode(
                 )
                 Spacer(Modifier.size(3.mdp))
                 MyText(
-                    text = model.customerName?:"",
+                    text = "${model.customerName?:""}(${model.customerCode?:""})",
                     fontSize = 11.sp,
                     lineHeight = 11.sp,
                     fontWeight = FontWeight.W500,
@@ -1278,11 +1407,15 @@ private fun ShipButton(
     title: String,
     icon: Int,
     background: Color,
+    shape: Shape = RoundedCornerShape(bottomStart = 10.mdp, bottomEnd = 10.mdp),
     onClick: ()->Unit
 ) {
     Row(
         modifier
+            .shadow(1.mdp,shape)
+            .clip(shape)
             .background(background)
+            .border(1.mdp,Border,shape)
             .clickable { onClick() }
             .padding(vertical = 7.mdp, horizontal = 10.mdp),
         verticalAlignment = Alignment.CenterVertically

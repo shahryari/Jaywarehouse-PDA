@@ -178,7 +178,7 @@ class CountingInceptionViewModel(
                                     details = detailList,
                                     countingDetailRow = it.data?.receivingDetailRow,
                                     quantityInPacket = TextFieldValue(it.data?.pcb?.pcb?.toString()?:it.data?.pcb?.defaultPcb?.toString()?:""),
-                                    pcbEnabled =it.data?.pcb?.pcb == null,
+                                    pcbEnabled = it.data?.pcb?.enableUpdatePCB == true || it.data?.pcb?.allowDifferentPCB == true,
                                     locationBase = it.data?.pcb?.locationBase == true,
                                     expEnabled = it.data?.pcb?.expired == true,
                                     batchNumberEnabled = it.data?.pcb?.hasBatchNumber == true

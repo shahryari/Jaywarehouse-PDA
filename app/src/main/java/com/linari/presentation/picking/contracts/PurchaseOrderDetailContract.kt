@@ -21,13 +21,15 @@ class PurchaseOrderDetailContract {
             SortItem("Product Name Z-A", "ProductName",Order.Desc),
             SortItem("Product Code Ascending", "ProductCode",Order.Asc),
             SortItem("Product Code Descending", "ProductCode",Order.Desc),
-            SortItem("Barcode Ascending", "Barcode",Order.Asc),
-            SortItem("Barcode Descending", "Barcode",Order.Desc)
+            SortItem("Barcode Ascending", "ProductBarcodeNumber",Order.Asc),
+            SortItem("Barcode Descending", "ProductBarcodeNumber" +
+                    "",Order.Desc)
         ),
         val sort: SortItem = sortList.first(),
         val page: Int = 1,
         val showSortList: Boolean = false,
-        val lockKeyboard: Boolean = false
+        val lockKeyboard: Boolean = false,
+        val rowCount : Int = 0
     ) : UiState
 
     sealed class Event : UiEvent {

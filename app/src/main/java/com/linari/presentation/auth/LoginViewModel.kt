@@ -14,9 +14,12 @@ import com.linari.data.common.utils.Prefs
 import com.linari.presentation.common.utils.BaseViewModel
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
+import com.linari.BuildConfig
+import com.linari.R
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 import okhttp3.HttpUrl
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import org.koin.core.context.loadKoinModules
 import org.koin.core.context.unloadKoinModules
 
@@ -32,7 +35,8 @@ class LoginViewModel(
                 userName = TextFieldValue(prefs.getUserName()),
                 password = if(pass.isNotEmpty()) TextFieldValue(encryptor.decode(pass)) else TextFieldValue(""),
                 rememberMe = pass.isNotEmpty(),
-                address = TextFieldValue(prefs.getAddress())
+                address = if (prefs.getAddress().startsWith("https://")) TextFieldValue(prefs.getAddress().replace("https://","")) else TextFieldValue(prefs.getAddress().replace("http://","")),
+                domainPrefix = if (prefs.getAddress().startsWith("https://")) "https://" else "http://"
             )
         }
 
@@ -52,7 +56,7 @@ class LoginViewModel(
                     repository.login(state.userName.text,state.password.text,state.rememberMe)
                         .catch {
                             setSuspendedState {
-                                copy(isLoading = false, error = it.message.toString())
+                                copy(isLoading = false, serverError = it.message?:"")
                             }
                         }
                         .collect {
@@ -69,7 +73,7 @@ class LoginViewModel(
                                         }
                                     } else it.data?.message
                                     setSuspendedState {
-                                        copy(error = data?:"")
+                                        copy(serverError = data?:"")
                                     }
                                     Log.i("login", "onEvent: ${it.message}")
                                 }
@@ -98,7 +102,7 @@ class LoginViewModel(
             }
 
             LoginContract.Event.CloseError -> {
-                setState { copy(error = "") }
+                setState { copy(error = null, serverError = "") }
             }
 
             is LoginContract.Event.OnShowPassword -> {
@@ -111,17 +115,17 @@ class LoginViewModel(
 
 
 
-                if (HttpUrl.parse(state.address.text)!=null){
-                    prefs.setAddress(state.address.text)
+                if ((state.domainPrefix+state.address.text).toHttpUrlOrNull()!=null){
+                    prefs.setAddress(state.domainPrefix+state.address.text)
                     setState {
-                        copy(toast = "Address changed successfully", showDomain = false)
+                        copy(toast = R.string.address_change_notice, showDomain = false)
                     }
                     unloadKoinModules(listOf(networkModule, authModule, mainModule))
                     loadKoinModules(listOf(networkModule, authModule, mainModule))
                     setEffect { LoginContract.Effect.RestartActivity }
                 }
                 else setState {
-                    copy(error = "Invalid address")
+                    copy(error = R.string.invalid_address)
                 }
             }
             is LoginContract.Event.OnShowDomain -> {
@@ -137,8 +141,40 @@ class LoginViewModel(
             }
 
             LoginContract.Event.HideToast -> {
-                setState { copy(toast = "") }
+                setState { copy(toast = null, serverToast = "") }
             }
+
+            is LoginContract.Event.OnChangePrefix -> {
+                setState {
+                    copy(domainPrefix = event.prefix)
+                }
+            }
+
+            LoginContract.Event.DownloadUpdate -> {
+                setEffect { LoginContract.Effect.DownloadUpdate(state.updateUrl) }
+            }
+            LoginContract.Event.OnCloseApp ->{
+                setEffect { LoginContract.Effect.CloseApp }
+            }
+        }
+    }
+    private fun getVersionInfo() {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.getCurrentVersionInfo()
+                .catch {
+
+                }
+                .collect {
+                    if (it is BaseResult.Success){
+                        setSuspendedState {
+                            copy(
+                                showUpdateDialog = (it.data?.currentVersion ?: 0) > BuildConfig.VERSION_CODE,
+                                newVersion = it.data?.showVersion?:"",
+                                updateUrl = it.data?.downloadUrl?:""
+                            )
+                        }
+                    }
+                }
         }
     }
 }

@@ -113,7 +113,7 @@ class PutawayViewModel(
     ) {
         viewModelScope.launch {
             repository.getPutawayListGrouped(
-                keyword = keyword,page,sort.sort,sort.order.value
+                keyword = keyword, warehouseID = prefs.getWarehouse()!!.id,page,sort.sort,sort.order.value
             )
                 .catch {
                     setSuspendedState {
@@ -132,7 +132,10 @@ class PutawayViewModel(
                         }
                         is BaseResult.Success -> {
                             setSuspendedState {
-                                copy(puts = puts + (it.data?.rows?: emptyList()), loadingState = Loading.NONE)
+                                copy(
+                                    puts = puts + (it.data?.rows?: emptyList()), loadingState = Loading.NONE,
+                                    rowCount = it.data?.total?:0
+                                )
                             }
                         }
                         BaseResult.UnAuthorized -> {

@@ -134,7 +134,8 @@ class PurchaseOrderDetailViewModel(
                             val list = state.purchaseOrderDetailList + (it.data?.rows?:emptyList())
                             setSuspendedState {
                                 copy(
-                                    purchaseOrderDetailList = list
+                                    purchaseOrderDetailList = list,
+                                    rowCount = it.data?.total?:0
                                 )
                             }
                             if (loading != Loading.SEARCHING && list.isEmpty()) {

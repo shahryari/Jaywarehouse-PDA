@@ -15,7 +15,7 @@ data class ReceivingDetailCountModel(
     @SerializedName("Pack")
     val pack: Int?,
     @SerializedName("Piece")
-    val piece: Int?,
+    val piece: Double?,
     @SerializedName("ReceivingWorkerTaskCountID")
     val receivingWorkerTaskCountID: Int,
     @SerializedName("ReceivingWorkerTaskID")
@@ -36,8 +36,14 @@ data class ReceivingDetailGetItemsModel(
 
 
 data class PcbModel(
+    @SerializedName("AllowDifferentPCB")
+    val allowDifferentPCB: Boolean,
+    @SerializedName("AutoSetBatch")
+    val autoSetBatch: Boolean,
     @SerializedName("DefaultPcb")
     val defaultPcb: Int,
+    @SerializedName("EnableUpdatePCB")
+    val enableUpdatePCB: Boolean,
     @SerializedName("Expired")
     val expired: Boolean,
     @SerializedName("HasBatchNumber")

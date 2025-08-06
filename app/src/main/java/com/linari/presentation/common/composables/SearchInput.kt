@@ -42,6 +42,7 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import com.linari.data.common.utils.mdp
@@ -143,7 +144,7 @@ fun SearchInput(
                             Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterStart){
                                 if (keyword.text.isEmpty()) {
                                     MyText(
-                                        text = "Search Keyword ...",
+                                        text = stringResource(R.string.search_keyword),
                                         style = MaterialTheme.typography.bodyLarge,
                                         fontWeight = FontWeight.Normal,
                                         color = Color.LightGray

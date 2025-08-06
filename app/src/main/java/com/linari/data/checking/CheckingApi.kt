@@ -11,6 +11,7 @@ import com.linari.data.common.utils.SORT
 import com.linari.data.shipping.models.PalletMaskModel
 import com.linari.data.shipping.models.PalletTypeModel
 import com.google.gson.JsonObject
+import com.linari.data.checking.models.PalletManifestInfo
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.Header
@@ -46,7 +47,7 @@ interface CheckingApi {
     ) : Response<ResultMessageModel>
 
     @POST("PalletType")
-    suspend fun getPalletTypes() : Response<PalletTypeModel>
+    suspend fun getPalletTypes(@Body jsonObject: JsonObject) : Response<PalletTypeModel>
 
     @POST("PalletStatus")
     suspend fun getPalletStatuses() : Response<PalletStatusModel>
@@ -56,4 +57,15 @@ interface CheckingApi {
     suspend fun getPalletMask(
         @Body jsonObject: JsonObject
     ) : Response<PalletMaskModel>
+
+    @POST("PalletManifestInfo")
+    suspend fun getPalletManifestInfo(
+        @Body jsonObject: JsonObject
+    ) : Response<PalletManifestInfo>
+
+
+    @POST("PickCancel")
+    suspend fun cancelPick(
+        @Body jsonObject: JsonObject
+    ) : Response<ResultMessageModel>
 }

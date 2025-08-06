@@ -1,6 +1,6 @@
 package com.linari.data.auth.models
 
-import com.linari.presentation.pallet.PalletConfirmContract
+import com.linari.presentation.pallet.contracts.PalletConfirmContract
 import com.google.gson.annotations.SerializedName
 
 data class LoginModel(
@@ -10,6 +10,8 @@ data class LoginModel(
     @SerializedName("Message") val message: String? = null,
     @SerializedName("HasChecking")
     val hasChecking: Boolean,
+    @SerializedName("UserID")
+    val userID: String,
     @SerializedName("HasCount")
     val hasCount: Boolean,
     @SerializedName("HasCycleCount")
@@ -26,6 +28,8 @@ data class LoginModel(
     val hasPutaway: Boolean,
     @SerializedName("HasRS")
     val hasRS: Boolean,
+    @SerializedName("HasWaybill")
+    val hasWaybill: Boolean,
     @SerializedName("HasReturnReceiving")
     val hasReturnReceiving: Boolean,
     @SerializedName("HasShipping")
@@ -39,6 +43,8 @@ data class LoginModel(
     @SerializedName("HasModifyPickQty")
     val hasModifyPickQty: Boolean,
     @SerializedName("HasWaste")
-    val hasWaste: Boolean
+    val hasWaste: Boolean,
+    @SerializedName("HasPickCancel")
+    val hasPickCancel: Boolean
 )
 

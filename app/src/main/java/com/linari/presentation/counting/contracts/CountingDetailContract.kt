@@ -18,8 +18,8 @@ class CountingDetailContract {
         val countingDetailModel: ReceivingDetailModel? = null,
         val countingDetailRow: List<ReceivingDetailRow> = emptyList(),
         val loadingState: Loading = Loading.NONE,
-        val isScanLoading: Boolean = false,
-        val selectedDetail: String? = null,
+        val isCompleting: Boolean = false,
+        val selectedDetail: ReceivingDetailRow? = null,
         val showClearIcon: Boolean = false,
         val keyword: String = "",
         val toast: String = "",
@@ -39,7 +39,8 @@ class CountingDetailContract {
         val error: String = "",
         val lockKeyboard: Boolean = false,
         val total: Double = 0.0,
-        val scan: Double = 0.0
+        val scan: Double = 0.0,
+        val rowCount: Int = 0,
     ) : UiState
 
     sealed class Event : UiEvent {
@@ -47,7 +48,7 @@ class CountingDetailContract {
         data object OnNavBack : Event()
         data object OnClearBarcode: Event()
         data object HideToast: Event()
-        data class OnSelectDetail(val barcode: String?) : Event()
+        data class OnSelectDetail(val detail: ReceivingDetailRow?) : Event()
         data class OnSelectSort(val sort: SortItem) : Event()
         data class OnSelectOrder(val order: String) : Event()
         data class OnShowSortList(val show: Boolean) : Event()
@@ -56,6 +57,7 @@ class CountingDetailContract {
         data object OnRefresh: Event()
         data class OnDetailClick(val detail: ReceivingDetailRow) : Event()
         data object FetchData : Event()
+        data class OnConfirm(val detail: ReceivingDetailRow): Event()
     }
 
     sealed class Effect: UiSideEffect {

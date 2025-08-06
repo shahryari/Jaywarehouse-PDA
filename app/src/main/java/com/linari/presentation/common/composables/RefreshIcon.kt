@@ -7,6 +7,7 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
@@ -22,6 +23,7 @@ import com.linari.ui.theme.Black
 fun RefreshIcon(
     modifier: Modifier = Modifier,
     isRefreshing: Boolean = false,
+    paddingValues: PaddingValues = PaddingValues(3.mdp)
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "")
     val rotate = infiniteTransition.animateFloat(
@@ -33,7 +35,7 @@ fun RefreshIcon(
         ),
         label = ""
     )
-    Box(Modifier.padding(3.mdp)) {
+    Box(Modifier.padding(paddingValues)) {
         Icon(
             painter = painterResource(id = R.drawable.refresh),
             contentDescription ="",

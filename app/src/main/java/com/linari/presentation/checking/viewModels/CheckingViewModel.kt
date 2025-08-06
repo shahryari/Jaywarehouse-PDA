@@ -119,7 +119,7 @@ class CheckingViewModel(
     ) {
         viewModelScope.launch {
             repository.getCheckingListGroupedModel(
-                keyword = keyword,page,sort.sort,sort.order.value
+                keyword = keyword, warehouseID = prefs.getWarehouse()!!.id,page,sort.sort,sort.order.value
             )
                 .catch {
                     setSuspendedState {
@@ -138,7 +138,7 @@ class CheckingViewModel(
                         }
                         is BaseResult.Success -> {
                             setSuspendedState {
-                                copy(checkingList = checkingList + (it.data?.rows?: emptyList()), loadingState = Loading.NONE)
+                                copy(checkingList = checkingList + (it.data?.rows?: emptyList()), loadingState = Loading.NONE, rowCount = it.data?.total?:0)
                             }
                         }
                         BaseResult.UnAuthorized -> {

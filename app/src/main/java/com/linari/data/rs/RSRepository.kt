@@ -60,4 +60,27 @@ class RSRepository(
             api.rsInterface(jsonObject)
         }
     )
+
+    fun getWaybillInfoes(
+        keyword: String,
+        page: Int,
+        sort: String,
+        order: String
+    ) = getResult(
+        request = {
+            val jsonObject = JsonObject()
+            jsonObject.addProperty("Keyword",keyword)
+            api.waybillInfoes(jsonObject,page,ROW_COUNT,sort,order)
+        }
+    )
+
+    fun integrateWithRS(
+        waybillInfoID: Int
+    ) = getResult(
+        request = {
+            val jsonObject = JsonObject()
+            jsonObject.addProperty("WaybillInfoID",waybillInfoID)
+            api.integerateWithRS(jsonObject)
+        }
+    )
 }

@@ -4,6 +4,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import com.linari.data.checking.models.PalletStatusRow
 import com.linari.data.pallet.model.PalletManifestProductRow
 import com.linari.data.picking.models.PalletManifest
+import com.linari.data.shipping.models.CustomerPalletIsNotInShippingRow
 import com.linari.data.shipping.models.CustomerRow
 import com.linari.data.shipping.models.DriverModel
 import com.linari.data.shipping.models.PalletInShippingRow
@@ -29,7 +30,7 @@ class ShippingContract {
         val palletNumber: TextFieldValue = TextFieldValue(),
         val createPallets: List<ShippingPalletManifestRow> = emptyList(),
         val shippingPalletManifestList: List<ShippingPalletManifestRow> = emptyList(),
-        val palletProducts: List<PalletManifestProductRow> = emptyList(),
+        val palletProducts: List<ShippingDetailListOfPalletRow> = emptyList(),
         val showAddDialog: Boolean = false,
         val selectedDriver: DriverModel? = null,
         val isDriverIdScanned: Boolean = false,
@@ -84,6 +85,11 @@ class ShippingContract {
         val showConfirmDeletePallet: PalletInShippingRow? = null,
         val showRollbackConfirm: ShippingRow? = null,
         val isRollingBack: Boolean = false,
+        val rowCount: Int = 0,
+        val showStatusList: Boolean = false,
+        val showTypeList: Boolean = false,
+        val palletNotInShipping: List<CustomerPalletIsNotInShippingRow> = emptyList(),
+        val showConfirmOfPalletConfirm: ShippingRow? = null
     ) : UiState
 
     sealed class Event : UiEvent {
@@ -134,6 +140,10 @@ class ShippingContract {
 
         data class OnShowConfirmDeletePallet(val show: PalletInShippingRow?) : Event()
         data class OnUpdatePallet(val pallet: PalletInShippingRow) : Event()
+        data class OnShowStatusList(val show: Boolean ): Event()
+        data class OnShowTypeList(val show: Boolean) : Event()
+        data class CheckHasPallet(val shipping: ShippingRow) : Event()
+        data class ShowConfirmOfPalletConfirm(val shipping: ShippingRow?) : Event()
     }
 
     sealed class Effect : UiSideEffect {

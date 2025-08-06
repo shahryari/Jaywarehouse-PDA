@@ -13,7 +13,7 @@ data class ResultMessageModel(
     @SerializedName("EnableUpdate")
     val enableUpdate: Boolean,
     @SerializedName("EntityID")
-    val entityID: Any?,
+    val entityID: String?,
     @SerializedName("EntityStringKey")
     val entityStringKey: Any?,
     @SerializedName("ErrorCode")
@@ -24,6 +24,8 @@ data class ResultMessageModel(
     val messageType: Int,
     @SerializedName("Messages")
     val messages: List<String>,
+    @SerializedName("Message")
+    val message: String?,
     @SerializedName("ReturnValue")
     val returnValue: Any?,
     @SerializedName("UpdatedAny")

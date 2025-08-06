@@ -14,12 +14,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.unit.Dp
 import com.linari.data.common.utils.mdp
 
 @Composable
 fun MyCheckBox(
     modifier: Modifier = Modifier,
     checked: Boolean,
+    size: Dp = 15.mdp,
     onCheckChange: (checked: Boolean) -> Unit
 ) {
     Box(
@@ -35,11 +37,11 @@ fun MyCheckBox(
             Icon(
                 Icons.Default.Check,
                 contentDescription = "",
-                Modifier.size(15.mdp),
+                Modifier.size(size),
                 tint = MaterialTheme.colorScheme.primary
             )
         } else {
-            Spacer(modifier = Modifier.size(15.mdp))
+            Spacer(modifier = Modifier.size(size))
         }
     }
 }

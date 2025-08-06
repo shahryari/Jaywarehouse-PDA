@@ -9,15 +9,25 @@ data class ShippingDetailListOfPalletModel(
 )
 
 data class ShippingDetailListOfPalletRow(
-    @SerializedName("ShippingOrderDetailID") val shippingOrderDetailID: Int,
-    @SerializedName("PalletManifestID") val palletManifestID: Int,
-    @SerializedName("ProductCode") val productCode: String?,
-    @SerializedName("ProductName") val productName: String?,
-    @SerializedName("ProductBarcodeNumber") val productBarcodeNumber: String?,
-    @SerializedName("Quantity") val quantity: Double?
+    @SerializedName("IsWeight")
+    val isWeight: Boolean?,
+    @SerializedName("ProductBarcodeNumber")
+    val productBarcodeNumber: String?,
+    @SerializedName("ProductCode")
+    val productCode: String?,
+    @SerializedName("ProductName")
+    val productName: String?,
+    @SerializedName("Quantity")
+    val quantity: Double?,
+    @SerializedName("ReferenceNumberLPO")
+    val referenceNumberLPO: String?,
+    @SerializedName("ReferenceNumberPO")
+    val referenceNumberPO: String?,
+    @SerializedName("ShippingDetailID")
+    val shippingDetailID: Int
 ) : Animatable {
     override fun key(): String {
-        return shippingOrderDetailID.toString()
+        return shippingDetailID.toString()+productBarcodeNumber
     }
 
 }
