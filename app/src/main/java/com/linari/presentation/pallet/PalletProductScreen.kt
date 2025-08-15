@@ -133,6 +133,7 @@ fun PalletProductContent(
                 TopBar(
                     title = state.pallet?.customerName?:"",
                     subTitle = "Pallet Details",
+                    titleTag = state.warehouse?.name?:"",
                     onBack = {
                         onEvent(PalletProductContract.Event.OnNavBack)
                     },
@@ -232,8 +233,7 @@ fun PalletProductContent(
 fun BoxSheet(state: PalletProductContract.State, onEvent: (PalletProductContract.Event)->Unit) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
-    if (state.showConfirm)
-    ModalBottomSheet(
+    if (state.showConfirm) ModalBottomSheet(
         onDismissRequest = {
             onEvent(PalletProductContract.Event.OnShowConfirm(false))
         },
@@ -320,6 +320,8 @@ fun PalletProduct(
         quantityTitle = "Quantity",
         item1 = BaseListItemModel("Product Name",model.productName?:"",R.drawable.vuesax_outline_3d_cube_scan),
         item2 = if (expended)BaseListItemModel("Product Code",model.productCode?:"",R.drawable.keyboard2) else null,
-        item3 = if (expended)BaseListItemModel("Barcode",model.barcode?:"",R.drawable.barcode) else null
+        item3 = if (expended)BaseListItemModel("Barcode",model.barcode?:"",R.drawable.barcode) else null,
+        item4 = if (expended)BaseListItemModel("Exp Date",model.expireDate?:"",R.drawable.vuesax_linear_calendar_2) else null,
+        item5 = if (expended)BaseListItemModel("Batch No.",model.batchNumber?:"",R.drawable.keyboard) else null,
     )
 }

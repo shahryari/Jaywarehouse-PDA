@@ -69,6 +69,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
@@ -120,6 +121,7 @@ import com.linari.ui.theme.Primary
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.selects.select
 import org.koin.androidx.compose.koinViewModel
 
 @Destination(style = ScreenTransition::class)
@@ -192,6 +194,7 @@ fun ShippingContent(
             ) {
                 TopBar(
                     stringResource(R.string.shipping),
+                    titleTag = state.warehouse?.name ?: "",
                     onBack = {
                         onEvent(ShippingContract.Event.OnNavBack)
                     }
@@ -462,6 +465,22 @@ fun ShippingItem(
                             modifier = Modifier.weight(1f)
                         )
                     }
+                    Spacer(modifier = Modifier.size(10.mdp))
+                    Row(Modifier.fillMaxWidth()) {
+                        DetailCard(
+                            "Pallet Count",
+                            icon = R.drawable.box,
+                            detail = model.palletCount?.toString()?:"",
+                            modifier = Modifier.weight(1f)
+                        )
+                        Spacer(Modifier.size(5.mdp))
+                        DetailCard(
+                            "Product Count",
+                            icon = R.drawable.keyboard2,
+                            detail = model.sumPalletQty?.removeZeroDecimal()?.toString()?:"",
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
                     Spacer(Modifier.size(10.mdp))
                     DetailCard(
                         "Date",
@@ -619,7 +638,7 @@ fun AddShippingBottomSheet(
                                 onEvent(ShippingContract.Event.OnCarNumberChange(it))
                             },
                             onAny = {},
-                            leadingIcon = R.drawable.vuesax_linear_box,
+                            leadingIcon = R.drawable.truck_next,
 //                    hideKeyboard = state.lockKeyboard,
                             enabled = state.isDriverIdScanned,
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
@@ -635,7 +654,7 @@ fun AddShippingBottomSheet(
                                 onEvent(ShippingContract.Event.OnTrailerNumberChange(it))
                             },
                             onAny = {},
-                            leadingIcon = R.drawable.vuesax_linear_box,
+                            leadingIcon = R.drawable.vuesax_outline_truck_tick,
 //                    hideKeyboard = state.lockKeyboard,
                             enabled = state.isDriverIdScanned,
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
@@ -808,7 +827,7 @@ fun UpdatePalletQuantity(
                     DetailCard(
                         "Pallet Type",
                         state.showUpdatePallet.palletTypeTitle?:"",
-                        icon =R.drawable.box_search,
+                        icon =R.drawable.box,
                         modifier = Modifier.weight(1f)
                     )
                     Spacer(Modifier.size(10.mdp))
@@ -824,7 +843,7 @@ fun UpdatePalletQuantity(
                 DetailCard(
                     "Quantity",
                     state.showUpdatePallet.palletQuantity.toString(),
-                    icon = R.drawable.vuesax_linear_box,
+                    icon = R.drawable.vuesax_bulk_box_search,
                     modifier = Modifier.weight(1f)
                 )
                 Spacer(Modifier.size(10.mdp))
@@ -837,7 +856,7 @@ fun UpdatePalletQuantity(
                     },
                     onAny = {
                     },
-                    leadingIcon = R.drawable.vuesax_linear_box,
+                    leadingIcon = R.drawable.box_search,
 //                    hideKeyboard = state.lockKeyboard,
 //                    enabled = editDriver,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -909,17 +928,15 @@ fun AddPalletQuantity(
                     title = "Customer"
                 )
                 Spacer(Modifier.size(5.mdp))
-                AutoDropDownTextField(
-                    state.customer,
+                InputTextField(
+                    TextFieldValue(if (state.selectedCustomer!=null)"${(state.selectedCustomer.customerName).trim().trimIndent()}(${state.selectedCustomer.customerCode})" else ""),
                     onValueChange = {
-                        onEvent(ShippingContract.Event.OnCustomerChange(it))
                     },
-                    suggestions = state.customers,
-                    icon = R.drawable.user_square,
-                    onSuggestionClick = {
-                        onEvent(ShippingContract.Event.OnSelectCustomer(it))
+                    leadingIcon = R.drawable.user_square,
+                    readOnly = true,
+                    onClick = {
+                        onEvent(ShippingContract.Event.OnShowCustomerList(true))
                     }
-//                    hideKeyboard = state.lockKeyboard,
                 )
                 Spacer(Modifier.size(10.mdp))
 //                val editDriver = state.selectedDriver == null && state.isDriverIdScanned
@@ -938,7 +955,7 @@ fun AddPalletQuantity(
                     verticalAlignment = Alignment.CenterVertically
                 ){
 
-                    MyIcon(icon = R.drawable.vuesax_outline_box_tick, showBorder = false, clickable = false)
+                    MyIcon(icon = R.drawable.box, showBorder = false, clickable = false)
                     Spacer(modifier = Modifier.size(7.mdp))
                     MyText(
                         state.selectedPalletType?.string()?:"",
@@ -981,7 +998,7 @@ fun AddPalletQuantity(
                     onAny = {
                         onEvent(ShippingContract.Event.OnScanPalletQuantity)
                     },
-                    leadingIcon = R.drawable.vuesax_linear_box,
+                    leadingIcon = R.drawable.box_search,
 //                    hideKeyboard = state.lockKeyboard,
 //                    enabled = editDriver,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -1138,6 +1155,19 @@ fun PalletQuantityBottomSheet(
         ) {
             onEvent(ShippingContract.Event.OnSelectPalletStatus(it))
         }
+        ListSheet(
+            state.showCustomerList,
+            title = "Customer List",
+            onDismiss = {
+                onEvent(ShippingContract.Event.OnShowCustomerList(false))
+            },
+            list = state.customers,
+            searchable = true,
+            selectedItem = state.selectedCustomer
+        ) {
+            onEvent(ShippingContract.Event.OnSelectCustomer(it))
+        }
+
         if (state.showConfirmDeletePallet!=null){
             ConfirmDialog(
                 onDismiss = {

@@ -14,6 +14,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.linari.R
 import com.linari.data.common.utils.mdp
+import com.linari.presentation.common.utils.getLabelOf
 import com.linari.ui.theme.Black
 import com.linari.ui.theme.Gray3
 import com.linari.ui.theme.Primary
@@ -43,7 +44,7 @@ fun RowCountView(
             fontWeight = FontWeight.Bold
         )
         MyText(
-            text = " ${stringResource(R.string.of)} ",
+            text = " ${getLabelOf(stringResource(R.string.of))} ",
             color = Black,
             fontSize = 17.sp,
             fontWeight = FontWeight.Medium
@@ -55,7 +56,7 @@ fun RowCountView(
             fontWeight = FontWeight.Bold
         )
         MyText(
-            text = " ${stringResource(R.string.from)} ",
+            text = " ${getLabelOf(stringResource(R.string.from))} ",
             color = Black,
             fontSize = 17.sp,
             fontWeight = FontWeight.Medium

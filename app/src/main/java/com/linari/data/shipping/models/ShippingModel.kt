@@ -31,6 +31,10 @@ data class ShippingRow(
     val trailerNumber: String?,
     @SerializedName("CustomerName")
     val customerName: String?,
+    @SerializedName("PalletCount")
+    val palletCount: Int?,
+    @SerializedName("SumPalletQty")
+    val sumPalletQty: Double?,
     @SerializedName("ReferenceNumber")
     val referenceNumber: String?,
     @SerializedName("WarehouseID")

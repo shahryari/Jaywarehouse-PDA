@@ -35,9 +35,9 @@ import com.linari.ui.theme.Primary
 @Composable
 fun TopBar(
     title: String,
-    titleTag: String = "",
     onBack: ()-> Unit,
     modifier: Modifier = Modifier,
+    titleTag: String = "",
     subTitle: String = "",
     endIcon: Int? = null,
     endIconEnabled: Boolean = true,
@@ -79,34 +79,60 @@ fun TopBar(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
-                    if (titleTag.isNotEmpty())Row(verticalAlignment = Alignment.CenterVertically) {
+                    if (subTitle.isEmpty() && titleTag.isNotEmpty())Row(verticalAlignment = Alignment.CenterVertically) {
                         MyText(
                             text = "[",
                             style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.W400,
+                            fontWeight = FontWeight.W500,
                         )
                         MyText(
                             text = titleTag,
                             style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.W400,
+                            fontWeight = FontWeight.W500,
                             maxLines = 1,
-                            color = Color(0xFF9D9D9D),
+//                            color = Color(0xFF9D9D9D),
+                            color = Primary,
                             overflow = TextOverflow.Ellipsis
                         )
                         MyText(
                             text = "]",
                             style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.W400
+                            fontWeight = FontWeight.W500
                         )
                     }
                 }
                 if (subTitle.isNotEmpty())Spacer(Modifier.size(3.mdp))
-                if (subTitle.isNotEmpty())MyText(
-                    text = subTitle,
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.W500,
-                    color = Border
-                )
+                if (subTitle.isNotEmpty()){
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        MyText(
+                            text = subTitle,
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.W500,
+                            color = Border
+                        )
+                        if (titleTag.isNotEmpty())Row(verticalAlignment = Alignment.CenterVertically) {
+                            MyText(
+                                text = "[",
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = FontWeight.W500,
+                            )
+                            MyText(
+                                text = titleTag,
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = FontWeight.W500,
+                                maxLines = 1,
+//                            color = Color(0xFF9D9D9D),
+                                color = Primary,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                            MyText(
+                                text = "]",
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = FontWeight.W500
+                            )
+                        }
+                    }
+                }
             }
             Spacer(Modifier.size(5.mdp))
             if (endIcon!=null){

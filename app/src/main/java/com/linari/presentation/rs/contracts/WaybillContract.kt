@@ -1,5 +1,6 @@
 package com.linari.presentation.rs.contracts
 
+import com.linari.data.auth.models.WarehouseModel
 import com.linari.data.rs.models.WaybillInfoModel
 import com.linari.data.rs.models.WaybillInfoRow
 import com.linari.presentation.common.utils.Loading
@@ -34,7 +35,8 @@ class WaybillContract {
         val isIntegrating: Boolean = false,
         val showSortList: Boolean = false,
         val rowCount: Int = 0,
-        val lockKeyboard: Boolean = false
+        val lockKeyboard: Boolean = false,
+        val warehouse: WarehouseModel? = null
     ) : UiState
 
     sealed class Event : UiEvent {

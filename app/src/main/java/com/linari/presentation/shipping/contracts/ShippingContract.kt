@@ -1,6 +1,7 @@
 package com.linari.presentation.shipping.contracts
 
 import androidx.compose.ui.text.input.TextFieldValue
+import com.linari.data.auth.models.WarehouseModel
 import com.linari.data.checking.models.PalletStatusRow
 import com.linari.data.pallet.model.PalletManifestProductRow
 import com.linari.data.picking.models.PalletManifest
@@ -88,8 +89,10 @@ class ShippingContract {
         val rowCount: Int = 0,
         val showStatusList: Boolean = false,
         val showTypeList: Boolean = false,
+        val showCustomerList: Boolean = false,
         val palletNotInShipping: List<CustomerPalletIsNotInShippingRow> = emptyList(),
-        val showConfirmOfPalletConfirm: ShippingRow? = null
+        val showConfirmOfPalletConfirm: ShippingRow? = null,
+        val warehouse: WarehouseModel? = null
     ) : UiState
 
     sealed class Event : UiEvent {
@@ -142,6 +145,8 @@ class ShippingContract {
         data class OnUpdatePallet(val pallet: PalletInShippingRow) : Event()
         data class OnShowStatusList(val show: Boolean ): Event()
         data class OnShowTypeList(val show: Boolean) : Event()
+
+        data class OnShowCustomerList(val show: Boolean) : Event()
         data class CheckHasPallet(val shipping: ShippingRow) : Event()
         data class ShowConfirmOfPalletConfirm(val shipping: ShippingRow?) : Event()
     }

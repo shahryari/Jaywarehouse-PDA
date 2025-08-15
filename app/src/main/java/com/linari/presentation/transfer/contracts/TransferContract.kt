@@ -1,6 +1,7 @@
 package com.linari.presentation.transfer.contracts
 
 import androidx.compose.ui.text.input.TextFieldValue
+import com.linari.data.auth.models.WarehouseModel
 import com.linari.data.putaway.model.PutawayListGroupedRow
 import com.linari.data.transfer.models.ProductStatusRow
 import com.linari.data.transfer.models.TransferModel
@@ -51,6 +52,7 @@ class TransferContract {
         val isSaving: Boolean = false,
         val rowCount: Int = 0,
         val showStatusList: Boolean = false,
+        val warehouse: WarehouseModel? = null
     ) : UiState
 
     sealed class Event : UiEvent {

@@ -1,5 +1,6 @@
 package com.linari.presentation.manual_putaway.contracts
 
+import com.linari.data.auth.models.WarehouseModel
 import com.linari.data.putaway.model.PutawayListGroupedModel
 import com.linari.data.putaway.model.PutawayListGroupedRow
 import com.linari.presentation.common.utils.Loading
@@ -26,7 +27,8 @@ class PutawayContract {
         val page: Int = 1,
         val showSortList: Boolean = false,
         val lockKeyboard: Boolean = false,
-        val rowCount: Int = 0
+        val rowCount: Int = 0,
+        val warehouse: WarehouseModel? = null
     ) : UiState
 
     sealed class Event : UiEvent {

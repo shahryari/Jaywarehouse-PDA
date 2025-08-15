@@ -32,6 +32,10 @@ data class PurchaseOrderDetailListBDRow(
     val sumReceiptQuantity: Double?,
     @SerializedName("SumPickingQty")
     val sumPickingQty: Double?,
+    @SerializedName("ExpDate")
+    val expireDate: String?,
+    @SerializedName("BatchNumber")
+    val batchNumber: String?,
     @SerializedName("QuantityDifferencePodandPicks")
     val quantityDifferencePodandPIcks: Double?,
     @SerializedName("WasteQuantity")

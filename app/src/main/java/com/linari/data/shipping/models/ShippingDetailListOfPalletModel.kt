@@ -19,6 +19,10 @@ data class ShippingDetailListOfPalletRow(
     val productName: String?,
     @SerializedName("Quantity")
     val quantity: Double?,
+    @SerializedName("ExpDate")
+    val expireDate: String?,
+    @SerializedName("BatchNumber")
+    val batchNumber: String?,
     @SerializedName("ReferenceNumberLPO")
     val referenceNumberLPO: String?,
     @SerializedName("ReferenceNumberPO")

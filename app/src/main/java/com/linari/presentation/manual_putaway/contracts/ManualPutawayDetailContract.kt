@@ -1,6 +1,7 @@
 package com.linari.presentation.manual_putaway.contracts
 
 import androidx.compose.ui.text.input.TextFieldValue
+import com.linari.data.auth.models.WarehouseModel
 import com.linari.data.manual_putaway.models.ManualPutawayDetailRow
 import com.linari.data.manual_putaway.models.ManualPutawayRow
 import com.linari.presentation.common.utils.Loading
@@ -40,6 +41,7 @@ class ManualPutawayDetailContract {
         val selectedForRemove: ManualPutawayDetailRow? = null,
         val selectedDetail : ManualPutawayDetailRow? = null,
         val showConfirmFinish: Boolean = false,
+        val warehouse: WarehouseModel? = null
     ) : UiState
 
     sealed class Event : UiEvent {

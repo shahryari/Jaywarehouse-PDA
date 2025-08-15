@@ -102,6 +102,7 @@ fun PurchaseOrderContent(
             ) {
                 TopBar(
                     "Picking",
+                    titleTag = state.warehouse?.name ?: "",
                     onBack = {
                         onEvent(PurchaseOrderContract.Event.OnBackPressed)
                     }

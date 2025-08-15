@@ -1,6 +1,7 @@
 package com.linari.presentation.pallet.contracts
 
 import androidx.compose.ui.text.input.TextFieldValue
+import com.linari.data.auth.models.WarehouseModel
 import com.linari.data.pallet.model.PalletConfirmRow
 import com.linari.data.pallet.model.PalletManifestProductRow
 import com.linari.presentation.common.utils.Loading
@@ -35,7 +36,8 @@ class PalletProductContract {
         val lockKeyboard: Boolean = false,
         val hasBoxOnShipping: Boolean = false,
         val bigQuantity: TextFieldValue = TextFieldValue(),
-        val smallQuantity: TextFieldValue = TextFieldValue()
+        val smallQuantity: TextFieldValue = TextFieldValue(),
+        val warehouse: WarehouseModel? = null,
     ) : UiState
 
     sealed class Event : UiEvent {

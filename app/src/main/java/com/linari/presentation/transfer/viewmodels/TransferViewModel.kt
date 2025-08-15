@@ -28,7 +28,7 @@ class TransferViewModel(
             copy(sort = sort)
         }
         setState {
-            copy(hasTransfer = prefs.getAccessPermission()?.hasTransfer == true)
+            copy(hasTransfer = prefs.getAccessPermission()?.hasTransfer == true, warehouse = prefs.getWarehouse())
         }
         viewModelScope.launch(Dispatchers.IO) {
             prefs.getLockKeyboard().collect {

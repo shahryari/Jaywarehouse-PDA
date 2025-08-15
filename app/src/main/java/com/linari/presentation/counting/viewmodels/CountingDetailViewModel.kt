@@ -32,7 +32,7 @@ class CountingDetailViewModel(
             }
         }
         setState {
-            copy(countingRow = receivingRow)
+            copy(countingRow = receivingRow,warehouse = prefs.getWarehouse())
         }
         viewModelScope.launch(Dispatchers.IO) {
             prefs.getLockKeyboard().collect {

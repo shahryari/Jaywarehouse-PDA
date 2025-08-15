@@ -31,6 +31,9 @@ class PurchaseOrderDetailViewModel(
         if (sort!=null) setState {
             copy(sort = sort)
         }
+        setState {
+            copy(warehouse = prefs.getWarehouse())
+        }
         viewModelScope.launch(Dispatchers.IO) {
             prefs.getLockKeyboard().collect {
                 setSuspendedState {

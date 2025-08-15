@@ -155,6 +155,7 @@ fun PalletContent(
             ) {
                 TopBar(
                     title = "Pallet Complete",
+                    titleTag = state.warehouse?.name ?:"",
                     onBack = {
                         onEvent(PalletConfirmContract.Event.OnBackPressed)
                     }
@@ -356,7 +357,7 @@ fun BoxSheet(state: PalletConfirmContract.State, onEvent: (PalletConfirmContract
                     DetailCard(
                         "Pallet Barcode",
                         state.selectedPallet.palletBarcode?:"",
-                        icon = R.drawable.vuesax_linear_box,
+                        icon = R.drawable.barcode,
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -370,6 +371,7 @@ fun BoxSheet(state: PalletConfirmContract.State, onEvent: (PalletConfirmContract
                         onEvent(PalletConfirmContract.Event.ChangeBigQuantity(it))
                     },
                     decimalInput = false,
+                    leadingIcon = R.drawable.box_search,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 )
                 Spacer(Modifier.size(10.mdp))
@@ -381,6 +383,7 @@ fun BoxSheet(state: PalletConfirmContract.State, onEvent: (PalletConfirmContract
                     onValueChange = {
                         onEvent(PalletConfirmContract.Event.ChangeSmallQuantity(it))
                     },
+                    leadingIcon = R.drawable.box_search,
                     decimalInput = false,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 )

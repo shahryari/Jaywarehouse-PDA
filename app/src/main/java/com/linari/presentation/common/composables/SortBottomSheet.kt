@@ -35,6 +35,7 @@ import com.linari.R
 import com.linari.data.common.utils.mdp
 import com.linari.presentation.common.utils.Order
 import com.linari.presentation.common.utils.SortItem
+import com.linari.presentation.common.utils.getLabelOf
 import com.linari.presentation.counting.contracts.CountingContract
 import com.linari.ui.theme.Black
 import com.linari.ui.theme.Gray1
@@ -64,7 +65,7 @@ fun SortBottomSheet(
         ) {
             Box(Modifier.padding(horizontal = 24.mdp)){
                 MyText(
-                    "Sort By",
+                    getLabelOf(stringResource(R.string.sort_by)),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.W500,
                     color = Color.Black
@@ -128,7 +129,7 @@ fun SortBottomSheet(
         ) {
             Box(Modifier.padding(horizontal = 24.mdp)){
                 MyText(
-                    stringResource(R.string.sort_by),
+                    getLabelOf(stringResource(R.string.sort_by)),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.W500,
                     color = Color.Black

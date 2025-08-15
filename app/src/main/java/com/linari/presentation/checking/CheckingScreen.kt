@@ -56,6 +56,7 @@ import com.linari.presentation.common.composables.TopBar
 import com.linari.presentation.common.utils.Loading
 import com.linari.presentation.common.utils.SIDE_EFFECT_KEY
 import com.linari.presentation.common.utils.ScreenTransition
+import com.linari.presentation.common.utils.getLabelOf
 import com.linari.presentation.destinations.CheckingDetailScreenDestination
 import com.linari.ui.theme.Primary
 import com.ramcosta.composedestinations.annotation.Destination
@@ -130,7 +131,8 @@ fun CheckingContent(
                         .padding(15.mdp)
                 ) {
                     TopBar(
-                        title = stringResource(R.string.checking),
+                        title = getLabelOf(stringResource(R.string.checking)),
+                        titleTag = state.warehouse?.name ?: "",
                         onBack = {
                             onEvent(CheckingContract.Event.OnBackPressed)
                         }
@@ -198,14 +200,14 @@ fun CheckingItem(
         typeTitle = model.customerTypeTitle,
         modelNumber = model.customerCode,
         item1 = BaseListItemModel(
-            stringResource(R.string.customer),
+            getLabelOf(stringResource(R.string.customer)),
             model.customerName,
             R.drawable.user_square
         ),
         total = model.count.removeZeroDecimal(),
-        totalTitle = stringResource(R.string.total),
+        totalTitle = getLabelOf(stringResource(R.string.total)),
         count = model.sumQuantity?.removeZeroDecimal()?:"",
-        countTitle = stringResource(R.string.qty),
+        countTitle = getLabelOf(stringResource(R.string.qty)),
     )
 }
 

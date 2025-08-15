@@ -1,6 +1,7 @@
 package com.linari.presentation.picking.contracts
 
 import androidx.compose.ui.text.input.TextFieldValue
+import com.linari.data.auth.models.WarehouseModel
 import com.linari.data.picking.models.PurchaseOrderDetailListBDRow
 import com.linari.data.picking.models.PurchaseOrderListBDRow
 import com.linari.data.picking.models.PickingListBDRow
@@ -41,7 +42,8 @@ class PickingListBDContract {
         val isWasting: Boolean = false,
         val hasModify: Boolean = true,
         val hasWaste: Boolean = true,
-        val rowCount: Int = 0
+        val rowCount: Int = 0,
+        val warehouse: WarehouseModel? = null,
     ) : UiState
 
     sealed class Event : UiEvent {

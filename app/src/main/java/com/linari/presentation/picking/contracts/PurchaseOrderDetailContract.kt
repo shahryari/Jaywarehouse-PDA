@@ -1,5 +1,6 @@
 package com.linari.presentation.picking.contracts
 
+import com.linari.data.auth.models.WarehouseModel
 import com.linari.data.picking.models.PurchaseOrderDetailListBDRow
 import com.linari.data.picking.models.PurchaseOrderListBDRow
 import com.linari.presentation.common.utils.Loading
@@ -29,7 +30,8 @@ class PurchaseOrderDetailContract {
         val page: Int = 1,
         val showSortList: Boolean = false,
         val lockKeyboard: Boolean = false,
-        val rowCount : Int = 0
+        val rowCount : Int = 0,
+        val warehouse: WarehouseModel? = null
     ) : UiState
 
     sealed class Event : UiEvent {

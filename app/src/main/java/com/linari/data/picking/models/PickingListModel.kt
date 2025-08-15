@@ -23,7 +23,9 @@ data class PickingListRow(
     @SerializedName("CustomerName")
     val customerName: String,
     @SerializedName("ExpDate")
-    val expDate: String?,
+    val expireDate: String?,
+    @SerializedName("BatchNumber")
+    val batchNumber: String?,
     @SerializedName("PickingID")
     val pickingID: Int,
     @SerializedName("ShippingOrderID")

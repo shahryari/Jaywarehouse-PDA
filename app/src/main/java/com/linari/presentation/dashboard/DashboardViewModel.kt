@@ -476,7 +476,7 @@ class DashboardViewModel(
                                 copy(toast = "Profile saved successfully", showChangeProfileDialog = false, savedProfile = "")
                             }
                             delay(50)
-                            setState {
+                            setSuspendedState {
                                 copy(
                                     savedProfile = prefs.getAddress()+BASE_PROFILE_URL+prefs.getProfile()
                                 )

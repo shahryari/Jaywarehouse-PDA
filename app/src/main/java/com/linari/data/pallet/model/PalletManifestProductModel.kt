@@ -14,6 +14,10 @@ data class PalletManifestProductRow(
     @SerializedName("Quantity") val quantity: Double?,
     @SerializedName("ProductBarcodeNumber") val barcode: String?,
     @SerializedName("CheckQuantity") val checkQuantity: Double?,
+    @SerializedName("ExpDate")
+    val expireDate: String?,
+    @SerializedName("BatchNumber")
+    val batchNumber: String?,
     @SerializedName("CheckingID") val checkingID: Int,
     @SerializedName("IsWeight") val isWeight: Boolean?,
     @SerializedName("ReferenceNumberLPO") val referenceNumberLPO : String?,

@@ -1,6 +1,7 @@
 package com.linari.presentation.checking.contracts
 
 import androidx.compose.ui.text.input.TextFieldValue
+import com.linari.data.auth.models.WarehouseModel
 import com.linari.data.checking.models.CheckingListGroupedRow
 import com.linari.data.checking.models.CheckingListModel
 import com.linari.data.checking.models.CheckingListRow
@@ -59,7 +60,8 @@ class CheckingDetailContract {
         val locationBase: Boolean = true,
         val hasPickCancel: Boolean = false,
         val enableTransferOnPickCancel: Boolean = false,
-        val onPickCancelLocationCode: String = ""
+        val onPickCancelLocationCode: String = "",
+        val warehouse: WarehouseModel? = null
     ) : UiState
 
     sealed class Event : UiEvent {

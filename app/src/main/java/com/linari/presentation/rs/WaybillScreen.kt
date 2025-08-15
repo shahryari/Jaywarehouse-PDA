@@ -118,6 +118,7 @@ fun WaybillContent(
             ) {
                 TopBar(
                     stringResource(R.string.waybill),
+                    titleTag = state.warehouse?.name ?: "",
                     onBack = {
                         onEvent(WaybillContract.Event.OnNavBack)
                     }

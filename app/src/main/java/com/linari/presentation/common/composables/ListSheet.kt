@@ -79,9 +79,12 @@ fun <T: Selectable> ListSheet(
                             keyword = it
                         },
                         label = "Search",
+                        modifier = Modifier.padding(horizontal = 10.mdp),
+                        leadingIcon = R.drawable.vuesax_linear_search_normal
                     )
                 }
-                list.forEach {
+                Spacer(Modifier.size(10.mdp))
+                list.filter { it.string().lowercase().contains(keyword.text.lowercase()) }.forEach {
 
                     Row(
                         Modifier.fillMaxWidth()
@@ -110,6 +113,7 @@ fun <T: Selectable> ListSheet(
                             )
                         }
                     }
+                    HorizontalDivider(color = Gray1)
                 }
             }
         }

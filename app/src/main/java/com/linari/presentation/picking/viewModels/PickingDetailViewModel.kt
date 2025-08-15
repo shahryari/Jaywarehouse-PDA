@@ -21,7 +21,7 @@ import kotlinx.coroutines.launch
 class PickingDetailViewModel(
     private val repository: PickingRepository,
     private val prefs: Prefs,
-    private val row: PickingListGroupedRow,
+    private val row: PickingListGroupedRow
 ) : BaseViewModel<PickingDetailContract.Event,PickingDetailContract.State,PickingDetailContract.Effect>(){
     init {
         val selectedSort = state.sortList.find {
@@ -37,6 +37,7 @@ class PickingDetailViewModel(
                 pickRow = row,
                 hasModify = prefs.getHasModifyPick(),
                 hasWaste = prefs.getHasWaste(),
+                warehouse = prefs.getWarehouse()
             )
         }
         viewModelScope.launch(Dispatchers.IO) {
@@ -294,7 +295,6 @@ class PickingDetailViewModel(
                                     copy(
                                         pickingList = list,
                                         rowCount = it.data?.total?:0,
-                                        hasModify = if (list.size == 1) false else prefs.getHasModifyPick()
                                     )
                                 }
                                 if (loading != Loading.SEARCHING && list.isEmpty()){

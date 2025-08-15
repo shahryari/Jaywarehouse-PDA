@@ -36,6 +36,9 @@ class ShippingViewModel(
                 copy(sort = selectedSort)
             }
         }
+        setState {
+            copy(warehouse = prefs.getWarehouse())
+        }
         viewModelScope.launch(Dispatchers.IO) {
             prefs.getLockKeyboard().collect {
                 setSuspendedState {
@@ -296,8 +299,12 @@ class ShippingViewModel(
 
             is ShippingContract.Event.OnSelectPallet -> {
                 setState {
-                    copy(selectedPallet = event.pallet)
+                    copy(
+                        selectedPallet = event.pallet,
+                        palletProducts = emptyList()
+                    )
                 }
+
             }
 
             is ShippingContract.Event.OnShowAddPallet -> {
@@ -362,6 +369,12 @@ class ShippingViewModel(
             is ShippingContract.Event.ShowConfirmOfPalletConfirm -> {
                 setState {
                     copy(showConfirmOfPalletConfirm = event.shipping)
+                }
+            }
+
+            is ShippingContract.Event.OnShowCustomerList -> {
+                setState {
+                    copy(showCustomerList = event.show)
                 }
             }
         }
@@ -538,7 +551,9 @@ class ShippingViewModel(
                                             productBarcodeNumber = p.barcode,
                                             referenceNumberPO = p.referenceNumberPO,
                                             referenceNumberLPO = p.referenceNumberLPO,
-                                            shippingDetailID = 0
+                                            shippingDetailID = 0,
+                                            expireDate = p.expireDate,
+                                            batchNumber = p.batchNumber
                                         )
                                     }?:emptyList())
                                 }
@@ -669,7 +684,13 @@ class ShippingViewModel(
                         is BaseResult.Success -> {
                             if (it.data?.isSucceed == true){
                                 setSuspendedState {
-                                    copy(showAddDialog = false, shippingList = emptyList(), page = 1, loadingState = Loading.LOADING)
+                                    copy(
+                                        showAddDialog = false,
+                                        shippingList = emptyList(),
+                                        page = 1,
+                                        loadingState = Loading.LOADING,
+                                        toast = it.data?.messages?.firstOrNull() ?: "Shipping created successfully"
+                                    )
                                 }
                                 getShipping(state.keyword,state.page,state.sort)
                             } else {
@@ -994,6 +1015,13 @@ class ShippingViewModel(
             return
         }
         val quantity = state.quantity.text.toDoubleOrNull()
+
+        if (state.quantityPallets.any {it.customerID == state.selectedCustomer?.customerID.toString() && it.palletTypeID == state.selectedPalletType?.palletTypeID && it.palletStatusID == state.selectedPalletStatus?.palletStatusID}){
+            setState {
+                copy(error = "Pallet already exist.")
+            }
+            return
+        }
         if (state.quantity.text.isEmpty() || quantity == null){
             setState {
                 copy(

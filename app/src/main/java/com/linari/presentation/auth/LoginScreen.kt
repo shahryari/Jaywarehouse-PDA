@@ -152,19 +152,19 @@ private fun LoginContent(
                     .padding(15.mdp)
             ) {
                 MyText(
-                    text = getLabelOf("login","Sign In"),
+                    text = getLabelOf(stringResource(R.string.login)),
                     style = MaterialTheme.typography.headlineLarge,
                     fontWeight = FontWeight.W400,
                     modifier = Modifier.padding(start = 7.mdp)
                 )
                 MyText(
-                    text = stringResource(id = R.string.login_notice),
+                    text = getLabelOf(stringResource(R.string.login_notice)),
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.W400,
                     modifier = Modifier.padding(start = 7.mdp)
                 )
                 Spacer(modifier = Modifier.size(40.mdp))
-                TitleView(title = stringResource(id = R.string.username))
+                TitleView(title = getLabelOf(stringResource(id = R.string.username)))
                 Spacer(modifier = Modifier.size(7.mdp))
                 InputTextField(
                     value = state.userName,
@@ -176,7 +176,7 @@ private fun LoginContent(
                     leadingIcon = R.drawable.user_svgrepo_com
                 )
                 Spacer(modifier = Modifier.size(20.mdp))
-                TitleView(title = stringResource(id = R.string.password))
+                TitleView(title = getLabelOf( stringResource(id = R.string.password)))
                 Spacer(modifier = Modifier.size(7.mdp))
                 InputTextField(
                     value = state.password,
@@ -204,7 +204,7 @@ private fun LoginContent(
                     }){
 
                         MyText(
-                            text = stringResource(R.string.change_domain),
+                            text = getLabelOf(stringResource(R.string.change_domain)),
                             color = Primary,
                             fontWeight = FontWeight.Bold
                         )
@@ -218,7 +218,7 @@ private fun LoginContent(
                         }
                         Spacer(modifier = Modifier.size(5.mdp))
                         MyText(
-                            text = stringResource(id = R.string.remember_me),
+                            text = getLabelOf(stringResource(id = R.string.remember_me)),
                             fontWeight = FontWeight.SemiBold,
                             color = Black.copy(0.5f)
                         )
@@ -230,7 +230,7 @@ private fun LoginContent(
                         onEvent(LoginContract.Event.OnLoginClick)
                     },
                     isLoading = state.isLoading,
-                    title = stringResource(id = R.string.login),
+                    title = getLabelOf(stringResource(id = R.string.login)),
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -258,9 +258,9 @@ fun ChangeAddressDialog(
         onDismiss = {
             onEvent(LoginContract.Event.OnShowDomain(false))
         },
-        title = stringResource(R.string.change_domain),
-        positiveButton = stringResource(R.string.save),
-        negativeButton = stringResource(R.string.cancel),
+        title = getLabelOf(stringResource(R.string.change_domain)),
+        positiveButton = getLabelOf(stringResource(R.string.save)),
+        negativeButton = getLabelOf(stringResource(R.string.cancel)),
         onNegativeClick = {
             onEvent(LoginContract.Event.OnShowDomain(false))
         },
@@ -332,7 +332,7 @@ fun DownloadVersionDialog(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 MyText(
-                    stringResource(R.string.update_app_notice),
+                    getLabelOf(stringResource(R.string.update_app_notice)),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.W500,
                     textAlign = TextAlign.Center,
@@ -340,12 +340,12 @@ fun DownloadVersionDialog(
                 )
                 Spacer(Modifier.size(10.mdp))
                 MyText(
-                    "${stringResource(R.string.current_version)}: ${BuildConfig.VERSION_NAME}",
+                    "${getLabelOf(stringResource(R.string.current_version))}: ${BuildConfig.VERSION_NAME}",
                     fontSize = 14.sp
                 )
                 Spacer(Modifier.size(5.mdp))
                 MyText(
-                    "${stringResource(R.string.new_version)}: ${state.newVersion}",
+                    "${getLabelOf(stringResource(R.string.new_version))}: ${state.newVersion}",
                     fontSize = 14.sp
                 )
                 Spacer(Modifier.size(20.mdp))
@@ -355,7 +355,7 @@ fun DownloadVersionDialog(
                         onClick = {
                             onEvent(LoginContract.Event.OnCloseApp)
                         },
-                        title = stringResource(R.string.close_app),
+                        title = getLabelOf(stringResource(R.string.close_app)),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Gray3,
                             contentColor = Gray5
@@ -368,7 +368,7 @@ fun DownloadVersionDialog(
 
                             onEvent(LoginContract.Event.DownloadUpdate)
                         },
-                        title = stringResource(R.string.update),
+                        title = getLabelOf(stringResource(R.string.update)),
                         modifier = Modifier.weight(1f)
                     )
                 }

@@ -109,6 +109,7 @@ fun PurchaseOrderDetailContent(
                 TopBar(
                     title = state.purchaseOrderRow?.supplierName?.trim()?:"",
                     subTitle = "Picking",
+                    titleTag = state.warehouse?.name ?: "",
                     onBack = {
                         onEvent(PurchaseOrderDetailContract.Event.OnBackPressed)
                     }
@@ -177,6 +178,9 @@ fun PurchaseDetailItem(
         item2 = BaseListItemModel("Product Code",model.productCode?:"",R.drawable.keyboard2),
         item3 = BaseListItemModel("Barcode",model.barcodeNumber?:"",R.drawable.barcode),
         item4 = BaseListItemModel("PCB", model.pcb?.toString()?:"",R.drawable.hashtag),
+
+        item5= BaseListItemModel("Exp Date",model.expireDate?:"",R.drawable.vuesax_linear_calendar_2),
+        item6 = BaseListItemModel("Batch No.",model.batchNumber?:"",R.drawable.keyboard),
         quantity = (model.sumReceiptQuantity?.removeZeroDecimal()?:"") + if (model.isWeight == true) " kg" else "",
         quantityTitle = "Total",
         scan = (model.sumPickingQty?.removeZeroDecimal() ?:"") + if (model.isWeight == true) " kg" else "",

@@ -31,7 +31,7 @@ class ManualPutawayViewModel(
             }
         }
         setState {
-            copy(putRow = putaway)
+            copy(putRow = putaway, warehouse = prefs.getWarehouse())
         }
         viewModelScope.launch(Dispatchers.IO) {
             prefs.getLockKeyboard().collect {

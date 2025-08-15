@@ -28,6 +28,10 @@ class RSIntegrationViewModel(
             copy(sort = sortItem)
         }
 
+        setState {
+            copy(warehouse = prefs.getWarehouse())
+        }
+
 
         viewModelScope.launch(Dispatchers.IO) {
 

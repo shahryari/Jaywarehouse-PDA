@@ -75,6 +75,7 @@ import com.linari.presentation.common.composables.TopBar
 import com.linari.presentation.common.utils.Loading
 import com.linari.presentation.common.utils.SIDE_EFFECT_KEY
 import com.linari.presentation.common.utils.ScreenTransition
+import com.linari.presentation.common.utils.getLabelOf
 import com.linari.presentation.destinations.DashboardScreenDestination
 import com.linari.presentation.destinations.PutawayScreenDestination
 import com.linari.presentation.shipping.contracts.ShippingContract
@@ -174,7 +175,8 @@ fun CheckingDetailContent(
                 ) {
                     TopBar(
                         title = state.checkRow?.customerName?.trim()?:"",
-                        subTitle = stringResource(id = R.string.checking),
+                        subTitle = getLabelOf(stringResource(id = R.string.checking)),
+                        titleTag = state.warehouse?.name?:"",
                         onBack = {
                             onEvent(CheckingDetailContract.Event.OnNavBack)
                         }
@@ -240,7 +242,7 @@ fun CheckingDetailContent(
     CancelChecking(state,onEvent)
     ListSheet(
         state.showTypeList,
-        title = stringResource(id = R.string.pallet_type_list),
+        title = getLabelOf(stringResource(id = R.string.pallet_type_list)),
         onDismiss = {
             onEvent(CheckingDetailContract.Event.ShowTypeList(false))
         },
@@ -251,7 +253,7 @@ fun CheckingDetailContent(
     }
     ListSheet(
         state.showStatusList,
-        title = stringResource(id = R.string.pallet_status_list),
+        title = getLabelOf(stringResource(id = R.string.pallet_status_list)),
         onDismiss = {
             onEvent(CheckingDetailContract.Event.ShowStatusList(false))
         },
@@ -272,12 +274,14 @@ fun CheckingDetailItem(
 ) {
     BaseListItem(
         onClick = onClick,
-        item1 = BaseListItemModel(stringResource(id = R.string.product_name),model.productName, R.drawable.vuesax_outline_3d_cube_scan),
-        item2 = BaseListItemModel(stringResource(id = R.string.product_code),model.productCode,R.drawable.keyboard2),
-        item3 = BaseListItemModel( stringResource(id = R.string.barcode),model.barcodeNumber?:"",R.drawable.barcode),
-        item4 = BaseListItemModel( stringResource(id = R.string.reference_no), model.referenceNumber?:"",R.drawable.hashtag),
+        item1 = BaseListItemModel(getLabelOf(stringResource(id = R.string.product_name)),model.productName, R.drawable.vuesax_outline_3d_cube_scan),
+        item2 = BaseListItemModel(getLabelOf(stringResource(id = R.string.product_code)),model.productCode,R.drawable.keyboard2),
+        item3 = BaseListItemModel( getLabelOf(stringResource(id = R.string.barcode)),model.barcodeNumber?:"",R.drawable.barcode),
+        item4 = BaseListItemModel( getLabelOf(stringResource(id = R.string.reference_no)), model.referenceNumber?:"",R.drawable.hashtag),
+        item5 = BaseListItemModel(getLabelOf("Exp Date"),model.expireDate?:"",R.drawable.calendar_add),
+        item6 = BaseListItemModel(getLabelOf("Batch No."),model.batchNumber?:"",R.drawable.keyboard),
 //        item5 = BaseListItemModel(stringResource(R.string.quantity), model.quantity.removeZeroDecimal().toString(),R.drawable.vuesax_linear_box),
-        quantityTitle = stringResource(R.string.quantity),
+        quantityTitle = getLabelOf(stringResource(R.string.quantity)),
         quantity = model.quantity.removeZeroDecimal(),
         scan = "",
         scanTitle = "",
@@ -328,7 +332,7 @@ fun CheckingBottomSheet(
                     .padding(bottom = 20.mdp)
             ){
                 MyText(
-                    text = stringResource(id = R.string.checking),
+                    text = getLabelOf(stringResource(id = R.string.checking)),
                     fontWeight = FontWeight.W500,
                     style = MaterialTheme.typography.titleLarge
                 )
@@ -368,6 +372,22 @@ fun CheckingBottomSheet(
                         title = stringResource(id = R.string.quantity),
                         icon = R.drawable.vuesax_linear_box,
                         detail = state.selectedChecking.quantity.removeZeroDecimal().toString(),
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+                Spacer(Modifier.size(10.mdp))
+                Row(Modifier.fillMaxWidth()) {
+                    if (state.selectedChecking.expireDate != null)DetailCard(
+                        title = "Exp Date",
+                        icon = R.drawable.calendar_add,
+                        detail = state.selectedChecking.expireDate?:"",
+                        modifier = Modifier.weight(1f),
+                    )
+                    if (state.selectedChecking.expireDate!=null)Spacer(Modifier.size(5.mdp))
+                    if (state.selectedChecking.batchNumber!=null)DetailCard(
+                        title ="Batch No.",
+                        icon = R.drawable.keyboard,
+                        detail = state.selectedChecking.batchNumber?:"",
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -577,6 +597,22 @@ fun CancelChecking(
                         modifier = Modifier.weight(1f)
                     )
                 }
+                Spacer(Modifier.size(10.mdp))
+                Row(Modifier.fillMaxWidth()) {
+                    if (state.selectedForCancel.expireDate != null)DetailCard(
+                        title = "Exp Date",
+                        icon = R.drawable.calendar_add,
+                        detail = state.selectedForCancel.expireDate?:"",
+                        modifier = Modifier.weight(1f),
+                    )
+                    if (state.selectedForCancel.expireDate!=null)Spacer(Modifier.size(5.mdp))
+                    if (state.selectedForCancel.batchNumber!=null)DetailCard(
+                        title ="Batch No.",
+                        icon = R.drawable.keyboard,
+                        detail = state.selectedForCancel.batchNumber?:"",
+                        modifier = Modifier.weight(1f)
+                    )
+                }
                 if (state.selectedForCancel.locationCode!=null){
                     Spacer(Modifier.size(10.mdp))
                     Row(Modifier.fillMaxWidth()) {
@@ -604,8 +640,9 @@ fun CancelChecking(
                         onEvent(CheckingDetailContract.Event.OnChangeCancelQuantity(it))
                     },
                     onAny = {},
-                    leadingIcon = R.drawable.barcode,
+                    leadingIcon = R.drawable.box_search,
 //                    hideKeyboard = state.lockKeyboard,
+                    decimalInput = true,
                     focusRequester = quantityFocusRequester,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                 )
@@ -639,6 +676,7 @@ fun CancelChecking(
                         },
                         leadingIcon = R.drawable.location,
                         focusRequester = locationFocusRequester,
+                        enabled = !(state.isDamaged && state.onPickCancelLocationCode.isNotEmpty()),
 //                        decimalInput = true,
 //                        hideKeyboard = false,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)

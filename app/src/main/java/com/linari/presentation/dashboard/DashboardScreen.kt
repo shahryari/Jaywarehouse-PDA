@@ -111,6 +111,7 @@ import org.koin.androidx.compose.koinViewModel
 import kotlin.collections.iterator
 import androidx.core.net.toUri
 import coil.compose.AsyncImage
+import coil.request.CachePolicy
 import coil.request.ImageRequest
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestBuilder
@@ -248,6 +249,8 @@ private fun DashboardContent(
                                     model = ImageRequest.Builder(context)
                                         .addHeader("Cookie",state.cookie)
                                         .data(state.savedProfile)
+                                        .diskCachePolicy(CachePolicy.DISABLED)
+                                        .memoryCachePolicy(CachePolicy.DISABLED)
                                         .build(),
                                     contentDescription = "",
                                     modifier = Modifier
@@ -265,6 +268,9 @@ private fun DashboardContent(
                                 text = state.name,
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.W500,
+                                modifier = Modifier.clickable {
+                                    onEvent(DashboardContract.Event.OnShowChangePasswordDialog(true))
+                                },
                                 color = Primary
                             )
                         }

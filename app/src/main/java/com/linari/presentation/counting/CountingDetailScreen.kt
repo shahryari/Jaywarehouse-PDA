@@ -150,6 +150,7 @@ fun CountingDetailContent(
                 TopBar(
                     title = state.countingRow?.referenceNumber?:"",
                     subTitle = stringResource(id = R.string.counting),
+                    titleTag = state.warehouse?.name?:"",
                     onBack = {
                         onEvent(CountingDetailContract.Event.OnNavBack)
                     }

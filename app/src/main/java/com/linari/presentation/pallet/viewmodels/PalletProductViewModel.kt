@@ -21,13 +21,15 @@ class PalletProductViewModel(
 ) : BaseViewModel<PalletProductContract.Event, PalletProductContract.State, PalletProductContract.Effect>() {
     init {
         setState {
-            copy(hasBoxOnShipping = prefs.getWarehouse()?.hasBoxOnShipping == true, pallet = palletRow)
+            copy(hasBoxOnShipping = prefs.getWarehouse()?.hasBoxOnShipping == true, pallet = palletRow,warehouse = prefs.getWarehouse())
         }
         viewModelScope.launch(Dispatchers.IO) {
             prefs.getLockKeyboard()
                 .collect {
                     setSuspendedState {
-                        copy(lockKeyboard = it)
+                        copy(
+                            lockKeyboard = it
+                        )
                     }
                 }
         }

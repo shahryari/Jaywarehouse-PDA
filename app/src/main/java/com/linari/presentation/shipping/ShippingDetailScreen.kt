@@ -122,7 +122,7 @@ fun ShippingDetailContent(
     }
 
     LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
+        if (state.shipping?.shippingStatus != 2)focusRequester.requestFocus()
         onEvent(ShippingDetailContract.Event.FetchPalletData)
     }
     MyScaffold(
@@ -145,6 +145,7 @@ fun ShippingDetailContent(
             TopBar(
                 title = state.shipping?.shippingNumber?:"",
                 subTitle = "Shipping",
+                titleTag = state.warehouse?.name ?: "",
                 onBack = {
                     onEvent(ShippingDetailContract.Event.OnNavBack)
                 }
@@ -158,6 +159,7 @@ fun ShippingDetailContent(
                     CustomerGroupView(
                         it.customer,
                         it.items,
+                        removable = state.shipping?.shippingStatus != 2,
                         onClick = {
                             onEvent(ShippingDetailContract.Event.OnSelectPallet(it))
                         }
@@ -170,24 +172,26 @@ fun ShippingDetailContent(
                         if (state.shipping!=null){
                             ShippingItem(state.shipping)
                         }
-                        Spacer(Modifier.size(10.mdp))
-                        InputTextField(
-                            state.barcode,
-                            onValueChange = {
-                                onEvent(ShippingDetailContract.Event.OnChangeBarcode(it))
-                            },
-                            label = "Pallet Barcode",
-                            onAny = {
-                                onEvent(ShippingDetailContract.Event.OnScan)
-                            },
-                            hideKeyboard = state.lockKeyboard,
-                            trailingIcon = R.drawable.barcode,
-                            loading = state.isScanning,
-                            onTrailingClick = {
-                                onEvent(ShippingDetailContract.Event.OnScan)
-                            },
-                            focusRequester = focusRequester
-                        )
+                        if (state.shipping?.shippingStatus != 2){
+                            Spacer(Modifier.size(10.mdp))
+                            InputTextField(
+                                state.barcode,
+                                onValueChange = {
+                                    onEvent(ShippingDetailContract.Event.OnChangeBarcode(it))
+                                },
+                                label = "Pallet Barcode",
+                                onAny = {
+                                    onEvent(ShippingDetailContract.Event.OnScan)
+                                },
+                                hideKeyboard = state.lockKeyboard,
+                                trailingIcon = R.drawable.barcode,
+                                loading = state.isScanning,
+                                onTrailingClick = {
+                                    onEvent(ShippingDetailContract.Event.OnScan)
+                                },
+                                focusRequester = focusRequester
+                            )
+                        }
                         Spacer(Modifier.size(10.mdp))
                     }
                 },
@@ -213,6 +217,7 @@ fun ShippingDetailContent(
 private fun CustomerGroupView(
     customer: String,
     items: List<PalletManifest>,
+    removable: Boolean = true,
     onClick: (PalletManifest) -> Unit,
     onRemove: (PalletManifest) -> Unit
 ) {
@@ -250,6 +255,7 @@ private fun CustomerGroupView(
                     PalletBarcode(
                         it,
                         onClick = {onClick(it)},
+                        removable = removable,
                         onRemove = {onRemove(it)}
                     )
                     Spacer(Modifier.size(5.mdp))
@@ -263,6 +269,7 @@ private fun CustomerGroupView(
 fun PalletBarcode(
     model: PalletManifest,
     onClick: ()-> Unit,
+    removable: Boolean = true,
     onRemove: ()->Unit
 ) {
     val swipeState = rememberSwipeToDismissBoxState(
@@ -280,60 +287,101 @@ fun PalletBarcode(
             }
         }
     )
-    SwipeToDismissBox(
-        state = swipeState,
-        enableDismissFromEndToStart = false,
-        backgroundContent = {
+    if (removable){
+        SwipeToDismissBox(
+            state = swipeState,
+            enableDismissFromEndToStart = false,
+            backgroundContent = {
+                Row(
+                    Modifier
+                        .shadow(1.mdp, RoundedCornerShape(6.mdp))
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(6.mdp))
+                        .background(ErrorRed)
+                        .padding(horizontal = 10.mdp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    if(swipeState.dismissDirection == SwipeToDismissBoxValue.EndToStart) Spacer(Modifier.size(5.mdp))
+                    AnimatedVisibility(swipeState.dismissDirection == SwipeToDismissBoxValue.StartToEnd) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                Icons.Default.Delete,
+                                contentDescription = "",
+                                modifier = Modifier.size(20.mdp),
+                                tint = Color.White
+                            )
+                            Spacer(Modifier.size(10.mdp))
+                            MyText(
+                                "Remove",
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Medium,
+                                lineHeight = 13.sp,
+                                color = Color.White
+                            )
+                        }
+                    }
+                    AnimatedVisibility(swipeState.dismissDirection == SwipeToDismissBoxValue.EndToStart) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            MyText(
+                                "Remove",
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Medium,
+                                lineHeight = 13.sp,
+                                color = Color.White
+                            )
+                            Spacer(Modifier.size(10.mdp))
+                            Icon(
+                                Icons.Default.Delete,
+                                contentDescription = "",
+                                modifier = Modifier.size(20.mdp),
+                                tint = Color.White
+                            )
+                        }
+                    }
+                }
+            }
+        ) {
             Row(
                 Modifier
                     .shadow(1.mdp, RoundedCornerShape(6.mdp))
-                    .fillMaxSize()
+                    .fillMaxWidth()
                     .clip(RoundedCornerShape(6.mdp))
-                    .background(ErrorRed)
-                    .padding(horizontal = 10.mdp),
+                    .clickable {
+                        onClick()
+                    }
+                    .background(Gray1)
+                    .padding(vertical = 6.mdp, horizontal = 8.mdp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                if(swipeState.dismissDirection == SwipeToDismissBoxValue.EndToStart) Spacer(Modifier.size(5.mdp))
-                AnimatedVisibility(swipeState.dismissDirection == SwipeToDismissBoxValue.StartToEnd) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            Icons.Default.Delete,
-                            contentDescription = "",
-                            modifier = Modifier.size(20.mdp),
-                            tint = Color.White
-                        )
-                        Spacer(Modifier.size(10.mdp))
-                        MyText(
-                            "Remove",
-                            fontSize = 13.sp,
-                            fontWeight = FontWeight.Medium,
-                            lineHeight = 13.sp,
-                            color = Color.White
-                        )
-                    }
+                Column {
+                    MyText(
+                        text = "#${model.palletBarcode?:""}",
+                        fontSize = 13.sp,
+                        lineHeight = 13.sp,
+                        fontWeight = FontWeight.W500,
+                    )
+
                 }
-                AnimatedVisibility(swipeState.dismissDirection == SwipeToDismissBoxValue.EndToStart) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                if (model.total!=null){
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(4.mdp))
+                            .background(Primary.copy(0.2f))
+                            .padding(vertical = 4.mdp, horizontal = 10.mdp)
+                    ) {
                         MyText(
-                            "Remove",
-                            fontSize = 13.sp,
-                            fontWeight = FontWeight.Medium,
-                            lineHeight = 13.sp,
-                            color = Color.White
-                        )
-                        Spacer(Modifier.size(10.mdp))
-                        Icon(
-                            Icons.Default.Delete,
-                            contentDescription = "",
-                            modifier = Modifier.size(20.mdp),
-                            tint = Color.White
+                            text = model.total.removeZeroDecimal(),
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = FontWeight.W500,
+                            color = Primary
                         )
                     }
                 }
             }
         }
-    ) {
+    } else {
         Row(
             Modifier
                 .shadow(1.mdp, RoundedCornerShape(6.mdp))
@@ -471,6 +519,22 @@ private fun ShippingItem(
                             modifier = Modifier.weight(1f)
                         )
                     }
+                    Spacer(modifier = Modifier.size(10.mdp))
+                    Row(Modifier.fillMaxWidth()) {
+                        DetailCard(
+                            "Pallet Count",
+                            icon = R.drawable.box,
+                            detail = model.palletCount?.toString()?:"",
+                            modifier = Modifier.weight(1f)
+                        )
+                        Spacer(Modifier.size(5.mdp))
+                        DetailCard(
+                            "Product Count",
+                            icon = R.drawable.keyboard2,
+                            detail = model.sumPalletQty?.removeZeroDecimal()?:"",
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
                     Spacer(Modifier.size(10.mdp))
                     DetailCard(
                         "Date",
@@ -561,6 +625,8 @@ fun PalletProduct(
         item2 = if (expended)BaseListItemModel("Product Code",model.productCode?:"",R.drawable.keyboard2) else null,
         item3 = if (expended)BaseListItemModel("Barcode",model.productBarcodeNumber?:"",R.drawable.barcode) else null,
         item4 = if (expended)BaseListItemModel("Reference No. PO",model.referenceNumberPO?:"",R.drawable.hashtag) else null,
-        item5 = if (expended) BaseListItemModel("Reference No. LPO", model.referenceNumberLPO?:"",R.drawable.hashtag) else null
+        item5 = if (expended) BaseListItemModel("Reference No. LPO", model.referenceNumberLPO?:"",R.drawable.hashtag) else null,
+        item6 = if (expended)BaseListItemModel("Exp Date",model.expireDate?:"",R.drawable.vuesax_linear_calendar_2) else null,
+        item7 = if (expended)BaseListItemModel("Batch No.",model.batchNumber?:"",R.drawable.keyboard) else null,
     )
 }

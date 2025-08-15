@@ -22,7 +22,7 @@ class ShippingDetailViewModel(
 ) : BaseViewModel<ShippingDetailContract.Event, ShippingDetailContract.State, ShippingDetailContract.Effect>(){
     init {
         setState {
-            copy(shipping = this@ShippingDetailViewModel.shipping)
+            copy(shipping = this@ShippingDetailViewModel.shipping, warehouse = prefs.getWarehouse())
         }
         val selectedSort = state.sortList.find {
             it.sort == prefs.getShippingDetailSort() && it.order.value == prefs.getShippingOrderDetailOrder()
@@ -86,7 +86,7 @@ class ShippingDetailViewModel(
             }
             is ShippingDetailContract.Event.OnSelectPallet -> {
                 setState {
-                    copy(selectedPallet = event.pallet)
+                    copy(selectedPallet = event.pallet, productList = emptyList())
                 }
             }
             ShippingDetailContract.Event.OnProductReachEnd -> {
@@ -146,19 +146,26 @@ class ShippingDetailViewModel(
                                 }
                             }
                             is BaseResult.Success -> {
+                                if (it.data== null || it.data.shippingID == null){
+                                    setEffect {
+                                        ShippingDetailContract.Effect.NavBack
+                                    }
+                                    return@collect
+                                }
                                 setSuspendedState {
-                                    copy(palletList = it.data?.palletManifests?:emptyList(), shipping = this@ShippingDetailViewModel.shipping.copy(
-                                        carNumber = it.data?.carNumber,
-                                        shippingStatus = it.data?.shippingStatus,
-                                        shippingNumber = it.data?.shippingNumber,
-                                        driverFullName = it.data?.driverFullName,
-                                        driverTin = it.data?.driverTin,
-                                        trailerNumber = it.data?.trailerNumber,
-                                        customerName = it.data?.customerName,
-                                        referenceNumber = it.data?.referenceNumber,
-                                        warehouseID = it.data?.warehouseID?.toString(),
-                                        date = it.data?.date,
-                                        time =  it.data?.time
+                                    copy(
+                                        palletList = it.data.palletManifests?:emptyList(), shipping = this@ShippingDetailViewModel.shipping.copy(
+                                        carNumber = it.data.carNumber,
+                                        shippingStatus = it.data.shippingStatus,
+                                        shippingNumber = it.data.shippingNumber,
+                                        driverFullName = it.data.driverFullName,
+                                        driverTin = it.data.driverTin,
+                                        trailerNumber = it.data.trailerNumber,
+                                        customerName = it.data.customerName,
+                                        referenceNumber = it.data.referenceNumber,
+                                        warehouseID = it.data.warehouseID?.toString(),
+                                        date = it.data.date,
+                                        time =  it.data.time
                                     ))
                                 }
                             }

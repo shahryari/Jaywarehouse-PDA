@@ -47,6 +47,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import com.linari.data.common.utils.mdp
 import com.linari.R
+import com.linari.presentation.common.utils.getLabelOf
 import com.linari.ui.theme.Border
 import kotlinx.coroutines.delay
 import java.lang.StringBuilder
@@ -126,7 +127,7 @@ fun SearchInput(
 
                 ,
                 maxLines = 1,
-                decorationBox = {
+                decorationBox = { input ->
                     Row(
                         modifier
                             .fillMaxWidth()
@@ -144,13 +145,13 @@ fun SearchInput(
                             Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterStart){
                                 if (keyword.text.isEmpty()) {
                                     MyText(
-                                        text = stringResource(R.string.search_keyword),
+                                        text = getLabelOf(stringResource(R.string.search_keyword)),
                                         style = MaterialTheme.typography.bodyLarge,
                                         fontWeight = FontWeight.Normal,
                                         color = Color.LightGray
                                     )
                                 }
-                                it()
+                                input()
                                 if (isFocused && hideKeyboard)Box(modifier = Modifier
                                     .matchParentSize()
                                     .fillMaxWidth()

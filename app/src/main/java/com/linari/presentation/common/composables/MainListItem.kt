@@ -40,6 +40,7 @@ fun MainListItem(
     item1 : BaseListItemModel? = null,
     item2 : BaseListItemModel? = null,
     item3 : BaseListItemModel? = null,
+    item4 : BaseListItemModel? = null,
     totalTitle: String = "Total",
     totalIcon: Int = R.drawable.vuesax_outline_box_tick,
     total: String? = "",
@@ -117,6 +118,24 @@ fun MainListItem(
                     textStyle = item3.style,
                     modifier = Modifier.weight(1f)
                 )
+            }
+            if (item4!=null)Spacer(modifier = Modifier.size(8.mdp))
+            Row(Modifier.fillMaxWidth(),) {
+                if (item4!=null)DetailCard(
+                    item4.title,
+                    icon = item4.icon,
+                    detail = item4.value,
+                    textStyle = item4.style,
+                    modifier = Modifier.weight(1f)
+                )
+//                if (item2!=null && item3!=null) Spacer(Modifier.size(5.mdp))
+//                if (item3!=null)DetailCard(
+//                    item3.title,
+//                    icon = item3.icon,
+//                    detail = item3.value,
+//                    textStyle = item3.style,
+//                    modifier = Modifier.weight(1f)
+//                )
             }
             if (showFooter)Spacer(modifier = Modifier.size(15.mdp))
 

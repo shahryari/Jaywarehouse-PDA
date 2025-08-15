@@ -11,7 +11,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
@@ -152,6 +154,7 @@ fun PickingDetailContent(
                 TopBar(
                     title = state.pickRow?.customerName?.trim()?:"",
                     subTitle = "Picking",
+                    titleTag = state.warehouse?.name ?: "",
                     onBack = {
                         onEvent(PickingDetailContract.Event.OnNavBack)
                     },
@@ -240,6 +243,8 @@ fun PickingDetailItem(
             item4 = BaseListItemModel("Reference No.", model.referenceNumber?:"",R.drawable.hashtag),
             item5 = if(model.typeofOrderAcquisition!=null) BaseListItemModel("Type of order acquisition", model.typeofOrderAcquisition,R.drawable.calendar_add)else null,
             item6 = BaseListItemModel("Location",model.warehouseLocationCode?:"",R.drawable.location),
+            item7 = BaseListItemModel("Exp Date",model.expireDate?:"",R.drawable.vuesax_linear_calendar_2),
+            item8 = BaseListItemModel("Batch No.",model.batchNumber?:"",R.drawable.keyboard),
             quantity = model.quantity.removeZeroDecimal() + if (model.isWeight == true) " kg" else "",
             quantityTitle = if (hasModify) "Modify" else "Quantity",
             quantityIcon = if(hasModify)R.drawable.edit else R.drawable.box_search,
@@ -289,6 +294,7 @@ fun PickingBottomSheet(
             Column (
                 Modifier
                     .padding(horizontal = 24.mdp)
+                    .verticalScroll(rememberScrollState())
                     .padding(bottom = 24.mdp)
             ){
                 MyText(
@@ -354,6 +360,22 @@ fun PickingBottomSheet(
                         modifier = Modifier.weight(1f)
                     )
 
+                }
+                Spacer(Modifier.size(10.mdp))
+                Row(Modifier.fillMaxWidth()) {
+                    if (!state.selectedPick.expireDate.isNullOrEmpty())DetailCard(
+                        title = "Exp Date",
+                        icon = R.drawable.vuesax_linear_calendar_2,
+                        detail = state.selectedPick.expireDate?:"",
+                        modifier = Modifier.weight(1f)
+                    )
+                    if (!state.selectedPick.batchNumber.isNullOrEmpty() && !state.selectedPick.expireDate.isNullOrEmpty())Spacer(Modifier.size(5.mdp))
+                    if (!state.selectedPick.batchNumber.isNullOrEmpty())DetailCard(
+                        title = "Batch No.",
+                        icon = R.drawable.keyboard,
+                        detail = state.selectedPick.batchNumber?:"",
+                        modifier = Modifier.weight(1f)
+                    )
                 }
                 Spacer(Modifier.size(10.mdp))
                 if (!state.selectedPick.warehouseLocationCode.isNullOrEmpty()){
@@ -449,6 +471,7 @@ fun ModifySheet(
             Column(
                 Modifier
                     .padding(horizontal = 24.mdp)
+                    .verticalScroll(rememberScrollState())
                     .padding(bottom = 24.mdp)
             ) {
                 MyText(
@@ -510,6 +533,22 @@ fun ModifySheet(
                         title = "Quantity",
                         icon = R.drawable.vuesax_linear_box,
                         detail =(state.showModify.quantity.removeZeroDecimal()) + if(state.showModify.isWeight == true) " kg" else "",
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+                Spacer(Modifier.size(10.mdp))
+                Row(Modifier.fillMaxWidth()) {
+                    if (!state.showModify.expireDate.isNullOrEmpty())DetailCard(
+                        title = "Exp Date",
+                        icon = R.drawable.vuesax_linear_calendar_2,
+                        detail = state.showModify.expireDate,
+                        modifier = Modifier.weight(1f)
+                    )
+                    if (!state.showModify.expireDate.isNullOrEmpty() && !state.showModify.batchNumber.isNullOrEmpty())Spacer(Modifier.size(5.mdp))
+                    if (!state.showModify.batchNumber.isNullOrEmpty())DetailCard(
+                        title = "Batch No.",
+                        icon = R.drawable.keyboard,
+                        detail = state.showModify.batchNumber?:"",
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -648,6 +687,22 @@ fun WasteSheet(
                         title = "Quantity",
                         icon = R.drawable.vuesax_linear_box,
                         detail =(state.showWaste.quantity.removeZeroDecimal()) + if(state.showWaste.isWeight == true) " kg" else "",
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+                Spacer(Modifier.size(10.mdp))
+                Row(Modifier.fillMaxWidth()) {
+                    if (state.showWaste.expireDate!=null)DetailCard(
+                        title = "Exp Date",
+                        icon = R.drawable.vuesax_linear_calendar_2,
+                        detail = state.showWaste.expireDate?:"",
+                        modifier = Modifier.weight(1f)
+                    )
+                    if (state.showWaste.batchNumber!=null && state.showWaste.batchNumber.isNotEmpty())Spacer(Modifier.size(5.mdp))
+                   if (state.showWaste.batchNumber!=null) DetailCard(
+                        title = "Batch No.",
+                        icon = R.drawable.keyboard,
+                        detail = state.showWaste.batchNumber?:"",
                         modifier = Modifier.weight(1f)
                     )
                 }

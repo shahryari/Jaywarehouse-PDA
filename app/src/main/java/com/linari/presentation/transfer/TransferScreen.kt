@@ -149,6 +149,7 @@ fun PutawayContent(
             ) {
                 TopBar(
                     "Inventory",
+                    titleTag = state.warehouse?.name ?: "",
                     onBack = {
                         onEvent(TransferContract.Event.OnBackPressed)
                     }
@@ -273,6 +274,7 @@ fun TransferItem(
         item1 = BaseListItemModel("Product Name",model.productName, R.drawable.barcode),
         item2 = BaseListItemModel("Product Code",model.productCode,R.drawable.keyboard2),
         item3 = BaseListItemModel("Location",model.warehouseLocationCode?:"", R.drawable.location),
+        item4 = BaseListItemModel("Batch No.",model.batchNumber?:"",R.drawable.keyboard),
         totalTitle = "Real",
         total = model.realInventory.toString(),
         countTitle = "Available",

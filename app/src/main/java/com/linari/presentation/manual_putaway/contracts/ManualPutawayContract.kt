@@ -1,5 +1,6 @@
 package com.linari.presentation.manual_putaway.contracts
 
+import com.linari.data.auth.models.WarehouseModel
 import com.linari.data.manual_putaway.models.ManualPutawayRow
 import com.linari.data.putaway.model.PutawayListGroupedRow
 import com.linari.presentation.common.utils.Loading
@@ -28,7 +29,8 @@ class ManualPutawayContract {
         val selectedSort: SortItem = sortList.first(),
         val page: Int = 1,
         val lockKeyboard: Boolean = false,
-        val rowCount: Int = 0
+        val rowCount: Int = 0,
+        val warehouse: WarehouseModel? = null
     ) : UiState
 
     sealed class Event : UiEvent{

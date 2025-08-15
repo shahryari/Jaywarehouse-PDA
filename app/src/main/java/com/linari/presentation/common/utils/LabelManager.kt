@@ -22,36 +22,34 @@ object LabelManager {
     }
 
 
-    fun simpleGet(key: String, onNotFound: ()->String) : String {
+    fun simpleGet(key: String) : String {
         val map  = _labels.value
         Log.i("language labels", "get: $map")
         return map.getOrElse(key) {
-            val fallback = onNotFound()
 
             if (!map.containsKey(key)) {
                 val newMap = map.toMutableMap()
-                newMap[key] = fallback
+                newMap[key] = key
                 _labels.value = newMap
             }
 
-            fallback
+            key
         }
     }
 
     @Composable
-    fun get(key: String, onNotFound: ()->String) : String {
+    fun get(key: String) : String {
         val map by labels.collectAsState()
         Log.i("language labels", "get: $map")
         return map.getOrElse(key) {
-            val fallback = onNotFound()
 
             if (!map.containsKey(key)) {
                 val newMap = map.toMutableMap()
-                newMap[key] = fallback
+                newMap[key] = key
                 _labels.value = newMap
             }
 
-            fallback
+            key
         }
     }
 
@@ -62,8 +60,6 @@ object LabelManager {
 
 
 @Composable
-fun getLabelOf(key: String,default: String) : String {
-    return LabelManager.get(key) {
-        default
-    }
+fun getLabelOf(key: String) : String {
+    return LabelManager.get(key)
 }

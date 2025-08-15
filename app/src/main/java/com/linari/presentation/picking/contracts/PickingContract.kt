@@ -1,6 +1,7 @@
 package com.linari.presentation.picking.contracts
 
 import androidx.compose.ui.text.input.TextFieldValue
+import com.linari.data.auth.models.WarehouseModel
 import com.linari.data.picking.models.PickingListGroupedModel
 import com.linari.data.picking.models.PickingListGroupedRow
 import com.linari.data.putaway.model.PutawayListGroupedModel
@@ -29,7 +30,8 @@ class PickingContract {
         val page: Int = 1,
         val showSortList: Boolean = false,
         val lockKeyboard: Boolean = false,
-        val rowCount: Int = 0
+        val rowCount: Int = 0,
+        val warehouse: WarehouseModel? = null,
     ) : UiState
 
     sealed class Event : UiEvent {

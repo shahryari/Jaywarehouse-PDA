@@ -25,7 +25,7 @@ class CountingInceptionViewModel(
 ) : BaseViewModel<CountingInceptionContract.Event,CountingInceptionContract.State,CountingInceptionContract.Effect>(){
     init {
         setState {
-            copy(countingDetailRow = detail,quantityInPacket = TextFieldValue(detail.pcb?.toInt()?.toString()?:""))
+            copy(countingDetailRow = detail,quantityInPacket = TextFieldValue(detail.pcb?.toInt()?.toString()?:""), warehouse = prefs.getWarehouse())
         }
         viewModelScope.launch(Dispatchers.IO) {
             prefs.getLockKeyboard().collect {
@@ -177,7 +177,7 @@ class CountingInceptionViewModel(
                                 copy(
                                     details = detailList,
                                     countingDetailRow = it.data?.receivingDetailRow,
-                                    quantityInPacket = TextFieldValue(it.data?.pcb?.pcb?.toString()?:it.data?.pcb?.defaultPcb?.toString()?:""),
+                                    quantityInPacket = if (quantityInPacket.text.isEmpty())TextFieldValue(it.data?.pcb?.pcb?.toString()?:it.data?.pcb?.defaultPcb?.toString()?:"") else quantityInPacket,
                                     pcbEnabled = it.data?.pcb?.enableUpdatePCB == true || it.data?.pcb?.allowDifferentPCB == true,
                                     locationBase = it.data?.pcb?.locationBase == true,
                                     expEnabled = it.data?.pcb?.expired == true,

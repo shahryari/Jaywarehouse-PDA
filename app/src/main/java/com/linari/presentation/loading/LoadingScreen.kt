@@ -119,7 +119,8 @@ fun LoadingContent(
                     .padding(15.mdp)
             ) {
                 TopBar(
-                    title = "Loading",
+                    title = "Loading" ,
+                    titleTag = state.warehouse?.name?:"",
                     onBack = {
                         onEvent(LoadingContract.Event.OnBackPressed)
                     }

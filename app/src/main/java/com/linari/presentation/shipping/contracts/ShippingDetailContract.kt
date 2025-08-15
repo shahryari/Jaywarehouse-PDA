@@ -1,6 +1,7 @@
 package com.linari.presentation.shipping.contracts
 
 import androidx.compose.ui.text.input.TextFieldValue
+import com.linari.data.auth.models.WarehouseModel
 import com.linari.data.pallet.model.PalletManifestProductRow
 import com.linari.data.picking.models.PalletManifest
 import com.linari.data.shipping.models.ShippingDetailListOfPalletRow
@@ -36,6 +37,7 @@ class ShippingDetailContract {
         val selectedForDelete: PalletManifest? = null,
         val isDeleting: Boolean = false,
         val lockKeyboard: Boolean = false,
+        val warehouse: WarehouseModel? = null,
     ) : UiState
 
     sealed class Event : UiEvent {

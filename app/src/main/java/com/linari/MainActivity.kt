@@ -83,8 +83,8 @@ class MainActivity : ComponentActivity() {
                 permissions.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false) -> {
                     // Only approximate location access granted.
                     getLocation()
-                } else -> {
-            }
+                }
+                else -> {}
 
             }
         }
@@ -97,25 +97,27 @@ class MainActivity : ComponentActivity() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 prefs.getTracking().collect {
-                    if (it){
+                    if (prefs.getToken().isNotEmpty())  {
+                        if (it){
 
-                        if (ActivityCompat.checkSelfPermission(
-                                this@MainActivity,
-                                Manifest.permission.ACCESS_FINE_LOCATION
-                            ) != PackageManager.PERMISSION_GRANTED &&
-                            ActivityCompat.checkSelfPermission(
-                                this@MainActivity,
-                                Manifest.permission.ACCESS_COARSE_LOCATION
-                            ) != PackageManager.PERMISSION_GRANTED
-                        ) {
-                            locationPermissionRequest.launch(arrayOf(
-                                Manifest.permission.ACCESS_FINE_LOCATION,
-                                Manifest.permission.ACCESS_COARSE_LOCATION))
+                            if (ActivityCompat.checkSelfPermission(
+                                    this@MainActivity,
+                                    Manifest.permission.ACCESS_FINE_LOCATION
+                                ) != PackageManager.PERMISSION_GRANTED &&
+                                ActivityCompat.checkSelfPermission(
+                                    this@MainActivity,
+                                    Manifest.permission.ACCESS_COARSE_LOCATION
+                                ) != PackageManager.PERMISSION_GRANTED
+                            ) {
+                                locationPermissionRequest.launch(arrayOf(
+                                    Manifest.permission.ACCESS_FINE_LOCATION,
+                                    Manifest.permission.ACCESS_COARSE_LOCATION))
+                            } else {
+                                getLocation()
+                            }
                         } else {
-                            getLocation()
+                            stopUpdates()
                         }
-                    } else {
-                        stopUpdates()
                     }
                 }
             }
@@ -160,7 +162,7 @@ class MainActivity : ComponentActivity() {
         val repository : AuthRepository by inject<AuthRepository>()
 
         val builder = LocationSettingsRequest.Builder()
-            .addLocationRequest(locationRequest!!)
+            .addLocationRequest(locationRequest?:return)
 
         val settingsClient = LocationServices.getSettingsClient(this)
         val task = settingsClient.checkLocationSettings(builder.build())
@@ -225,17 +227,17 @@ class MainActivity : ComponentActivity() {
                 Manifest.permission.ACCESS_COARSE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-            locationPermissionRequest.launch(arrayOf(
-                Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_COARSE_LOCATION))
+//            locationPermissionRequest.launch(arrayOf(
+//                Manifest.permission.ACCESS_FINE_LOCATION,
+//                Manifest.permission.ACCESS_COARSE_LOCATION))
 
             return
         }
         isLocaionUpdatesStarted = true
         if (fusedLocationProviderClient != null && locationCallback != null && locationRequest != null) {
             fusedLocationProviderClient!!.requestLocationUpdates(
-                locationRequest!!,
-                locationCallback!!,
+                locationRequest?:return,
+                locationCallback?:return,
                 Looper.getMainLooper()
             )
         }
@@ -250,7 +252,6 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        if (!isLocaionUpdatesStarted) startLocationUpdates()
     }
 
     override fun onStop() {

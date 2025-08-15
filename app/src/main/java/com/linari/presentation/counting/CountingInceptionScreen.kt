@@ -141,6 +141,7 @@ fun CountingInceptionContent(
             TopBar(
                 title = state.countingDetailRow?.referenceNumber?:"",
                 subTitle = stringResource(R.string.counting_inception),
+                titleTag = state.warehouse?.name?:"",
                 onBack = {
                     onEvent(CountingInceptionContract.Event.OnBack)
                 },
@@ -302,7 +303,7 @@ fun CountingInceptionContent(
                 MyLazyColumn(
                     items = state.details,
                     itemContent = {i,it->
-                        CountingInceptionDetailItem(state.details.size-i,it,it == state.selectedItem){
+                        CountingInceptionDetailItem(state.details.size-i,it,false,it == state.selectedItem){
                             onEvent(CountingInceptionContract.Event.OnSelectedItem(it))
                         }
                     },

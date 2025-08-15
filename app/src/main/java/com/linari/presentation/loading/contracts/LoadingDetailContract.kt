@@ -1,6 +1,7 @@
 package com.linari.presentation.loading.contracts
 
 import androidx.compose.ui.text.input.TextFieldValue
+import com.linari.data.auth.models.WarehouseModel
 import com.linari.data.checking.models.CheckingListModel
 import com.linari.data.loading.models.LoadingListGroupedRow
 import com.linari.data.pallet.model.PalletConfirmRow
@@ -30,7 +31,8 @@ class LoadingDetailContract {
         ),
         val sort: SortItem = sortList.first(),
         val onSaving: Boolean = false,
-        val rowCount: Int = 0
+        val rowCount: Int = 0,
+        val warehouse: WarehouseModel? = null
     ) : UiState
 
     sealed class Event : UiEvent {

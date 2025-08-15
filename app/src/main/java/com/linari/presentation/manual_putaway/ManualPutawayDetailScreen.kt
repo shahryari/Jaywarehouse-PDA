@@ -35,6 +35,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.sp
 import com.linari.R
 import com.linari.data.common.utils.mdp
 import com.linari.data.common.utils.removeZeroDecimal
@@ -123,6 +124,7 @@ private fun ManualPutawayDetailContent(
                 .padding(15.mdp)) {
             TopBar(
                 title = "Putaway",
+                titleTag = state.warehouse?.name ?: "",
                 onBack = {
                     onEvent(ManualPutawayDetailContract.Event.OnNavBack)
                 },
@@ -218,8 +220,16 @@ private fun ManualPutawayDetailContent(
                                     )
                                 }
                             }
+                            Spacer(Modifier.size(20.mdp))
+
                         }
-                        Spacer(Modifier.size(20.mdp))
+                        else MyText(
+                            "This putaway can only change in panel.",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Medium,
+                            modifier = Modifier.padding(top = 10.mdp, bottom = 10.mdp).align(Alignment.CenterHorizontally),
+                            color = Color.Black.copy(0.7f)
+                        )
                     }
                 }
             )

@@ -128,6 +128,7 @@ fun PickingContent(
             ) {
                 TopBar(
                     stringResource(R.string.picking),
+                    titleTag = state.warehouse?.name ?: "",
                     onBack = {
                         onEvent(PickingContract.Event.OnBackPressed)
                     }

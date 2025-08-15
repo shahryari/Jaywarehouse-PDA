@@ -124,6 +124,7 @@ fun PutawayContent(
             ) {
                 TopBar(
                     stringResource(R.string.putaway),
+                    titleTag = state.warehouse?.name ?: "",
                     onBack = {
                         onEvent(PutawayContract.Event.OnBackPressed)
                     }

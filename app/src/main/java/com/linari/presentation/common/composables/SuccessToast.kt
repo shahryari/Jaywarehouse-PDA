@@ -23,7 +23,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.fromHtml
 import com.linari.R
 import com.linari.data.common.utils.mdp
 import com.linari.ui.theme.Green
@@ -57,7 +59,7 @@ fun SuccessToast(modifier: Modifier = Modifier,message: String) {
                 )
                 Spacer(modifier = Modifier.size(7.mdp))
                 MyText(
-                    text = message,
+                    text = AnnotatedString.fromHtml(message),
                     style = MaterialTheme.typography.labelLarge,
                     color = Green,
                     fontWeight = FontWeight.Medium

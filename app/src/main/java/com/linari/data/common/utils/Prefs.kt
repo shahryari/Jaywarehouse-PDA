@@ -805,7 +805,7 @@ class Prefs(private val context: Context) {
 
     fun getTracking() : Flow<Boolean> {
         return context.dataStore.data.map {
-            it[trackingKey] ?: true
+            it[trackingKey] ?: false
         }
     }
 

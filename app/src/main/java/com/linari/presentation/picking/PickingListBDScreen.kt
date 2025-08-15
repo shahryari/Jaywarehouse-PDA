@@ -142,6 +142,7 @@ fun PickingListBDContent(
                 TopBar(
                     title = state.purchaseOrderRow?.supplierName?.trim()?:"",
                     subTitle = "Picking",
+                    titleTag = state.warehouse?.name ?: "",
                     onBack = {
                         onEvent(PickingListBDContract.Event.OnBackPressed)
                     },

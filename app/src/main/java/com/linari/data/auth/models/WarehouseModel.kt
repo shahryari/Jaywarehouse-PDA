@@ -14,8 +14,8 @@ data class WarehouseModel(
     val hasBoxOnShipping: Boolean,
     @SerializedName("LocationBase")
     val locationBase: Boolean,
-    @SerializedName("OnPickCancelLocationCode")
-    val onPickCancelLocationCode: String,
+    @SerializedName("OnPickCacncelLocationCode")
+    val onPickCancelLocationCode: String?,
     @SerializedName("EnableTransferOnPickCancel")
     val enableTransferOnPickCancel: Boolean
 ) : Selectable {

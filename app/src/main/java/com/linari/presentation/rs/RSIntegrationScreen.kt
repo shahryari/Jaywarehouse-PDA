@@ -133,6 +133,7 @@ fun RSContent(
             ) {
                 TopBar(
                     "RS",
+                    titleTag = state.warehouse?.name ?: "",
                     onBack = {
                         onEvent(RSIntegrationContract.Event.OnNavBack)
                     }

@@ -90,26 +90,27 @@ fun InputTextField(
     var isFocused by remember { mutableStateOf(false) }
     val isKeyboardOpen = WindowInsets.isImeVisible
 
-    var keyword by remember { mutableStateOf(value) }
+//    var keyword by remember { mutableStateOf(value) }
 
     // Sync internal state if external value changes
-    var debounceJob by remember { mutableStateOf<Job?>(null) }
-    LaunchedEffect(value) {
-        if (debounceJob?.isActive == false){
-            if (value.text != keyword.text) {
-                keyword = value
-            }
-        }
-    }
+//    var debounceJob by remember { mutableStateOf<Job?>(null) }
+//    LaunchedEffect(value) {
+//        if (debounceJob?.isActive == false){
+//            if (value.text != keyword.text) {
+//                keyword = value
+//            }
+//        }
+//    }
 
     // Debounce input change to avoid frequent recomposition
-    LaunchedEffect(keyword.text) {
-        debounceJob?.cancel()
-        debounceJob = coroutineScope.launch {
-            delay(50)
-            onValueChange(keyword)
-        }
-    }
+//    LaunchedEffect(keyword.text) {
+//        debounceJob?.cancel()
+//        debounceJob = coroutineScope.launch {
+//            delay(50)
+//            onValueChange(keyword)
+//        }
+//    }
+
     LaunchedEffect(isFocused, isKeyboardOpen, hideKeyboard) {
         if ((isFocused || isKeyboardOpen) && hideKeyboard) {
             keyboard?.hide()
@@ -118,19 +119,19 @@ fun InputTextField(
 
     Box(modifier = modifier) {
         BasicTextField(
-            value = keyword,
+            value = value,
             onValueChange = {
                 if (!readOnly) {
                     if (it.text.endsWith('\n')) {
-                        keyword = it
+                        onValueChange(it)
                         onAny()
                     } else {
                         if (keyboardOptions.keyboardType == KeyboardType.Number && !decimalInput) {
                             if (it.text.all { c -> c.isDigit() }) {
-                                keyword = it
+                                onValueChange(it)
                             }
                         } else {
-                            keyword = it
+                            onValueChange(it)
                         }
                     }
                 }
@@ -161,10 +162,10 @@ fun InputTextField(
                     modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(6.mdp))
-                        .background(if (enabled) if (required && keyword.text.isEmpty()) Red.copy(0.1f) else Color.White else Gray1)
+                        .background(if (enabled) if (required && value.text.isEmpty()) Red.copy(0.1f) else Color.White else Gray1)
                         .border(
                             1.mdp,
-                            if (required && keyword.text.isEmpty() && enabled) Red else if (isFocused) Primary else Border,
+                            if (required && value.text.isEmpty() && enabled) Red else if (isFocused) Primary else Border,
                             RoundedCornerShape(6.mdp)
                         )
                         .then(
@@ -191,7 +192,7 @@ fun InputTextField(
                             Spacer(modifier = Modifier.size(7.mdp))
                         }
                         Box(contentAlignment = Alignment.CenterStart) {
-                            if (keyword.text.isEmpty()) {
+                            if (value.text.isEmpty()) {
                                 MyText(
                                     text = label,
                                     style = MaterialTheme.typography.bodyMedium,
@@ -229,9 +230,8 @@ fun InputTextField(
                             )
                             Spacer(Modifier.size(7.mdp))
                         }
-                        if (enabled && keyword.text.isNotEmpty()) {
+                        if (enabled && value.text.isNotEmpty() && !readOnly) {
                             MyIcon(icon = R.drawable.vuesax_bulk_broom, showBorder = false) {
-                                keyword = TextFieldValue()
                                 onValueChange(TextFieldValue())
                             }
                         }

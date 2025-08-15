@@ -1,6 +1,7 @@
 package com.linari.presentation.counting.contracts
 
 import androidx.compose.ui.text.input.TextFieldValue
+import com.linari.data.auth.models.WarehouseModel
 import com.linari.data.receiving.model.ReceivingDetailCountModel
 import com.linari.data.receiving.model.ReceivingDetailRow
 import com.linari.presentation.common.utils.Loading
@@ -37,6 +38,7 @@ class CountingInceptionContract {
         val expEnabled: Boolean = true,
         val batchNumberEnabled: Boolean = true,
         val rowCount: Int = 0,
+        val warehouse: WarehouseModel? = null
     ) : UiState
 
     sealed class Event : UiEvent {

@@ -13,6 +13,7 @@ import com.linari.data.common.utils.Prefs
 import com.linari.data.common.utils.getResult
 import com.google.gson.JsonObject
 import com.linari.data.common.utils.ResultMessageModel
+import com.linari.data.common.utils.withEnglishDigits
 import kotlinx.coroutines.flow.Flow
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -28,8 +29,8 @@ class AuthRepository(
         rememberMe: Boolean
     ) : Flow<BaseResult<LoginModel>> {
         val jsonObject = JsonObject()
-        jsonObject.addProperty("Username",username)
-        jsonObject.addProperty("Password",password)
+        jsonObject.addProperty("Username",username.withEnglishDigits())
+        jsonObject.addProperty("Password",password.withEnglishDigits())
         return getResult(
             isLogin = true,
             request = {
@@ -88,10 +89,9 @@ class AuthRepository(
         confirmPassword: String
     ) : Flow<BaseResult<ResultMessageModel>> {
         val jsonObject = JsonObject()
+        jsonObject.addProperty("CurrentPassword",oldPassword)
         jsonObject.addProperty("NewPassword",password)
         jsonObject.addProperty("ReNewPassword",confirmPassword)
-        jsonObject.addProperty("CurrentPassword",oldPassword)
-        jsonObject.addProperty("Captcha","")
         return getResult(
             request = {
                 api.changePassword(jsonObject)

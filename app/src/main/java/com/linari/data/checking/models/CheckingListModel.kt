@@ -31,6 +31,10 @@ data class CheckingListRow(
     val isCrossDock: Boolean,
     @SerializedName("ProductCode")
     val productCode: String,
+    @SerializedName("ExpDate")
+    val expireDate: String?,
+    @SerializedName("BatchNumber")
+    val batchNumber: String?,
     @SerializedName("ProductLocationActivityID")
     val productLocationActivityID: Int?,
     @SerializedName("ProductName")

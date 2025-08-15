@@ -26,7 +26,7 @@ class PalletConfirmViewModel(
             it.sort == prefs.getPalletSort() && it.order == Order.Companion.getFromValue(prefs.getPalletOrder())
         }
         setState {
-            copy(hasBoxOnShipping = prefs.getWarehouse()?.hasBoxOnShipping == true)
+            copy(hasBoxOnShipping = prefs.getWarehouse()?.hasBoxOnShipping == true, warehouse = prefs.getWarehouse())
         }
         if (sortValue!=null) setState {
             copy(sort = sortValue)

@@ -150,6 +150,7 @@ private fun CountingContent(
                 ) {
                     TopBar(
                         stringResource(R.string.counting),
+                        titleTag = state.warehouse?.name ?: "",
                         onBack = {
                             onEvent(CountingContract.Event.OnBackPressed)
                         }

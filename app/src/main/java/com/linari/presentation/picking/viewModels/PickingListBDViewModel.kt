@@ -26,7 +26,7 @@ class PickingListBDViewModel(
 
     init {
         setState {
-            copy(purchaseOrderRow = purchase, purchaseOrderDetailRow = purchaseDetail, hasWaste = prefs.getHasWaste(), hasModify = prefs.getHasModifyPick())
+            copy(purchaseOrderRow = purchase, purchaseOrderDetailRow = purchaseDetail, hasWaste = prefs.getHasWaste(), hasModify = prefs.getHasModifyPick(), warehouse = prefs.getWarehouse())
         }
         val sort = state.sortList.find {
             it.sort == prefs.getShippingOrderDetailSort() && it.order == Order.getFromValue(prefs.getShippingOrderDetailOrder())

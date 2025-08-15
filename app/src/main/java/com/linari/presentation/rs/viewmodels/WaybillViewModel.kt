@@ -22,6 +22,9 @@ class WaybillViewModel(
         if (sortItem != null) {
             setState { copy(sort = sortItem) }
         }
+        setState {
+            copy(warehouse = prefs.getWarehouse())
+        }
         viewModelScope.launch(Dispatchers.IO) {
             prefs.getLockKeyboard().collect {
                 setSuspendedState {

@@ -11,7 +11,7 @@ const val BASE_URL = "https://JayWarehouseDry.inlumo.ir/"
 //const val BASE_URL = "https://Kenya.inlumo.ir/"
 //const val BASE_URL = "https://test.iagh.org/"
 //const val BASE_URL = "https://2.188.165.110:60860/"
-
+//const val BASE_URL = "https://aptos.linari.ge/"
 const val API_DOMAIN = "mobile/v1/"
 
 const val BASE_PROFILE_URL = "ImageHandler.ashx?DocumentTypeCode=PersonProfileImage&entityResourceID="

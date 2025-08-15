@@ -41,6 +41,7 @@ class CheckingDetailViewModel(
                 hasPickCancel = prefs.getHasPickCancel(),
                 enableTransferOnPickCancel = prefs.getWarehouse()?.enableTransferOnPickCancel == true,
                 onPickCancelLocationCode = prefs.getWarehouse()?.onPickCancelLocationCode ?:"",
+                warehouse = prefs.getWarehouse()
             )
         }
         viewModelScope.launch(Dispatchers.IO) {
@@ -182,7 +183,18 @@ class CheckingDetailViewModel(
             }
             is CheckingDetailContract.Event.OnChangeIsDamaged -> {
                 setState {
-                    copy(isDamaged = event.isDamaged)
+                    copy(
+                        isDamaged = event.isDamaged,
+                    )
+                }
+                if (event.isDamaged && state.onPickCancelLocationCode.isNotEmpty() && state.enableTransferOnPickCancel) {
+                    setState {
+                        copy(cancelLocation = TextFieldValue(state.onPickCancelLocationCode))
+                    }
+                } else {
+                    setState {
+                        copy(cancelLocation = TextFieldValue(state.selectedForCancel?.locationCode?:""))
+                    }
                 }
             }
             is CheckingDetailContract.Event.SelectForCancel -> {
@@ -379,6 +391,11 @@ class CheckingDetailViewModel(
                                 if (checking!=null && selected != null && prefs.getEnableAutoOpenChecking()){
                                     setState {
                                         copy(selectedChecking = selected)
+                                    }
+                                }
+                                if (loading != Loading.SEARCHING && list.isEmpty()){
+                                    setEffect {
+                                        CheckingDetailContract.Effect.NavBack
                                     }
                                 }
                             }

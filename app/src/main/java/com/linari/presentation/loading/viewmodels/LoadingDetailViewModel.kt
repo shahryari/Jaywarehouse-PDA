@@ -33,6 +33,7 @@ class LoadingDetailViewModel(
         setState {
             copy(
                 loadingRow = row,
+                warehouse = prefs.getWarehouse()
             )
         }
         viewModelScope.launch(Dispatchers.IO) {

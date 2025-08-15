@@ -114,6 +114,7 @@ fun ManualPutawayContent(
                 TopBar(
                     title = state.putRow?.referenceNumber?:"",
                     subTitle = "Putaway",
+                    titleTag = state.warehouse?.name ?:"",
                     onBack = {
                         onEvent(ManualPutawayContract.Event.OnNavBack)
                     }

@@ -137,6 +137,7 @@ fun LoadingDetailContent(
                 TopBar(
                     title = state.loadingRow?.customerName?.trim()?:"",
                     subTitle = "Loading",
+                    titleTag = state.warehouse?.name?:"",
                     onBack = {
                         onEvent(LoadingDetailContract.Event.OnNavBack)
                     }
