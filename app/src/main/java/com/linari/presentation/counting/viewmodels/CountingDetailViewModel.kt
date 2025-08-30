@@ -224,7 +224,7 @@ class CountingDetailViewModel(
                         is BaseResult.Success -> {
                             if (it.data?.isSucceed == true){
                                 setSuspendedState {
-                                    copy(toast = it.data.messages.firstOrNull()?:"Finished successfully", page = 1, countingDetailRow = emptyList())
+                                    copy(toast = it.data.messages?.firstOrNull()?:"Finished successfully", page = 1, countingDetailRow = emptyList())
                                 }
                                 getReceivingDetailList()
                             } else {

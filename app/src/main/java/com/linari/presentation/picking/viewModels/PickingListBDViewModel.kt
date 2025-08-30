@@ -270,7 +270,7 @@ class PickingListBDViewModel(
                             is BaseResult.Success -> {
                                 if (it.data?.isSucceed == true) {
                                     setSuspendedState {
-                                        copy(selectedPicking = null, toast = it.data.messages.firstOrNull()?:"Modified successfully")
+                                        copy(selectedPicking = null, toast = it.data.messages?.firstOrNull()?:"Modified successfully")
                                     }
                                     getShippingOrderList()
                                 } else {
@@ -340,7 +340,7 @@ class PickingListBDViewModel(
                         is BaseResult.Success ->{
                             if (it.data?.isSucceed == true){
                                 setSuspendedState {
-                                    copy(toast = it.data.messages.firstOrNull()?:"Saved successfully", selectedForWaste = null)
+                                    copy(toast = it.data.messages?.firstOrNull()?:"Saved successfully", selectedForWaste = null)
                                 }
                                 getShippingOrderList()
                             } else {

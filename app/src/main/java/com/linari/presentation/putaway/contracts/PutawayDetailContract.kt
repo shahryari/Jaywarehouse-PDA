@@ -51,7 +51,7 @@ class PutawayDetailContract {
 //        data object CheckLocation : Event()
 //        data object CheckBoxNumber : Event()
 //        data object ScanBarcode: Event()
-//        data class OnRemovePut(val putawayScanId: Int) : Event()
+//        data class OnRemovePut(val putawayScanId: Long) : Event()
         data class OnSelectPut(val put: PutawayListRow?) : Event()
         data object OnNavBack : Event()
         data object CloseError: Event()

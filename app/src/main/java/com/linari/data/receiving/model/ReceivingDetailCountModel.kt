@@ -17,9 +17,9 @@ data class ReceivingDetailCountModel(
     @SerializedName("Piece")
     val piece: Double?,
     @SerializedName("ReceivingWorkerTaskCountID")
-    val receivingWorkerTaskCountID: Int,
+    val receivingWorkerTaskCountID: Long,
     @SerializedName("ReceivingWorkerTaskID")
-    val receivingWorkerTaskID: Int
+    val receivingWorkerTaskID: Long
 ): Animatable {
     override fun key(): String {
         return receivingWorkerTaskCountID.toString()

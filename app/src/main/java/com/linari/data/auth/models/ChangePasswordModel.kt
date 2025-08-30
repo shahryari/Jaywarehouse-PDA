@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName
 
 data class ChangePasswordModel(
     @SerializedName("EntityID")
-    val entityID: Int?,
+    val entityID: Long?,
     @SerializedName("IsSucceed")
     val isSucceed: Boolean,
     @SerializedName("Message")

@@ -3,10 +3,8 @@ package com.linari.presentation.shipping.contracts
 import androidx.compose.ui.text.input.TextFieldValue
 import com.linari.data.auth.models.WarehouseModel
 import com.linari.data.checking.models.PalletStatusRow
-import com.linari.data.pallet.model.PalletManifestProductRow
-import com.linari.data.picking.models.PalletManifest
 import com.linari.data.shipping.models.CustomerPalletIsNotInShippingRow
-import com.linari.data.shipping.models.CustomerRow
+import com.linari.data.shipping.models.ShippingCustomerRow
 import com.linari.data.shipping.models.DriverModel
 import com.linari.data.shipping.models.PalletInShippingRow
 import com.linari.data.shipping.models.PalletTypeRow
@@ -62,9 +60,9 @@ class ShippingContract {
         val rsShipping: ShippingRow? = null,
         val showPopup: Boolean = false,
         val lockKeyboard: Boolean = false,
-        val customers: List<CustomerRow> = emptyList(),
+        val customers: List<ShippingCustomerRow> = emptyList(),
         val palletTypes: List<PalletTypeRow> = emptyList(),
-        val selectedCustomer: CustomerRow? = null,
+        val selectedCustomer: ShippingCustomerRow? = null,
         val selectedPalletType: PalletTypeRow? = null,
         val isChecking: Boolean = false,
         val isShipping: Boolean = false,
@@ -134,7 +132,7 @@ class ShippingContract {
         data class OnConfirmPallet(val shipping: ShippingRow): Event()
         data object OnScanPalletQuantity: Event()
         data class OnRemovePalletQuantity(val pallet: PalletInShippingRow) : Event()
-        data class OnSelectCustomer(val customer: CustomerRow?) : Event()
+        data class OnSelectCustomer(val customer: ShippingCustomerRow?) : Event()
         data class OnSelectPalletType(val type: PalletTypeRow?) : Event()
         data class OnSelectPalletStatus(val status: PalletStatusRow?) : Event()
         data class OnPalletStatusChange(val status: TextFieldValue) : Event()

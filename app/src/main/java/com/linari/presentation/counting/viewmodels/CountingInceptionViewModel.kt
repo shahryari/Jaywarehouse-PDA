@@ -21,7 +21,7 @@ class CountingInceptionViewModel(
     prefs: Prefs,
     private val detail: ReceivingDetailRow,
     private val isCrossDock: Boolean = false,
-    private val receivingId: Int,
+    private val receivingId: Long,
 ) : BaseViewModel<CountingInceptionContract.Event,CountingInceptionContract.State,CountingInceptionContract.Effect>(){
     init {
         setState {
@@ -457,7 +457,7 @@ class CountingInceptionViewModel(
                                     copy(
                                         details = emptyList(),
                                         page = 1,
-                                        toast = it.data.messages.firstOrNull()?:"Item deleted successfully."
+                                        toast = it.data.messages?.firstOrNull()?:"Item deleted successfully."
                                     )
                                 }
                                 getItems()
@@ -502,7 +502,7 @@ class CountingInceptionViewModel(
                         is BaseResult.Success -> {
                             if (it.data?.isSucceed == true){
                                 setSuspendedState {
-                                    copy(toast = it.data.messages.firstOrNull()?:"Finished successfully")
+                                    copy(toast = it.data.messages?.firstOrNull()?:"Finished successfully")
                                 }
                                 setEffect {
                                     CountingInceptionContract.Effect.NavBack

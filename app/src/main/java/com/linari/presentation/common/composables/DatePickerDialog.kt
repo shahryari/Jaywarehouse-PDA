@@ -48,7 +48,7 @@ fun DatePickerDialog(
 ) {
 
     val inputFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-    val date = selectedDate?.let { inputFormat.parse(it) } ?: Date()
+    val date = selectedDate?.let { if (it.isNotEmpty())inputFormat.parse(it) else Date() } ?: Date()
 
     val calendar = Calendar.getInstance()
     calendar.time = date
@@ -110,6 +110,7 @@ fun DatePickerDialog(
                 "${selectedYear!!.value}-${String.format(Locale.US,"%02d",selectedMonth.value)}-${String.format(Locale.US,"%02d",selectedDayOfMonth!!.value)}",
                 "${String.format(Locale.US,"%02d",selectedDayOfMonth!!.value)}/${String.format(Locale.US,"%02d",selectedMonth.value)}/${selectedYear!!.value}"
             )
+            onDismiss()
         }
     ) {
         Row(

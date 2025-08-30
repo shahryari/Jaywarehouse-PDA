@@ -11,7 +11,7 @@ data class ManualPutawayDetailModel(
 data class ManualPutawayDetailRow(
     @SerializedName("LocationCode") val locationCode: String,
     @SerializedName("Quantity") val quantity: Double,
-    @SerializedName("PutawayDetailID") val putawayDetailID: Int
+    @SerializedName("PutawayDetailID") val putawayDetailID: Long
 ) : Animatable {
     override fun key(): String {
         return putawayDetailID.toString()

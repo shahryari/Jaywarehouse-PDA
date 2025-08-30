@@ -10,7 +10,7 @@ data class WarehouseLocationModel(
 
 data class WarehouseLocationRow(
     @SerializedName("WarehouseLocationID")
-    val locationId: Int,
+    val locationId: Long,
     @SerializedName("WarehouseLocationCode")
     val locationCode: String
 ) {

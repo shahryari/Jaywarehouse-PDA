@@ -28,7 +28,7 @@ data class GetShippingRow(
     @SerializedName("ReferenceNumber")
     val referenceNumber: String,
     @SerializedName("ShippingID")
-    val shippingID: Int,
+    val shippingID: Long,
     @SerializedName("ShippingNumber")
     val shippingNumber: String,
     @SerializedName("ShippingStatus")
@@ -38,7 +38,7 @@ data class GetShippingRow(
     @SerializedName("TrailerNumber")
     val trailerNumber: String,
     @SerializedName("WarehouseID")
-    val warehouseID: Int
+    val warehouseID: Long
 )
 
 
@@ -53,11 +53,11 @@ data class PalletManifest(
     @SerializedName("PalletBarcode")
     val palletBarcode: String?,
     @SerializedName("PalletManifestID")
-    val palletManifestID: Int,
+    val palletManifestID: Long,
     @SerializedName("Total")
     val total: Double?,
     @SerializedName("WarehouseID")
-    val warehouseID: Int
+    val warehouseID: Long
 ) : Animatable {
     override fun key(): String {
         return palletManifestID.toString()

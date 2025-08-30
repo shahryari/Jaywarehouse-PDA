@@ -15,7 +15,7 @@ class PutawayRepository(
 ) {
     fun getPutawayListGrouped(
         keyword: String,
-        warehouseID: Int,
+        warehouseID: Long,
         page: Int,
         sort: String,
         order: String
@@ -38,7 +38,7 @@ class PutawayRepository(
 
     fun getPutawayList(
         keyword: String,
-        receiptId: Int,
+        receiptId: Long,
         page: Int,
         sort: String,
         order: String

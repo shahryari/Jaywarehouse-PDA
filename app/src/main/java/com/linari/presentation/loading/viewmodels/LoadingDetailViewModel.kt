@@ -152,7 +152,7 @@ class LoadingDetailViewModel(
                                             details = emptyList(),
                                             page = 1,
                                             selectedLoading = null,
-                                            toast = it.data.messages.firstOrNull() ?: "Completed successfully.",
+                                            toast = it.data.messages?.firstOrNull() ?: "Completed successfully.",
                                         )
                                     }
                                     getDetails()

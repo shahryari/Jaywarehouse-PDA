@@ -7,7 +7,7 @@ data class WarehouseModel(
     @SerializedName("Code")
     val code: String,
     @SerializedName("Id")
-    val id: Int,
+    val id: Long,
     @SerializedName("Name")
     val name: String,
     @SerializedName("HasBoxOnShipping")

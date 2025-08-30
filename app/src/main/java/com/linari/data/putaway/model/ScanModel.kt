@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName
 
 data class ScanModel(
     @SerializedName("EntityID")
-    val entityID: Int?,
+    val entityID: Long?,
     @SerializedName("IsSucceed")
     val isSucceed: Boolean,
     @SerializedName("Message")
@@ -19,7 +19,7 @@ data class PutReturnValue(
     @SerializedName("Date")
     val date: String,
     @SerializedName("PutawayID")
-    val putawayID: Int,
+    val putawayID: Long,
     @SerializedName("Quantity")
     val quantity: Int,
     @SerializedName("Time")

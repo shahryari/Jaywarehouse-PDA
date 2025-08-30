@@ -13,7 +13,7 @@ data class PurchaseOrderDetailListBDModel(
 
 data class PurchaseOrderDetailListBDRow(
     @SerializedName("PurchaseOrderDetailID")
-    val purchaseOrderDetailID: Int,
+    val purchaseOrderDetailID: Long,
     @SerializedName("ProductCode")
     val productCode: String?,
     @SerializedName("ProductName")
@@ -25,7 +25,7 @@ data class PurchaseOrderDetailListBDRow(
     @SerializedName("PCB")
     val pcb: Int?,
     @SerializedName("ProductID")
-    val productID: Int?,
+    val productID: Long?,
     @SerializedName("IsWeight")
     val isWeight: Boolean?,
     @SerializedName("SumReceiptQuantity")

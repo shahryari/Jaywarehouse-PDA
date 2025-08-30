@@ -322,15 +322,15 @@ class CheckingDetailViewModel(
                                         copy(
                                             count = TextFieldValue(),
                                             barcode = TextFieldValue(),
-                                            selectedPalletType = palletTypeList.find { it.palletTypeID == 1 },
-                                            selectedPalletStatus = palletStatusList.find { it.palletStatusID == 1 },
+                                            selectedPalletType = palletTypeList.find { it.palletTypeID == 1L },
+                                            selectedPalletStatus = palletStatusList.find { it.palletStatusID == 1L },
                                             checkingList = emptyList(),
                                             page = 1,
                                             selectedChecking = null,
-                                            toast = result.data.messages.firstOrNull() ?: "Completed successfully",
+                                            toast = result.data.messages?.firstOrNull() ?: "Completed successfully",
                                         )
                                     }
-                                    getCheckings(checking = checking.copy(checkingID = result.data.entityID?.toIntOrNull()?:checking.checkingID))
+                                    getCheckings(checking = checking.copy(checkingID = result.data.entityID?.toLongOrNull()?:checking.checkingID))
                                 } else {
                                     setSuspendedState {
                                         copy(error = result.data?.messages?.firstOrNull()?:"Failed")
@@ -430,7 +430,7 @@ class CheckingDetailViewModel(
                         }
                         is BaseResult.Success -> {
                             val list = result.data?.rows?:emptyList()
-                            val selected = list.find { it.palletTypeID == 1 }
+                            val selected = list.find { it.palletTypeID == 1L }
                             setSuspendedState {
                                 copy(
                                     palletTypeList = list,
@@ -463,7 +463,7 @@ class CheckingDetailViewModel(
                         }
                         is BaseResult.Success -> {
                             val list = result.data?.rows?:emptyList()
-                            val selected = list.find { it.palletStatusID == 1 }
+                            val selected = list.find { it.palletStatusID == 1L }
                             setSuspendedState {
                                 copy(
                                     palletStatusList = list,

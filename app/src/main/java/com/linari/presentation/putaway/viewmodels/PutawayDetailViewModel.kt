@@ -205,7 +205,7 @@ class PutawayDetailViewModel(
     }
 
 
-    private fun getPutaways(receiptId: Int,keyword: String = "",page: Int = 1, sort: SortItem) {
+    private fun getPutaways(receiptId: Long,keyword: String = "",page: Int = 1, sort: SortItem) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.getPutawayList(
                 receiptId = receiptId,

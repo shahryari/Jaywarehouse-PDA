@@ -18,9 +18,9 @@ data class PackingDetailRow(
     @SerializedName("Model")
     val model: String,
     @SerializedName("PackingDetailID")
-    val packingDetailID: Int,
+    val packingDetailID: Long,
     @SerializedName("PackingID")
-    val packingID: Int,
+    val packingID: Long,
     @SerializedName("Quantity")
     val quantity: Double
 ) : Animatable {

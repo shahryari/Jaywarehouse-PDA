@@ -16,7 +16,7 @@ class CheckingRepository(
 
     fun getCheckingListGroupedModel(
         keyword: String,
-        warehouseID: Int,
+        warehouseID: Long,
         page: Int,
         sort: String,
         order: String
@@ -34,7 +34,7 @@ class CheckingRepository(
     fun getCheckingList(
         keyword: String,
         customerId: String,
-        warehouseID: Int,
+        warehouseID: Long,
         page: Int,
         sort: String,
         order: String
@@ -56,8 +56,8 @@ class CheckingRepository(
         customerId: String,
         checkingId: String,
         palletBarcode: String,
-        palletStatusID: Int,
-        palletTypeID: Int
+        palletStatusID: Long,
+        palletTypeID: Long
     ) : Flow<BaseResult<ResultMessageModel>> {
         val jsonObject = JsonObject()
         jsonObject.addProperty("IsCrossDock",isCrossDock)
@@ -109,7 +109,7 @@ class CheckingRepository(
     )
 
     fun cancelPicking(
-        checkingID: Int,
+        checkingID: Long,
         quantity: Double,
         warehouseLocationCode: String,
         isDamaged: Boolean

@@ -412,7 +412,7 @@ class ManualPutawayDetailViewModel(
                                 if (it.data?.isSucceed == true) {
                                     setSuspendedState {
                                         copy(
-                                            toast = it.data.messages.firstOrNull() ?: "Done Successfully",
+                                            toast = it.data.messages?.firstOrNull() ?: "Done Successfully",
                                             selectedDetail = null,
                                             loadingState = Loading.LOADING,
                                             page = 1,

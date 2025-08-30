@@ -9,7 +9,7 @@ data class PackingCustomerModelItem(
     @SerializedName("CustomerCode")
     val customerCode: String,
     @SerializedName("CustomerID")
-    val customerID: Int,
+    val customerID: Long,
     @SerializedName("CustomerName")
     val customerName: String
 ) {

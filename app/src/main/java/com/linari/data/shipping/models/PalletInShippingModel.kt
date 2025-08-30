@@ -19,15 +19,15 @@ data class PalletInShippingRow(
     @SerializedName("PalletQuantity")
     val palletQuantity: Int,
     @SerializedName("PalletTypeID")
-    val palletTypeID: Int,
+    val palletTypeID: Long,
     @SerializedName("PalletTypeTitle")
     val palletTypeTitle: String?,
     @SerializedName("PalletStatusID")
-    val palletStatusID: Int?,
+    val palletStatusID: Long?,
     @SerializedName("PalletStatusTitle")
     val palletStatusTitle: String?,
     @SerializedName("ShippingID")
-    val shippingID: Int,
+    val shippingID: Long,
     @SerializedName("ShippingPalletID")
-    val shippingPalletID: Int,
+    val shippingPalletID: Long,
 )

@@ -22,7 +22,7 @@ data class PalletConfirmRow(
     @SerializedName("PalletBarcode")
     val palletBarcode: String,
     @SerializedName("PalletManifestID")
-    val palletManifestID: Int,
+    val palletManifestID: Long,
     @SerializedName("Total")
     val total: Double?
 ) : Animatable , Serializable{

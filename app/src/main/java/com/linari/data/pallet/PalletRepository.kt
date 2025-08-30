@@ -13,7 +13,7 @@ class PalletRepository(
 ) {
     fun getPalletList(
         keyword: String,
-        warehousID: Int,
+        warehousID: Long,
         page: Int,
         sort: String,
         order: String
@@ -62,7 +62,7 @@ class PalletRepository(
     )
 
     fun palletManifestBox(
-        palletManifestId: Int,
+        palletManifestId: Long,
         bigQty: Int?,
         smallQty: Int?
     ) = getResult(

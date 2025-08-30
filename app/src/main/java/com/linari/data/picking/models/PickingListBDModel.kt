@@ -14,13 +14,13 @@ data class PickingListBDModel(
 
 data class PickingListBDRow(
     @SerializedName("ShippingOrderDetailID")
-    val shippingOrderDetailID: Int,
+    val shippingOrderDetailID: Long,
     @SerializedName("ReferenceNumber")
     val referenceNumber: String?,
     @SerializedName("PickingID")
-    val pickingID: Int,
+    val pickingID: Long,
     @SerializedName("PurchaseOrderDetailID")
-    val purchaseOrderDetailID: Int,
+    val purchaseOrderDetailID: Long,
     @SerializedName("CustomerName")
     val customerName: String?,
     @SerializedName("CustomerCode")

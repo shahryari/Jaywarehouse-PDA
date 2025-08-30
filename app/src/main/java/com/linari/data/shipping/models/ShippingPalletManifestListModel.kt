@@ -10,7 +10,7 @@ data class ShippingPalletManifestListModel(
 
 data class ShippingPalletManifestRow(
     @SerializedName("PalletBarcode") val palletBarcode: String?,
-    @SerializedName("PalletManifestID") val palletManifestId: Int,
+    @SerializedName("PalletManifestID") val palletManifestId: Long,
     @SerializedName("PartnerName") val customerName: String?,
     @SerializedName("PartnerCode") val customerCode: String?,
     @SerializedName("Total") val total: Double?

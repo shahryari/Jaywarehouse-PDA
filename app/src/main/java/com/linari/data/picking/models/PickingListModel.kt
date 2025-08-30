@@ -19,7 +19,7 @@ data class PickingListRow(
     @SerializedName("CustomerCode")
     val customerCode: String,
     @SerializedName("CustomerID")
-    val customerID: Int,
+    val customerID: Long,
     @SerializedName("CustomerName")
     val customerName: String,
     @SerializedName("ExpDate")
@@ -27,9 +27,9 @@ data class PickingListRow(
     @SerializedName("BatchNumber")
     val batchNumber: String?,
     @SerializedName("PickingID")
-    val pickingID: Int,
+    val pickingID: Long,
     @SerializedName("ShippingOrderID")
-    val shippingOrderID: Int,
+    val shippingOrderID: Long,
     @SerializedName("ProductCode")
     val productCode: String?,
     @SerializedName("ProductName")
@@ -39,11 +39,11 @@ data class PickingListRow(
     @SerializedName("IsWeight")
     val isWeight: Boolean?,
     @SerializedName("PurchaseOrderDetailID")
-    val purchaseOrderDetailID: Int,
+    val purchaseOrderDetailID: Long,
     @SerializedName("ReferenceNumber")
     val referenceNumber: String?,
     @SerializedName("ShippingOrderDetailID")
-    val shippingOrderDetailID: Int,
+    val shippingOrderDetailID: Long,
     @SerializedName("TypeofOrderAcquisition")
     val typeofOrderAcquisition: String?,
     @SerializedName("WarehouseLocationCode")

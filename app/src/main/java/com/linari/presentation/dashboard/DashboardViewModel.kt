@@ -468,7 +468,7 @@ class DashboardViewModel(
                         is BaseResult.Success -> {
                             if (it.data?.isSucceed == false){
                                 setSuspendedState {
-                                    copy(error = it.data.messages.firstOrNull()?:"")
+                                    copy(error = it.data.messages?.firstOrNull()?:"")
                                 }
                                 return@collect
                             }

@@ -13,7 +13,7 @@ class TransferRepository(private val api: TransferApi) {
         productCode: String,
         barcode: String,
         locationCode: String,
-        warehouseID: Int,
+        warehouseID: Long,
         page: Int,
         sort: String,
         order: String
@@ -31,13 +31,13 @@ class TransferRepository(private val api: TransferApi) {
     }
 
     fun transferLocation(
-        quiddityTypeToId: Int,
-        warehouseLocationToId: Int,
+        quiddityTypeToId: Long,
+        warehouseLocationToId: Long,
         warehouseLocationCodeTo: String,
-        locationInventoryId: Int,
+        locationInventoryId: Long,
         expireDateTo: String,
         quantity: Double,
-        warehouseId: Int
+        warehouseId: Long
     ) : Flow<BaseResult<ResultMessageModel>> {
         val jsonObject = JsonObject()
 
@@ -63,7 +63,7 @@ class TransferRepository(private val api: TransferApi) {
 
     fun getWarehouseLocations(
         keyword: String,
-        warehouseID: Int
+        warehouseID: Long
     ) = getResult(
         request = {
             val jsonObject = JsonObject()

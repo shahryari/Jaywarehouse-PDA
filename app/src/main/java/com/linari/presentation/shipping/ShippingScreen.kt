@@ -1063,11 +1063,25 @@ fun PalletQuantityBottomSheet(
                     .padding(horizontal = 24.mdp)
                     .padding(bottom = 24.mdp)
             ){
-                MyText(
-                    text = "Pallet Confirm",
-                    fontWeight = FontWeight.W500,
-                    style = MaterialTheme.typography.titleLarge
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+
+                    MyText(
+                        text = "Pallet Confirm [",
+                        fontWeight = FontWeight.W500,
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                    MyText(
+                        text = state.shippingForPallet.shippingNumber?:"",
+                        fontWeight = FontWeight.W500,
+                        style = MaterialTheme.typography.titleLarge,
+                        color = Border
+                    )
+                    MyText(
+                        text = "]",
+                        fontWeight = FontWeight.W500,
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                }
 
                 Spacer(Modifier.size(12.mdp))
                 LazyColumn(modifier = Modifier.fillMaxWidth()) {

@@ -14,7 +14,7 @@ class LoadingRepository(private val api: LoadingApi) {
 
     fun getLoadingListGrouped(
         keyword: String,
-        warehouseID: Int,
+        warehouseID: Long,
         page: Int,
         sort: String,
         order: String
@@ -33,7 +33,7 @@ class LoadingRepository(private val api: LoadingApi) {
     fun getLoadingList(
         keyword: String,
         customerCode: String,
-        warehouseID: Int,
+        warehouseID: Long,
         page: Int,
         sort: String,
         order: String
@@ -51,7 +51,7 @@ class LoadingRepository(private val api: LoadingApi) {
     }
 
     fun confirmLoading(
-        palletManifestId: Int
+        palletManifestId: Long
     ) : Flow<BaseResult<ResultMessageModel>> {
         val jsonObject = JsonObject()
         jsonObject.addProperty("PalletManifestID",palletManifestId)

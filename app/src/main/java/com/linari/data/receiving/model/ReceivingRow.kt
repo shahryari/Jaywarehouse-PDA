@@ -13,9 +13,9 @@ data class ReceivingRow(
     @SerializedName("Date")
     val receivingDate: String?,
     @SerializedName("ReceivingID")
-    val receivingID: Int,
+    val receivingID: Long,
     @SerializedName("ReceivingTypeID")
-    val receivingTypeID: Int?,
+    val receivingTypeID: Long?,
     @SerializedName("ReceivingTypeTitle")
     val receivingTypeTitle: String?,
     @SerializedName("ReferenceNumber")

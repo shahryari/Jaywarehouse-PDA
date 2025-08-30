@@ -273,7 +273,7 @@ fun BaseListItem(
                     enableDetail = enableShowDetail,
                     textStyle = item6.style ?: MaterialTheme.typography.bodyMedium.copy(color = Color.Black)
                 )
-                Spacer(modifier = Modifier.size(5.mdp))
+                if (showItem6 && showItem7)Spacer(modifier = Modifier.size(5.mdp))
                 if (showItem7) DetailCard(
                     title = item7!!.title,
                     detail = item7.value,

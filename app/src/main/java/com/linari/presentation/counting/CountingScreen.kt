@@ -265,7 +265,7 @@ fun CountListItem(
                     )
                     Spacer(Modifier.size(10.mdp))
                 }
-                if (receivingRow.receivingTypeID == 2){
+                if (receivingRow.receivingTypeID == 2L){
                     DetailCard(
                         stringResource(R.string.customer),
                         icon = R.drawable.user_square,

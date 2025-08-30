@@ -45,7 +45,7 @@ class PackingRepository(
     }
 
     suspend fun getPackingDetails(
-        packingId: Int,
+        packingId: Long,
         keyword: String,
         page: Int,
         rows: Int,
@@ -64,7 +64,7 @@ class PackingRepository(
 
     suspend fun pack(
         packingNumber: String,
-        customerId: Int
+        customerId: Long
     ) : Flow<BaseResult<ScanModel>> = getResult(
         request = {
             api.pack(JsonObject().apply {
@@ -75,7 +75,7 @@ class PackingRepository(
     )
 
     suspend fun packRemove(
-        packingId: Int
+        packingId: Long
     ) : Flow<BaseResult<ScanModel>> = getResult(
         request = {
             api.packRemove(JsonObject().apply {
@@ -85,8 +85,8 @@ class PackingRepository(
     )
 
     suspend fun addPackingDetail(
-        packingId: Int,
-        customerId: Int,
+        packingId: Long,
+        customerId: Long,
         barcode: String
     ) : Flow<BaseResult<ScanModel>> = getResult(
         request = {
@@ -99,7 +99,7 @@ class PackingRepository(
     )
 
     suspend fun removePackingDetail(
-        packingDetailId: Int
+        packingDetailId: Long
     ) : Flow<BaseResult<ScanModel>> {
         return getResult(
             request = {
@@ -111,7 +111,7 @@ class PackingRepository(
     }
 
     suspend fun finishPacking(
-        packingId: Int,
+        packingId: Long,
         isNew: Boolean
     ) : Flow<BaseResult<ScanModel>> = getResult(
         request = {

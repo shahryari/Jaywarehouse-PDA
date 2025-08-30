@@ -33,17 +33,17 @@ data class CycleDetailRow(
     @SerializedName("LocationCode")
     val locationCode: String?,
     @SerializedName("ProductBarcodeID")
-    val productBarcodeID: Int,
+    val productBarcodeID: Long,
     @SerializedName("ProductBarcodeNumber")
     val productBarcodeNumber: String,
     @SerializedName("ProductCode")
     val productCode: String,
     @SerializedName("ProductID")
-    val productID: Int,
+    val productID: Long,
     @SerializedName("ProductTitle")
     val productTitle: String,
     @SerializedName("QuiddityTypeID")
-    val quiddityTypeID: Int?,
+    val quiddityTypeID: Long?,
     @SerializedName("QuiddityTypeTitle")
     val quiddityTypeTitle: String?,
     @SerializedName("CycleCountWorkerTaskDetailID")
@@ -68,7 +68,7 @@ data class CycleDetailRow(
     }
 
     override fun hashCode(): Int {
-        var result = bookedQuantity
+        var result : Long= bookedQuantity.toLong()
         result = 31 * result + (countQuantity ?: 0)
         result = 31 * result + productBarcodeID
         result = 31 * result + productID
@@ -89,6 +89,6 @@ data class CycleDetailRow(
         result = 31 * result + productTitle.hashCode()
         result = 31 * result + quiddityTypeTitle.hashCode()
         result = 31 * result + cycleCountWorkerTaskDetailID.hashCode()
-        return result
+        return result.toInt()
     }
 }

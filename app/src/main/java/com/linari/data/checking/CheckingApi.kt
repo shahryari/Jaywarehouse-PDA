@@ -64,7 +64,7 @@ interface CheckingApi {
     ) : Response<PalletManifestInfo>
 
 
-    @POST("PickCancel")
+    @POST("PickingCancel")
     suspend fun cancelPick(
         @Body jsonObject: JsonObject
     ) : Response<ResultMessageModel>

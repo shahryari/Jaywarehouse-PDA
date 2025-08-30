@@ -23,7 +23,7 @@ data class ResultMessageModel(
     @SerializedName("MessageType")
     val messageType: Int,
     @SerializedName("Messages")
-    val messages: List<String>,
+    val messages: List<String>?,
     @SerializedName("Message")
     val message: String?,
     @SerializedName("ReturnValue")

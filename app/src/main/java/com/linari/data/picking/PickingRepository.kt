@@ -13,7 +13,7 @@ class PickingRepository(private val api: PickingApi) {
 
     fun getPickingListGrouped(
         keyword: String,
-        warehouseID: Int,
+        warehouseID: Long,
         page: Int,
         rows: Int,
         sort: String,
@@ -32,7 +32,7 @@ class PickingRepository(private val api: PickingApi) {
     fun getPickingList(
         keyword: String,
         customerId: String,
-        warehouseID: Int,
+        warehouseID: Long,
         page: Int,
         rows: Int,
         sort: String,
@@ -53,8 +53,8 @@ class PickingRepository(private val api: PickingApi) {
         locationCode: String,
         barcode: String,
         pickingID: String,
-        warehouseID: Int,
-        shippingOrderID: Int
+        warehouseID: Long,
+        shippingOrderID: Long
     ) : Flow<BaseResult<ResultMessageModel>> {
         val jsonObject = JsonObject()
         jsonObject.addProperty("LocationCode",locationCode)
@@ -72,7 +72,7 @@ class PickingRepository(private val api: PickingApi) {
 
     fun getPurchaseOrderListBD(
         keyword: String,
-        warehouseID: Int,
+        warehouseID: Long,
         page: Int,
         sort: String,
         order: String
@@ -102,7 +102,7 @@ class PickingRepository(private val api: PickingApi) {
 
     fun getShippingOrderDetailListBD(
         keyword: String,
-        purchaseOrderDetailID: Int,
+        purchaseOrderDetailID: Long,
         page: Int,
         sort: String,
         order: String
@@ -116,8 +116,8 @@ class PickingRepository(private val api: PickingApi) {
     )
 
     fun finishPurchaseOrderDetailBD(
-        purchaseOrderDetailID: Int,
-        warehouseID: Int
+        purchaseOrderDetailID: Long,
+        warehouseID: Long
     ) = getResult(
         request = {
             val jsonObject = JsonObject()
@@ -129,8 +129,8 @@ class PickingRepository(private val api: PickingApi) {
 
 
     fun modifyPickQuantityBD(
-        pickingID: Int,
-        purchaseOrderDetailID: Int,
+        pickingID: Long,
+        purchaseOrderDetailID: Long,
         quantity: Double
     ) = getResult(
         request = {
@@ -144,8 +144,8 @@ class PickingRepository(private val api: PickingApi) {
 
 
     fun wasteOnPicking(
-        pickingID: Int,
-        purchaseOrderDetailID: Int,
+        pickingID: Long,
+        purchaseOrderDetailID: Long,
         quantity: Double
     ) = getResult(
         request = {

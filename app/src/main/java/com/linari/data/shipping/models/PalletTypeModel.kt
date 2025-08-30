@@ -9,7 +9,7 @@ data class PalletTypeModel(
 )
 
 data class PalletTypeRow(
-    @SerializedName("PalletTypeID")val palletTypeID: Int,
+    @SerializedName("PalletTypeID")val palletTypeID: Long,
     @SerializedName("PalletTypeTitle")val palletTypeTitle: String
 ) : Selectable{
     override fun toString(): String {

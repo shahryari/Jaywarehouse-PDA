@@ -14,7 +14,7 @@ data class PurchaseOrderListBDRow(
     @SerializedName("SupplierID") val supplierID: String?,
     @SerializedName("SupplierName") val supplierName: String?,
     @SerializedName("SupplierCode") val supplierCode: String?,
-    @SerializedName("PurchaseOrderID") val purchaseOrderID: Int,
+    @SerializedName("PurchaseOrderID") val purchaseOrderID: Long,
     @SerializedName("IssuedDate") val purchaseOrderDate: String?,
     @SerializedName("Total") val total: Double,
     @SerializedName("Count") val count: Double?

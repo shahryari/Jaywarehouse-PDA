@@ -19,7 +19,7 @@ class ReceivingRepository(
     suspend fun getReceivingList(
         keyword: String,
         isCrossDock: Boolean,
-        warehouseID: Int,
+        warehouseID: Long,
         page: Int,
         rows: Int,
         order: String,
@@ -37,7 +37,7 @@ class ReceivingRepository(
     }
 
     suspend fun getReceivingDetails(
-        receivingID: Int,
+        receivingID: Long,
         isCrossDock: Boolean,
         keyword: String,
         page: Int,
@@ -57,7 +57,7 @@ class ReceivingRepository(
     }
 
     suspend fun getReceivingDetailCountModel(
-        receivingWorkerTaskId: Int,
+        receivingWorkerTaskId: Long,
         page: Int,
         isCrossDock: Boolean
     ) : Flow<BaseResult<ReceivingDetailGetItemsModel>>{
@@ -72,7 +72,7 @@ class ReceivingRepository(
     }
 
     fun receivingWorkerTaskCountInsert(
-        receivingWorkerTaskId: Int,
+        receivingWorkerTaskId: Long,
         quantity: Double,
         quantityInPacket: Double?,
         pack: Int?,
@@ -106,7 +106,7 @@ class ReceivingRepository(
     )
 
     fun receivingWorkerTaskDone(
-        receivingWorkerTaskId: Int,
+        receivingWorkerTaskId: Long,
         isCrossDock: Boolean
     ) = getResult(
         request = {

@@ -107,7 +107,7 @@ class AuthRepository(
         )
     }
 
-    suspend fun getDashboard(warehouseID:Int) : Flow<BaseResult<DashboardModel>> {
+    suspend fun getDashboard(warehouseID:Long) : Flow<BaseResult<DashboardModel>> {
         return getResult(
             request = {
                 val jsonObject = JsonObject()

@@ -146,7 +146,7 @@ class PalletConfirmViewModel(
         }
     }
 
-    fun confirmPallet(palletManifestId: Int) {
+    fun confirmPallet(palletManifestId: Long) {
         if (!state.isConfirming){
             setState {
                 copy(isConfirming = true)
@@ -191,7 +191,7 @@ class PalletConfirmViewModel(
         }
     }
 
-    fun palletManifestBox(palletManifestId: Int) {
+    fun palletManifestBox(palletManifestId: Long) {
         val bigQuantity = state.bigQuantity.text.toIntOrNull()
         val smallQuantity = state.smallQuantity.text.toIntOrNull()
         if ((bigQuantity?:0)<0){

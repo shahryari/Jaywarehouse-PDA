@@ -16,9 +16,9 @@ data class PutawayListGroupedRow(
     @SerializedName("Count")
     val count: Double?,
     @SerializedName("ReceiptID")
-    val receiptID: Int,
+    val receiptID: Long,
     @SerializedName("ReceivingTypeID")
-    val receivingTypeID: Int?,
+    val receivingTypeID: Long?,
     @SerializedName("ReceivingTypeTitle")
     val receivingTypeTitle: String?,
     @SerializedName("ReferenceNumber")

@@ -11,7 +11,7 @@ data class TransferModel(
 
 data class TransferRow(
     @SerializedName("ProductID")
-    val productID: Int,
+    val productID: Long,
     @SerializedName("ProductName")
     val productName: String,
     @SerializedName("ProductCode")
@@ -21,11 +21,11 @@ data class TransferRow(
     @SerializedName("ProductBarcodeNumber")
     val productBarcodeNumber: String?,
     @SerializedName("LocationInventoryID")
-    val locationInventoryID: Int,
+    val locationInventoryID: Long,
     @SerializedName("WarehouseLocationCode")
     val warehouseLocationCode: String?,
     @SerializedName("WarehouseLocationID")
-    val warehouseLocationID: Int,
+    val warehouseLocationID: Long,
     @SerializedName("BatchNumber")
     val batchNumber: String?,
     @SerializedName("ExpireDate")
@@ -35,7 +35,7 @@ data class TransferRow(
     @SerializedName("RealInventory")
     val realInventory: Double,
     @SerializedName("WarehouseID")
-    val warehouseID: Int,
+    val warehouseID: Long,
     @SerializedName("OwnerInfoID")
     val ownerInfoID: String?,
     @SerializedName("OwnerInfoFullName")

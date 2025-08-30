@@ -15,7 +15,7 @@ data class PackingRow(
     @SerializedName("CustomerCode")
     val customerCode: String,
     @SerializedName("CustomerID")
-    val customerID: Int,
+    val customerID: Long,
     @SerializedName("CustomerName")
     val customerName: String,
     @SerializedName("Date")
@@ -23,7 +23,7 @@ data class PackingRow(
     @SerializedName("ItemCount")
     val itemCount: Double,
     @SerializedName("PackingID")
-    val packingID: Int,
+    val packingID: Long,
     @SerializedName("PackingNumber")
     val packingNumber: String,
     @SerializedName("SumPackedQty")

@@ -75,7 +75,7 @@ class RSRepository(
     )
 
     fun integrateWithRS(
-        waybillInfoID: Int
+        waybillInfoID: Long
     ) = getResult(
         request = {
             val jsonObject = JsonObject()

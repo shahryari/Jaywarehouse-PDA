@@ -142,7 +142,7 @@ class WaybillViewModel(
         }
     }
 
-    private fun integrateWithRS(waybillInfoID: Int) {
+    private fun integrateWithRS(waybillInfoID: Long) {
         if (!state.isIntegrating){
             setState {
                 copy(isIntegrating = true)

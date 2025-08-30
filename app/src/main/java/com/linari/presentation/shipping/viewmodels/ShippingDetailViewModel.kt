@@ -252,7 +252,7 @@ class ShippingDetailViewModel(
                         is BaseResult.Success -> {
                             if (it.data?.isSucceed == true){
                                 setSuspendedState {
-                                    copy(toast = it.data.messages.firstOrNull()?:"Added Successfully", barcode = TextFieldValue())
+                                    copy(toast = it.data.messages?.firstOrNull()?:"Added Successfully", barcode = TextFieldValue())
                                 }
                                 getPallets()
                             } else {
@@ -294,7 +294,7 @@ class ShippingDetailViewModel(
                         is BaseResult.Success -> {
                             if (it.data?.isSucceed == true) {
                                 setSuspendedState {
-                                    copy(toast = it.data.messages.firstOrNull()?:"Deleted Successfully")
+                                    copy(toast = it.data.messages?.firstOrNull()?:"Deleted Successfully")
                                 }
                                 getPallets()
                             } else {

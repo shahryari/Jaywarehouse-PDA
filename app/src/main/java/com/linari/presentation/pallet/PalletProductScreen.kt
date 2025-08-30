@@ -64,6 +64,7 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
+import kotlin.math.exp
 
 @Destination(style = ScreenTransition::class)
 @Composable
@@ -323,5 +324,7 @@ fun PalletProduct(
         item3 = if (expended)BaseListItemModel("Barcode",model.barcode?:"",R.drawable.barcode) else null,
         item4 = if (expended)BaseListItemModel("Exp Date",model.expireDate?:"",R.drawable.vuesax_linear_calendar_2) else null,
         item5 = if (expended)BaseListItemModel("Batch No.",model.batchNumber?:"",R.drawable.keyboard) else null,
+        item6 = if (expended) BaseListItemModel(if (model.referenceNumberPO == model.referenceNumberLPO) "Reference No." else "Reference No. PO",model.referenceNumberPO?:"",R.drawable.hashtag) else null,
+        item7 = if (expended && model.referenceNumberLPO != model.referenceNumberPO) BaseListItemModel("Reference No. LPO",model.referenceNumberLPO?:"",R.drawable.hashtag) else null
     )
 }

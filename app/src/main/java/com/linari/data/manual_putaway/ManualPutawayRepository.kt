@@ -14,7 +14,7 @@ class ManualPutawayRepository(
 ) {
     fun getManualPutawayList(
         keyword: String,
-        receiptID: Int,
+        receiptID: Long,
         page: Int,
         sort: String,
         order: String
@@ -33,7 +33,7 @@ class ManualPutawayRepository(
     fun scanManualPutaway(
         locationCode: String,
         warehouseId: String,
-        putawayId: Int,
+        putawayId: Long,
         quantity: Double
     ) : Flow<BaseResult<ResultMessageModel>> {
         val jsonObject = JsonObject()
@@ -76,7 +76,7 @@ class ManualPutawayRepository(
 
     fun getManualPutawayDetail(
         keyword: String,
-        putawayID: Int,
+        putawayID: Long,
         page: Int,
         sort: String,
         order: String
@@ -92,7 +92,7 @@ class ManualPutawayRepository(
     }
 
     fun putawayManualDone(
-        putawayDetailID: Int
+        putawayDetailID: Long
     ) = getResult(
         request = {
             val jsonObject = JsonObject()

@@ -13,7 +13,7 @@ data class PalletStatusModel(
 
 data class PalletStatusRow(
     @SerializedName("PalletStatusID")
-    val palletStatusID: Int,
+    val palletStatusID: Long,
     @SerializedName("PalletStatusTitle")
     val palletStatusTitle: String
 ) : Selectable {

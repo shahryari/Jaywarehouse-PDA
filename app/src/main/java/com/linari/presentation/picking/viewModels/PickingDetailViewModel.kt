@@ -358,7 +358,7 @@ class PickingDetailViewModel(
                         is BaseResult.Success -> {
                             if (it.data?.isSucceed == true) {
                                 setSuspendedState {
-                                    copy(showModify = null, toast = it.data.messages.firstOrNull()?:"Modified successfully", pickingList = emptyList(),page = 1)
+                                    copy(showModify = null, toast = it.data.messages?.firstOrNull()?:"Modified successfully", pickingList = emptyList(),page = 1)
                                 }
                                 getPickings()
                             } else {
@@ -425,7 +425,7 @@ class PickingDetailViewModel(
                         is BaseResult.Success ->{
                             if (it.data?.isSucceed == true){
                                 setSuspendedState {
-                                    copy(toast = it.data.messages.firstOrNull()?:"Saved successfully", showWaste = null, pickingList = emptyList(),page = 1)
+                                    copy(toast = it.data.messages?.firstOrNull()?:"Saved successfully", showWaste = null, pickingList = emptyList(),page = 1)
                                 }
                                 getPickings()
                             } else {

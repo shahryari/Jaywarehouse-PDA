@@ -184,7 +184,7 @@ class TransferViewModel(
 
 
 
-    private fun getWarehouseLocations(location: String,warehouseID: Int) {
+    private fun getWarehouseLocations(location: String,warehouseID: Long) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.getWarehouseLocations(
                 location,warehouseID

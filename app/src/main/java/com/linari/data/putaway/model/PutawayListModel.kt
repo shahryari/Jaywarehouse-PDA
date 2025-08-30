@@ -22,17 +22,17 @@ data class PutawayListRow(
     @SerializedName("ProductCode")
     val productCode: String,
     @SerializedName("ProductLocationActivityID")
-    val productLocationActivityID: Int,
+    val productLocationActivityID: Long,
     @SerializedName("ProductName")
     val productName: String,
     @SerializedName("PutawayWorkerTaskTypeID")
-    val putawayWorkerTaskTypeID: Int,
+    val putawayWorkerTaskTypeID: Long,
     @SerializedName("Quantity")
     val quantity: Double,
     @SerializedName("ReceiptDetailID")
-    val receiptDetailID: Int,
+    val receiptDetailID: Long,
     @SerializedName("ReceivingDetailID")
-    val receivingDetailID: Int,
+    val receivingDetailID: Long,
     @SerializedName("WarehouseLocationCode")
     val warehouseLocationCode: String
 ) : Animatable {

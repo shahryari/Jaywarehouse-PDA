@@ -624,8 +624,8 @@ fun PalletProduct(
         item1 = BaseListItemModel("Product Name",model.productName?:"",R.drawable.vuesax_outline_3d_cube_scan),
         item2 = if (expended)BaseListItemModel("Product Code",model.productCode?:"",R.drawable.keyboard2) else null,
         item3 = if (expended)BaseListItemModel("Barcode",model.productBarcodeNumber?:"",R.drawable.barcode) else null,
-        item4 = if (expended)BaseListItemModel("Reference No. PO",model.referenceNumberPO?:"",R.drawable.hashtag) else null,
-        item5 = if (expended) BaseListItemModel("Reference No. LPO", model.referenceNumberLPO?:"",R.drawable.hashtag) else null,
+        item4 = if (expended)BaseListItemModel(if (model.referenceNumberPO == model.referenceNumberLPO) "Reference No." else "Reference No. PO",model.referenceNumberPO?:"",R.drawable.hashtag) else null,
+        item5 = if (expended && model.referenceNumberPO != model.referenceNumberLPO) BaseListItemModel("Reference No. LPO", model.referenceNumberLPO?:"",R.drawable.hashtag) else null,
         item6 = if (expended)BaseListItemModel("Exp Date",model.expireDate?:"",R.drawable.vuesax_linear_calendar_2) else null,
         item7 = if (expended)BaseListItemModel("Batch No.",model.batchNumber?:"",R.drawable.keyboard) else null,
     )

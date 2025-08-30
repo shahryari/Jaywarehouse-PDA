@@ -23,19 +23,19 @@ data class PODInvoiceRow(
     @SerializedName("DriverTin")
     val driverTin: String?,
     @SerializedName("PODInvoiceID")
-    val pODInvoiceID: Int,
+    val pODInvoiceID: Long,
     @SerializedName("PODInvoiceNumber")
     val pODInvoiceNumber: String?,
     @SerializedName("ShippingID")
-    val shippingID: Int,
+    val shippingID: Long,
     @SerializedName("ShippingOrderReferenceNumbers")
     val shippingOrderReferenceNumbers: String?,
     @SerializedName("ShippingOrderTypeID")
-    val shippingOrderTypeID: Int?,
+    val shippingOrderTypeID: Long?,
     @SerializedName("ShippingOrderTypeTitle")
     val shippingOrderTypeTitle: String?,
     @SerializedName("ShippingTypeID")
-    val shippingTypeID: Int?,
+    val shippingTypeID: Long?,
     @SerializedName("ShippingTypeTitle")
     val shippingTypeTitle: String?,
     @SerializedName("TrailerNumber")

@@ -28,7 +28,7 @@ data class ShippingDetailListOfPalletRow(
     @SerializedName("ReferenceNumberPO")
     val referenceNumberPO: String?,
     @SerializedName("ShippingDetailID")
-    val shippingDetailID: Int
+    val shippingDetailID: Long
 ) : Animatable {
     override fun key(): String {
         return shippingDetailID.toString()+productBarcodeNumber

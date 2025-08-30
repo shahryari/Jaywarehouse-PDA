@@ -24,7 +24,7 @@ data class ShippingRow(
     @SerializedName("DriverTin")
     val driverTin: String?,
     @SerializedName("ShippingID")
-    val shippingID: Int,
+    val shippingID: Long,
     @SerializedName("ShippingNumber")
     val shippingNumber: String?,
     @SerializedName("TrailerNumber")

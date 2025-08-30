@@ -719,6 +719,50 @@ class Prefs(private val context: Context) {
         return preferences.getString("waybillOrder", Order.Desc.value) ?: Order.Desc.value
     }
 
+    // return
+    fun setReturnSort(sort: String) {
+        with(preferences.edit()) {
+            putString("returnSort",sort)
+            apply()
+        }
+    }
+
+    fun getReturnSort() : String {
+        return preferences.getString("returnSort",DEFAULT_SORT) ?: DEFAULT_SORT
+    }
+
+    fun setReturnOrder(order: String) {
+        with(preferences.edit()) {
+            putString("returnOrder",order)
+            apply()
+        }
+    }
+
+    fun getReturnOrder() : String {
+        return preferences.getString("returnOrder",Order.Desc.value) ?: Order.Desc.value
+    }
+    //return detail
+    fun setReturnDetailSort(sort: String) {
+        with(preferences.edit()) {
+            putString("returnDetailSort",sort)
+            apply()
+        }
+    }
+
+    fun getReturnDetailSort() : String {
+        return preferences.getString("returnDetailSort",DEFAULT_SORT) ?: DEFAULT_SORT
+    }
+
+    fun setReturnDetailOrder(order: String) {
+        with(preferences.edit()) {
+            putString("returnDetailOrder",order)
+            apply()
+        }
+    }
+
+    fun getReturnDetailOrder() : String {
+        return preferences.getString("returnDetailOrder",Order.Desc.value) ?: Order.Desc.value
+    }
     //shipping detail
     fun setShippingDetailSort(sort: String) {
         with(preferences.edit()){

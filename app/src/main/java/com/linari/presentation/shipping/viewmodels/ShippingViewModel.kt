@@ -462,7 +462,7 @@ class ShippingViewModel(
         }
     }
 
-    private fun getPalletList(shippingId: Int){
+    private fun getPalletList(shippingId: Long){
         viewModelScope.launch(Dispatchers.IO) {
             repository.getPalletListInShipping(
                 shippingId
@@ -707,7 +707,7 @@ class ShippingViewModel(
     }
 
     private fun createPallet(
-        shippingId: Int
+        shippingId: Long
     ) {
         if (!state.isCreatingPallet){
             setState {
@@ -735,7 +735,7 @@ class ShippingViewModel(
                                 setSuspendedState {
                                     copy(
                                         shippingForPallet = null,
-                                        toast = it.data.messages.firstOrNull()?:"Added Successfully",
+                                        toast = it.data.messages?.firstOrNull()?:"Added Successfully",
                                         shippingList = emptyList(),
                                         page = 1,
                                         loadingState = Loading.LOADING
@@ -757,7 +757,7 @@ class ShippingViewModel(
         }
     }
 
-    private fun confirmShipping(shippingId: Int) {
+    private fun confirmShipping(shippingId: Long) {
         if (!state.isConfirming){
             setState {
                 copy(isConfirming = true)
@@ -806,7 +806,7 @@ class ShippingViewModel(
     }
 
     private fun createInvoice(
-        shippingId: Int
+        shippingId: Long
     ) {
         if (!state.isCreatingInvoice){
             setState {
@@ -853,7 +853,7 @@ class ShippingViewModel(
     }
 
     private fun createRSInterface(
-        shippingId: Int,
+        shippingId: Long,
         shippingNumber: String
     ) {
         if (!state.isCreatingRs){
@@ -902,7 +902,7 @@ class ShippingViewModel(
         }
     }
 
-    private fun getCustomers(shippingId: Int) {
+    private fun getCustomers(shippingId: Long) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.getShippingCustomers(shippingId)
                 .catch {
@@ -947,7 +947,7 @@ class ShippingViewModel(
                             setSuspendedState {
                                 copy(
                                     palletTypes = it.data?.rows?: emptyList(),
-                                    selectedPalletType = it.data?.rows?.find { type -> type.palletTypeID == 1 }
+                                    selectedPalletType = it.data?.rows?.find { type -> type.palletTypeID == 1L }
                                 )
                             }
                         }
@@ -977,7 +977,7 @@ class ShippingViewModel(
                             setSuspendedState {
                                 copy(
                                     palletStatusList = it.data?.rows?: emptyList(),
-                                    selectedPalletStatus = it.data?.rows?.find { status -> status.palletStatusID == 1 }
+                                    selectedPalletStatus = it.data?.rows?.find { status -> status.palletStatusID == 1L }
                                 )
                             }
                         }
@@ -988,7 +988,7 @@ class ShippingViewModel(
     }
 
 
-    private fun addShippingPallet(shippingId: Int){
+    private fun addShippingPallet(shippingId: Long){
 
         if (state.selectedCustomer == null) {
             setState {
@@ -1088,7 +1088,7 @@ class ShippingViewModel(
         }
     }
 
-    private fun updateShippingPallet(shippingId: Int,shippingPalletID: Int){
+    private fun updateShippingPallet(shippingId: Long,shippingPalletID: Long){
         val quantity = state.quantity.text.toDoubleOrNull()
         if (quantity == null){
             setState {
@@ -1150,7 +1150,7 @@ class ShippingViewModel(
         }
     }
 
-    private fun deleteShippingPallet(shippingId: Int,shippingPalletID: Int){
+    private fun deleteShippingPallet(shippingId: Long,shippingPalletID: Long){
         if (!state.isDeletingPallet){
             setState {
                 copy(isDeletingPallet = true)
@@ -1190,7 +1190,7 @@ class ShippingViewModel(
         }
     }
 
-    private fun rollbackShipping(shippingId: Int) {
+    private fun rollbackShipping(shippingId: Long) {
         if (!state.isRollingBack){
             setState {
                 copy(isRollingBack = true)
@@ -1215,7 +1215,7 @@ class ShippingViewModel(
                         is BaseResult.Success -> {
                             if (it.data?.isSucceed == true){
                                 setSuspendedState {
-                                    copy(toast = it.data.messages.firstOrNull()?:"UnConfirm completed successfully.", shippingList = emptyList(),page = 1, loadingState = Loading.LOADING)
+                                    copy(toast = it.data.messages?.firstOrNull()?:"UnConfirm completed successfully.", shippingList = emptyList(),page = 1, loadingState = Loading.LOADING)
                                 }
                                 getShipping(state.keyword,state.page,state.sort)
                             } else{

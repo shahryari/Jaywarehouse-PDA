@@ -10,8 +10,7 @@ import com.linari.data.common.utils.SORT
 import com.linari.data.pallet.model.PalletConfirmRow
 import com.linari.data.pallet.model.PalletManifestProductModel
 import com.linari.data.picking.models.GetShippingRow
-import com.linari.data.shipping.models.CustomerModel
-import com.linari.data.shipping.models.CustomerRow
+import com.linari.data.shipping.models.ShippingCustomerModel
 import com.linari.data.shipping.models.DriverModel
 import com.linari.data.shipping.models.PalletInShippingModel
 import com.linari.data.shipping.models.PalletMaskModel
@@ -22,7 +21,6 @@ import com.linari.data.shipping.models.ShippingPalletManifestListModel
 import com.linari.data.shipping.models.ShippingPalletManifestRow
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-import com.google.gson.annotations.SerializedName
 import com.linari.data.shipping.models.CustomerPalletIsNotInShippingModel
 import retrofit2.Response
 import retrofit2.http.Body
@@ -89,7 +87,7 @@ interface ShippingApi {
         @Header(ROWS) rows: Int,
         @Header(SORT) sort: String,
         @Header(ORDER) order: String
-    ) : Response<CustomerModel>
+    ) : Response<ShippingCustomerModel>
 
     @POST("PalletType")
     suspend fun getShippingPalletType(

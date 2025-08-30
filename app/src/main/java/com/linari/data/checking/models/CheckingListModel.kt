@@ -16,15 +16,15 @@ data class CheckingListRow(
     @SerializedName("BarcodeNumber")
     val barcodeNumber: String?,
     @SerializedName("CheckingWorkerTaskID")
-    val checkingWorkerTaskID: Int,
+    val checkingWorkerTaskID: Long,
     @SerializedName("CheckingID")
-    val checkingID: Int,
+    val checkingID: Long,
     @SerializedName("CustomerCode")
     val customerCode: String,
     @SerializedName("LocationCode")
     val locationCode: String?,
     @SerializedName("CustomerID")
-    val customerID: Int,
+    val customerID: Long,
     @SerializedName("CustomerName")
     val customerName: String,
     @SerializedName("IsCrossDock")
@@ -36,7 +36,7 @@ data class CheckingListRow(
     @SerializedName("BatchNumber")
     val batchNumber: String?,
     @SerializedName("ProductLocationActivityID")
-    val productLocationActivityID: Int?,
+    val productLocationActivityID: Long?,
     @SerializedName("ProductName")
     val productName: String,
     @SerializedName("PurchaseOrderReferenceNumber")
@@ -48,7 +48,7 @@ data class CheckingListRow(
     @SerializedName("LocationBase")
     val locationBase: Boolean?,
     @SerializedName("WarehouseID")
-    val warehouseID: Int
+    val warehouseID: Long
 ) : Animatable {
     override fun key(): String {
         return checkingID.toString()

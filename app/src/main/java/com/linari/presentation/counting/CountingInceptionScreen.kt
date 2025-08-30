@@ -64,7 +64,7 @@ import org.koin.core.parameter.parametersOf
 fun CountingInceptionScreen(
     navigator: DestinationsNavigator,
     detail: ReceivingDetailRow,
-    receivingId: Int,
+    receivingId: Long,
     isCrossDock: Boolean = false,
     viewModel: CountingInceptionViewModel = koinViewModel(
         parameters = {

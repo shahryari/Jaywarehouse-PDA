@@ -4,13 +4,13 @@ import com.google.gson.annotations.SerializedName
 import com.linari.presentation.common.utils.Selectable
 
 
-data class CustomerModel(
-    @SerializedName("rows") val rows: List<CustomerRow>,
+data class ShippingCustomerModel(
+    @SerializedName("rows") val rows: List<ShippingCustomerRow>,
     @SerializedName("total") val total: Int
 )
 
-data class CustomerRow(
-    @SerializedName("CustomerID") val customerID: Int,
+data class ShippingCustomerRow(
+    @SerializedName("CustomerID") val customerID: Long,
     @SerializedName("CustomerName") val customerName: String,
     @SerializedName("CustomerCode") val customerCode: String
 ) : Selectable{

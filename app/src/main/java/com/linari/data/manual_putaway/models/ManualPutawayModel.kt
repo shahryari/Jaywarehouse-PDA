@@ -22,19 +22,19 @@ data class ManualPutawayRow(
     @SerializedName("ProductCode")
     val productCode: String,
     @SerializedName("ProductInventoryID")
-    val productInventoryID: Int,
+    val productInventoryID: Long,
     @SerializedName("ProductName")
     val productName: String,
     @SerializedName("PutawayID")
-    val putawayID: Int,
+    val putawayID: Long,
     @SerializedName("Quantity")
     val quantity: Double,
     @SerializedName("ReceiptDetailID")
-    val receiptDetailID: Int,
+    val receiptDetailID: Long,
     @SerializedName("Total")
     val total: Double,
     @SerializedName("WarehouseID")
-    val warehouseID: Int,
+    val warehouseID: Long,
     @SerializedName("CreatedBy")
     val createdBy: String?,
     @SerializedName("WarehouseLocationCode")

@@ -19,7 +19,7 @@ class ShippingRepository(private val api: ShippingApi) {
 
     fun getShippings(
         keyword: String,
-        warehouseID: Int,
+        warehouseID: Long,
         page: Int,
         row: Int,
         sort: String,
@@ -36,7 +36,7 @@ class ShippingRepository(private val api: ShippingApi) {
     }
 
     fun getPalletListInShipping(
-        shippingId: Int
+        shippingId: Long
     ) : Flow<BaseResult<PalletInShippingModel>> {
         val jsonObject = JsonObject()
         jsonObject.addProperty("ShippingID",shippingId)
@@ -48,7 +48,7 @@ class ShippingRepository(private val api: ShippingApi) {
     }
 
     fun confirmShipping(
-        shippingId: Int
+        shippingId: Long
     ) : Flow<BaseResult<ResultMessageModel>> {
         val jsonObject = JsonObject()
         jsonObject.addProperty("ShippingID",shippingId)
@@ -60,7 +60,7 @@ class ShippingRepository(private val api: ShippingApi) {
     }
 
     fun createInvoice(
-        shippingId: Int
+        shippingId: Long
     ) : Flow<BaseResult<ResultMessageModel>> {
         val jsonObject = JsonObject()
         jsonObject.addProperty("ShippingID",shippingId)
@@ -72,7 +72,7 @@ class ShippingRepository(private val api: ShippingApi) {
     }
 
     fun createRSInterface(
-        shippingId: Int,
+        shippingId: Long,
         shippingNumber: String
     ) : Flow<BaseResult<ResultMessageModel>> {
         val jsonObject = JsonObject()
@@ -139,7 +139,7 @@ class ShippingRepository(private val api: ShippingApi) {
         )
     }
 
-    fun getShippingCustomers(shippingId: Int) = getResult(
+    fun getShippingCustomers(shippingId: Long) = getResult(
         request = {
             api.getShippingCustomers(
                 jsonObject = JsonObject().apply {
@@ -193,7 +193,7 @@ class ShippingRepository(private val api: ShippingApi) {
         )
     }
 
-    fun getShippingPalletManifestList(warehouseID: Int) = getResult(
+    fun getShippingPalletManifestList(warehouseID: Long) = getResult(
         request = {
             api.getShippingPalletManifestList(
                 jsonObject = JsonObject().apply {
@@ -241,7 +241,7 @@ class ShippingRepository(private val api: ShippingApi) {
 //    )
 
     fun getShippingDetailListOfPallet(
-        palletManifestID: Int
+        palletManifestID: Long
     ) = getResult(
         request = {
             api.getShippingDetailListOfPallet(
@@ -257,10 +257,10 @@ class ShippingRepository(private val api: ShippingApi) {
     )
 
     fun createShippingPallet(
-        shippingID: Int,
-        customerID: Int,
-        palletTypeID: Int,
-        palletStatusID: Int,
+        shippingID: Long,
+        customerID: Long,
+        palletTypeID: Long,
+        palletStatusID: Long,
         palletQuantity: Double
     ) = getResult(
         request = {
@@ -277,7 +277,7 @@ class ShippingRepository(private val api: ShippingApi) {
     )
 
     fun updateShippingPallet(
-        shippingPalletID: Int,
+        shippingPalletID: Long,
         quantity: Double
     ) = getResult(
         request = {
@@ -291,7 +291,7 @@ class ShippingRepository(private val api: ShippingApi) {
     )
 
     fun deleteShippingPallet(
-        shippingPalletID: Int
+        shippingPalletID: Long
     ) = getResult(
         request = {
             api.deleteShippingPallet(
@@ -303,7 +303,7 @@ class ShippingRepository(private val api: ShippingApi) {
     )
 
     fun rollbackShipping(
-        shippingId: Int
+        shippingId: Long
     ) = getResult(
         request = {
             val jsonObject = JsonObject()
@@ -314,7 +314,7 @@ class ShippingRepository(private val api: ShippingApi) {
 
 
     fun shippingPalletConfirm(
-        shippingId: Int
+        shippingId: Long
     ) = getResult(
         request = {
             val jsonObject = JsonObject()
@@ -324,8 +324,8 @@ class ShippingRepository(private val api: ShippingApi) {
     )
 
     fun getShipping(
-        shippingId: Int,
-        warehouseID: Int,
+        shippingId: Long,
+        warehouseID: Long,
     ) = getResult(
         request = {
             val jsonObject = JsonObject()
@@ -336,7 +336,7 @@ class ShippingRepository(private val api: ShippingApi) {
     )
 
     fun addPalletManifestToShipping(
-        shippingId: Int,
+        shippingId: Long,
         barcode: String
     ) = getResult(
         request = {
@@ -348,7 +348,7 @@ class ShippingRepository(private val api: ShippingApi) {
     )
 
     fun removePalletManifestToShipping(
-        shippingId: Int,
+        shippingId: Long,
         barcode: String
     ) = getResult(
         request = {
@@ -370,7 +370,7 @@ class ShippingRepository(private val api: ShippingApi) {
     )
 
     fun getCustomerPalletIsNotInShipping(
-        shippingId: Int,
+        shippingId: Long,
     ) = getResult(
         request = {
             val jsonObject = JsonObject()

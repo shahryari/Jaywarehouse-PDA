@@ -18,7 +18,7 @@ data class PalletManifestProductRow(
     val expireDate: String?,
     @SerializedName("BatchNumber")
     val batchNumber: String?,
-    @SerializedName("CheckingID") val checkingID: Int,
+    @SerializedName("CheckingID") val checkingID: Long,
     @SerializedName("IsWeight") val isWeight: Boolean?,
     @SerializedName("ReferenceNumberLPO") val referenceNumberLPO : String?,
     @SerializedName("ReferenceNumberPO") val referenceNumberPO: String?

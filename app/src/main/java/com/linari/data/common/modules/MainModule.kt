@@ -14,6 +14,7 @@ import com.linari.data.putaway.putawayModule
 import com.linari.data.receiving.model.ReceivingDetailRow
 import com.linari.data.receiving.model.ReceivingRow
 import com.linari.data.receiving.receivingModule
+import com.linari.data.return_receiving.returnModule
 import com.linari.data.rs.rSModule
 import com.linari.data.shipping.shippingModule
 import com.linari.data.transfer.transferModule
@@ -39,6 +40,8 @@ import com.linari.presentation.pallet.viewmodels.PalletProductViewModel
 import com.linari.presentation.picking.viewModels.PickingListBDViewModel
 import com.linari.presentation.picking.viewModels.PurchaseOrderDetailViewModel
 import com.linari.presentation.picking.viewModels.PurchaseOrderViewModel
+import com.linari.presentation.return_receiving.viewmodels.ReturnDetailViewModel
+import com.linari.presentation.return_receiving.viewmodels.ReturnViewModel
 import com.linari.presentation.rs.viewmodels.RSIntegrationViewModel
 import com.linari.presentation.rs.viewmodels.WaybillViewModel
 import com.linari.presentation.shipping.viewmodels.ShippingDetailViewModel
@@ -62,7 +65,8 @@ val mainModule = module {
         palletModule,
         loadingModule,
         cycleModule,
-        rSModule
+        rSModule,
+        returnModule
     )
 
     viewModel {
@@ -90,7 +94,7 @@ val mainModule = module {
     }
 
     viewModel {
-        CountingInceptionViewModel(get(),get(), it.get<ReceivingDetailRow>(), it.get<Boolean>(),it.get<Int>(),)
+        CountingInceptionViewModel(get(),get(), it.get<ReceivingDetailRow>(), it.get<Boolean>(),it.get<Long>(),)
     }
 
     viewModel {
@@ -171,5 +175,13 @@ val mainModule = module {
 
     viewModel {
         WaybillViewModel(get(),get())
+    }
+
+    viewModel {
+        ReturnViewModel(get(),get())
+    }
+
+    viewModel {
+        ReturnDetailViewModel(it.get(),get(),get())
     }
 }

@@ -19,15 +19,15 @@ data class ReceivingDetailRow(
     @SerializedName("Quantity")
     val quantity: Double,
     @SerializedName("QuiddityTypeID")
-    val quiddityTypeID: Int?,
+    val quiddityTypeID: Long?,
     @SerializedName("QuiddityTypeTitle")
     val quiddityTypeTitle: String?,
     @SerializedName("ReceivingTypeID")
-    val receivingTypeID: Int,
+    val receivingTypeID: Long,
     @SerializedName("ReceivingTypeTitle")
     val receivingTypeTitle: String?,
     @SerializedName("ReceivingWorkerTaskID")
-    val receivingWorkerTaskID: Int,
+    val receivingWorkerTaskID: Long,
     @SerializedName("ReferenceNumber")
     val referenceNumber: String?,
     @SerializedName("SupplierFullName")

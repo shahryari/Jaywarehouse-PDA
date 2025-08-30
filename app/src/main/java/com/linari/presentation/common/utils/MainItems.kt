@@ -12,6 +12,7 @@ import com.linari.presentation.destinations.PickingScreenDestination
 import com.linari.presentation.destinations.PurchaseOrderScreenDestination
 import com.linari.presentation.destinations.PutawayScreenDestination
 import com.linari.presentation.destinations.RSScreenDestination
+import com.linari.presentation.destinations.ReturnScreenDestination
 import com.linari.presentation.destinations.ShippingScreenDestination
 import com.linari.presentation.destinations.TransferScreenDestination
 import com.linari.presentation.destinations.TypedDestination
@@ -54,7 +55,8 @@ enum class MainItems(
         "Return",
         R.drawable.delivery_return,
         "Count",
-        Primary
+        Primary,
+        ReturnScreenDestination
     ),
     Picking(
         "Picking",

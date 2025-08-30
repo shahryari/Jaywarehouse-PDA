@@ -11,7 +11,7 @@ data class WaybillInfoModel(
 )
 data class WaybillInfoRow(
     @SerializedName("WaybillInfoID")
-    val waybillInfoID: Int,
+    val waybillInfoID: Long,
     @SerializedName("CustomerCode")
     val customerCode: String?,
     @SerializedName("CustomerName")
